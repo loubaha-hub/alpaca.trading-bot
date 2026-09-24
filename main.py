@@ -1,4 +1,4 @@
-python
+
 """
 Alpaca gap-and-go trading bot (v27 logic), rebuilt clean 2026-09-24.
 Runs continuously as a background worker. Paper trading by default.
