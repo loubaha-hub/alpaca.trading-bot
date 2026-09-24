@@ -210,6 +210,11 @@ def run_cycle():
 
 if __name__ == "__main__":
     log(f"Starting Alpaca v27 bot. paper={PAPER}")
+    try:
+        acct = trading.get_account()
+        log(f"ACCOUNT CHECK OK: status={acct.status}, cash={acct.cash}")
+    except Exception as e:
+        log(f"ACCOUNT CHECK FAILED: {e}")
     while True:
         try:
             run_cycle()
