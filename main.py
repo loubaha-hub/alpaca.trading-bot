@@ -127,7 +127,6 @@ def get_real_positions():
         log(f"get_real_positions error: {e}")
         return {}
 
-
 def place_buy(symbol, ask):
     cash = get_cash()
     slice_dollars = cash / SLOTS
@@ -137,7 +136,7 @@ def place_buy(symbol, ask):
         return
     limit_price = round(ask * 1.005, 2)
     try:
-       order = LimitOrderRequest(
+        order = LimitOrderRequest(
             symbol=symbol, qty=shares, side=OrderSide.BUY,
             time_in_force=TimeInForce.DAY, limit_price=limit_price,
             extended_hours=True,
@@ -147,6 +146,7 @@ def place_buy(symbol, ask):
         state[symbol] = {"held": True, "entry": ask, "peak": ask, "shares": shares}
     except Exception as e:
         log(f"place_buy({symbol}) error: {e}")
+
 
 
 def place_sell(symbol):
@@ -159,12 +159,11 @@ def place_sell(symbol):
     _, bid = get_spread(symbol)
     limit_price = round((bid or 0) * 0.995, 2)
     try:
-            order = LimitOrderRequest(
+        order = LimitOrderRequest(
             symbol=symbol, qty=have, side=OrderSide.SELL,
             time_in_force=TimeInForce.DAY, limit_price=limit_price,
             extended_hours=True,
         )
-        
         trading.submit_order(order)
         log(f"SELL {symbol} x{have} @ limit {limit_price}")
         state.pop(symbol, None)
