@@ -167,9 +167,11 @@ def place_sell(symbol):
     except Exception as e:
         log(f"place_sell({symbol}) error: {e}")
 
-
 def run_cycle():
     movers = get_movers()
+    log(f"cycle check: {len(movers)} movers found")
+    
+
     held_count = sum(1 for s in state.values() if s.get("held"))
 
     for m in movers:
