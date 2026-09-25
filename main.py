@@ -83,7 +83,47 @@ def three_candle_pullback(bars):
     if green and red:
         return round(last.open + 0.01, 4)
     return None
+def ema(values, period):
+    """Standard exponential moving average over a list of closes."""
+    if len(values) < period:
+        return None
+    k = 2 / (period + 1)
+    e = values[0]
+    for v in values[1:]:
+        e = v * k + e * (1 - k)
+    return e
 
+
+def ema9_above_ema20(bars):
+    """Filter: 9-period EMA must be above 20-period EMA (positive momentum)."""
+    if len(bars) < 20:
+        return False
+    closes = [b.close for b in bars]
+    e9 = ema(closes[-20:], 9)
+    e20 = ema(closes[-20:], 20)
+    if e9 is None or e20 is None:
+        return False
+    return e9 > e20def ema(values, period):
+    """Standard exponential moving average over a list of closes."""
+    if len(values) < period:
+        return None
+    k = 2 / (period + 1)
+    e = values[0]
+    for v in values[1:]:
+        e = v * k + e * (1 - k)
+    return e
+
+
+def ema9_above_ema20(bars):
+    """Filter: 9-period EMA must be above 20-period EMA (positive momentum)."""
+    if len(bars) < 20:
+        return False
+    closes = [b.close for b in bars]
+    e9 = ema(closes[-20:], 9)
+    e20 = ema(closes[-20:], 20)
+    if e9 is None or e20 is None:
+        return False
+    return e9 > e20
 
 def get_spread(symbol):
     try:
@@ -197,10 +237,13 @@ def run_cycle():
         if held_count >= SLOTS:
             continue
 
-        bars = get_recent_bars(symbol, limit=3)
+          bars = get_recent_bars(symbol, limit=25)
         trigger = three_candle_pullback(bars)
         if trigger is None:
             continue
+        if not ema9_above_ema20(bars):
+            continue
+            
 
         ask, bid = get_spread(symbol)
         if ask is None or bid is None or ask <= 0:
