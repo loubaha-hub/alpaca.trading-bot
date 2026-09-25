@@ -195,8 +195,8 @@ def place_sell(symbol):
 
 def run_cycle():
     movers = get_movers()
-    log(f"cycle check: {len(movers)} movers found")
-
+ symbols_seen = [m.get("symbol") for m in movers]
+    log(f"cycle check: {len(movers)} movers found: {symbols_seen}")
     held_count = sum(1 for s in state.values() if s.get("held"))
 
     for m in movers:
