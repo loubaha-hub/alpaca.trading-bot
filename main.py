@@ -6,6 +6,7 @@ Runs continuously as a background worker. Paper trading by default.
 import os
 import time
 import requests
+from zoneinfo import ZoneInfo
 from datetime import datetime, timedelta, timezone
 from alpaca.trading.client import TradingClient
 from alpaca.trading.requests import LimitOrderRequest
@@ -136,9 +137,10 @@ def place_buy(symbol, ask):
         return
     limit_price = round(ask * 1.005, 2)
     try:
-        order = LimitOrderRequest(
+       order = LimitOrderRequest(
             symbol=symbol, qty=shares, side=OrderSide.BUY,
             time_in_force=TimeInForce.DAY, limit_price=limit_price,
+            extended_hours=True,
         )
         trading.submit_order(order)
         log(f"BUY {symbol} x{shares} @ limit {limit_price}")
@@ -157,10 +159,12 @@ def place_sell(symbol):
     _, bid = get_spread(symbol)
     limit_price = round((bid or 0) * 0.995, 2)
     try:
-        order = LimitOrderRequest(
+            order = LimitOrderRequest(
             symbol=symbol, qty=have, side=OrderSide.SELL,
             time_in_force=TimeInForce.DAY, limit_price=limit_price,
+            extended_hours=True,
         )
+        
         trading.submit_order(order)
         log(f"SELL {symbol} x{have} @ limit {limit_price}")
         state.pop(symbol, None)
@@ -212,7 +216,6 @@ def run_cycle():
             place_buy(symbol, ask)
             held_count += 1
 
-
 if __name__ == "__main__":
     log(f"Starting Alpaca v27 bot. paper={PAPER}")
     try:
@@ -220,9 +223,17 @@ if __name__ == "__main__":
         log(f"ACCOUNT CHECK OK: status={acct.status}, cash={acct.cash}")
     except Exception as e:
         log(f"ACCOUNT CHECK FAILED: {e}")
+    et = ZoneInfo("America/New_York")
     while True:
-        try:
-            run_cycle()
-        except Exception as e:
-            log(f"run_cycle crashed: {e}")
+        now_et = datetime.now(et)
+        start = now_et.replace(hour=4, minute=0, second=0, microsecond=0)
+        end = now_et.replace(hour=20, minute=0, second=0, microsecond=0)
+        if start <= now_et <= end:
+            try:
+                run_cycle()
+            except Exception as e:
+                log(f"run_cycle crashed: {e}")
+        else:
+            log(f"outside trading window (4am-8pm ET), current ET time: {now_et.strftime('%H:%M')}")
         time.sleep(60)
+
