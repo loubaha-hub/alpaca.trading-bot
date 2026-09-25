@@ -35,19 +35,21 @@ def log(msg):
 
 
 def get_movers():
-    """Fetch today's top gaining stocks from Alpaca's screener endpoint."""
-    import time as _t
+    """Fetch today's top gaining stocks from Alpaca's screener endpoint.
+    2026-09-25 finding: this endpoint can hold the same result for many
+    minutes at a time (likely its own internal refresh cadence). An
+    extra cache-busting query param was tried and rejected (400) by
+    Alpaca's strict param validation, so only safe no-cache headers
+    are kept here - no invented params."""
     url = "https://data.alpaca.markets/v1beta1/screener/stocks/movers"
     headers = {
         "APCA-API-KEY-ID": API_KEY,
         "APCA-API-SECRET-KEY": SECRET_KEY,
         "Cache-Control": "no-cache, no-store, must-revalidate",
         "Pragma": "no-cache",
-        "Connection": "close",
     }
-    params = {"top": 50, "_": int(_t.time())}
     try:
-        r = requests.get(url, headers=headers, params=params, timeout=10)
+        r = requests.get(url, headers=headers, params={"top": 50}, timeout=10)
         r.raise_for_status()
         return r.json().get("gainers", [])
     except Exception as e:
