@@ -1,5 +1,10 @@
 """
-Alpaca gap-and-go trading bot (v27 logic), rebuilt clean 2026-09-24.
+Alpaca gap-and-go trading bot (v27 logic) with a SELF-BUILT SCANNER.
+2026-09-25: replaces Alpaca's pre-computed "movers" screener endpoint,
+which was found to return the same stale result for 47+ minutes at a
+stretch. Instead: (1) periodically pull the tradable stock universe
+and narrow it with a broader price/gain pass, (2) frequently pull
+fresh snapshots for just that shortlist and compute gains ourselves.
 Runs continuously as a background worker. Paper trading by default.
 """
 import os
@@ -8,10 +13,10 @@ import requests
 from zoneinfo import ZoneInfo
 from datetime import datetime, timedelta, timezone
 from alpaca.trading.client import TradingClient
-from alpaca.trading.requests import LimitOrderRequest
-from alpaca.trading.enums import OrderSide, TimeInForce
+from alpaca.trading.requests import LimitOrderRequest, GetAssetsRequest
+from alpaca.trading.enums import OrderSide, TimeInForce, AssetClass, AssetStatus
 from alpaca.data.historical import StockHistoricalDataClient
-from alpaca.data.requests import StockBarsRequest
+from alpaca.data.requests import StockBarsRequest, StockSnapshotRequest, StockLatestQuoteRequest
 from alpaca.data.timeframe import TimeFrame
 
 API_KEY = os.environ["ALPACA_API_KEY"]
@@ -24,37 +29,109 @@ GAIN_MIN = 0.10
 SLOTS = 2
 MAX_SPREAD = 0.10
 
+UNIVERSE_REFRESH_SECONDS = 120   # re-narrow the shortlist every 2 minutes
+FAST_CHECK_SECONDS = 5           # fresh gain check on the shortlist this often
+SNAPSHOT_BATCH_SIZE = 200        # symbols per snapshot request
+
 trading = TradingClient(API_KEY, SECRET_KEY, paper=PAPER)
 data_client = StockHistoricalDataClient(API_KEY, SECRET_KEY)
 
 state = {}  # symbol -> {"held": bool, "entry": float, "peak": float, "shares": int}
+shortlist = []             # current narrowed candidate symbols
+last_universe_refresh = 0  # unix time of last narrowing pass
+full_universe = []         # all tradable US equity symbols (refreshed rarely)
 
 
 def log(msg):
     print(f"{datetime.now(timezone.utc).isoformat()}  {msg}", flush=True)
 
 
-def get_movers():
-    """Fetch today's top gaining stocks from Alpaca's screener endpoint.
-    2026-09-25 finding: this endpoint can hold the same result for many
-    minutes at a time (likely its own internal refresh cadence). An
-    extra cache-busting query param was tried and rejected (400) by
-    Alpaca's strict param validation, so only safe no-cache headers
-    are kept here - no invented params."""
-    url = "https://data.alpaca.markets/v1beta1/screener/stocks/movers"
-    headers = {
-        "APCA-API-KEY-ID": API_KEY,
-        "APCA-API-SECRET-KEY": SECRET_KEY,
-        "Cache-Control": "no-cache, no-store, must-revalidate",
-        "Pragma": "no-cache",
-    }
+def chunked(lst, size):
+    for i in range(0, len(lst), size):
+        yield lst[i:i + size]
+
+
+def get_full_universe():
+    """Pull every tradable, active, plain US equity symbol. Excludes OTC
+    and non-plain tickers (preferreds/warrants/units carry punctuation
+    or extra letters we filter out downstream in narrow_universe)."""
     try:
-        r = requests.get(url, headers=headers, params={"top": 50}, timeout=10)
-        r.raise_for_status()
-        return r.json().get("gainers", [])
+        req = GetAssetsRequest(asset_class=AssetClass.US_EQUITY, status=AssetStatus.ACTIVE)
+        assets = trading.get_all_assets(req)
+        symbols = [
+            a.symbol for a in assets
+            if a.tradable and a.exchange != "OTC" and a.symbol.isalpha()
+        ]
+        log(f"full universe refreshed: {len(symbols)} tradable plain-ticker symbols")
+        return symbols
     except Exception as e:
-        log(f"get_movers error: {e}")
+        log(f"get_full_universe error: {e}")
         return []
+
+
+def get_snapshots(symbols):
+    """Batched snapshot pull. Returns {symbol: snapshot}."""
+    result = {}
+    for batch in chunked(symbols, SNAPSHOT_BATCH_SIZE):
+        try:
+            req = StockSnapshotRequest(symbol_or_symbols=batch)
+            snaps = data_client.get_stock_snapshot(req)
+            result.update(snaps)
+        except Exception as e:
+            log(f"get_snapshots batch error: {e}")
+        time.sleep(0.1)  # be gentle between batches
+    return result
+
+
+def pct_gain_today(snap):
+    """Our own gain calc: latest trade vs today's first bar open."""
+    try:
+        latest = snap.latest_trade.price if snap.latest_trade else None
+        today_open = snap.daily_bar.open if snap.daily_bar else None
+        if latest is None or today_open is None or today_open <= 0:
+            return None, None
+        gain = (latest - today_open) / today_open
+        return latest, gain
+    except Exception:
+        return None, None
+
+
+def narrow_universe():
+    """LAYER 1: broad pass over the whole universe, done every
+    UNIVERSE_REFRESH_SECONDS, to build a manageable shortlist."""
+    global full_universe
+    if not full_universe:
+        full_universe = get_full_universe()
+    if not full_universe:
+        return []
+
+    candidates = []
+    snaps = get_snapshots(full_universe)
+    for symbol, snap in snaps.items():
+        price, gain = pct_gain_today(snap)
+        if price is None or gain is None:
+            continue
+        if PRICE_MIN <= price <= PRICE_MAX and gain >= GAIN_MIN:
+            candidates.append(symbol)
+    log(f"universe narrowed: {len(candidates)} candidates out of {len(full_universe)}")
+    return candidates
+
+
+def fast_scan(symbols):
+    """LAYER 2: fast, frequent, precise re-check on just the shortlist.
+    Returns a list of dicts: {symbol, price, pct_change}, our own numbers."""
+    if not symbols:
+        return []
+    snaps = get_snapshots(symbols)
+    out = []
+    for symbol, snap in snaps.items():
+        price, gain = pct_gain_today(snap)
+        if price is None or gain is None:
+            continue
+        if PRICE_MIN <= price <= PRICE_MAX and gain >= GAIN_MIN:
+            out.append({"symbol": symbol, "price": price, "percent_change": gain})
+    out.sort(key=lambda x: x["percent_change"], reverse=True)
+    return out[:50]
 
 
 def passes_filter(price, pct_change):
@@ -95,7 +172,6 @@ def three_candle_pullback(bars):
 
 
 def ema(values, period):
-    """Standard exponential moving average over a list of closes."""
     if len(values) < period:
         return None
     k = 2 / (period + 1)
@@ -106,7 +182,6 @@ def ema(values, period):
 
 
 def ema9_above_ema20(bars):
-    """Filter: 9-period EMA must be above 20-period EMA (positive momentum)."""
     if len(bars) < 20:
         return False
     closes = [b.close for b in bars]
@@ -119,7 +194,6 @@ def ema9_above_ema20(bars):
 
 def get_spread(symbol):
     try:
-        from alpaca.data.requests import StockLatestQuoteRequest
         req = StockLatestQuoteRequest(symbol_or_symbols=symbol)
         quote = data_client.get_stock_latest_quote(req)
         q = quote[symbol]
@@ -130,7 +204,6 @@ def get_spread(symbol):
 
 
 def tier_stop(peak, entry):
-    """Corrected exit ladder, verified 2026-09-24."""
     gain = (peak / entry) - 1.0
     if gain < 0.10:
         return peak * 0.98
@@ -202,17 +275,16 @@ def place_sell(symbol):
         log(f"place_sell({symbol}) error: {e}")
 
 
-def run_cycle():
-    movers = get_movers()
-    symbols_seen = [m.get("symbol") for m in movers]
+def run_cycle(movers):
+    symbols_seen = [m["symbol"] for m in movers]
     log(f"cycle check: {len(movers)} movers found: {symbols_seen}")
 
     held_count = sum(1 for s in state.values() if s.get("held"))
 
     for m in movers:
-        symbol = m.get("symbol")
-        price = m.get("price")
-        pct_change = m.get("percent_change")
+        symbol = m["symbol"]
+        price = m["price"]
+        pct_change = m["percent_change"]
         if not passes_filter(price, pct_change):
             continue
 
@@ -251,23 +323,35 @@ def run_cycle():
 
 
 if __name__ == "__main__":
-    log(f"Starting Alpaca v27 bot. paper={PAPER}")
+    log(f"Starting Alpaca v27 bot with SELF-BUILT SCANNER. paper={PAPER}")
     try:
         acct = trading.get_account()
         log(f"ACCOUNT CHECK OK: status={acct.status}, cash={acct.cash}")
     except Exception as e:
         log(f"ACCOUNT CHECK FAILED: {e}")
+
     et = ZoneInfo("America/New_York")
+    last_universe_refresh = 0
+    shortlist = []
+
     while True:
         now_et = datetime.now(et)
         start = now_et.replace(hour=4, minute=0, second=0, microsecond=0)
         end = now_et.replace(hour=20, minute=0, second=0, microsecond=0)
+
         if start <= now_et <= end:
             try:
-                run_cycle()
+                now_unix = time.time()
+                if now_unix - last_universe_refresh >= UNIVERSE_REFRESH_SECONDS:
+                    shortlist = narrow_universe()
+                    last_universe_refresh = now_unix
+
+                movers = fast_scan(shortlist)
+                run_cycle(movers)
             except Exception as e:
                 log(f"run_cycle crashed: {e}")
         else:
             log(f"outside trading window (4am-8pm ET), current ET time: {now_et.strftime('%H:%M')}")
-        time.sleep(60)
+
+        time.sleep(FAST_CHECK_SECONDS)
 
