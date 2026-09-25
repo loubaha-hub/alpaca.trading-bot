@@ -86,12 +86,15 @@ def three_candle_pullback(bars):
 
 def get_spread(symbol):
     try:
-        quote = data_client.get_stock_latest_quote(symbol)
+        from alpaca.data.requests import StockLatestQuoteRequest
+        req = StockLatestQuoteRequest(symbol_or_symbols=symbol)
+        quote = data_client.get_stock_latest_quote(req)
         q = quote[symbol]
         return q.ask_price, q.bid_price
     except Exception as e:
         log(f"get_spread({symbol}) error: {e}")
         return None, None
+        
 
 
 def tier_stop(peak, entry):
