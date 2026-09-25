@@ -1,5 +1,3 @@
-
-Main v24 selfscan · PY
 """
 Alpaca v24 (ranked, 12-position) trading bot, built on the same
 SELF-BUILT SCANNER as v27 (2026-09-25).
@@ -24,42 +22,41 @@ from alpaca.trading.enums import OrderSide, TimeInForce, AssetClass, AssetStatus
 from alpaca.data.historical import StockHistoricalDataClient
 from alpaca.data.requests import StockBarsRequest, StockSnapshotRequest, StockLatestQuoteRequest
 from alpaca.data.timeframe import TimeFrame
- 
+
 API_KEY = os.environ["ALPACA_API_KEY"]
 SECRET_KEY = os.environ["ALPACA_SECRET_KEY"]
 PAPER = os.environ.get("ALPACA_PAPER", "true").lower() == "true"
- 
+
 PRICE_MIN = 1.0
 PRICE_MAX = 20.0
 GAIN_MIN = 0.10
 MAX_NAMES = 12
 MAX_SPREAD = 0.10
- 
+
 UNIVERSE_REFRESH_SECONDS = 120
 FAST_CHECK_SECONDS = 5
 SNAPSHOT_BATCH_SIZE = 200
- 
-BALANCE_MIN_GAP_SECONDS = 180   # balancing: no more often than every 3 minutes
-BALANCE_MIN_CHANGE = 0.20       # ...and only if speed changed >= 20%
-SHUFFLE_MIN_EDGE = 0.10         # shuffling: newcomer must beat weakest by >= 10%
- 
+
+BALANCE_MIN_GAP_SECONDS = 180
+BALANCE_MIN_CHANGE = 0.20
+SHUFFLE_MIN_EDGE = 0.10
+
 trading = TradingClient(API_KEY, SECRET_KEY, paper=PAPER)
 data_client = StockHistoricalDataClient(API_KEY, SECRET_KEY)
- 
-# symbol -> {held, entry, peak, shares, weight, last_speed, last_rebalance_ts}
+
 state = {}
 full_universe = []
- 
- 
+
+
 def log(msg):
     print(f"{datetime.now(timezone.utc).isoformat()}  {msg}", flush=True)
- 
- 
+
+
 def chunked(lst, size):
     for i in range(0, len(lst), size):
         yield lst[i:i + size]
- 
- 
+
+
 def get_full_universe():
     try:
         req = GetAssetsRequest(asset_class=AssetClass.US_EQUITY, status=AssetStatus.ACTIVE)
@@ -70,8 +67,8 @@ def get_full_universe():
     except Exception as e:
         log(f"get_full_universe error: {e}")
         return []
- 
- 
+
+
 def get_snapshots(symbols):
     result = {}
     for batch in chunked(symbols, SNAPSHOT_BATCH_SIZE):
@@ -83,8 +80,8 @@ def get_snapshots(symbols):
             log(f"get_snapshots batch error: {e}")
         time.sleep(0.1)
     return result
- 
- 
+
+
 def pct_gain_today(snap):
     try:
         latest = snap.latest_trade.price if snap.latest_trade else None
@@ -94,8 +91,8 @@ def pct_gain_today(snap):
         return latest, (latest - today_open) / today_open
     except Exception:
         return None, None
- 
- 
+
+
 def narrow_universe():
     global full_universe
     if not full_universe:
@@ -112,8 +109,8 @@ def narrow_universe():
             candidates.append(symbol)
     log(f"universe narrowed: {len(candidates)} candidates out of {len(full_universe)}")
     return candidates
- 
- 
+
+
 def fast_scan(symbols):
     if not symbols:
         return []
@@ -127,8 +124,8 @@ def fast_scan(symbols):
             out.append({"symbol": symbol, "price": price, "percent_change": gain})
     out.sort(key=lambda x: x["percent_change"], reverse=True)
     return out[:50]
- 
- 
+
+
 def get_recent_bars(symbol, limit=15):
     try:
         req = StockBarsRequest(
@@ -142,8 +139,8 @@ def get_recent_bars(symbol, limit=15):
     except Exception as e:
         log(f"get_recent_bars({symbol}) error: {e}")
         return []
- 
- 
+
+
 def three_candle_pullback(bars):
     if len(bars) < 2:
         return None
@@ -153,10 +150,9 @@ def three_candle_pullback(bars):
     if green and red:
         return round(last.open + 0.01, 4)
     return None
- 
- 
+
+
 def speed(bars):
-    """(dP/P) x (dV/V) over the last 2 bars - used to rank/balance/shuffle."""
     if len(bars) < 2:
         return 0.0
     a, b = bars[-2], bars[-1]
@@ -165,8 +161,8 @@ def speed(bars):
     dp = (b.close - a.close) / a.close
     dv = (b.volume - a.volume) / a.volume if a.volume else 0.0
     return dp * dv
- 
- 
+
+
 def get_spread(symbol):
     try:
         req = StockLatestQuoteRequest(symbol_or_symbols=symbol)
@@ -176,8 +172,8 @@ def get_spread(symbol):
     except Exception as e:
         log(f"get_spread({symbol}) error: {e}")
         return None, None
- 
- 
+
+
 def tier_stop(peak, entry):
     gain = (peak / entry) - 1.0
     if gain < 0.10:
@@ -187,18 +183,17 @@ def tier_stop(peak, entry):
     if gain < 3.00:
         return peak - 0.20 * (peak - entry)
     return peak - 0.10 * (peak - entry)
- 
- 
+
+
 def weight_ladder(n):
-    """#1 50%, #2 20%, remaining halves down: 15, 7.5, 3.75, ..."""
     weights = [0.50, 0.20]
     remaining = 0.30
     while len(weights) < n:
         weights.append(remaining / 2)
         remaining = remaining / 2
     return weights[:n]
- 
- 
+
+
 def get_equity():
     try:
         acct = trading.get_account()
@@ -206,8 +201,8 @@ def get_equity():
     except Exception as e:
         log(f"get_equity error: {e}")
         return 0.0
- 
- 
+
+
 def get_real_positions():
     try:
         positions = trading.get_all_positions()
@@ -215,8 +210,8 @@ def get_real_positions():
     except Exception as e:
         log(f"get_real_positions error: {e}")
         return {}
- 
- 
+
+
 def place_buy(symbol, ask, weight, equity):
     dollars = equity * weight
     shares = int(dollars // ask)
@@ -240,8 +235,8 @@ def place_buy(symbol, ask, weight, equity):
     except Exception as e:
         log(f"place_buy({symbol}) error: {e}")
         return False
- 
- 
+
+
 def place_sell(symbol, reason=""):
     real_positions = get_real_positions()
     have = real_positions.get(symbol, 0)
@@ -262,10 +257,9 @@ def place_sell(symbol, reason=""):
         state.pop(symbol, None)
     except Exception as e:
         log(f"place_sell({symbol}) error: {e}")
- 
- 
+
+
 def adjust_position(symbol, target_weight, ask, equity):
-    """Buy or sell just enough shares to move toward a new target weight."""
     real_positions = get_real_positions()
     have = real_positions.get(symbol, 0)
     target_dollars = equity * target_weight
@@ -295,24 +289,22 @@ def adjust_position(symbol, target_weight, ask, equity):
             state[symbol]["last_rebalance_ts"] = time.time()
     except Exception as e:
         log(f"adjust_position({symbol}) error: {e}")
- 
- 
+
+
 def try_balance(equity):
-    """Reweight existing holdings by current speed rank - gated by both
-    a 3-minute minimum gap AND a 20% minimum change in speed."""
     held_symbols = [s for s, v in state.items() if v.get("held")]
     if len(held_symbols) < 2:
         return
- 
+
     now = time.time()
     speeds = {}
     for symbol in held_symbols:
         bars = get_recent_bars(symbol, limit=15)
         speeds[symbol] = speed(bars)
- 
+
     ranked = sorted(held_symbols, key=lambda s: speeds[s], reverse=True)
     new_weights = weight_ladder(len(ranked))
- 
+
     for i, symbol in enumerate(ranked):
         s = state[symbol]
         time_ok = (now - s.get("last_rebalance_ts", 0)) >= BALANCE_MIN_GAP_SECONDS
@@ -324,25 +316,23 @@ def try_balance(equity):
             if ask:
                 adjust_position(symbol, target_weight, ask, equity)
         s["last_speed"] = speeds[symbol]
- 
- 
+
+
 def try_shuffle(candidate_symbol, candidate_speed, equity):
-    """If the book is full, replace the weakest holding only if this
-    newcomer is running >= SHUFFLE_MIN_EDGE faster."""
     held_symbols = [s for s, v in state.items() if v.get("held")]
     if len(held_symbols) < MAX_NAMES:
         return False
- 
+
     weakest_symbol, weakest_speed = None, None
     for hs in held_symbols:
         hbars = get_recent_bars(hs, limit=15)
         hsp = speed(hbars)
         if weakest_speed is None or hsp < weakest_speed:
             weakest_symbol, weakest_speed = hs, hsp
- 
+
     if weakest_symbol is None:
         return False
- 
+
     edge = candidate_speed - weakest_speed
     if edge >= SHUFFLE_MIN_EDGE:
         log(f"SHUFFLE: {candidate_symbol} (speed {candidate_speed:.4f}) replaces "
@@ -354,14 +344,13 @@ def try_shuffle(candidate_symbol, candidate_speed, equity):
             place_buy(candidate_symbol, ask, weights[-1], equity)
         return True
     return False
- 
- 
+
+
 def run_cycle(movers):
     symbols_seen = [m["symbol"] for m in movers]
     log(f"cycle check: {len(movers)} movers found: {symbols_seen}")
     equity = get_equity()
- 
-    # manage existing holdings: tiered exit
+
     for symbol, s in list(state.items()):
         if not s.get("held"):
             continue
@@ -373,41 +362,41 @@ def run_cycle(movers):
         stop = tier_stop(s["peak"], s["entry"])
         if current <= stop:
             place_sell(symbol, "tier_stop")
- 
+
     try_balance(equity)
- 
+
     held_count = sum(1 for s in state.values() if s.get("held"))
- 
+
     for m in movers:
         symbol = m["symbol"]
         if symbol in state and state[symbol].get("held"):
             continue
- 
+
         bars = get_recent_bars(symbol, limit=15)
         trigger = three_candle_pullback(bars)
         if trigger is None:
             continue
- 
+
         ask, bid = get_spread(symbol)
         if ask is None or bid is None or ask <= 0:
             continue
         if (ask - bid) > MAX_SPREAD:
             continue
- 
+
         latest = bars[-1].close if bars else None
         if not (latest and latest >= trigger):
             continue
- 
+
         sp = speed(bars)
- 
+
         if held_count < MAX_NAMES:
             weights = weight_ladder(held_count + 1)
             if place_buy(symbol, ask, weights[held_count], equity):
                 held_count += 1
         else:
             try_shuffle(symbol, sp, equity)
- 
- 
+
+
 if __name__ == "__main__":
     log(f"Starting Alpaca v24 bot with SELF-BUILT SCANNER. paper={PAPER}")
     try:
@@ -415,150 +404,28 @@ if __name__ == "__main__":
         log(f"ACCOUNT CHECK OK: status={acct.status}, cash={acct.cash}")
     except Exception as e:
         log(f"ACCOUNT CHECK FAILED: {e}")
- 
+
     et = ZoneInfo("America/New_York")
     last_universe_refresh = 0
     shortlist = []
- 
+
     while True:
         now_et = datetime.now(et)
         start = now_et.replace(hour=4, minute=0, second=0, microsecond=0)
         end = now_et.replace(hour=20, minute=0, second=0, microsecond=0)
- 
+
         if start <= now_et <= end:
             try:
                 now_unix = time.time()
                 if now_unix - last_universe_refresh >= UNIVERSE_REFRESH_SECONDS:
                     shortlist = narrow_universe()
                     last_universe_refresh = now_unix
- 
+
                 movers = fast_scan(shortlist)
                 run_cycle(movers)
             except Exception as e:
                 log(f"run_cycle crashed: {e}")
         else:
             log(f"outside trading window (4am-8pm ET), current ET time: {now_et.strftime('%H:%M')}")
- 
+
         time.sleep(FAST_CHECK_SECONDS)
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
