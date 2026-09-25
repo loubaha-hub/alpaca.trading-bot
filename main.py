@@ -1,4 +1,3 @@
-
 """
 Alpaca gap-and-go trading bot (v27 logic), rebuilt clean 2026-09-24.
 Runs continuously as a background worker. Paper trading by default.
@@ -194,8 +193,10 @@ def place_sell(symbol):
 
 
 def run_cycle():
-    movers = get_movers()        
-    log(f"cycle check: {len(movers)} movers found: {[m.get('symbol') for m in movers]}")
+    movers = get_movers()
+    symbols_seen = [m.get("symbol") for m in movers]
+    log(f"cycle check: {len(movers)} movers found: {symbols_seen}")
+
     held_count = sum(1 for s in state.values() if s.get("held"))
 
     for m in movers:
