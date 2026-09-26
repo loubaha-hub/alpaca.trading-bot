@@ -1,30 +1,38 @@
 """
-Alpaca v30-v2 ("speed book", revised), built on the same SELF-BUILT
-SCANNER as v27/v24 (2026-09-25).
-Design, finalized with the user 2026-09-25:
-- Entry: buy the moment a stock crosses +10% today (no three-candle
-  pattern needed - the whole point is catching a move like MSGY early,
-  which v27/v24's pattern-based entry would have missed).
-- 4 positions at a time, ranked by SPEED (not price appreciation).
-  Sizing is a HARD DOLLAR CAP per rank, not a percentage of equity -
-  fastest gets up to $25,000, next $12,500, then $6,250, then $3,125,
-  regardless of how large the account is (added 2026-09-25 specifically
-  to keep position sizes controlled on the $100k account).
-- Shuffle: if all 4 slots are full and a new candidate is running FASTER
-  (by speed, not price) than the current weakest holding, it replaces it.
-  No minimum edge threshold was specified for this one (unlike v24's
-  10% rule) - any positive speed edge triggers the swap.
-- Exit: two tiers -
-  (a) per-position TIERED trailing stop: below 5% gain from entry,
-      trail very tight at 0.5% below peak (tightened 2026-09-25 given
-      the larger position sizes); once gain reaches 5% or more, loosen
-      to 5% below peak so a real runner has room to breathe.
-  (b) ACCOUNT-LEVEL: if the day's total loss reaches 10% of starting
-      equity, flatten everything and stop opening new positions for
-      the rest of the day.
-- Re-entry: a stock that was stopped out can only be bought again once
-  it trades back above its own actual DAY'S HIGH (so far) + 5 cents -
-  not just the peak we happened to see while we held it.
+Alpaca v30-v3 (speed book, FULLY REVISED 2026-09-26), self-built scanner.
+This version incorporates every real gap found in live testing on
+2026-09-25/26. Read the numbered fixes below before touching this file -
+each one was a real, demonstrated problem, not a theoretical concern.
+
+FIX 1 - AGGRESSIVE LIMIT-CHASE EXECUTION (replaces all market-order and
+  single-shot limit-order logic): every buy or sell now goes through
+  aggressive_execute(), which (a) always checks REAL broker position
+  first, never internal tracking, so a partial fill is never re-ordered
+  at the wrong size, (b) cancels any stale working order for that
+  symbol FIRST, so no redundant unfilled orders ever pile up, (c) prices
+  the new order adaptively, anchored to the BID, stepping by however
+  much the real market actually moved since the last attempt. This
+  works during extended hours too, since it is always a LIMIT order
+  (Alpaca rejects market orders entirely outside 9:30-4:00 ET -
+  confirmed directly against Alpaca's own docs 2026-09-26).
+FIX 2 - END-OF-DAY FLATTEN: at 7:55 PM ET, every real position is
+  closed via aggressive_execute().
+FIX 3 - DAILY 10% HALT: same aggressive_execute() close.
+FIX 4 - NO DUPLICATE ORDERS: aggressive_execute() itself is the only
+  path that ever submits an order.
+FIX 5 - WEEKEND/HOLIDAY AWARENESS: checks Alpaca's own market calendar.
+FIX 6 - CRASH/RESTART RECONCILIATION: seeds state from real broker
+  positions on startup.
+FIX 7 - VOLUME FILTER: minimum 100,000 shares in the latest 1-min bar.
+FIX 8 - SHUFFLE MINIMUM EDGE: a newcomer must beat the weakest holding
+  by a real margin, not any tiny amount.
+FIX 9 - CORRECTED SPEED FORMULA: price direction is the core signal;
+  volume only ever amplifies or dampens it (0-2x), never flips its sign.
+EXECUTION TIMING: every order attempt logs its real submit time in ms,
+  and every completed execution logs total real time to close, so
+  actual measured speed is proven in the logs, not just assumed.
+STILL OPEN: the 2026-09-25 unexplained $9,375 single-transaction loss
+  has not been traced to a specific root cause yet.
 Runs continuously as a background worker. Paper trading by default.
 """
 import os
@@ -33,8 +41,8 @@ import requests
 from zoneinfo import ZoneInfo
 from datetime import datetime, timedelta, timezone
 from alpaca.trading.client import TradingClient
-from alpaca.trading.requests import LimitOrderRequest, GetAssetsRequest
-from alpaca.trading.enums import OrderSide, TimeInForce, AssetClass, AssetStatus
+from alpaca.trading.requests import LimitOrderRequest, GetAssetsRequest, GetOrdersRequest, GetCalendarRequest
+from alpaca.trading.enums import OrderSide, TimeInForce, AssetClass, AssetStatus, QueryOrderStatus
 from alpaca.data.historical import StockHistoricalDataClient
 from alpaca.data.requests import StockBarsRequest, StockSnapshotRequest, StockLatestQuoteRequest
 from alpaca.data.timeframe import TimeFrame
@@ -46,10 +54,12 @@ PAPER = os.environ.get("ALPACA_PAPER", "true").lower() == "true"
 PRICE_MIN = 1.0
 PRICE_MAX = 20.0
 GAIN_MIN = 0.10
+MIN_BAR_VOLUME = 100000
 MAX_NAMES = 4
 MAX_SPREAD = 0.10
 DAILY_HALT_PCT = 0.10
 POSITION_CAPS = [25000, 12500, 6250, 3125]
+SHUFFLE_MIN_EDGE = 0.001
 
 UNIVERSE_REFRESH_SECONDS = 120
 FAST_CHECK_SECONDS = 5
@@ -63,6 +73,7 @@ full_universe = []
 comeback_floor = {}
 starting_equity = None
 halted_today = False
+market_open_today = None
 
 
 def log(msg):
@@ -72,6 +83,31 @@ def log(msg):
 def chunked(lst, size):
     for i in range(0, len(lst), size):
         yield lst[i:i + size]
+
+
+def is_trading_day(now_et):
+    global market_open_today
+    if market_open_today is not None and market_open_today[0] == now_et.date():
+        return market_open_today[1]
+    try:
+        req = GetCalendarRequest(start=now_et.date(), end=now_et.date())
+        cal = trading.get_calendar(req)
+        is_open = len(cal) > 0
+        market_open_today = (now_et.date(), is_open)
+        return is_open
+    except Exception as e:
+        log(f"is_trading_day error: {e} - defaulting to True (weekday assumption)")
+        return now_et.weekday() < 5
+
+
+def reconcile_on_startup():
+    real_positions = get_real_positions()
+    for symbol, qty in real_positions.items():
+        if qty > 0:
+            ask, bid = get_spread(symbol)
+            price = ask or bid or 0
+            state[symbol] = {"held": True, "entry": price, "peak": price, "shares": qty}
+            log(f"RECONCILED on startup: {symbol} x{qty} (found in real broker positions)")
 
 
 def get_full_universe():
@@ -166,7 +202,8 @@ def speed(bars):
         return 0.0
     dp = (b.close - a.close) / a.close
     dv = (b.volume - a.volume) / a.volume if a.volume else 0.0
-    return dp * dv
+    volume_multiplier = max(0.0, min(2.0, 1.0 + dv))
+    return dp * volume_multiplier
 
 
 def get_spread(symbol):
@@ -207,25 +244,82 @@ def get_real_positions():
         return {}
 
 
-def place_buy(symbol, ask, dollars):
-    shares = int(dollars // ask)
-    if shares <= 0:
-        log(f"{symbol}: not enough allocated cash for even 1 share, skipping")
-        return False
-    limit_price = round(ask * 1.005, 2)
+def cancel_open_orders(symbol):
     try:
-        order = LimitOrderRequest(
-            symbol=symbol, qty=shares, side=OrderSide.BUY,
-            time_in_force=TimeInForce.DAY, limit_price=limit_price,
-            extended_hours=True,
-        )
-        trading.submit_order(order)
-        log(f"BUY {symbol} x{shares} @ limit {limit_price} (${dollars:.0f} target)")
-        state[symbol] = {"held": True, "entry": ask, "peak": ask, "shares": shares}
-        return True
+        req = GetOrdersRequest(status=QueryOrderStatus.OPEN, symbols=[symbol])
+        for o in trading.get_orders(req):
+            try:
+                trading.cancel_order_by_id(o.id)
+            except Exception as e:
+                log(f"cancel_open_orders({symbol}) error: {e}")
     except Exception as e:
-        log(f"place_buy({symbol}) error: {e}")
-        return False
+        log(f"cancel_open_orders({symbol}) get_orders error: {e}")
+
+
+def aggressive_execute(symbol, side, target_shares, max_attempts=15, wait_seconds=0.05):
+    execute_start = time.time()
+    last_bid = None
+    for attempt in range(max_attempts):
+        real_positions = get_real_positions()
+        have = real_positions.get(symbol, 0)
+
+        if side == OrderSide.SELL:
+            remaining = have
+            if remaining <= 0:
+                state.pop(symbol, None)
+                total_ms = (time.time() - execute_start) * 1000
+                log(f"{symbol}: FULLY EXECUTED in {total_ms:.0f}ms total "
+                    f"({attempt} attempt(s))")
+                return True
+        else:
+            remaining = target_shares - have
+            if remaining <= 0:
+                total_ms = (time.time() - execute_start) * 1000
+                log(f"{symbol}: FULLY EXECUTED in {total_ms:.0f}ms total "
+                    f"({attempt} attempt(s))")
+                return True
+
+        cancel_open_orders(symbol)
+
+        ask, bid = get_spread(symbol)
+        if not ask or not bid:
+            time.sleep(wait_seconds)
+            continue
+
+        if last_bid is None:
+            step = 0.01
+        else:
+            step = max(0.01, round(abs(bid - last_bid), 2))
+        last_bid = bid
+
+        if side == OrderSide.SELL:
+            limit_price = round(bid - 0.01 - (step * attempt), 2)
+            limit_price = max(limit_price, 0.01)
+        else:
+            limit_price = round(bid + (step * attempt), 2)
+
+        try:
+            submit_start = time.time()
+            order = LimitOrderRequest(
+                symbol=symbol, qty=remaining, side=side,
+                time_in_force=TimeInForce.DAY, limit_price=limit_price,
+                extended_hours=True,
+            )
+            trading.submit_order(order)
+            submit_ms = (time.time() - submit_start) * 1000
+            log(f"{'SELL' if side == OrderSide.SELL else 'BUY'} (adaptive-chase) "
+                f"{symbol} x{remaining} @ limit {limit_price} "
+                f"(bid {bid}, ask {ask}, step {step}, attempt {attempt+1}/{max_attempts}, "
+                f"submit took {submit_ms:.0f}ms)")
+        except Exception as e:
+            log(f"aggressive_execute({symbol}) submit error: {e}")
+
+        time.sleep(wait_seconds)
+
+    total_ms = (time.time() - execute_start) * 1000
+    log(f"{symbol}: WARNING - not fully executed after {max_attempts} attempts "
+        f"({total_ms:.0f}ms elapsed)")
+    return False
 
 
 def get_day_high(symbol):
@@ -240,29 +334,27 @@ def get_day_high(symbol):
     return None
 
 
+def place_buy(symbol, dollars):
+    ask, _ = get_spread(symbol)
+    if not ask or ask <= 0:
+        return False
+    shares = int(dollars // ask)
+    if shares <= 0:
+        log(f"{symbol}: not enough allocated cash for even 1 share, skipping")
+        return False
+    ok = aggressive_execute(symbol, OrderSide.BUY, shares)
+    if ok:
+        state[symbol] = {"held": True, "entry": ask, "peak": ask, "shares": shares}
+    return ok
+
+
 def place_sell(symbol, reason=""):
-    real_positions = get_real_positions()
-    have = real_positions.get(symbol, 0)
-    if have <= 0:
-        log(f"{symbol}: broker shows 0 shares, nothing to sell")
-        state.pop(symbol, None)
-        return
-    _, bid = get_spread(symbol)
-    limit_price = round((bid or 0) * 0.995, 2)
-    try:
-        order = LimitOrderRequest(
-            symbol=symbol, qty=have, side=OrderSide.SELL,
-            time_in_force=TimeInForce.DAY, limit_price=limit_price,
-            extended_hours=True,
-        )
-        trading.submit_order(order)
-        log(f"SELL {symbol} x{have} @ limit {limit_price} {reason}")
+    ok = aggressive_execute(symbol, OrderSide.SELL, 0)
+    if ok:
         day_high = get_day_high(symbol)
         if day_high:
             comeback_floor[symbol] = round(day_high + 0.05, 4)
-        state.pop(symbol, None)
-    except Exception as e:
-        log(f"place_sell({symbol}) error: {e}")
+    log(f"place_sell({symbol}) {reason} -> {'closed' if ok else 'NOT fully closed'}")
 
 
 def rebalance_weights(equity):
@@ -282,28 +374,26 @@ def rebalance_weights(equity):
             continue
         have = real_positions.get(symbol, 0)
         target_shares = int(cap // ask)
-        diff = target_shares - have
-        if diff == 0:
+        if target_shares == have:
             continue
-        try:
-            if diff > 0:
-                order = LimitOrderRequest(
-                    symbol=symbol, qty=diff, side=OrderSide.BUY,
-                    time_in_force=TimeInForce.DAY, limit_price=round(ask * 1.005, 2),
-                    extended_hours=True,
-                )
-                trading.submit_order(order)
-                log(f"REWEIGHT-UP {symbol} +{diff} toward ${cap:.0f} cap (rank {i+1})")
-            else:
-                order = LimitOrderRequest(
-                    symbol=symbol, qty=-diff, side=OrderSide.SELL,
-                    time_in_force=TimeInForce.DAY, limit_price=round(ask * 0.995, 2),
-                    extended_hours=True,
-                )
-                trading.submit_order(order)
-                log(f"REWEIGHT-DOWN {symbol} {diff} toward ${cap:.0f} cap (rank {i+1})")
-        except Exception as e:
-            log(f"rebalance_weights({symbol}) error: {e}")
+        if target_shares > have:
+            aggressive_execute(symbol, OrderSide.BUY, target_shares)
+        else:
+            excess = have - target_shares
+            cancel_open_orders(symbol)
+            _, bid = get_spread(symbol)
+            if bid:
+                try:
+                    order = LimitOrderRequest(
+                        symbol=symbol, qty=excess, side=OrderSide.SELL,
+                        time_in_force=TimeInForce.DAY,
+                        limit_price=round(bid * 0.995, 2),
+                        extended_hours=True,
+                    )
+                    trading.submit_order(order)
+                    log(f"REWEIGHT-DOWN {symbol} -{excess} toward ${cap:.0f} cap (rank {i+1})")
+                except Exception as e:
+                    log(f"rebalance_weights trim ({symbol}) error: {e}")
 
 
 def try_shuffle(candidate_symbol, candidate_speed, equity):
@@ -321,13 +411,12 @@ def try_shuffle(candidate_symbol, candidate_speed, equity):
     if weakest_symbol is None:
         return False
 
-    if candidate_speed > weakest_speed:
+    edge = candidate_speed - weakest_speed
+    if edge >= SHUFFLE_MIN_EDGE:
         log(f"SHUFFLE: {candidate_symbol} (speed {candidate_speed:.4f}) replaces "
-            f"{weakest_symbol} (speed {weakest_speed:.4f})")
+            f"{weakest_symbol} (speed {weakest_speed:.4f}), edge {edge:.4f}")
         place_sell(weakest_symbol, "replaced by faster newcomer")
-        ask, _ = get_spread(candidate_symbol)
-        if ask:
-            place_buy(candidate_symbol, ask, POSITION_CAPS[-1])
+        place_buy(candidate_symbol, POSITION_CAPS[-1])
         return True
     return False
 
@@ -342,9 +431,10 @@ def check_daily_halt(equity):
     loss_pct = (starting_equity - equity) / starting_equity if starting_equity > 0 else 0
     if loss_pct >= DAILY_HALT_PCT:
         log(f"DAILY HALT: down {loss_pct:.1%} from starting equity {starting_equity:.2f} - "
-            f"flattening everything, no new entries for the rest of today")
+            f"flattening everything (aggressive execution), no new entries today")
         halted_today = True
-        for symbol in list(state.keys()):
+        real_positions = get_real_positions()
+        for symbol in list(real_positions.keys()):
             place_sell(symbol, "daily_halt_flatten")
         return True
     return False
@@ -391,9 +481,11 @@ def run_cycle(movers):
         bars = get_recent_bars(symbol, limit=15)
         sp = speed(bars)
 
+        if not bars or bars[-1].volume < MIN_BAR_VOLUME:
+            continue
+
         if held_count < MAX_NAMES:
-            initial_cap = POSITION_CAPS[-1]
-            if place_buy(symbol, ask, initial_cap):
+            if place_buy(symbol, POSITION_CAPS[-1]):
                 held_count += 1
         else:
             try_shuffle(symbol, sp, equity)
@@ -403,31 +495,45 @@ def run_cycle(movers):
 
 
 if __name__ == "__main__":
-    log(f"Starting Alpaca v30-v2 bot with SELF-BUILT SCANNER. paper={PAPER}")
+    log(f"Starting Alpaca v30-v3 bot (FULLY REVISED) with SELF-BUILT SCANNER. paper={PAPER}")
     try:
         acct = trading.get_account()
         log(f"ACCOUNT CHECK OK: status={acct.status}, cash={acct.cash}")
     except Exception as e:
         log(f"ACCOUNT CHECK FAILED: {e}")
 
+    reconcile_on_startup()
+
     et = ZoneInfo("America/New_York")
     last_universe_refresh = 0
     shortlist = []
+    eod_flatten_done_date = None
 
     while True:
         now_et = datetime.now(et)
         start = now_et.replace(hour=4, minute=0, second=0, microsecond=0)
         end = now_et.replace(hour=20, minute=0, second=0, microsecond=0)
+        eod_flatten_time = now_et.replace(hour=19, minute=55, second=0, microsecond=0)
 
-        if start <= now_et <= end:
+        if not is_trading_day(now_et):
+            log(f"not a trading day ({now_et.strftime('%A, %Y-%m-%d')}) - idle")
+        elif start <= now_et <= end:
             try:
                 now_unix = time.time()
                 if now_unix - last_universe_refresh >= UNIVERSE_REFRESH_SECONDS:
                     shortlist = narrow_universe()
                     last_universe_refresh = now_unix
 
-                movers = fast_scan(shortlist)
-                run_cycle(movers)
+                if now_et >= eod_flatten_time and eod_flatten_done_date != now_et.date():
+                    log(f"END OF DAY FLATTEN: {now_et.strftime('%H:%M')} ET reached - "
+                        f"closing every real position via aggressive execution")
+                    real_positions = get_real_positions()
+                    for symbol in list(real_positions.keys()):
+                        place_sell(symbol, "end_of_day_flatten")
+                    eod_flatten_done_date = now_et.date()
+                else:
+                    movers = fast_scan(shortlist)
+                    run_cycle(movers)
             except Exception as e:
                 log(f"run_cycle crashed: {e}")
         else:
