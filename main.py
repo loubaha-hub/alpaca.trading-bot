@@ -1,14 +1,21 @@
 """
-Alpaca v27 (REBUILT 2026-09-28), self-built scanner.
-ENTRY: two CLOSED bars, green then red. During the NEXT bar, when the live price crosses
-above the red bar's open + 1 cent (and that bar is trading green), plus: 9-EMA above
-20-EMA, price above VWAP, MACD(12,26,9) above zero and above its signal line, spread
-<= 10c.
-ENTRY STOP: the red bar's low, until the trade is up 2%; then the trailing ladder:
-2% trail under +10%, 5% from +10% to +100%, 10% above +100%.
-SIZE: 2 positions; the stronger (speed x dollar-volume) holds 60%, the weaker 40%.
-Re-split at most every 5 minutes (sooner if a stock moves very fast). A stronger
-newcomer replaces the weakest and takes the 60% if it outranks the survivor.
+Alpaca v31 (2026-09-28), self-built scanner. FIRST VERSION OF THE RUNNER DESIGN - UNTESTED IN THE MARKET.
+IDEA: 1-2 stocks a day run big; lose little on the false starts and ride the runners.
+1. LEADERS ONLY: among the scanner's stocks (up 10%, near the day's high, thin-safe, price rising),
+   rank by 3-minute dollar volume; only the top 3 may be entered. At most 3 positions.
+2. NEWS IN THE SCREENER: every 2 minutes one call fetches headlines (last 6 hours) for the whole shortlist.
+   NEWS_MODE "boost" (default): stocks with fresh news rank first among the leaders; "require": only stocks
+   with fresh news can be entered; "off": ignored. If the news feed fails, there are simply no news flags.
+   TRIGGER: the last closed bar's volume is >= 2x the average of the 10 bars before it, and the live
+   price breaks above that bar's high while the current bar is trading green.
+3. PROBE, THEN ADD: the first buy is a small probe sized so that hitting its stop costs about 0.5% of
+   equity (a wide stop means fewer shares; never over 10% of equity). As the stock proves itself it
+   adds: at +3% a full probe, at +6% 75% of a probe, at +10% 50% of a probe (adds shrink as the trail
+   widens), never past 30% of equity in one stock.
+4. EXIT: the low of the last 2 closed bars is the entry stop until the trade is up 2%; then the
+   ladder: 2% trail under +10%, 5% from +10% to +100%, 10% above +100%.
+5. RE-ENTRY: after an exit, only above the day's high + 5 cents (resets every morning).
+NOT YET IN: squeeze mode, prior-day high, 200-day average, Level 2.
 SHARED BEHAVIOUR (all three strategies, rebuilt 2026-09-28):
 - SCANNER unchanged: up 10% from today's open, $1-$20, refreshed every 2 minutes,
   entries checked on an ~8-second cycle.
@@ -30,9 +37,10 @@ SHARED BEHAVIOUR (all three strategies, rebuilt 2026-09-28):
   day's limit is 5%, then 2.5%; a third halted day in a row stops the bot until it
   is restarted manually. A manual restart at any time resumes with a fresh baseline
   (the streak lives in memory - a crash or redeploy also resets it).
-- 7:55 PM ET: flatten everything once; NO new entries after 7:55 PM.
-ASSUMPTIONS TO REVIEW AFTER REAL LOGS: CHANGE_LO/HI (0.7/1.3), FAST_MOVE_OVERRIDE_SPEED
-(0.05), SHUFFLE_MIN_EDGE, DOLLAR_VOLUME_REFERENCE (v27).
+- 7:55 PM ET: flatten everything once; NO new entries after 7:55 PM. The position
+  watcher only works 4:00 AM-8:00 PM ET on trading days (idle overnight and on weekends).
+ASSUMPTIONS TO REVIEW AFTER REAL LOGS: SPIKE_MULT (2.0), RISK_PER_TRADE (0.5%), ADD_STEPS,
+LEADER_TOP_N (3), NEWS_MODE and NEWS_WINDOW_MIN (6 hours), CHANGE_LO/HI (0.7/1.3).
 Runs continuously as a background worker. Paper trading by default.
 """
 import os
@@ -113,6 +121,18 @@ def is_trading_day(now_et):
     except Exception as e:
         log(f"is_trading_day error: {e} - defaulting to weekday assumption")
         return now_et.weekday() < 5
+
+
+def in_session():
+    """True only on a trading day between 4:00 AM and 8:00 PM ET. The watcher
+    stays idle outside it (nothing can be traded overnight, and it would only
+    spam orders at stale prices)."""
+    now_et = datetime.now(ZoneInfo("America/New_York"))
+    if not is_trading_day(now_et):
+        return False
+    start = now_et.replace(hour=4, minute=0, second=0, microsecond=0)
+    end = now_et.replace(hour=20, minute=0, second=0, microsecond=0)
+    return start <= now_et <= end
 
 
 # ---------------- scanner (unchanged design) ----------------
@@ -474,7 +494,7 @@ def active_stop(entry, peak, red_low):
     return tier_stop(peak, entry)
 
 
-def position_watcher(stop_event=None):
+def position_watcher(stop_event=None, session_fn=None):
     """Own thread. Watches every REAL position from Alpaca (so a late fill or a
     restart is covered too) on the live last-trade price, ~4 times a second,
     independent of the entry scan. The instant a stop is hit, the sell chase
@@ -482,8 +502,12 @@ def position_watcher(stop_event=None):
     last_refresh = 0.0
     sold_at = {}
     pos = {}
+    session = session_fn or in_session
     while stop_event is None or not stop_event.is_set():
         try:
+            if not session():
+                time.sleep(5.0)
+                continue
             now = time.time()
             if now - last_refresh >= WATCH_POS_REFRESH:
                 fresh = get_positions_detail()
@@ -570,74 +594,46 @@ def reconcile_on_startup():
             log(f"RECONCILED on startup: {sym} x{q} @ avg {avg:.4f} (the watcher will protect it)")
 
 
-# ================= v27-specific =================
-STRATEGY_NAME = "v27"
-SLOTS = 2
-POSITION_WEIGHTS = [0.60, 0.40]          # stronger stock gets 60%
-DOLLAR_VOLUME_REFERENCE = 200000         # assumption - tune after real logs
-SHUFFLE_MIN_EDGE = 0.01                  # assumption - tune after real logs
-BALANCE_MIN_GAP_SECONDS = 300            # re-split 60/40 at most every 5 minutes...
-FAST_MOVE_OVERRIDE_SPEED = 0.05          # ...unless a stock is moving very fast (assumption)
+# ================= v31-specific: leaders only, volume-spike breakout, probe + adds =================
+STRATEGY_NAME = "v31"
+MAX_NAMES = 3                      # at most 3 positions - leaders only
+LEADER_TOP_N = 3                   # only the top 3 by 3-minute dollar volume may be entered
+SPIKE_MULT = 2.0                   # last closed bar volume >= 2x the average of the 10 bars before it
+SPIKE_LOOKBACK = 10
+RISK_PER_TRADE = 0.005             # a stop-out on the probe costs about 0.5% of equity
+MIN_STOP_DIST_PCT = 0.01           # never size off a stop closer than 1% of the price
+PROBE_MAX_PCT = 0.10               # the probe is never more than 10% of equity
+MAX_POSITION_PCT = 0.30            # one stock is never more than 30% of equity
+# (gain from the first entry, size of the add as a multiple of the probe): adds SHRINK as the trail widens
+ADD_STEPS = [(0.03, 1.00), (0.06, 0.75), (0.10, 0.50)]
+NEWS_MODE = "boost"                # "off" | "boost" (stocks with fresh news rank first among the leaders) | "require" (only stocks with fresh news can be entered)
+NEWS_WINDOW_MIN = 360              # a headline counts as fresh for 6 hours
+NEWS_REFRESH_SECONDS = 120         # the screener re-reads the news for the whole shortlist every 2 minutes (one call)
+news_cache = {}                    # symbol -> (headline, created_at)
+comeback_floor = {}
+_news_client = None
+_last_news_refresh = 0.0
 
 
-def three_candle_pullback(done):
-    """Two CLOSED bars: green, then red. Returns (trigger, red_bar_low) or None.
-    The entry fires when the LIVE price crosses above trigger (red open + 1c)."""
-    if len(done) < 2:
-        return None
-    prev, last = done[-2], done[-1]
-    if prev.close > prev.open and last.close < last.open:
-        return round(last.open + 0.01, 4), last.low
+def on_new_day():
+    comeback_floor.clear()                     # yesterday's high must not block today's re-entries
+
+
+def get_day_high(symbol):
+    try:
+        snaps = data_client.get_stock_snapshot(StockSnapshotRequest(symbol_or_symbols=[symbol]))
+        snap = snaps.get(symbol)
+        if snap and snap.daily_bar:
+            return snap.daily_bar.high
+    except Exception as e:
+        log(f"get_day_high({symbol}) error: {e}")
     return None
 
 
-def ema(values, period):
-    if len(values) < period:
-        return None
-    k = 2 / (period + 1)
-    e = values[0]
-    for v in values[1:]:
-        e = v * k + e * (1 - k)
-    return e
-
-
-def ema9_above_ema20(done):
-    if len(done) < 20:
-        return False
-    closes = [b.close for b in done]
-    e9 = ema(closes[-20:], 9)
-    e20 = ema(closes[-20:], 20)
-    return e9 is not None and e20 is not None and e9 > e20
-
-
-def compute_macd(closes):
-    if len(closes) < 35:
-        return None, None
-    k12, k26, k9 = 2 / 13, 2 / 27, 2 / 10
-    e12 = e26 = closes[0]
-    macd_series = []
-    for c in closes:
-        e12 = c * k12 + e12 * (1 - k12)
-        e26 = c * k26 + e26 * (1 - k26)
-        macd_series.append(e12 - e26)
-    sig = macd_series[0]
-    for m in macd_series:
-        sig = m * k9 + sig * (1 - k9)
-    return macd_series[-1], sig
-
-
-def macd_positive(done):
-    macd_line, signal_line = compute_macd([b.close for b in done])
-    if macd_line is None or signal_line is None:
-        return False
-    return macd_line > 0 and macd_line > signal_line
-
-
-def compute_vwap(day_bars):
-    total_volume = sum(b.volume for b in day_bars)
-    if total_volume <= 0:
-        return None
-    return sum(b.close * b.volume for b in day_bars) / total_volume
+def on_position_closed(symbol):
+    high = get_day_high(symbol)
+    if high:
+        comeback_floor[symbol] = round(high + 0.05, 4)     # re-enter only above the day's high + 5c
 
 
 def tier_stop(peak, entry):
@@ -652,26 +648,67 @@ def tier_stop(peak, entry):
     return peak * 0.90
 
 
-def dollar_volume_factor(done):
-    if not done:
-        return 1.0
-    dollar_vol = done[-1].close * done[-1].volume
-    return max(0.5, min(2.0, dollar_vol / DOLLAR_VOLUME_REFERENCE))
+def refresh_news(symbols, force=False):
+    """News in the SCREENER: one call for the whole shortlist every 2 minutes.
+    Fills news_cache with each stock's newest headline from the last 6 hours.
+    Any failure just leaves the cache empty (no news flags), never stops the bot."""
+    global _news_client, _last_news_refresh
+    now = time.time()
+    if not symbols or (not force and now - _last_news_refresh < NEWS_REFRESH_SECONDS):
+        return
+    _last_news_refresh = now
+    try:
+        from alpaca.data.historical.news import NewsClient
+        from alpaca.data.requests import NewsRequest
+        if _news_client is None:
+            _news_client = NewsClient(API_KEY, SECRET_KEY)
+        wanted = set(symbols)
+        start = datetime.now(timezone.utc) - timedelta(minutes=NEWS_WINDOW_MIN)
+        result = _news_client.get_news(NewsRequest(symbols=",".join(sorted(wanted)), start=start, limit=50))
+        items = result.data.get("news", []) if hasattr(result, "data") else []
+        found = {}
+        for n in items:
+            for sym in (n.symbols or []):
+                if sym in wanted and (sym not in found or n.created_at > found[sym][1]):
+                    found[sym] = (n.headline, n.created_at)
+        news_cache.clear()
+        news_cache.update(found)
+        log(f"news refreshed: {len(found)} of {len(wanted)} shortlist stocks have a headline in the last {NEWS_WINDOW_MIN} min")
+    except Exception as e:
+        log(f"news feed unavailable: {e}")
 
 
-def combined_score(done, live_price, vmax):
-    return speed(done, live_price, vmax) * dollar_volume_factor(done)
+def volume_spike(done):
+    """Last closed bar's volume >= 2x the average of the 10 bars before it."""
+    if len(done) < SPIKE_LOOKBACK + 1:
+        return False
+    prior = [b.volume for b in done[-(SPIKE_LOOKBACK + 1):-1]]
+    avg = sum(prior) / len(prior)
+    return avg > 0 and done[-1].volume >= SPIKE_MULT * avg
 
 
-def place_buy(symbol, ask, weight, red_low):
+def dollar_volume_3(done):
+    return sum(b.close * b.volume for b in done[-3:])
+
+
+def probe_shares(equity, ask, stop_low):
+    """Size the probe so hitting the stop costs ~0.5% of equity (a wide stop means
+    fewer shares), never more than 10% of equity."""
+    dist = max(ask - stop_low, MIN_STOP_DIST_PCT * ask)
+    by_risk = (RISK_PER_TRADE * equity) / dist
+    by_cap = (PROBE_MAX_PCT * equity) / ask
+    return int(min(by_risk, by_cap))
+
+
+def place_buy(symbol, ask, stop_low):
     equity = get_equity()
-    shares = int(equity * weight // ask)
+    shares = probe_shares(equity, ask, stop_low)
     if shares <= 0:
-        log(f"{symbol}: allocation too small for even 1 share, skipping")
+        log(f"{symbol}: probe too small for even 1 share, skipping")
         return False
     with state_lock:
         buying.add(symbol)
-        state.setdefault(symbol, {})["red_low"] = red_low     # so the watcher has the stop from the first fill
+        state.setdefault(symbol, {})["red_low"] = stop_low      # entry stop = the spike candle's low
     try:
         ok = aggressive_execute(symbol, OrderSide.BUY, shares)
     finally:
@@ -679,75 +716,36 @@ def place_buy(symbol, ask, weight, red_low):
             buying.discard(symbol)
     if ok:
         with state_lock:
-            state.setdefault(symbol, {}).update(weight=weight, last_rebalance_ts=time.time())
+            state.setdefault(symbol, {}).update(first_entry=ask, probe_shares=shares, adds_done=[])
     return ok
 
 
-def score_held(held):
+def try_adds(equity, real):
+    """Add to a winner as it proves itself: +3% adds a full probe, +6% adds 75% of
+    a probe, +10% adds 50% - so the adds shrink as the trail widens. One add per
+    stock per pass, and never past 30% of equity."""
+    held = [s for s, q in real.items() if q > 0 and s not in selling and s not in buying]
+    if not held:
+        return
     prices = get_live_prices(held)
-    scores, speeds = {}, {}
     for s in held:
-        done = completed_bars(get_recent_bars(s, limit=15))
-        vmax = day_max_volume(s)
-        speeds[s] = speed(done, prices.get(s), vmax)
-        scores[s] = speeds[s] * dollar_volume_factor(done)
-    return prices, scores, speeds
-
-
-def try_shuffle(candidate, cand_score, cand_ask, cand_red_low, real):
-    held = [s for s, q in real.items() if q > 0]
-    if len(held) < SLOTS:
-        return False
-    prices, scores, speeds = score_held(held)
-    weakest = min(held, key=lambda s: scores[s])
-    if cand_score - scores[weakest] < SHUFFLE_MIN_EDGE:
-        return False
-    survivors = [s for s in held if s != weakest]
-    weight = POSITION_WEIGHTS[0] if all(cand_score >= scores[s] for s in survivors) else POSITION_WEIGHTS[-1]
-    log(f"SHUFFLE: {candidate} (score {cand_score:.4f}) replaces {weakest} (score {scores[weakest]:.4f}), weight {weight:.0%}")
-    if place_sell(weakest, "replaced by stronger newcomer"):
-        place_buy(candidate, cand_ask, weight, cand_red_low)
-    return True
-
-
-def try_rebalance(equity, real):
-    """Two holdings: the stronger one holds 60%, the weaker 40%. Re-split at most
-    every 5 minutes (sooner only if a stock is moving very fast), and only when
-    the two scores differ by a real margin."""
-    held = [s for s, q in real.items() if q > 0 and s not in selling]
-    if len(held) < 2:
-        return
-    prices, scores, speeds = score_held(held)
-    ranked = sorted(held, key=lambda s: scores[s], reverse=True)[:SLOTS]
-    if abs(scores[ranked[0]] - scores[ranked[1]]) < SHUFFLE_MIN_EDGE:
-        return
-    now = time.time()
-    plan = []
-    for i, s in enumerate(ranked):
-        price = prices.get(s)
         with state_lock:
             st = dict(state.get(s, {}))
-        if not price or "weight" not in st:
+        price = prices.get(s)
+        if not price or "first_entry" not in st:          # late fills and leftovers get no adds
             continue
-        w = POSITION_WEIGHTS[i]
-        if abs(w - st["weight"]) <= 0.01:
-            continue
-        gap_ok = now - st.get("last_rebalance_ts", 0) >= BALANCE_MIN_GAP_SECONDS
-        if not (gap_ok or abs(speeds[s]) >= FAST_MOVE_OVERRIDE_SPEED):
-            continue
-        plan.append((s, int(equity * w // price), w))
-    for s, target, w in plan:                    # trims first, so cash is free for the adds
-        if target < real[s]:
-            log(f"REBALANCE trim {s} to {target} shares ({w:.0%})")
-            place_sell(s, "rebalance trim", target_shares=target)
-    for s, target, w in plan:
-        if target > real[s] and s not in selling:
-            log(f"REBALANCE add {s} to {target} shares ({w:.0%})")
-            aggressive_execute(s, OrderSide.BUY, target)
-    with state_lock:
-        for s, target, w in plan:
-            if s in state:
-                state[s].update(weight=w, last_rebalance_ts=now)
+        gain = price / st["first_entry"] - 1.0
+        for i, (step, mult) in enumerate(ADD_STEPS):
+            if i in st.get("adds_done", []) or gain < step:
+                continue
+            q = real[s]
+            target = min(q + int(st["probe_shares"] * mult), int(MAX_POSITION_PCT * equity // price))
+            log(f"ADD {s} step {i + 1} (gain {gain:.1%}): {q} -> {target} shares")
+            if target > q:
+                aggressive_execute(s, OrderSide.BUY, target)
+            with state_lock:
+                state.setdefault(s, {}).setdefault("adds_done", []).append(i)
+            break
 
 
 def run_cycle(movers):
@@ -759,55 +757,59 @@ def run_cycle(movers):
     if check_daily_halt(equity):
         return
     real = get_real_positions()
-    try_rebalance(equity, real)
+    try_adds(equity, real)
     held_count = len([s for s, q in real.items() if q > 0]) + len(buying)
+    if NEWS_MODE != "off":
+        refresh_news([m["symbol"] for m in movers])
 
+    # pass 1: everything that is thin-safe, near its high and going up
+    cands = []
     for m in movers:
         symbol, price = m["symbol"], m["price"]
-        if not (PRICE_MIN <= price <= PRICE_MAX and m["percent_change"] >= GAIN_MIN):
-            continue
         if not near_high(m):
             continue
         if real.get(symbol, 0) > 0 or symbol in buying or symbol in selling:
             continue
-
-        raw = get_recent_bars(symbol, limit=70)          # 70 so MACD has its 35 bars
+        floor = comeback_floor.get(symbol)
+        if floor is not None and price < floor:
+            continue
+        raw = get_recent_bars(symbol, limit=15)
         done = completed_bars(raw)
-        pattern = three_candle_pullback(done)
-        if pattern is None:
-            continue
-        trigger, red_low = pattern
-        if price < trigger:                              # live price must cross red open + 1c
-            continue
-        cur = forming_bar(raw)
-        if cur is not None and price <= cur.open:        # the entry bar must be trading green
-            continue
         if not thin_ok(done):
             continue
-        if not ema9_above_ema20(done):
+        if speed(done, price, day_max_volume(symbol)) <= 0:
             continue
-        day_bars = get_day_bars(symbol)
-        vwap = compute_vwap(completed_bars(day_bars))
-        if vwap is None or price < vwap:
+        cands.append({"symbol": symbol, "price": price, "raw": raw, "done": done,
+                      "dv3": dollar_volume_3(done), "news": news_cache.get(symbol) if NEWS_MODE != "off" else None})
+
+    # pass 2: leaders only - the top 3 by 3-minute dollar volume (stocks with fresh news first in "boost" mode)
+    if NEWS_MODE == "require":
+        cands = [c for c in cands if c["news"]]
+    cands.sort(key=lambda c: (bool(c["news"]) if NEWS_MODE == "boost" else False, c["dv3"]), reverse=True)
+    leaders = cands[:LEADER_TOP_N]
+    if leaders:
+        log(f"leaders: {[(c['symbol'], round(c['dv3']), 'NEWS' if c['news'] else '') for c in leaders]}")
+
+    # pass 3: a leader with a volume spike that is breaking above the last bar's high gets a probe
+    for c in leaders:
+        if held_count >= MAX_NAMES:
+            break
+        symbol, price, done = c["symbol"], c["price"], c["done"]
+        if not volume_spike(done):
             continue
-        if not macd_positive(done):
+        if price <= done[-1].high:
             continue
-        vmax = day_max_volume(symbol, day_bars)
-        if speed(done, price, vmax) <= 0:
+        cur = forming_bar(c["raw"])
+        if cur is not None and price <= cur.open:            # the entry bar must be trading green
             continue
         ask, bid = get_spread(symbol)
-        if ask is None or bid is None or ask <= 0:
+        if ask is None or bid is None or ask <= 0 or ask - bid > MAX_SPREAD:
             continue
-        if ask - bid > MAX_SPREAD:
-            log(f"{symbol}: spread ${ask - bid:.2f} too wide, skipping")
-            continue
-        score = combined_score(done, price, vmax)
-
-        if held_count < SLOTS:
-            if place_buy(symbol, ask, POSITION_WEIGHTS[min(held_count, SLOTS - 1)], red_low):
-                held_count += 1
-        else:
-            try_shuffle(symbol, score, ask, red_low, real)
+        stop_low = min(b.low for b in done[-2:])
+        headline = c["news"][0] if c["news"] else None
+        log(f"ENTRY SIGNAL {symbol}: leader, volume spike, breakout at {price}, stop {stop_low}, headline: {headline}")
+        if place_buy(symbol, ask, stop_low):
+            held_count += 1
 
 
 def main_loop(max_iterations=None, now_fn=None, sleep_fn=time.sleep):
@@ -861,3 +863,4 @@ if __name__ == "__main__":
     reconcile_on_startup()
     threading.Thread(target=position_watcher, name="watcher", daemon=True).start()
     main_loop()
+  
