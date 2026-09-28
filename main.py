@@ -861,12 +861,3 @@ if __name__ == "__main__":
     reconcile_on_startup()
     threading.Thread(target=position_watcher, name="watcher", daemon=True).start()
     main_loop()
-
-Steps for v27:
-
-Go to github.com/loubaha-hub/alpaca.trading-bot and open main.py.
-Click the pencil (Edit) icon.
-Click into the code area, press Ctrl+A, then Delete.
-Paste the code above and click Commit changes.
-In Render, open the alpaca.trading-bot service, click Manual Deploy, then Deploy latest commit.
-In the Logs, look for Starting Alpaca v27 bot (REBUILT 2026-09-28...) and ACCOUNT CHECK OK, then outside trading window lines until 4 AM.
