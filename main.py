@@ -34,6 +34,7 @@ from alpaca.data.timeframe import TimeFrame
 from alpaca.trading.client import TradingClient
 from alpaca.trading.requests import GetAssetsRequest, LimitOrderRequest
 from alpaca.trading.enums import AssetStatus, OrderSide, TimeInForce
+from alpaca.data.enums import DataFeed
 
 # ----------------------------------------------------------------------------
 # CONFIGURATION - every tunable lives here
@@ -329,7 +330,8 @@ class V31:
         key = os.environ["ALPACA_API_KEY"]
         secret = os.environ["ALPACA_SECRET_KEY"]
         paper = os.environ.get("ALPACA_PAPER", "1") == "1"
-        feed = os.environ.get("ALPACA_FEED", "sip")
+        feed_name = os.environ.get("ALPACA_FEED", "sip").strip().lower()
+        feed = DataFeed.SIP if feed_name == "sip" else DataFeed.IEX
 
         self.trading = TradingClient(key, secret, paper=paper)
         self.data = StockHistoricalDataClient(key, secret)
@@ -756,6 +758,23 @@ class V31:
                 log.info("End of day - flattening everything.")
                 await self.flatten_all("end-of-day")
 
+    async def stream_forever(self):
+        """Keep the websocket alive inside our own event loop.
+
+        alpaca-py's public .run() creates its own loop, so inside a running
+        loop we use the internal coroutine; if that name ever changes, fall
+        back to running .run() on a worker thread.
+        """
+        while True:
+            try:
+                if hasattr(self.stream, "_run_forever"):
+                    await self.stream._run_forever()
+                else:
+                    await asyncio.to_thread(self.stream.run)
+            except Exception as e:
+                log.error("stream dropped (%s) - reconnecting in 5s", e)
+                await asyncio.sleep(5)
+
     async def run(self):
         self.roll_day()
         log.info("v31 starting. equity %.2f", self.day_start_equity)
@@ -764,7 +783,7 @@ class V31:
             self.rebalance_loop(),
             self.close_loop(),
             DLOG.flusher(),
-            self.stream._run_forever(),
+            self.stream_forever(),
         )
 
 
