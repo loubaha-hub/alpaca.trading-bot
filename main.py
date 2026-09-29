@@ -13,7 +13,7 @@ Design rules (see the v31 Rulebook):
 
 Environment variables required:
   ALPACA_API_KEY, ALPACA_SECRET_KEY
-  ALPACA_PAPER   "1" for paper (default), "0" for live
+  ALPACA_PAPER   true/1 for paper (default), false/0 for live
   ALPACA_FEED    "sip" (recommended) or "iex"
 """
 
@@ -329,7 +329,9 @@ class V31:
     def __init__(self):
         key = os.environ["ALPACA_API_KEY"]
         secret = os.environ["ALPACA_SECRET_KEY"]
-        paper = os.environ.get("ALPACA_PAPER", "1") == "1"
+        paper_raw = os.environ.get("ALPACA_PAPER", "1").strip().lower()
+        paper = paper_raw in ("1", "true", "t", "yes", "y", "on")
+        self.paper = paper
         feed_name = os.environ.get("ALPACA_FEED", "sip").strip().lower()
         feed = DataFeed.SIP if feed_name == "sip" else DataFeed.IEX
 
@@ -348,6 +350,7 @@ class V31:
         self.stopped = False
         self.last_rebalance = 0.0
         self.last_speeds: dict[str, float] = {}
+        self.last_auth_warn = 0.0
 
     # ---- helpers ------------------------------------------------------------
 
@@ -414,7 +417,16 @@ class V31:
             symbols = [a.symbol for a in assets
                        if a.tradable and a.symbol.isalpha() and len(a.symbol) <= 4]
         except Exception as e:
-            log.error("asset list failed: %s", e)
+            now = time.time()
+            if now - self.last_auth_warn > 60:
+                self.last_auth_warn = now
+                log.error("asset list failed: %s", e)
+                if "not authorized" in str(e):
+                    log.critical(
+                        "KEYS AND ENDPOINT DO NOT MATCH. Currently using the %s "
+                        "endpoint. Paper keys need ALPACA_PAPER=true (or 1); "
+                        "live keys need ALPACA_PAPER=false (or 0).",
+                        "PAPER" if self.paper else "LIVE")
             return []
 
         picks = []
@@ -775,7 +787,24 @@ class V31:
                 log.error("stream dropped (%s) - reconnecting in 5s", e)
                 await asyncio.sleep(5)
 
+    def check_account(self):
+        """Fail loudly at boot instead of running with equity 0.00."""
+        try:
+            acct = self.trading.get_account()
+            log.info("Connected to Alpaca %s account %s - equity %.2f",
+                     "PAPER" if self.paper else "LIVE",
+                     acct.account_number, float(acct.equity))
+            return True
+        except Exception as e:
+            log.critical("CANNOT REACH THE ACCOUNT: %s", e)
+            log.critical("Using the %s endpoint. Paper keys need ALPACA_PAPER=true "
+                         "(or 1); live keys need ALPACA_PAPER=false (or 0). "
+                         "Nothing will trade until this matches.",
+                         "PAPER" if self.paper else "LIVE")
+            return False
+
     async def run(self):
+        self.check_account()
         self.roll_day()
         log.info("v31 starting. equity %.2f", self.day_start_equity)
         await asyncio.gather(
