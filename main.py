@@ -10,11 +10,13 @@ Design rules (see the v31 Rulebook):
     after the trade is up 1.5 x ABR%. Until then the red bar's low is the stop.
   * Capital is split in proportion to speed, leader capped at 80%.
   * Exits run on a strict precedence ladder - one exit path per position.
+  * The BROKER is the only truth about what we hold. Memory is a cache.
 
 Environment variables required:
   ALPACA_API_KEY, ALPACA_SECRET_KEY
-  ALPACA_PAPER   true/1 for paper (default), false/0 for live
+  ALPACA_PAPER   "1" for paper (default), "0" for live
   ALPACA_FEED    "sip" (recommended) or "iex"
+  ORPHAN_MODE    "adopt" (default) or "flatten" - leave it unset
 """
 
 import asyncio
@@ -94,6 +96,17 @@ FLATTEN_AT = (15, 58)                       # flatten everything at 15:58 ET
 BUY_CHASE_CAP = 0.02                        # buys capped 2% above the ask
 CHASE_ATTEMPTS = 8
 CHASE_PAUSE = 0.35
+
+# --- reconciliation ----------------------------------------------------------
+# The broker is the ONLY truth about what we hold. Memory is a cache that a
+# restart wipes. Everything below exists so a restart, a crash, a redeploy or a
+# leftover position from an older strategy can never make the bot trade blind.
+ORPHAN_MODE = os.environ.get("ORPHAN_MODE", "adopt").strip().lower()
+ORPHAN_FLATTEN_WINDOW = ((4, 0), (4, 10))    # flatten mode only bites here
+SESSION = ((4, 0), (20, 0))                  # the session WE trade, ET
+ORPHAN_STOP_PCT = 0.08          # adopted position: leash 8% under its own peak
+RECONCILE_SECONDS = 60          # re-check the broker every minute
+EQUITY_TTL = 5                  # seconds to cache the account equity
 
 # --- loop --------------------------------------------------------------------
 SCAN_SECONDS = 8
@@ -180,6 +193,7 @@ class SymState:
     peak: float = 0.0
     trail_stop: float = 0.0
     armed: bool = False
+    adopted: bool = False        # taken over from the broker, not opened by us
 
     # pending setup
     setup_level: float = 0.0                             # red open + 1 cent
@@ -302,6 +316,14 @@ class SymState:
         if not self.in_position:
             return
         self.peak = max(self.peak, price)
+
+        # An adopted position has no red-bar low - we were not there when it was
+        # opened. Give it a self-widening leash under its own peak until the real
+        # ABR trail arms, so it is never left completely unprotected.
+        if self.adopted and not self.armed:
+            self.entry_stop = max(self.entry_stop,
+                                  self.peak * (1 - ORPHAN_STOP_PCT))
+
         abr = self.abr()
         if abr <= 0:
             return
@@ -351,6 +373,10 @@ class V31:
         self.last_rebalance = 0.0
         self.last_speeds: dict[str, float] = {}
         self.last_auth_warn = 0.0
+        self.needs_reconcile = True
+        self._eq = 0.0
+        self._eq_at = 0.0
+        self.last_probe = 0.0
 
     # ---- helpers ------------------------------------------------------------
 
@@ -360,10 +386,22 @@ class V31:
         return self.state[symbol]
 
     def equity(self) -> float:
+        """Cached for EQUITY_TTL seconds.
+
+        This is called from evaluate(), which runs on EVERY trade tick of every
+        watched name. Uncached it was a blocking HTTP round-trip per tick -
+        hundreds per second across the watchlist, enough to rate-limit the
+        account and stall the very stops it was being called to check.
+        """
+        now = time.time()
+        if now - self._eq_at < EQUITY_TTL and self._eq > 0:
+            return self._eq
         try:
-            return float(self.trading.get_account().equity)
+            self._eq = float(self.trading.get_account().equity)
+            self._eq_at = now
+            return self._eq
         except Exception:
-            return self.day_start_equity
+            return self._eq or self.day_start_equity
 
     def halt_threshold(self) -> float:
         i = min(self.halt_streak, len(HALT_LADDER) - 1)
@@ -385,8 +423,149 @@ class V31:
         self.day_start_equity = self.equity()
         self.state.clear()
         self.last_speeds.clear()
+        self.needs_reconcile = True        # state was just wiped - re-read broker
         log.info("New day %s, baseline equity %.2f, halt at -%.1f%%",
                  today, self.day_start_equity, 100 * self.halt_threshold())
+
+    # ---- reconciliation -----------------------------------------------------
+    # The broker is the truth. Memory is a cache. On every restart, redeploy,
+    # crash or day roll the cache is empty while the account may still be holding
+    # stock - from this strategy, or from whatever ran here before. Without this
+    # the bot would size new trades as if it held nothing, ignore the stops on
+    # what it already owns, and leave old positions to rot untouched all day.
+
+    def broker_positions(self) -> dict:
+        """What the account ACTUALLY holds, keyed by symbol. {} if unreachable."""
+        try:
+            out = {}
+            for p in self.trading.get_all_positions():
+                try:
+                    qty = float(p.qty)
+                except Exception:
+                    continue
+                if qty <= 0:                       # long-only; ignore any short
+                    continue
+                out[p.symbol] = {
+                    "qty": qty,
+                    "entry": float(p.avg_entry_price or 0.0),
+                    "price": float(p.current_price or 0.0),
+                }
+            return out
+        except Exception as e:
+            log.error("cannot read positions from the broker: %s", e)
+            return None                            # None = unknown, NOT empty
+
+    def broker_qty(self, symbol: str) -> float:
+        """One symbol's real share count. 0.0 when flat, None when unreachable."""
+        try:
+            pos = self.trading.get_open_position(symbol)
+            return float(pos.qty)
+        except Exception as e:
+            if "position does not exist" in str(e).lower() or "404" in str(e):
+                return 0.0
+            return None
+
+    async def reconcile(self, why: str = "startup"):
+        """Make memory agree with the broker. Runs at boot and every minute."""
+        held = self.broker_positions()
+        if held is None:
+            return                                 # unreachable - change nothing
+
+        market_open = self.market_is_open()
+        adopted, dropped, corrected, flattened = [], [], [], []
+
+        # --- positions the broker has ---------------------------------------
+        for sym, info in held.items():
+            s = self.st(sym)
+            price = info["price"] or info["entry"] or s.last_price
+
+            if not s.in_position:
+                # We hold stock we have no memory of opening.
+                if (ORPHAN_MODE == "flatten" and market_open
+                        and self.in_flatten_window()):
+                    sold = await self.sell(sym, int(info["qty"]), price)
+                    flattened.append((sym, sold))
+                    DLOG.record(ev="ORPHAN-FLATTEN", sym=sym, sh=sold, px=price)
+                    continue
+                s.shares = info["qty"]
+                s.entry = info["entry"] or price
+                s.adopted = True
+                s.armed = False
+                # Seed the peak from where the stock is NOW, not from its old
+                # entry. We do not know the real high-water mark - seeding from
+                # entry would put the leash above the price on anything that has
+                # pulled back, and dump a healthy position the moment we restart.
+                # Clearing out genuine junk is what ORPHAN_MODE=flatten is for.
+                s.peak = price or s.entry
+                s.last_price = s.last_price or price
+                s.entry_stop = max(s.entry_stop,
+                                   s.peak * (1 - ORPHAN_STOP_PCT))
+                s.trail_stop = 0.0
+                adopted.append((sym, info["qty"], s.entry_stop))
+                DLOG.record(ev="ADOPT", sym=sym, sh=info["qty"],
+                            entry=s.entry, px=price, stop=s.entry_stop, why=why)
+            elif abs(s.shares - info["qty"]) >= 1:
+                # Our count drifted from the broker's - the broker wins.
+                corrected.append((sym, s.shares, info["qty"]))
+                DLOG.record(ev="QTY-FIX", sym=sym, ours=s.shares,
+                            broker=info["qty"], why=why)
+                s.shares = info["qty"]
+
+        # --- positions WE think we have but the broker does not -------------
+        for s in list(self.state.values()):
+            if s.in_position and s.symbol not in held:
+                dropped.append((s.symbol, s.shares))
+                DLOG.record(ev="GHOST-CLEAR", sym=s.symbol, sh=s.shares, why=why)
+                s.shares = 0.0
+                s.entry = s.entry_stop = s.trail_stop = 0.0
+                s.armed = False
+                s.adopted = False
+                s.quiet_bars = 0
+
+        if adopted:
+            await self.subscribe([sym for sym, _, _ in adopted])
+            for sym, qty, stop in adopted:
+                log.warning("ADOPTED %s: %.0f shares already held, stop set %.4f",
+                            sym, qty, stop)
+        for sym, sold in flattened:
+            log.warning("FLATTENED orphan %s: sold %d", sym, sold)
+        for sym, ours, real in corrected:
+            log.warning("QTY CORRECTED %s: we said %.0f, broker says %.0f",
+                        sym, ours, real)
+        for sym, qty in dropped:
+            log.warning("GHOST CLEARED %s: we thought %.0f, broker holds none",
+                        sym, qty)
+        if not (adopted or flattened or corrected or dropped):
+            log.info("reconcile (%s): broker and memory agree, %d position(s)",
+                     why, len(held))
+
+    def market_is_open(self) -> bool:
+        """Tradeable session, NOT the 9:30-16:00 regular one.
+
+        Extended hours open at 4:00am ET and the best moves of the day happen
+        before 9:30. Every order this bot sends carries extended_hours=True, so
+        4:00-20:00 is the real window. Anything that treats 9:30 as the start
+        is wrong for this strategy.
+        """
+        now = datetime.now(ET)
+        if now.weekday() >= 5:
+            return False
+        start, end = SESSION
+        return start <= (now.hour, now.minute) < end
+
+    def in_flatten_window(self) -> bool:
+        """ORPHAN_MODE=flatten may only act in the first minutes of the session.
+
+        Without this, leaving the variable set would be a loaded gun: a restart
+        at 2pm finds an empty memory, calls its own healthy positions orphans,
+        and sells the lot. Time-boxing it to the first ten minutes after the
+        4:00am open means the switch clears what was left overnight and nothing
+        else. It is still a blunt instrument - closing a leftover by hand in the
+        Alpaca web interface is safer and always preferred.
+        """
+        now = datetime.now(ET)
+        start, end = ORPHAN_FLATTEN_WINDOW
+        return start <= (now.hour, now.minute) < end
 
     # ---- scanner ------------------------------------------------------------
 
@@ -430,6 +609,7 @@ class V31:
             return []
 
         picks = []
+        probe = []                    # premarket diagnostic - see log_probe()
         for chunk in [symbols[i:i + 500] for i in range(0, len(symbols), 500)]:
             try:
                 snaps = self.data.get_stock_snapshot(
@@ -444,14 +624,41 @@ class V31:
                         continue
                     if not (PRICE_MIN <= last <= PRICE_MAX):
                         continue
+                    if len(probe) < 5:
+                        pb = getattr(snap, "previous_daily_bar", None)
+                        probe.append((
+                            sym, float(last),
+                            float(getattr(bar, "open", 0) or 0),
+                            str(getattr(bar, "timestamp", ""))[:10],
+                            float(getattr(pb, "close", 0) or 0)))
                     if bar.open <= 0 or last < bar.open * (1 + GAIN_FROM_OPEN):
                         continue
                     picks.append(sym)
                 except Exception:
                     continue
 
+        self.log_probe(probe)
         DLOG.record(ev="scan", n=len(picks), float_filter="SKIPPED-no-source")
         return picks
+
+    def log_probe(self, probe):
+        """Print what the qualifying test is ACTUALLY comparing against.
+
+        Premarket there is no "today's open" yet. If daily_bar is still carrying
+        yesterday's session, the 10% test is measuring this morning's price
+        against yesterday's 9:30 open - which is not the rule we wrote. The bar's
+        own date in this line settles it either way.
+        """
+        now = time.time()
+        if not probe or now - self.last_probe < 60:
+            return
+        self.last_probe = now
+        for sym, last, dopen, dts, pclose in probe:
+            g_open = (last / dopen - 1) * 100 if dopen else 0.0
+            g_prev = (last / pclose - 1) * 100 if pclose else 0.0
+            log.info("PROBE %-5s last=%.4f | daily_bar.open=%.4f dated %s "
+                     "-> %+.1f%% | prev_close=%.4f -> %+.1f%%",
+                     sym, last, dopen, dts, g_open, pclose, g_prev)
 
     # ---- streaming ----------------------------------------------------------
 
@@ -666,32 +873,60 @@ class V31:
     # ---- order chase --------------------------------------------------------
 
     async def buy(self, symbol: str, shares: int, ref_price: float) -> int:
-        """Chase upward, capped 2% above the ask. Never let a runner escape."""
-        remaining = shares
+        """Chase upward, capped 2% above the ask. Never let a runner escape.
+
+        Fills are counted from the BROKER's position, not from what the order
+        reply told us. A cancel that races a fill used to report "got nothing"
+        and the next attempt bought the whole clip again - that is how a $600
+        slot became $3,050. Asking the broker what we own makes that impossible.
+        """
+        start = self.broker_qty(symbol)
+        if start is None:
+            start = 0.0                            # unreachable: fall back
         for _ in range(CHASE_ATTEMPTS):
+            now = self.broker_qty(symbol)
+            filled = (now - start) if now is not None else 0.0
+            remaining = int(shares - filled)
             if remaining <= 0:
                 break
             ask = self.quote(symbol, "ask") or ref_price
             limit = round(min(ask * 1.002, ref_price * (1 + BUY_CHASE_CAP)), 2)
             got = await self.send(symbol, remaining, OrderSide.BUY, limit)
-            remaining -= got
             if got == 0:
                 await asyncio.sleep(CHASE_PAUSE)
-        return shares - remaining
+        end = self.broker_qty(symbol)
+        if end is None:
+            return 0
+        return max(0, int(end - start))
 
     async def sell(self, symbol: str, shares: int, ref_price: float) -> int:
-        """Chase downward, UNCAPPED. A stop must always get out."""
-        remaining = shares
+        """Chase downward, UNCAPPED. A stop must always get out.
+
+        Counted from the broker in the same way, and clamped to what we really
+        own - so a stop can never try to sell more than the account holds and
+        get the whole order rejected with shorting switched off.
+        """
+        start = self.broker_qty(symbol)
+        if start is None:
+            start = float(shares)
+        want = min(int(shares), int(start))
+        if want <= 0:
+            return 0
         for _ in range(CHASE_ATTEMPTS):
+            now = self.broker_qty(symbol)
+            sold = (start - now) if now is not None else 0.0
+            remaining = int(want - sold)
             if remaining <= 0:
                 break
             bid = self.quote(symbol, "bid") or ref_price
             limit = round(max(bid * 0.995, 0.01), 2)
             got = await self.send(symbol, remaining, OrderSide.SELL, limit)
-            remaining -= got
             if got == 0:
                 await asyncio.sleep(CHASE_PAUSE)
-        return shares - remaining
+        end = self.broker_qty(symbol)
+        if end is None:
+            return want
+        return max(0, int(start - end))
 
     def quote(self, symbol: str, side: str):
         try:
@@ -730,6 +965,9 @@ class V31:
         while True:
             try:
                 self.roll_day()
+                if self.needs_reconcile:
+                    self.needs_reconcile = False
+                    await self.reconcile("day-roll")
                 if not self.stopped and not self.halted_today:
                     picks = self.scan()
                     self.load_borrow_flags(picks)
@@ -762,6 +1000,15 @@ class V31:
             except Exception as e:
                 log.error("rebalance: %s", e)
 
+    async def reconcile_loop(self):
+        """A minute is fast enough to catch drift, slow enough to cost nothing."""
+        while True:
+            await asyncio.sleep(RECONCILE_SECONDS)
+            try:
+                await self.reconcile("periodic")
+            except Exception as e:
+                log.error("reconcile: %s", e)
+
     async def close_loop(self):
         while True:
             await asyncio.sleep(20)
@@ -784,8 +1031,19 @@ class V31:
                 else:
                     await asyncio.to_thread(self.stream.run)
             except Exception as e:
-                log.error("stream dropped (%s) - reconnecting in 5s", e)
-                await asyncio.sleep(5)
+                msg = str(e).lower()
+                if "connection limit" in msg:
+                    # The old socket has not been released yet. Coming straight
+                    # back only competes with ourselves - close and wait it out.
+                    try:
+                        await self.stream.close()
+                    except Exception:
+                        pass
+                    log.error("stream refused (connection limit) - waiting 30s")
+                    await asyncio.sleep(30)
+                else:
+                    log.error("stream dropped (%s) - reconnecting in 5s", e)
+                    await asyncio.sleep(5)
 
     def check_account(self):
         """Fail loudly at boot instead of running with equity 0.00."""
@@ -806,10 +1064,15 @@ class V31:
     async def run(self):
         self.check_account()
         self.roll_day()
-        log.info("v31 starting. equity %.2f", self.day_start_equity)
+        # Before a single decision is made, find out what we already own.
+        self.needs_reconcile = False
+        await self.reconcile("startup")
+        log.info("v31 starting. equity %.2f, orphan mode %s",
+                 self.day_start_equity, ORPHAN_MODE)
         await asyncio.gather(
             self.scanner_loop(),
             self.rebalance_loop(),
+            self.reconcile_loop(),
             self.close_loop(),
             DLOG.flusher(),
             self.stream_forever(),
