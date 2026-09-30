@@ -632,4 +632,4 @@ class Strategy:
         A cancel racing a fill used to report "got nothing" and the next attempt
         bought the whole clip again - a $600 slot became $3,050 that way.
         """
-        start = await
+        start = awaitself.broker.qty(symbol)
