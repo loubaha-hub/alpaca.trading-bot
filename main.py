@@ -1,3 +1,10 @@
+Wed Sep 30, 6:43 AM ET
+
+To be clear on one thing: the last line isn't wrong — I was telling you where the code ends, so you know not to paste any of my chat text after it. It ends at asyncio.run(Engine().run()).
+
+Here is the whole file, A to Z. Paste it over main.py.
+
+python
 """
 Trading engine - three strategies, one process, one market-data connection.
 
@@ -29,6 +36,8 @@ ENVIRONMENT VARIABLES
   ALPACA_PAPER   "1"/"true" for paper (default), "0"/"false" for live
   ALPACA_FEED    "sip" (default) or "iex"
   ORPHAN_MODE    "adopt" (default) or "flatten" - leave unset
+
+A strategy with no keys logs a warning and does not run. Nothing else changes.
 """
 
 import asyncio
@@ -83,6 +92,14 @@ EQUITY_TTL = 5
 
 # --- tick fan-out ------------------------------------------------------------
 QUEUE_MAX = 20000                           # per strategy; drops oldest if full
+
+# --- subscription batching ---------------------------------------------------
+# Every subscribe call makes the SDK restart the socket and re-send the whole
+# list. With the scanner finding a new name every 8 seconds that means a
+# reconnect every 8 seconds, a gap in ticks each time, and a real chance of
+# colliding with our own not-yet-released connection. So new names are collected
+# and sent in ONE batch, at most this often. A position we hold jumps the queue.
+SUBSCRIBE_INTERVAL = 30
 
 # --- v31 ---------------------------------------------------------------------
 V31_MAX_POSITIONS = 3
@@ -289,19 +306,46 @@ class MarketData:
         self.hist = StockHistoricalDataClient(key, secret)
         self.stream = StockDataStream(key, secret, feed=feed)
         self.subscribed: set[str] = set()
+        self.pending: set[str] = set()
+        self.last_sub_at = 0.0
         self.trade_sinks = []                  # callables(symbol, price, size)
         self.bar_sinks = []                    # callables(bar)
 
-    async def subscribe(self, symbols):
+    async def subscribe(self, symbols, force: bool = False):
+        """Queue names for the next batch. force=True sends them right now."""
         new = [s for s in symbols if s not in self.subscribed]
         if not new:
             return
-        for sym in new:
-            self.stream.subscribe_bars(self._on_bar, sym)
-            self.stream.subscribe_trades(self._on_trade, sym)
-            self.subscribed.add(sym)
-        log.info("watching %d names (+%d) on the shared connection",
-                 len(self.subscribed), len(new))
+        self.pending.update(new)
+        if force:
+            self.flush_subscriptions()
+
+    def flush_subscriptions(self):
+        """ONE call for the whole batch, not one call per symbol."""
+        if not self.pending:
+            return
+        batch = sorted(self.pending)
+        try:
+            self.stream.subscribe_bars(self._on_bar, *batch)
+            self.stream.subscribe_trades(self._on_trade, *batch)
+        except Exception as e:
+            log.error("subscribe failed (%d names): %s", len(batch), e)
+            return
+        self.pending.clear()
+        self.subscribed.update(batch)
+        self.last_sub_at = time.time()
+        log.info("watching %d names (+%d batched) on the shared connection",
+                 len(self.subscribed), len(batch))
+
+    async def subscribe_loop(self):
+        """First batch goes immediately; after that, at most every 30 seconds."""
+        while True:
+            await asyncio.sleep(2)
+            if not self.pending:
+                continue
+            first = not self.subscribed
+            if first or time.time() - self.last_sub_at >= SUBSCRIBE_INTERVAL:
+                self.flush_subscriptions()
 
     async def _on_trade(self, trade):
         for sink in self.trade_sinks:
@@ -536,7 +580,7 @@ class Strategy:
                 self.clear(s)
 
         if adopted:
-            await self.data.subscribe([sym for sym, _, _ in adopted])
+            await self.data.subscribe([sym for sym, _, _ in adopted], force=True)
             for sym, qty, stop in adopted:
                 log.warning("[%s] ADOPTED %s: %.0f shares held, stop %.4f",
                             self.name, sym, qty, stop)
@@ -1250,8 +1294,9 @@ class Engine:
                 parts.append("%s q=%d pos=%d drop=%d"
                              % (s.name, s.queue.qsize(),
                                 len(s.open_positions()), s.dropped_ticks))
-            log.info("health | watching %d | %s",
-                     len(self.data.subscribed), " | ".join(parts))
+            log.info("health | watching %d (+%d queued) | %s",
+                     len(self.data.subscribed), len(self.data.pending),
+                     " | ".join(parts))
 
     # ---- boot ---------------------------------------------------------------
 
@@ -1285,7 +1330,8 @@ class Engine:
                  ", ".join(s.name for s in self.strategies), ORPHAN_MODE)
 
         tasks = [self.scanner_loop(), self.reconcile_loop(), self.periodic_loop(),
-                 self.close_loop(), self.health_loop(), self.data.run_forever()]
+                 self.close_loop(), self.health_loop(),
+                 self.data.subscribe_loop(), self.data.run_forever()]
         for strat in self.strategies:
             tasks.append(strat.tick_worker())
             tasks.append(strat.dlog.flusher())
