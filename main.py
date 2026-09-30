@@ -1,22 +1,34 @@
 """
-v31 - Runner strategy for Alpaca.
+Trading engine - three strategies, one process, one market-data connection.
 
-Design rules (see the v31 Rulebook):
-  * Closed bars set the levels. Ticks fire the actions. An in-progress bar is
-    NEVER treated as closed - that bug made the old build enter one bar early,
-    inside the red candle.
-  * Speed = (dP/P) x volume multiplier. Sign = direction, magnitude = urgency.
-  * Trail = 3 x ABR (median true range of the last 10 closed bars), armed only
-    after the trade is up 1.5 x ABR%. Until then the red bar's low is the stop.
-  * Capital is split in proportion to speed, leader capped at 80%.
-  * Exits run on a strict precedence ladder - one exit path per position.
-  * The BROKER is the only truth about what we hold. Memory is a cache.
+WHY ONE PROCESS
+  Alpaca limits websocket connections per USER (login), not per paper account.
+  The observed limit on this account is 1. Three separate services therefore
+  cannot run at once - two of them sit in `connection limit exceeded` forever.
+  One process opens the single connection, subscribes to the union of every
+  strategy's symbols, and hands each tick to three independent strategy engines.
 
-Environment variables required:
-  ALPACA_API_KEY, ALPACA_SECRET_KEY
-  ALPACA_PAPER   "1" for paper (default), "0" for live
-  ALPACA_FEED    "sip" (recommended) or "iex"
-  ORPHAN_MODE    "adopt" (default) or "flatten" - leave it unset
+WHAT IS SHARED AND WHAT IS NOT
+  Shared : the websocket, the market scan, the snapshot client.
+  NOT shared: accounts, keys, positions, cash, P&L, rules, decisions.
+  Each strategy holds its own TradingClient pointed at its own paper account, so
+  orders never contend - execution goes over REST, not the socket.
+
+THE ONE REAL RISK, AND HOW IT IS HANDLED
+  Three strategies share one event loop. A blocking HTTP call inside one would
+  freeze the other two's tick handling. So:
+    * every broker/data call runs off the loop via asyncio.to_thread
+    * each strategy drains its OWN tick queue in its OWN task
+  One strategy stuck in an order chase falls behind by itself. The others do not
+  notice.
+
+ENVIRONMENT VARIABLES
+  ALPACA_API_KEY / ALPACA_SECRET_KEY   v31's account (required)
+  V32_API_KEY    / V32_SECRET_KEY      v32's account (optional - omit to skip)
+  V33_API_KEY    / V33_SECRET_KEY      v33's account (optional - omit to skip)
+  ALPACA_PAPER   "1"/"true" for paper (default), "0"/"false" for live
+  ALPACA_FEED    "sip" (default) or "iex"
+  ORPHAN_MODE    "adopt" (default) or "flatten" - leave unset
 """
 
 import asyncio
@@ -31,107 +43,129 @@ from zoneinfo import ZoneInfo
 
 from alpaca.data.historical import StockHistoricalDataClient
 from alpaca.data.live import StockDataStream
-from alpaca.data.requests import StockBarsRequest, StockSnapshotRequest
-from alpaca.data.timeframe import TimeFrame
+from alpaca.data.requests import StockSnapshotRequest
 from alpaca.trading.client import TradingClient
 from alpaca.trading.requests import GetAssetsRequest, LimitOrderRequest
 from alpaca.trading.enums import AssetStatus, OrderSide, TimeInForce
 from alpaca.data.enums import DataFeed
 
 # ----------------------------------------------------------------------------
-# CONFIGURATION - every tunable lives here
+# SHARED CONFIGURATION
 # ----------------------------------------------------------------------------
 
-ET = ZoneInfo("America/New_York")          # the ONE clock. Never use local time.
+ET = ZoneInfo("America/New_York")           # the ONE clock. Never local time.
 
-# --- scanner -----------------------------------------------------------------
-PRICE_MIN = 1.00
-PRICE_MAX = 20.00
-FLOAT_MIN = 1_000_000                       # only applied when float is known
-FLOAT_MAX = 20_000_000
-GAIN_FROM_OPEN = 0.10                       # up 10% from today's first trade
-REQUIRE_VOLUME_GE_RDV = True                # volume >= one normal day's volume
-HTB_BOOST = 1.25                            # hard-to-borrow ranking multiplier
-
-# --- thin-stock filter (three closed bars) -----------------------------------
-BAR_SHARES_MIN = 30_000                     # each of the last three bars
-THREE_BAR_SHARES_MIN = 100_000              # the three together
-
-# --- entry -------------------------------------------------------------------
-ENTRY_TICK = 0.01                           # cross above red bar's OPEN + 1 cent
-
-# --- speed -------------------------------------------------------------------
-TRADE_WINDOW = 50                           # trades per window on the fast clock
-SPEED_ADD_MULT = 5.0                        # add when speed >= 5x baseline
-SPEED_FADE_MULT = 0.25                      # fading when speed < 0.25x baseline
-SPEED_FLUSH_MULT = 5.0                      # flush when speed <= -5x baseline
-BASELINE_MIN_SAMPLES = 10
-
-# --- ABR and the trail -------------------------------------------------------
-ABR_BARS = 10
-ABR_MIN_BARS = 3                            # no trail until we have 3 bars
-ABR_GROWTH_CAP = 1.5                        # vs its own value 10 minutes ago
-TRAIL_MULT = 3.0                            # trail = 3 x ABR
-TRAIL_ARM_MULT = 1.5                        # arm when gain >= 1.5 x ABR
-TRAIL_MIN_PCT = 0.02                        # never tighter than 2%
-TRAIL_MAX_PCT = 0.25                        # never wider than 25%
-
-# --- stall -------------------------------------------------------------------
-STALL_BARS = 6                              # 6 quiet candles -> close it
-
-# --- position management -----------------------------------------------------
-MAX_POSITIONS = 3
-LEADER_CAP = 0.80                           # top name never above 80%
-RISK_PER_TRADE = 0.01                       # starter sized off the entry stop
-REBALANCE_SECONDS = 300                     # 5-minute clock
-SPEED_EVENT_MULT = 2.0                      # doubles/halves -> off-clock rebalance
-DISPLACE_MULT = 2.0                         # newcomer needs 2x the weakest
-MIN_TRADE_DOLLARS = 100                     # don't bother with crumbs
-
-# --- risk --------------------------------------------------------------------
-HALT_LADDER = [0.10, 0.05, 0.025]           # then a full stop
+SESSION = ((4, 0), (20, 0))                 # the session WE trade, ET
 FLATTEN_AT = (15, 58)                       # flatten everything at 15:58 ET
 
-# --- execution ---------------------------------------------------------------
+# --- scanner (shared by all three) -------------------------------------------
+PRICE_MIN = 1.00
+PRICE_MAX = 20.00
+GAIN_FROM_OPEN = 0.10                       # up 10% from the day's reference
+MAX_BAR_AGE_DAYS = 5                        # ignore names that have not traded
+SCAN_SECONDS = 8
+MAX_WATCH = 200                             # symbols on the stream
+
+# --- execution (shared) ------------------------------------------------------
 BUY_CHASE_CAP = 0.02                        # buys capped 2% above the ask
 CHASE_ATTEMPTS = 8
 CHASE_PAUSE = 0.35
+MIN_TRADE_DOLLARS = 100
 
-# --- reconciliation ----------------------------------------------------------
-# The broker is the ONLY truth about what we hold. Memory is a cache that a
-# restart wipes. Everything below exists so a restart, a crash, a redeploy or a
-# leftover position from an older strategy can never make the bot trade blind.
+# --- risk (shared) -----------------------------------------------------------
+HALT_LADDER = [0.10, 0.05, 0.025]           # then a full stop
+
+# --- reconciliation (shared) -------------------------------------------------
 ORPHAN_MODE = os.environ.get("ORPHAN_MODE", "adopt").strip().lower()
-ORPHAN_FLATTEN_WINDOW = ((4, 0), (4, 10))    # flatten mode only bites here
-SESSION = ((4, 0), (20, 0))                  # the session WE trade, ET
-ORPHAN_STOP_PCT = 0.08          # adopted position: leash 8% under its own peak
-RECONCILE_SECONDS = 60          # re-check the broker every minute
-EQUITY_TTL = 5                  # seconds to cache the account equity
+ORPHAN_FLATTEN_WINDOW = ((4, 0), (4, 10))
+RECONCILE_SECONDS = 60
+EQUITY_TTL = 5
 
-# --- loop --------------------------------------------------------------------
-SCAN_SECONDS = 8
+# --- tick fan-out ------------------------------------------------------------
+QUEUE_MAX = 20000                           # per strategy; drops oldest if full
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
-log = logging.getLogger("v31")
+# --- v31 ---------------------------------------------------------------------
+V31_MAX_POSITIONS = 3
+V31_LEADER_CAP = 0.80
+V31_RISK_PER_TRADE = 0.01
+V31_ENTRY_TICK = 0.01
+V31_TRADE_WINDOW = 50
+V31_SPEED_ADD_MULT = 5.0
+V31_SPEED_FADE_MULT = 0.25
+V31_SPEED_FLUSH_MULT = 5.0
+V31_BASELINE_MIN_SAMPLES = 10
+V31_ABR_BARS = 10
+V31_ABR_MIN_BARS = 3
+V31_ABR_GROWTH_CAP = 1.5
+V31_TRAIL_MULT = 3.0
+V31_TRAIL_ARM_MULT = 1.5
+V31_TRAIL_MIN_PCT = 0.02
+V31_TRAIL_MAX_PCT = 0.25
+V31_STALL_BARS = 6
+V31_BAR_SHARES_MIN = 30_000
+V31_THREE_BAR_SHARES_MIN = 100_000
+V31_REBALANCE_SECONDS = 300
+V31_SPEED_EVENT_MULT = 2.0
+V31_ORPHAN_STOP_PCT = 0.08
+
+# --- v32 and v33 -------------------------------------------------------------
+SIMPLE_MAX_NAMES = 50
+SIMPLE_START_CAPITAL = 30_000.0
+SIMPLE_SLOT = SIMPLE_START_CAPITAL / SIMPLE_MAX_NAMES     # $600 per name
+SIMPLE_STOP_CENTS = 0.01
+SIMPLE_STOP_PCT = 0.001
+
+logging.basicConfig(level=logging.INFO,
+                    format="%(asctime)s %(levelname)s %(message)s")
+log = logging.getLogger("engine")
+
+
+def margin_for(price: float) -> float:
+    """How far above a level counts as a genuine break of it."""
+    if price <= 5:
+        return 0.05
+    if price <= 20:
+        return 0.01 * price
+    if price <= 50:
+        return 0.20 + (price - 20) * (0.10 / 30)
+    if price <= 100:
+        return 0.30 + (price - 50) * (0.10 / 50)
+    return 0.40
+
+
+def simple_stop(entry: float) -> float:
+    return entry - max(SIMPLE_STOP_CENTS, SIMPLE_STOP_PCT * entry)
+
+
+def in_window(window) -> bool:
+    now = datetime.now(ET)
+    start, end = window
+    return start <= (now.hour, now.minute) < end
+
+
+def market_is_open() -> bool:
+    """The session WE trade: 4:00am-8:00pm ET, weekdays. Not 9:30-16:00."""
+    now = datetime.now(ET)
+    if now.weekday() >= 5:
+        return False
+    return in_window(SESSION)
 
 
 # ----------------------------------------------------------------------------
-# DECISION LOG - written AFTER the order is away, never on the critical path
+# DECISION LOG - one file per strategy, flushed off the critical path
 # ----------------------------------------------------------------------------
 
 class DecisionLog:
-    """In-memory buffer, flushed by a background task. Never blocks a decision."""
-
-    def __init__(self, path="/tmp/v31_decisions.log", maxlen=20000):
-        self.buf = deque(maxlen=maxlen)
-        self.path = path
+    def __init__(self, name):
+        self.buf = deque(maxlen=20000)
+        self.path = "/tmp/%s_decisions.log" % name
 
     def record(self, **fields):
         try:
             fields["t"] = datetime.now(ET).isoformat()
             self.buf.append(fields)
         except Exception:
-            pass                                    # a lost log line is acceptable
+            pass
 
     async def flusher(self):
         while True:
@@ -142,13 +176,176 @@ class DecisionLog:
                 lines = []
                 while self.buf:
                     lines.append(repr(self.buf.popleft()))
-                with open(self.path, "a") as fh:
-                    fh.write("\n".join(lines) + "\n")
+                await asyncio.to_thread(self._write, lines)
             except Exception:
                 pass
 
+    def _write(self, lines):
+        with open(self.path, "a") as fh:
+            fh.write("\n".join(lines) + "\n")
 
-DLOG = DecisionLog()
+
+# ----------------------------------------------------------------------------
+# BROKER - every call runs OFF the event loop
+# ----------------------------------------------------------------------------
+
+class Broker:
+    """One account. Every method awaits a thread so the loop never blocks.
+
+    This is the whole reason three strategies can share a process safely. A
+    synchronous submit_order() on the event loop would freeze the other two
+    strategies' tick handling for the length of the round trip.
+    """
+
+    def __init__(self, key: str, secret: str, paper: bool, label: str):
+        self.client = TradingClient(key, secret, paper=paper)
+        self.paper = paper
+        self.label = label
+        self._eq = 0.0
+        self._eq_at = 0.0
+
+    async def account(self):
+        return await asyncio.to_thread(self.client.get_account)
+
+    async def equity(self, fallback: float = 0.0) -> float:
+        """Cached - this is consulted on every tick."""
+        now = time.time()
+        if now - self._eq_at < EQUITY_TTL and self._eq > 0:
+            return self._eq
+        try:
+            acct = await self.account()
+            self._eq = float(acct.equity)
+            self._eq_at = now
+            return self._eq
+        except Exception:
+            return self._eq or fallback
+
+    async def positions(self):
+        """All holdings. None means UNREACHABLE - never confuse that with flat."""
+        try:
+            raw = await asyncio.to_thread(self.client.get_all_positions)
+        except Exception as e:
+            log.error("[%s] cannot read positions: %s", self.label, e)
+            return None
+        out = {}
+        for p in raw:
+            try:
+                qty = float(p.qty)
+            except Exception:
+                continue
+            if qty <= 0:                       # long only; ignore any short
+                continue
+            out[p.symbol] = {"qty": qty,
+                             "entry": float(p.avg_entry_price or 0.0),
+                             "price": float(p.current_price or 0.0)}
+        return out
+
+    async def qty(self, symbol: str):
+        """One symbol's real share count. 0.0 when flat, None when unreachable."""
+        try:
+            pos = await asyncio.to_thread(self.client.get_open_position, symbol)
+            return float(pos.qty)
+        except Exception as e:
+            t = str(e).lower()
+            if "position does not exist" in t or "404" in t:
+                return 0.0
+            return None
+
+    async def send(self, symbol: str, qty: int, side, limit: float) -> int:
+        """Returns filled shares, 0 on no fill, -1 when the broker refuses."""
+        try:
+            order = await asyncio.to_thread(
+                self.client.submit_order,
+                LimitOrderRequest(symbol=symbol, qty=qty, side=side,
+                                  time_in_force=TimeInForce.DAY,
+                                  limit_price=limit, extended_hours=True))
+            for _ in range(10):
+                await asyncio.sleep(0.2)
+                o = await asyncio.to_thread(self.client.get_order_by_id, order.id)
+                if o.filled_qty and float(o.filled_qty) > 0:
+                    return int(float(o.filled_qty))
+                if str(o.status) in ("OrderStatus.FILLED", "OrderStatus.CANCELED"):
+                    break
+            try:
+                await asyncio.to_thread(self.client.cancel_order_by_id, order.id)
+            except Exception:
+                pass
+            return 0
+        except Exception as e:
+            msg = str(e).lower()
+            log.error("[%s] order failed %s %s: %s", self.label, side, symbol, e)
+            if "not allowed to short" in msg or "40310000" in msg:
+                return -1                      # we do not own it - stop trying
+            return 0
+
+
+# ----------------------------------------------------------------------------
+# MARKET DATA - ONE connection, shared by every strategy
+# ----------------------------------------------------------------------------
+
+class MarketData:
+
+    def __init__(self, key: str, secret: str, feed: DataFeed):
+        self.hist = StockHistoricalDataClient(key, secret)
+        self.stream = StockDataStream(key, secret, feed=feed)
+        self.subscribed: set[str] = set()
+        self.trade_sinks = []                  # callables(symbol, price, size)
+        self.bar_sinks = []                    # callables(bar)
+
+    async def subscribe(self, symbols):
+        new = [s for s in symbols if s not in self.subscribed]
+        if not new:
+            return
+        for sym in new:
+            self.stream.subscribe_bars(self._on_bar, sym)
+            self.stream.subscribe_trades(self._on_trade, sym)
+            self.subscribed.add(sym)
+        log.info("watching %d names (+%d) on the shared connection",
+                 len(self.subscribed), len(new))
+
+    async def _on_trade(self, trade):
+        for sink in self.trade_sinks:
+            sink(trade.symbol, float(trade.price), float(trade.size))
+
+    async def _on_bar(self, bar):
+        for sink in self.bar_sinks:
+            sink(bar)
+
+    async def snapshots(self, symbols):
+        return await asyncio.to_thread(
+            self.hist.get_stock_snapshot,
+            StockSnapshotRequest(symbol_or_symbols=symbols))
+
+    async def quote(self, symbol: str, side: str):
+        try:
+            snap = await self.snapshots(symbol)
+            q = snap[symbol].latest_quote
+            return q.ask_price if side == "ask" else q.bid_price
+        except Exception:
+            return None
+
+    async def run_forever(self):
+        """One connection for the whole process. Never opened twice."""
+        while True:
+            try:
+                if hasattr(self.stream, "_run_forever"):
+                    await self.stream._run_forever()
+                else:
+                    await asyncio.to_thread(self.stream.run)
+            except Exception as e:
+                msg = str(e).lower()
+                if "connection limit" in msg:
+                    try:
+                        await self.stream.close()
+                    except Exception:
+                        pass
+                    log.error("stream refused (connection limit) - waiting 30s. "
+                              "Another process is holding this account's ONE "
+                              "data connection; suspend it.")
+                    await asyncio.sleep(30)
+                else:
+                    log.error("stream dropped (%s) - reconnecting in 5s", e)
+                    await asyncio.sleep(5)
 
 
 # ----------------------------------------------------------------------------
@@ -176,240 +373,113 @@ class Bar:
 @dataclass
 class SymState:
     symbol: str
-    bars: list = field(default_factory=list)            # CLOSED bars only
-    trades: deque = field(default_factory=lambda: deque(maxlen=TRADE_WINDOW * 2 + 5))
     last_price: float = 0.0
-    day_open: float = 0.0
     day_high: float = 0.0
-    abr_history: deque = field(default_factory=lambda: deque(maxlen=600))
-    speed_samples: list = field(default_factory=list)
-    easy_to_borrow: bool = True
-    quiet_bars: int = 0
 
-    # position
     shares: float = 0.0
     entry: float = 0.0
-    entry_stop: float = 0.0                              # the red bar's low
+    stop: float = 0.0                       # the live stop, whatever sets it
     peak: float = 0.0
     trail_stop: float = 0.0
     armed: bool = False
-    adopted: bool = False        # taken over from the broker, not opened by us
+    adopted: bool = False
+    traded_today: bool = False
 
-    # pending setup
-    setup_level: float = 0.0                             # red open + 1 cent
-    setup_low: float = 0.0                               # red low
+    # v31 only
+    bars: list = field(default_factory=list)
+    trades: deque = field(default_factory=lambda: deque(maxlen=V31_TRADE_WINDOW * 2 + 5))
+    abr_history: deque = field(default_factory=lambda: deque(maxlen=600))
+    speed_samples: list = field(default_factory=list)
+    quiet_bars: int = 0
+    setup_level: float = 0.0
+    setup_low: float = 0.0
     setup_ready: bool = False
 
     @property
     def in_position(self) -> bool:
         return self.shares > 0
 
-    # ---- bar maths ----------------------------------------------------------
-
-    def add_bar(self, bar: Bar):
-        self.bars.append(bar)
-        if len(self.bars) > 400:
-            self.bars = self.bars[-400:]
-        if not self.day_open:
-            self.day_open = bar.o
-        self.day_high = max(self.day_high, bar.h)
-        self.abr_history.append((bar.ts, self.abr_raw()))
-        s = self.bar_speed()
-        if s is not None and s > 0:
-            self.speed_samples.append(s)
-        self.refresh_setup()
-        self.track_stall()
-
-    def abr_raw(self) -> float:
-        """Median TRUE RANGE of the last ABR_BARS closed bars."""
-        if len(self.bars) < ABR_MIN_BARS:
-            return 0.0
-        window = self.bars[-ABR_BARS:]
-        trs = []
-        for i, b in enumerate(window):
-            prev_close = window[i - 1].c if i > 0 else b.o
-            tr = max(b.h, prev_close) - min(b.l, prev_close)
-            trs.append(tr)
-        return statistics.median(trs) if trs else 0.0
-
-    def abr(self) -> float:
-        """ABR, capped so one violent stretch cannot blow the leash open."""
-        raw = self.abr_raw()
-        if raw <= 0:
-            return 0.0
-        cutoff = datetime.now(timezone.utc) - timedelta(minutes=10)
-        older = [v for ts, v in self.abr_history if ts <= cutoff and v > 0]
-        if older:
-            return min(raw, ABR_GROWTH_CAP * older[-1])
-        return raw
-
-    def bar_speed(self):
-        """Speed on the minute clock - used for ranking."""
-        if len(self.bars) < 2:
-            return None
-        a, b = self.bars[-2], self.bars[-1]
-        if a.c <= 0 or a.v <= 0:
-            return None
-        return ((b.c - a.c) / a.c) * (b.v / a.v)
-
-    def fast_speed(self):
-        """Speed on the trade clock - used for every action.
-
-        Trade-count windows, not time windows: on a furious stock N trades span
-        about a second, on a quiet one much longer. Self-adjusting, and the
-        volume term can never divide by zero.
-        """
-        n = TRADE_WINDOW
-        if len(self.trades) < 2 * n:
-            return None
-        recent = list(self.trades)[-n:]
-        prior = list(self.trades)[-2 * n:-n]
-        p0 = prior[0][0]
-        p1 = recent[-1][0]
-        v_recent = sum(t[1] for t in recent)
-        v_prior = sum(t[1] for t in prior)
-        if p0 <= 0 or v_prior <= 0:
-            return None
-        return ((p1 - p0) / p0) * (v_recent / v_prior)
-
-    def baseline_speed(self) -> float:
-        """The stock's own stationary speed - thresholds are multiples of this."""
-        if len(self.speed_samples) < BASELINE_MIN_SAMPLES:
-            return 0.0
-        return statistics.median(self.speed_samples)
-
-    # ---- the three-candle setup --------------------------------------------
-
-    def refresh_setup(self):
-        """Pattern is read from CLOSED bars only: green closes, then red closes."""
-        self.setup_ready = False
-        if len(self.bars) < 2:
-            return
-        green, red = self.bars[-2], self.bars[-1]
-        if green.green and red.red:
-            self.setup_level = red.o + ENTRY_TICK
-            self.setup_low = red.l
-            self.setup_ready = True
-
-    def thin_ok(self) -> bool:
-        if len(self.bars) < 3:
-            return False
-        last3 = self.bars[-3:]
-        if any(b.v < BAR_SHARES_MIN for b in last3):
-            return False
-        return sum(b.v for b in last3) >= THREE_BAR_SHARES_MIN
-
-    def track_stall(self):
-        base = self.baseline_speed()
-        s = self.bar_speed()
-        if base <= 0 or s is None:
-            return
-        if abs(s) < SPEED_FADE_MULT * base:
-            self.quiet_bars += 1
-        else:
-            self.quiet_bars = 0
-
-    # ---- the trail ----------------------------------------------------------
-
-    def update_trail(self, price: float):
-        """Arm on progress, not on time. Then ratchet up, never down."""
-        if not self.in_position:
-            return
-        self.peak = max(self.peak, price)
-
-        # An adopted position has no red-bar low - we were not there when it was
-        # opened. Give it a self-widening leash under its own peak until the real
-        # ABR trail arms, so it is never left completely unprotected.
-        if self.adopted and not self.armed:
-            self.entry_stop = max(self.entry_stop,
-                                  self.peak * (1 - ORPHAN_STOP_PCT))
-
-        abr = self.abr()
-        if abr <= 0:
-            return
-        if not self.armed and self.peak >= self.entry + TRAIL_ARM_MULT * abr:
-            self.armed = True
-        if not self.armed:
-            return
-
-        distance = TRAIL_MULT * abr
-        distance = max(distance, TRAIL_MIN_PCT * self.peak)          # never tighter
-        distance = min(distance, TRAIL_MAX_PCT * self.peak)          # never wider
-        entry_risk = self.entry - self.entry_stop
-        if entry_risk > 0:
-            distance = max(distance, entry_risk)                     # never tighter
-                                                                     # than entry risk
-        self.trail_stop = max(self.trail_stop, self.peak - distance)
-
 
 # ----------------------------------------------------------------------------
-# THE BOT
+# STRATEGY BASE - accounts, reconciliation, execution. No trading rules here.
 # ----------------------------------------------------------------------------
 
-class V31:
+class Strategy:
 
-    def __init__(self):
-        key = os.environ["ALPACA_API_KEY"]
-        secret = os.environ["ALPACA_SECRET_KEY"]
-        paper_raw = os.environ.get("ALPACA_PAPER", "1").strip().lower()
-        paper = paper_raw in ("1", "true", "t", "yes", "y", "on")
-        self.paper = paper
-        feed_name = os.environ.get("ALPACA_FEED", "sip").strip().lower()
-        feed = DataFeed.SIP if feed_name == "sip" else DataFeed.IEX
+    name = "base"
 
-        self.trading = TradingClient(key, secret, paper=paper)
-        self.data = StockHistoricalDataClient(key, secret)
-        self.stream = StockDataStream(key, secret, feed=feed)
-
+    def __init__(self, broker: Broker, data: MarketData):
+        self.broker = broker
+        self.data = data
         self.state: dict[str, SymState] = {}
-        self.subscribed: set[str] = set()
-        self.borrow: dict[str, bool] = {}
-
+        self.qualified: set[str] = set()
+        self.queue: asyncio.Queue = asyncio.Queue(maxsize=QUEUE_MAX)
+        self.dlog = DecisionLog(self.name)
         self.day = None
         self.day_start_equity = 0.0
         self.halt_streak = 0
         self.halted_today = False
         self.stopped = False
-        self.last_rebalance = 0.0
-        self.last_speeds: dict[str, float] = {}
-        self.last_auth_warn = 0.0
         self.needs_reconcile = True
-        self._eq = 0.0
-        self._eq_at = 0.0
-        self.last_probe = 0.0
+        self.dropped_ticks = 0
 
-    # ---- helpers ------------------------------------------------------------
+    # ---- plumbing -----------------------------------------------------------
 
     def st(self, symbol: str) -> SymState:
         if symbol not in self.state:
             self.state[symbol] = SymState(symbol=symbol)
         return self.state[symbol]
 
-    def equity(self) -> float:
-        """Cached for EQUITY_TTL seconds.
-
-        This is called from evaluate(), which runs on EVERY trade tick of every
-        watched name. Uncached it was a blocking HTTP round-trip per tick -
-        hundreds per second across the watchlist, enough to rate-limit the
-        account and stall the very stops it was being called to check.
-        """
-        now = time.time()
-        if now - self._eq_at < EQUITY_TTL and self._eq > 0:
-            return self._eq
-        try:
-            self._eq = float(self.trading.get_account().equity)
-            self._eq_at = now
-            return self._eq
-        except Exception:
-            return self._eq or self.day_start_equity
+    def open_positions(self):
+        return [s for s in self.state.values() if s.in_position]
 
     def halt_threshold(self) -> float:
-        i = min(self.halt_streak, len(HALT_LADDER) - 1)
-        return HALT_LADDER[i]
+        return HALT_LADDER[min(self.halt_streak, len(HALT_LADDER) - 1)]
+
+    def offer_tick(self, symbol, price, size):
+        """Called from the shared stream. NEVER blocks - just queues."""
+        try:
+            self.queue.put_nowait((symbol, price, size))
+        except asyncio.QueueFull:
+            try:
+                self.queue.get_nowait()        # drop the oldest, keep the newest
+                self.queue.put_nowait((symbol, price, size))
+            except Exception:
+                pass
+            self.dropped_ticks += 1
+
+    def offer_bar(self, bar):
+        """Bars are cheap and rare - handled inline."""
+        pass
+
+    async def tick_worker(self):
+        """Each strategy drains its OWN queue in its OWN task.
+
+        This is what keeps them independent: if this strategy is sitting in an
+        order chase, its queue backs up and nobody else's does.
+        """
+        while True:
+            symbol, price, size = await self.queue.get()
+            try:
+                s = self.st(symbol)
+                s.last_price = price
+                self.note_trade(s, price, size)
+                # Evaluate FIRST, then raise the day high. "A new high plus the
+                # margin" has to mean the high as it stood BEFORE this trade -
+                # if the high is raised first, price is never above it and the
+                # gate can never open. That bug made v33 unable to take a single
+                # entry, and blocked every re-entry in v31 and v32.
+                await self.evaluate(s, price)
+                s.day_high = max(s.day_high, price)
+            except Exception as e:
+                log.error("[%s] tick %s: %s", self.name, symbol, e)
+
+    def note_trade(self, s: SymState, price, size):
+        pass
 
     # ---- day roll -----------------------------------------------------------
 
-    def roll_day(self):
+    async def roll_day(self):
         today = datetime.now(ET).date()
         if self.day == today:
             return
@@ -417,181 +487,648 @@ class V31:
             self.halt_streak = self.halt_streak + 1 if self.halted_today else 0
             if self.halt_streak >= 3:
                 self.stopped = True
-                log.critical("Three halted days in a row - stopped until restarted.")
+                log.critical("[%s] three halted days - stopped until restarted.",
+                             self.name)
         self.day = today
         self.halted_today = False
-        self.day_start_equity = self.equity()
+        self.day_start_equity = await self.broker.equity(self.day_start_equity)
         self.state.clear()
-        self.last_speeds.clear()
-        self.needs_reconcile = True        # state was just wiped - re-read broker
-        log.info("New day %s, baseline equity %.2f, halt at -%.1f%%",
-                 today, self.day_start_equity, 100 * self.halt_threshold())
+        self.qualified.clear()
+        self.needs_reconcile = True
+        log.info("[%s] new day %s, baseline equity %.2f, halt at -%.1f%%",
+                 self.name, today, self.day_start_equity,
+                 100 * self.halt_threshold())
 
     # ---- reconciliation -----------------------------------------------------
-    # The broker is the truth. Memory is a cache. On every restart, redeploy,
-    # crash or day roll the cache is empty while the account may still be holding
-    # stock - from this strategy, or from whatever ran here before. Without this
-    # the bot would size new trades as if it held nothing, ignore the stops on
-    # what it already owns, and leave old positions to rot untouched all day.
-
-    def broker_positions(self) -> dict:
-        """What the account ACTUALLY holds, keyed by symbol. {} if unreachable."""
-        try:
-            out = {}
-            for p in self.trading.get_all_positions():
-                try:
-                    qty = float(p.qty)
-                except Exception:
-                    continue
-                if qty <= 0:                       # long-only; ignore any short
-                    continue
-                out[p.symbol] = {
-                    "qty": qty,
-                    "entry": float(p.avg_entry_price or 0.0),
-                    "price": float(p.current_price or 0.0),
-                }
-            return out
-        except Exception as e:
-            log.error("cannot read positions from the broker: %s", e)
-            return None                            # None = unknown, NOT empty
-
-    def broker_qty(self, symbol: str) -> float:
-        """One symbol's real share count. 0.0 when flat, None when unreachable."""
-        try:
-            pos = self.trading.get_open_position(symbol)
-            return float(pos.qty)
-        except Exception as e:
-            if "position does not exist" in str(e).lower() or "404" in str(e):
-                return 0.0
-            return None
 
     async def reconcile(self, why: str = "startup"):
-        """Make memory agree with the broker. Runs at boot and every minute."""
-        held = self.broker_positions()
+        """The broker is the truth. Memory is a cache every restart wipes."""
+        held = await self.broker.positions()
         if held is None:
-            return                                 # unreachable - change nothing
+            return                              # unreachable - change nothing
 
-        market_open = self.market_is_open()
         adopted, dropped, corrected, flattened = [], [], [], []
 
-        # --- positions the broker has ---------------------------------------
         for sym, info in held.items():
             s = self.st(sym)
             price = info["price"] or info["entry"] or s.last_price
-
             if not s.in_position:
-                # We hold stock we have no memory of opening.
-                if (ORPHAN_MODE == "flatten" and market_open
-                        and self.in_flatten_window()):
+                if (ORPHAN_MODE == "flatten" and market_is_open()
+                        and in_window(ORPHAN_FLATTEN_WINDOW)):
                     sold = await self.sell(sym, int(info["qty"]), price)
                     flattened.append((sym, sold))
-                    DLOG.record(ev="ORPHAN-FLATTEN", sym=sym, sh=sold, px=price)
+                    self.dlog.record(ev="ORPHAN-FLATTEN", sym=sym, sh=sold)
                     continue
-                s.shares = info["qty"]
-                s.entry = info["entry"] or price
-                s.adopted = True
-                s.armed = False
-                # Seed the peak from where the stock is NOW, not from its old
-                # entry. We do not know the real high-water mark - seeding from
-                # entry would put the leash above the price on anything that has
-                # pulled back, and dump a healthy position the moment we restart.
-                # Clearing out genuine junk is what ORPHAN_MODE=flatten is for.
-                s.peak = price or s.entry
-                s.last_price = s.last_price or price
-                s.entry_stop = max(s.entry_stop,
-                                   s.peak * (1 - ORPHAN_STOP_PCT))
-                s.trail_stop = 0.0
-                adopted.append((sym, info["qty"], s.entry_stop))
-                DLOG.record(ev="ADOPT", sym=sym, sh=info["qty"],
-                            entry=s.entry, px=price, stop=s.entry_stop, why=why)
+                self.adopt(s, info, price)
+                adopted.append((sym, info["qty"], s.stop))
+                self.dlog.record(ev="ADOPT", sym=sym, sh=info["qty"],
+                                 entry=s.entry, px=price, stop=s.stop, why=why)
             elif abs(s.shares - info["qty"]) >= 1:
-                # Our count drifted from the broker's - the broker wins.
                 corrected.append((sym, s.shares, info["qty"]))
-                DLOG.record(ev="QTY-FIX", sym=sym, ours=s.shares,
-                            broker=info["qty"], why=why)
+                self.dlog.record(ev="QTY-FIX", sym=sym, ours=s.shares,
+                                 broker=info["qty"], why=why)
                 s.shares = info["qty"]
 
-        # --- positions WE think we have but the broker does not -------------
         for s in list(self.state.values()):
             if s.in_position and s.symbol not in held:
                 dropped.append((s.symbol, s.shares))
-                DLOG.record(ev="GHOST-CLEAR", sym=s.symbol, sh=s.shares, why=why)
-                s.shares = 0.0
-                s.entry = s.entry_stop = s.trail_stop = 0.0
-                s.armed = False
-                s.adopted = False
-                s.quiet_bars = 0
+                self.dlog.record(ev="GHOST-CLEAR", sym=s.symbol, sh=s.shares)
+                self.clear(s)
 
         if adopted:
-            await self.subscribe([sym for sym, _, _ in adopted])
+            await self.data.subscribe([sym for sym, _, _ in adopted])
             for sym, qty, stop in adopted:
-                log.warning("ADOPTED %s: %.0f shares already held, stop set %.4f",
-                            sym, qty, stop)
+                log.warning("[%s] ADOPTED %s: %.0f shares held, stop %.4f",
+                            self.name, sym, qty, stop)
         for sym, sold in flattened:
-            log.warning("FLATTENED orphan %s: sold %d", sym, sold)
+            log.warning("[%s] FLATTENED orphan %s: sold %d", self.name, sym, sold)
         for sym, ours, real in corrected:
-            log.warning("QTY CORRECTED %s: we said %.0f, broker says %.0f",
-                        sym, ours, real)
+            log.warning("[%s] QTY CORRECTED %s: we said %.0f, broker %.0f",
+                        self.name, sym, ours, real)
         for sym, qty in dropped:
-            log.warning("GHOST CLEARED %s: we thought %.0f, broker holds none",
-                        sym, qty)
+            log.warning("[%s] GHOST CLEARED %s: we thought %.0f, broker none",
+                        self.name, sym, qty)
         if not (adopted or flattened or corrected or dropped):
-            log.info("reconcile (%s): broker and memory agree, %d position(s)",
-                     why, len(held))
+            log.info("[%s] reconcile (%s): agrees with broker, %d position(s)",
+                     self.name, why, len(held))
 
-    def market_is_open(self) -> bool:
-        """Tradeable session, NOT the 9:30-16:00 regular one.
+    def adopt(self, s: SymState, info, price):
+        """Take over a position we have no memory of opening."""
+        s.shares = info["qty"]
+        s.entry = info["entry"] or price
+        s.adopted = True
+        s.traded_today = True
+        s.peak = price or s.entry
+        s.day_high = max(s.day_high, price)
+        s.last_price = s.last_price or price
+        s.stop = max(s.stop, simple_stop(s.entry))
 
-        Extended hours open at 4:00am ET and the best moves of the day happen
-        before 9:30. Every order this bot sends carries extended_hours=True, so
-        4:00-20:00 is the real window. Anything that treats 9:30 as the start
-        is wrong for this strategy.
+    def clear(self, s: SymState):
+        s.shares = 0.0
+        s.entry = s.stop = s.trail_stop = s.peak = 0.0
+        s.armed = False
+        s.adopted = False
+        s.quiet_bars = 0
+
+    # ---- execution ----------------------------------------------------------
+
+    async def buy(self, symbol: str, shares: int, ref: float) -> int:
+        """Fills counted from the BROKER, never from the order reply.
+
+        A cancel racing a fill used to report "got nothing" and the next attempt
+        bought the whole clip again - a $600 slot became $3,050 that way.
         """
-        now = datetime.now(ET)
-        if now.weekday() >= 5:
-            return False
-        start, end = SESSION
-        return start <= (now.hour, now.minute) < end
+        start = await self.broker.qty(symbol)
+        if start is None:
+            start = 0.0
+        for _ in range(CHASE_ATTEMPTS):
+            now = await self.broker.qty(symbol)
+            filled = (now - start) if now is not None else 0.0
+            remaining = int(shares - filled)
+            if remaining <= 0:
+                break
+            ask = await self.data.quote(symbol, "ask") or ref
+            limit = round(min(ask * 1.002, ref * (1 + BUY_CHASE_CAP)), 2)
+            got = await self.broker.send(symbol, remaining, OrderSide.BUY, limit)
+            if got < 0:
+                break
+            if got == 0:
+                await asyncio.sleep(CHASE_PAUSE)
+        end = await self.broker.qty(symbol)
+        if end is None:
+            return 0
+        return max(0, int(end - start))
 
-    def in_flatten_window(self) -> bool:
-        """ORPHAN_MODE=flatten may only act in the first minutes of the session.
+    async def sell(self, symbol: str, shares: int, ref: float) -> int:
+        """Uncapped chase down - a stop must always get out. Clamped to what
+        we really own, so it can never be rejected for shorting."""
+        start = await self.broker.qty(symbol)
+        if start is None:
+            start = float(shares)
+        want = min(int(shares), int(start))
+        if want <= 0:
+            return 0
+        for _ in range(CHASE_ATTEMPTS):
+            now = await self.broker.qty(symbol)
+            sold = (start - now) if now is not None else 0.0
+            remaining = int(want - sold)
+            if remaining <= 0:
+                break
+            bid = await self.data.quote(symbol, "bid") or ref
+            limit = round(max(bid * 0.995, 0.01), 2)
+            got = await self.broker.send(symbol, remaining, OrderSide.SELL, limit)
+            if got < 0:
+                log.warning("[%s] %s: broker holds none - stopping the chase",
+                            self.name, symbol)
+                break
+            if got == 0:
+                await asyncio.sleep(CHASE_PAUSE)
+        end = await self.broker.qty(symbol)
+        if end is None:
+            return want
+        return max(0, int(start - end))
 
-        Without this, leaving the variable set would be a loaded gun: a restart
-        at 2pm finds an empty memory, calls its own healthy positions orphans,
-        and sells the lot. Time-boxing it to the first ten minutes after the
-        4:00am open means the switch clears what was left overnight and nothing
-        else. It is still a blunt instrument - closing a leftover by hand in the
-        Alpaca web interface is safer and always preferred.
-        """
-        now = datetime.now(ET)
-        start, end = ORPHAN_FLATTEN_WINDOW
-        return start <= (now.hour, now.minute) < end
-
-    # ---- scanner ------------------------------------------------------------
-
-    def load_borrow_flags(self, symbols):
-        """easy_to_borrow comes free from the assets endpoint. Cache daily."""
-        missing = [s for s in symbols if s not in self.borrow]
-        if not missing:
+    async def exit(self, s: SymState, why: str):
+        if s.shares <= 0:
             return
-        try:
-            assets = self.trading.get_all_assets(
-                GetAssetsRequest(status=AssetStatus.ACTIVE))
-            for a in assets:
-                if a.symbol in missing:
-                    self.borrow[a.symbol] = bool(getattr(a, "easy_to_borrow", True))
-        except Exception as e:
-            log.warning("borrow flags unavailable: %s", e)
+        sold = await self.sell(s.symbol, int(s.shares), s.last_price)
+        self.dlog.record(ev="EXIT", sym=s.symbol, why=why, px=s.last_price,
+                         sh=sold, entry=s.entry, peak=s.peak, stop=s.stop)
+        log.info("[%s] EXIT %s %s %d @ %.4f (entry %.4f peak %.4f)",
+                 self.name, why, s.symbol, sold, s.last_price, s.entry, s.peak)
+        s.shares = max(0.0, s.shares - sold)
+        if s.shares <= 0:
+            self.clear(s)
 
-    def scan(self) -> list[str]:
-        """Universe: $1-20, up 10% from today's first trade, volume >= RDV.
+    async def flatten_all(self, why: str):
+        for s in self.open_positions():
+            await self.exit(s, why)
 
-        NOTE: float is NOT available from Alpaca. If a float source is wired in,
-        apply FLOAT_MIN/FLOAT_MAX here. Until then the filter is skipped and the
-        skip is logged, so it is never silently believed to be running.
+    # ---- the account-level halt, checked before any rule ---------------------
+
+    async def halted(self) -> bool:
+        if self.stopped or self.halted_today:
+            return True
+        eq = await self.broker.equity(self.day_start_equity)
+        if self.day_start_equity and eq <= self.day_start_equity * (
+                1 - self.halt_threshold()):
+            log.critical("[%s] DAILY HALT at equity %.2f", self.name, eq)
+            await self.flatten_all("daily-halt")
+            self.halted_today = True
+            return True
+        return False
+
+    # ---- to be provided by each strategy ------------------------------------
+
+    async def evaluate(self, s: SymState, price: float):
+        raise NotImplementedError
+
+    async def periodic(self):
+        """Optional per-strategy background work."""
+        return
+
+
+# ----------------------------------------------------------------------------
+# v31 - the runner strategy
+# ----------------------------------------------------------------------------
+
+class V31(Strategy):
+    """Closed bars set the levels. Ticks fire the actions.
+
+    An in-progress bar is NEVER treated as closed - that bug made an older build
+    enter one bar early, inside the red candle.
+    """
+
+    name = "v31"
+
+    def __init__(self, broker, data):
+        super().__init__(broker, data)
+        self.last_rebalance = 0.0
+        self.last_speeds: dict[str, float] = {}
+
+    # ---- bars ---------------------------------------------------------------
+
+    def offer_bar(self, raw):
+        s = self.st(raw.symbol)
+        bar = Bar(ts=raw.timestamp, o=raw.open, h=raw.high,
+                  l=raw.low, c=raw.close, v=raw.volume)
+        s.bars.append(bar)
+        if len(s.bars) > 400:
+            s.bars = s.bars[-400:]
+        s.day_high = max(s.day_high, bar.h)
+        s.abr_history.append((bar.ts, self.abr_raw(s)))
+        sp = self.bar_speed(s)
+        if sp is not None and sp > 0:
+            s.speed_samples.append(sp)
+        self.refresh_setup(s)
+        self.track_stall(s)
+
+    def note_trade(self, s, price, size):
+        s.trades.append((price, size))
+
+    # ---- ABR ----------------------------------------------------------------
+
+    def abr_raw(self, s) -> float:
+        """Median TRUE RANGE of the last V31_ABR_BARS closed bars."""
+        if len(s.bars) < V31_ABR_MIN_BARS:
+            return 0.0
+        window = s.bars[-V31_ABR_BARS:]
+        trs = []
+        for i, b in enumerate(window):
+            prev_close = window[i - 1].c if i > 0 else b.o
+            trs.append(max(b.h, prev_close) - min(b.l, prev_close))
+        return statistics.median(trs) if trs else 0.0
+
+    def abr(self, s) -> float:
+        """Capped, so one violent stretch cannot blow the leash wide open."""
+        raw = self.abr_raw(s)
+        if raw <= 0:
+            return 0.0
+        cutoff = datetime.now(timezone.utc) - timedelta(minutes=10)
+        older = [v for ts, v in s.abr_history if ts <= cutoff and v > 0]
+        if older:
+            return min(raw, V31_ABR_GROWTH_CAP * older[-1])
+        return raw
+
+    # ---- speed --------------------------------------------------------------
+
+    def bar_speed(self, s):
+        """Minute clock - used for ranking and for the stall count."""
+        if len(s.bars) < 2:
+            return None
+        a, b = s.bars[-2], s.bars[-1]
+        if a.c <= 0 or a.v <= 0:
+            return None
+        return ((b.c - a.c) / a.c) * (b.v / a.v)
+
+    def fast_speed(self, s):
+        """Trade clock - used for every action.
+
+        Trade-count windows, not time windows: on a furious stock N trades span
+        a second, on a quiet one much longer. Self-adjusting, and the volume
+        term is a RATIO so it can never divide by zero or flip sign.
         """
+        n = V31_TRADE_WINDOW
+        if len(s.trades) < 2 * n:
+            return None
+        recent = list(s.trades)[-n:]
+        prior = list(s.trades)[-2 * n:-n]
+        p0, p1 = prior[0][0], recent[-1][0]
+        v_recent = sum(t[1] for t in recent)
+        v_prior = sum(t[1] for t in prior)
+        if p0 <= 0 or v_prior <= 0:
+            return None
+        return ((p1 - p0) / p0) * (v_recent / v_prior)
+
+    def baseline(self, s) -> float:
+        if len(s.speed_samples) < V31_BASELINE_MIN_SAMPLES:
+            return 0.0
+        return statistics.median(s.speed_samples)
+
+    # ---- setup and filters --------------------------------------------------
+
+    def refresh_setup(self, s):
+        """Read from CLOSED bars only: a green closes, then a red closes."""
+        s.setup_ready = False
+        if len(s.bars) < 2:
+            return
+        green, red = s.bars[-2], s.bars[-1]
+        if green.green and red.red:
+            s.setup_level = red.o + V31_ENTRY_TICK
+            s.setup_low = red.l
+            s.setup_ready = True
+
+    def thin_ok(self, s) -> bool:
+        if len(s.bars) < 3:
+            return False
+        last3 = s.bars[-3:]
+        if any(b.v < V31_BAR_SHARES_MIN for b in last3):
+            return False
+        return sum(b.v for b in last3) >= V31_THREE_BAR_SHARES_MIN
+
+    def track_stall(self, s):
+        base = self.baseline(s)
+        sp = self.bar_speed(s)
+        if base <= 0 or sp is None:
+            return
+        if abs(sp) < V31_SPEED_FADE_MULT * base:
+            s.quiet_bars += 1
+        else:
+            s.quiet_bars = 0
+
+    # ---- the trail ----------------------------------------------------------
+
+    def update_trail(self, s, price):
+        """Arm on progress, not on time. Then ratchet up, never down."""
+        s.peak = max(s.peak, price)
+        if s.adopted and not s.armed:
+            # No red-bar low exists - we were not there when it was opened.
+            s.stop = max(s.stop, s.peak * (1 - V31_ORPHAN_STOP_PCT))
+        abr = self.abr(s)
+        if abr <= 0:
+            return
+        if not s.armed and s.peak >= s.entry + V31_TRAIL_ARM_MULT * abr:
+            s.armed = True
+        if not s.armed:
+            return
+        distance = V31_TRAIL_MULT * abr
+        distance = max(distance, V31_TRAIL_MIN_PCT * s.peak)     # never tighter
+        distance = min(distance, V31_TRAIL_MAX_PCT * s.peak)     # never wider
+        entry_risk = s.entry - s.stop
+        if entry_risk > 0:
+            distance = max(distance, entry_risk)
+        s.trail_stop = max(s.trail_stop, s.peak - distance)
+
+    def adopt(self, s, info, price):
+        super().adopt(s, info, price)
+        s.armed = False
+        s.trail_stop = 0.0
+        s.stop = max(s.stop, (price or s.entry) * (1 - V31_ORPHAN_STOP_PCT))
+
+    # ---- the precedence ladder ---------------------------------------------
+
+    async def evaluate(self, s, price):
+        if await self.halted():
+            return
+        fast = self.fast_speed(s)
+        base = self.baseline(s)
+
+        if s.in_position:
+            self.update_trail(s, price)
+
+            # 2. flush - large NEGATIVE speed. Never consults the trail.
+            if fast is not None and base > 0 and fast <= -V31_SPEED_FLUSH_MULT * base:
+                await self.exit(s, "flush")
+                return
+            # 3. entry stop, while unproven
+            if not s.armed and s.stop and price <= s.stop:
+                await self.exit(s, "entry-stop")
+                return
+            # 4. the trail
+            if s.armed and s.trail_stop and price <= s.trail_stop:
+                await self.exit(s, "trail")
+                return
+            # 5. stall
+            if s.quiet_bars >= V31_STALL_BARS:
+                await self.exit(s, "stall")
+                return
+            if fast is not None and base > 0 and fast < 0 and s.quiet_bars >= 2:
+                await self.exit(s, "fade")
+                return
+            # 7. add on strong speed
+            if fast is not None and base > 0 and fast >= V31_SPEED_ADD_MULT * base:
+                await self.add(s, price)
+            return
+
+        await self.maybe_enter(s, price, fast, base)
+
+    async def maybe_enter(self, s, price, fast, base):
+        if s.symbol not in self.qualified:
+            return
+        if len(self.open_positions()) >= V31_MAX_POSITIONS:
+            return
+        if not s.setup_ready or price < s.setup_level:
+            return
+        if not self.thin_ok(s):
+            return
+        if fast is None or fast <= 0:
+            return
+        if base > 0 and fast < V31_SPEED_ADD_MULT * base:
+            return
+        if s.traded_today and price < s.day_high + margin_for(price):
+            return
+
+        risk_per_share = max(price - s.setup_low, 0.01)
+        eq = await self.broker.equity(self.day_start_equity)
+        shares = int((eq * V31_RISK_PER_TRADE) / risk_per_share)
+        if shares * price < MIN_TRADE_DOLLARS:
+            return
+
+        filled = await self.buy(s.symbol, shares, price)
+        if filled:
+            s.shares = filled
+            s.entry = price
+            s.stop = s.setup_low
+            s.peak = price
+            s.trail_stop = 0.0
+            s.armed = False
+            s.adopted = False
+            s.traded_today = True
+            self.dlog.record(ev="ENTER", sym=s.symbol, px=price, sh=filled,
+                             level=s.setup_level, stop=s.setup_low,
+                             speed=fast, baseline=base)
+            log.info("[v31] ENTER %s %d @ %.4f stop %.4f",
+                     s.symbol, filled, price, s.setup_low)
+
+    async def add(self, s, price):
+        target = await self.target_dollars(s.symbol)
+        gap = target - s.shares * price
+        if gap < MIN_TRADE_DOLLARS:
+            return
+        shares = int(gap / price)
+        if shares <= 0:
+            return
+        filled = await self.buy(s.symbol, shares, price)
+        if filled:
+            s.shares += filled
+            self.dlog.record(ev="ADD", sym=s.symbol, px=price, sh=filled)
+
+    async def target_dollars(self, symbol) -> float:
+        """Capital in proportion to speed, leader capped at 80%."""
+        speeds = {}
+        for s in self.open_positions():
+            f = self.fast_speed(s)
+            speeds[s.symbol] = max(f, 0.0) if f is not None else 0.0
+        total = sum(speeds.values())
+        if total <= 0:
+            return 0.0
+        w = {k: v / total for k, v in speeds.items()}
+        top = max(w, key=w.get)
+        if w[top] > V31_LEADER_CAP:
+            rest = 1 - V31_LEADER_CAP
+            other = sum(v for k, v in w.items() if k != top)
+            if other > 0:
+                w = {k: (V31_LEADER_CAP if k == top else (v / other) * rest)
+                     for k, v in w.items()}
+        eq = await self.broker.equity(self.day_start_equity)
+        return eq * w.get(symbol, 0.0)
+
+    async def periodic(self):
+        """The 5-minute rebalance clock, plus off-clock speed events."""
+        now = time.time()
+        due = now - self.last_rebalance >= V31_REBALANCE_SECONDS
+        event = False
+        for s in self.open_positions():
+            f = self.fast_speed(s)
+            if f is None:
+                continue
+            was = self.last_speeds.get(s.symbol)
+            if was and was > 0 and (f >= V31_SPEED_EVENT_MULT * was
+                                    or f <= was / V31_SPEED_EVENT_MULT):
+                event = True
+            self.last_speeds[s.symbol] = max(f, 0.0)
+        if not (due or event) or not self.open_positions():
+            return
+        for s in self.open_positions():
+            price = s.last_price
+            if price <= 0:
+                continue
+            target = await self.target_dollars(s.symbol)
+            diff = target - s.shares * price
+            if abs(diff) < MIN_TRADE_DOLLARS:
+                continue
+            if diff > 0:
+                await self.add(s, price)
+            else:
+                shares = min(int(s.shares), int(abs(diff) / price))
+                if shares > 0:
+                    sold = await self.sell(s.symbol, shares, price)
+                    s.shares = max(0.0, s.shares - sold)
+        self.last_rebalance = now
+        self.dlog.record(ev="rebalance", why="clock" if due else "speed-event")
+
+
+# ----------------------------------------------------------------------------
+# v32 - keep only what holds
+# ----------------------------------------------------------------------------
+
+class V32(Strategy):
+    """Buy every scanner name on its first tick. Cut it at the entry, plus a
+    penny. Re-enter only on a NEW day high plus the margin."""
+
+    name = "v32"
+
+    async def evaluate(self, s, price):
+        if await self.halted():
+            return
+        if s.in_position:
+            if price <= s.stop:
+                await self.exit(s, "stop")
+            return
+        if s.symbol not in self.qualified:
+            return
+        if len(self.open_positions()) >= SIMPLE_MAX_NAMES:
+            return
+        if s.traded_today and price < s.day_high + margin_for(price):
+            return
+        shares = int(SIMPLE_SLOT / price)
+        if shares <= 0:
+            return
+        filled = await self.buy(s.symbol, shares, price)
+        if filled:
+            s.shares = filled
+            s.entry = price
+            s.peak = price
+            s.stop = simple_stop(price)
+            s.traded_today = True
+            s.adopted = False
+            self.dlog.record(ev="ENTER", sym=s.symbol, px=price, sh=filled,
+                             stop=s.stop)
+            log.info("[v32] ENTER %s %d @ %.4f stop %.4f",
+                     s.symbol, filled, price, s.stop)
+
+
+# ----------------------------------------------------------------------------
+# v33 - give back half
+# ----------------------------------------------------------------------------
+
+class V33(Strategy):
+    """Enter on a NEW day high plus the margin. The stop is the midpoint between
+    entry and peak - give back half the gain and we are out. Ratchets up only.
+
+    Self-widening by construction: 11% below the peak on a small move, 40% below
+    it on a five-bagger."""
+
+    name = "v33"
+
+    def adopt(self, s, info, price):
+        super().adopt(s, info, price)
+        s.peak = max(s.entry, price)
+        if s.peak > s.entry:
+            s.stop = max(s.stop, (s.entry + s.peak) / 2.0)
+
+    async def evaluate(self, s, price):
+        if await self.halted():
+            return
+        if s.in_position:
+            if price > s.peak:
+                s.peak = price
+                if s.peak > s.entry:
+                    s.stop = max(s.stop, (s.entry + s.peak) / 2.0)
+            if price <= s.stop:
+                await self.exit(s, "half-back")
+            return
+        if s.symbol not in self.qualified:
+            return
+        if len(self.open_positions()) >= SIMPLE_MAX_NAMES:
+            return
+        if price < s.day_high + margin_for(price):
+            return
+        shares = int(SIMPLE_SLOT / price)
+        if shares <= 0:
+            return
+        filled = await self.buy(s.symbol, shares, price)
+        if filled:
+            s.shares = filled
+            s.entry = price
+            s.peak = price
+            s.stop = simple_stop(price)
+            s.traded_today = True
+            s.adopted = False
+            self.dlog.record(ev="ENTER", sym=s.symbol, px=price, sh=filled,
+                             stop=s.stop)
+            log.info("[v33] ENTER %s %d @ %.4f stop %.4f",
+                     s.symbol, filled, price, s.stop)
+
+
+# ----------------------------------------------------------------------------
+# THE ENGINE - one scan, one connection, three strategies
+# ----------------------------------------------------------------------------
+
+class Engine:
+
+    def __init__(self):
+        paper_raw = os.environ.get("ALPACA_PAPER", "1").strip().lower()
+        self.paper = paper_raw in ("1", "true", "t", "yes", "y", "on")
+        feed_name = os.environ.get("ALPACA_FEED", "sip").strip().lower()
+        feed = DataFeed.SIP if feed_name == "sip" else DataFeed.IEX
+
+        key = os.environ["ALPACA_API_KEY"]
+        secret = os.environ["ALPACA_SECRET_KEY"]
+
+        # ONE data connection for the whole process, on v31's keys.
+        self.data = MarketData(key, secret, feed)
+        self.assets_client = TradingClient(key, secret, paper=self.paper)
+
+        self.strategies = []
+        self.add_strategy(V31, key, secret)
+        self.add_strategy(V32, os.environ.get("V32_API_KEY"),
+                          os.environ.get("V32_SECRET_KEY"))
+        self.add_strategy(V33, os.environ.get("V33_API_KEY"),
+                          os.environ.get("V33_SECRET_KEY"))
+
+        for strat in self.strategies:
+            self.data.trade_sinks.append(strat.offer_tick)
+            self.data.bar_sinks.append(strat.offer_bar)
+
+        self.last_auth_warn = 0.0
+        self.last_probe = 0.0
+
+    def add_strategy(self, cls, key, secret):
+        if not key or not secret:
+            log.warning("%s has no keys - NOT running. Set %s_API_KEY and "
+                        "%s_SECRET_KEY to turn it on.",
+                        cls.name, cls.name.upper(), cls.name.upper())
+            return
+        broker = Broker(key, secret, self.paper, cls.name)
+        self.strategies.append(cls(broker, self.data))
+
+    # ---- the shared scanner -------------------------------------------------
+
+    def day_reference(self, bar, today):
+        """The price the day's gain is measured FROM, and how stale the bar is.
+
+        daily_bar is the last session that actually TRADED. Premarket that is
+        yesterday, and on a thin name it can be two weeks old. Measuring a
+        premarket price against yesterday's OPEN is meaningless - BRLS read
+        +10.7% that way while it was down 3% on the session.
+          bar dated today  -> its OPEN   (the session has started)
+          bar dated before -> its CLOSE  (a true overnight gap)
+        """
+        ts = getattr(bar, "timestamp", None)
         try:
-            assets = self.trading.get_all_assets(
+            bar_day = ts.astimezone(ET).date()
+        except Exception:
+            return 0.0, "none", 999
+        age = (today - bar_day).days
+        if age <= 0:
+            return float(getattr(bar, "open", 0) or 0), "open", 0
+        return float(getattr(bar, "close", 0) or 0), "prev-close", age
+
+    async def scan(self):
+        try:
+            assets = await asyncio.to_thread(
+                self.assets_client.get_all_assets,
                 GetAssetsRequest(status=AssetStatus.ACTIVE))
             symbols = [a.symbol for a in assets
                        if a.tradable and a.symbol.isalpha() and len(a.symbol) <= 4]
@@ -601,19 +1138,16 @@ class V31:
                 self.last_auth_warn = now
                 log.error("asset list failed: %s", e)
                 if "not authorized" in str(e):
-                    log.critical(
-                        "KEYS AND ENDPOINT DO NOT MATCH. Currently using the %s "
-                        "endpoint. Paper keys need ALPACA_PAPER=true (or 1); "
-                        "live keys need ALPACA_PAPER=false (or 0).",
-                        "PAPER" if self.paper else "LIVE")
-            return []
+                    log.critical("KEYS AND ENDPOINT DO NOT MATCH. Using the %s "
+                                 "endpoint. Paper keys need ALPACA_PAPER=true.",
+                                 "PAPER" if self.paper else "LIVE")
+            return {}
 
-        picks = []
-        probe = []                    # premarket diagnostic - see log_probe()
+        picks, probe = {}, []
+        today = datetime.now(ET).date()
         for chunk in [symbols[i:i + 500] for i in range(0, len(symbols), 500)]:
             try:
-                snaps = self.data.get_stock_snapshot(
-                    StockSnapshotRequest(symbol_or_symbols=chunk))
+                snaps = await self.data.snapshots(chunk)
             except Exception:
                 continue
             for sym, snap in (snaps or {}).items():
@@ -624,460 +1158,139 @@ class V31:
                         continue
                     if not (PRICE_MIN <= last <= PRICE_MAX):
                         continue
-                    if len(probe) < 5:
-                        pb = getattr(snap, "previous_daily_bar", None)
-                        probe.append((
-                            sym, float(last),
-                            float(getattr(bar, "open", 0) or 0),
-                            str(getattr(bar, "timestamp", ""))[:10],
-                            float(getattr(pb, "close", 0) or 0)))
-                    if bar.open <= 0 or last < bar.open * (1 + GAIN_FROM_OPEN):
+                    ref, kind, age = self.day_reference(bar, today)
+                    if ref <= 0 or age > MAX_BAR_AGE_DAYS:
                         continue
-                    picks.append(sym)
+                    if len(probe) < 5:
+                        probe.append((sym, float(last), float(ref), kind, age))
+                    if last < ref * (1 + GAIN_FROM_OPEN):
+                        continue
+                    # Seed the day high so a "new high" means something the
+                    # moment we start watching. Today's bar carries a real
+                    # session high; premarket the best we have is the last
+                    # print, which is exactly "the high as of right now".
+                    seed = float(getattr(bar, "high", 0) or 0) if age == 0 else 0.0
+                    picks[sym] = max(seed, float(last))
                 except Exception:
                     continue
-
         self.log_probe(probe)
-        DLOG.record(ev="scan", n=len(picks), float_filter="SKIPPED-no-source")
         return picks
 
     def log_probe(self, probe):
-        """Print what the qualifying test is ACTUALLY comparing against.
-
-        Premarket there is no "today's open" yet. If daily_bar is still carrying
-        yesterday's session, the 10% test is measuring this morning's price
-        against yesterday's 9:30 open - which is not the rule we wrote. The bar's
-        own date in this line settles it either way.
-        """
         now = time.time()
         if not probe or now - self.last_probe < 60:
             return
         self.last_probe = now
-        for sym, last, dopen, dts, pclose in probe:
-            g_open = (last / dopen - 1) * 100 if dopen else 0.0
-            g_prev = (last / pclose - 1) * 100 if pclose else 0.0
-            log.info("PROBE %-5s last=%.4f | daily_bar.open=%.4f dated %s "
-                     "-> %+.1f%% | prev_close=%.4f -> %+.1f%%",
-                     sym, last, dopen, dts, g_open, pclose, g_prev)
+        for sym, last, ref, kind, age in probe:
+            gain = (last / ref - 1) * 100 if ref else 0.0
+            log.info("PROBE %-5s last=%.4f vs %s %.4f (bar %dd old) -> %+.1f%%",
+                     sym, last, kind, ref, age, gain)
 
-    # ---- streaming ----------------------------------------------------------
-
-    async def on_bar(self, bar):
-        """Alpaca delivers a bar only once the minute has CLOSED."""
-        s = self.st(bar.symbol)
-        s.add_bar(Bar(ts=bar.timestamp, o=bar.open, h=bar.high,
-                      l=bar.low, c=bar.close, v=bar.volume))
-
-    async def on_trade(self, trade):
-        s = self.st(trade.symbol)
-        s.trades.append((trade.price, trade.size))
-        s.last_price = trade.price
-        s.day_high = max(s.day_high, trade.price)
-        await self.evaluate(s)
-
-    async def subscribe(self, symbols):
-        new = [x for x in symbols if x not in self.subscribed]
-        if not new:
-            return
-        for sym in new:
-            self.stream.subscribe_bars(self.on_bar, sym)
-            self.stream.subscribe_trades(self.on_trade, sym)
-            self.subscribed.add(sym)
-        log.info("watching %d names (+%d)", len(self.subscribed), len(new))
-
-    # ---- the precedence ladder ---------------------------------------------
-
-    async def evaluate(self, s: SymState):
-        """One rule acts at a time. Highest match wins, the rest are skipped."""
-        if self.stopped or self.halted_today:
-            return
-        price = s.last_price
-        if price <= 0:
-            return
-
-        # 1. account halt
-        eq = self.equity()
-        if self.day_start_equity and eq <= self.day_start_equity * (1 - self.halt_threshold()):
-            await self.flatten_all("daily-halt")
-            self.halted_today = True
-            return
-
-        fast = s.fast_speed()
-        base = s.baseline_speed()
-
-        if s.in_position:
-            s.update_trail(price)
-
-            # 2. flush - large NEGATIVE speed. Never consult the trail.
-            if fast is not None and base > 0 and fast <= -SPEED_FLUSH_MULT * base:
-                await self.exit(s, "flush", urgency=abs(fast))
-                return
-
-            # 3. entry stop, while unproven
-            if not s.armed and price <= s.entry_stop:
-                await self.exit(s, "entry-stop")
-                return
-
-            # 4. the trail
-            if s.armed and s.trail_stop and price <= s.trail_stop:
-                await self.exit(s, "trail")
-                return
-
-            # 5. stall - sideways with volume gone
-            if s.quiet_bars >= STALL_BARS:
-                await self.exit(s, "stall")
-                return
-            if fast is not None and base > 0 and fast < 0 and s.quiet_bars >= 2:
-                await self.exit(s, "fade")
-                return
-
-            # 7. add on strong speed
-            if fast is not None and base > 0 and fast >= SPEED_ADD_MULT * base:
-                await self.maybe_add(s, price)
-            return
-
-        # not holding - look for an entry
-        await self.maybe_enter(s, price, fast, base)
-
-    # ---- entry --------------------------------------------------------------
-
-    def margin_for(self, price: float) -> float:
-        if price <= 5:
-            return 0.05
-        if price <= 20:
-            return 0.01 * price
-        if price <= 50:
-            return 0.20 + (price - 20) * (0.10 / 30)
-        if price <= 100:
-            return 0.30 + (price - 50) * (0.10 / 50)
-        return 0.40
-
-    async def maybe_enter(self, s: SymState, price: float, fast, base):
-        if len(self.open_positions()) >= MAX_POSITIONS:
-            return
-        if not s.setup_ready:
-            DLOG.record(ev="reject", sym=s.symbol, why="no-setup")
-            return
-        if price < s.setup_level:
-            return                                   # trigger not hit yet
-        if not s.thin_ok():
-            DLOG.record(ev="reject", sym=s.symbol, why="thin")
-            return
-        if fast is None or fast <= 0:
-            DLOG.record(ev="reject", sym=s.symbol, why="speed-not-positive")
-            return
-        if base > 0 and fast < SPEED_ADD_MULT * base:
-            DLOG.record(ev="reject", sym=s.symbol, why="speed-below-5x")
-            return
-
-        # a name we already traded today must make a NEW high + margin
-        if s.peak > 0 and price < s.day_high + self.margin_for(price):
-            DLOG.record(ev="reject", sym=s.symbol, why="below-day-high+margin")
-            return
-
-        risk_per_share = max(price - s.setup_low, 0.01)
-        risk_dollars = self.equity() * RISK_PER_TRADE
-        shares = int(risk_dollars / risk_per_share)
-        if shares * price < MIN_TRADE_DOLLARS:
-            return
-
-        filled = await self.buy(s.symbol, shares, price)
-        if filled:
-            s.shares = filled
-            s.entry = price
-            s.entry_stop = s.setup_low
-            s.peak = price
-            s.trail_stop = 0.0
-            s.armed = False
-            DLOG.record(ev="ENTER", sym=s.symbol, px=price, sh=filled,
-                        level=s.setup_level, stop=s.setup_low,
-                        speed=fast, baseline=base, abr=s.abr())
-
-    async def maybe_add(self, s: SymState, price: float):
-        target = self.target_dollars(s.symbol)
-        held = s.shares * price
-        gap = target - held
-        if gap < MIN_TRADE_DOLLARS:
-            return
-        shares = int(gap / price)
-        if shares <= 0:
-            return
-        filled = await self.buy(s.symbol, shares, price)
-        if filled:
-            s.shares += filled
-            DLOG.record(ev="ADD", sym=s.symbol, px=price, sh=filled, target=target)
-
-    # ---- sizing -------------------------------------------------------------
-
-    def open_positions(self) -> list[SymState]:
-        return [s for s in self.state.values() if s.in_position]
-
-    def target_dollars(self, symbol: str) -> float:
-        """Capital in proportion to speed, leader capped at 80%."""
-        held = self.open_positions()
-        speeds = {}
-        for s in held:
-            f = s.fast_speed()
-            speeds[s.symbol] = max(f, 0.0) if f is not None else 0.0
-        total = sum(speeds.values())
-        if total <= 0:
-            return 0.0
-        weights = {k: v / total for k, v in speeds.items()}
-        top = max(weights, key=weights.get)
-        if weights[top] > LEADER_CAP:
-            rest = 1 - LEADER_CAP
-            other = sum(v for k, v in weights.items() if k != top)
-            weights = {k: (LEADER_CAP if k == top else (v / other) * rest)
-                       for k, v in weights.items()}
-        return self.equity() * weights.get(symbol, 0.0)
-
-    async def rebalance(self, reason: str):
-        for s in self.open_positions():
-            price = s.last_price
-            if price <= 0:
-                continue
-            target = self.target_dollars(s.symbol)
-            held = s.shares * price
-            diff = target - held
-            if abs(diff) < MIN_TRADE_DOLLARS:
-                continue
-            if diff > 0:
-                await self.maybe_add(s, price)
-            else:
-                shares = min(s.shares, int(abs(diff) / price))
-                if shares > 0:
-                    sold = await self.sell(s.symbol, shares, price)
-                    s.shares = max(0.0, s.shares - sold)
-        DLOG.record(ev="rebalance", why=reason)
-
-    # ---- exits --------------------------------------------------------------
-
-    async def exit(self, s: SymState, why: str, urgency: float = 0.0):
-        shares = s.shares
-        if shares <= 0:
-            return
-        sold = await self.sell(s.symbol, int(shares), s.last_price)
-        DLOG.record(ev="EXIT", sym=s.symbol, why=why, px=s.last_price,
-                    sh=sold, entry=s.entry, peak=s.peak,
-                    trail=s.trail_stop, urgency=urgency)
-        s.shares = max(0.0, s.shares - sold)
-        if s.shares <= 0:
-            s.entry = s.entry_stop = s.trail_stop = 0.0
-            s.armed = False
-            s.quiet_bars = 0
-
-    async def flatten_all(self, why: str):
-        for s in self.open_positions():
-            await self.exit(s, why)
-
-    # ---- order chase --------------------------------------------------------
-
-    async def buy(self, symbol: str, shares: int, ref_price: float) -> int:
-        """Chase upward, capped 2% above the ask. Never let a runner escape.
-
-        Fills are counted from the BROKER's position, not from what the order
-        reply told us. A cancel that races a fill used to report "got nothing"
-        and the next attempt bought the whole clip again - that is how a $600
-        slot became $3,050. Asking the broker what we own makes that impossible.
-        """
-        start = self.broker_qty(symbol)
-        if start is None:
-            start = 0.0                            # unreachable: fall back
-        for _ in range(CHASE_ATTEMPTS):
-            now = self.broker_qty(symbol)
-            filled = (now - start) if now is not None else 0.0
-            remaining = int(shares - filled)
-            if remaining <= 0:
-                break
-            ask = self.quote(symbol, "ask") or ref_price
-            limit = round(min(ask * 1.002, ref_price * (1 + BUY_CHASE_CAP)), 2)
-            got = await self.send(symbol, remaining, OrderSide.BUY, limit)
-            if got == 0:
-                await asyncio.sleep(CHASE_PAUSE)
-        end = self.broker_qty(symbol)
-        if end is None:
-            return 0
-        return max(0, int(end - start))
-
-    async def sell(self, symbol: str, shares: int, ref_price: float) -> int:
-        """Chase downward, UNCAPPED. A stop must always get out.
-
-        Counted from the broker in the same way, and clamped to what we really
-        own - so a stop can never try to sell more than the account holds and
-        get the whole order rejected with shorting switched off.
-        """
-        start = self.broker_qty(symbol)
-        if start is None:
-            start = float(shares)
-        want = min(int(shares), int(start))
-        if want <= 0:
-            return 0
-        for _ in range(CHASE_ATTEMPTS):
-            now = self.broker_qty(symbol)
-            sold = (start - now) if now is not None else 0.0
-            remaining = int(want - sold)
-            if remaining <= 0:
-                break
-            bid = self.quote(symbol, "bid") or ref_price
-            limit = round(max(bid * 0.995, 0.01), 2)
-            got = await self.send(symbol, remaining, OrderSide.SELL, limit)
-            if got == 0:
-                await asyncio.sleep(CHASE_PAUSE)
-        end = self.broker_qty(symbol)
-        if end is None:
-            return want
-        return max(0, int(start - end))
-
-    def quote(self, symbol: str, side: str):
-        try:
-            snap = self.data.get_stock_snapshot(
-                StockSnapshotRequest(symbol_or_symbols=symbol))
-            q = snap[symbol].latest_quote
-            return q.ask_price if side == "ask" else q.bid_price
-        except Exception:
-            return None
-
-    async def send(self, symbol: str, qty: int, side: OrderSide, limit: float) -> int:
-        try:
-            order = self.trading.submit_order(LimitOrderRequest(
-                symbol=symbol, qty=qty, side=side,
-                time_in_force=TimeInForce.DAY, limit_price=limit,
-                extended_hours=True))
-            for _ in range(10):
-                await asyncio.sleep(0.2)
-                o = self.trading.get_order_by_id(order.id)
-                if o.filled_qty and float(o.filled_qty) > 0:
-                    return int(float(o.filled_qty))
-                if str(o.status) in ("OrderStatus.FILLED", "OrderStatus.CANCELED"):
-                    break
-            try:
-                self.trading.cancel_order_by_id(order.id)
-            except Exception:
-                pass
-            return 0
-        except Exception as e:
-            log.error("order failed %s %s: %s", side, symbol, e)
-            return 0
-
-    # ---- main loops ---------------------------------------------------------
+    # ---- loops --------------------------------------------------------------
 
     async def scanner_loop(self):
+        """ONE scan for all three. Previously this ran three times over."""
         while True:
             try:
-                self.roll_day()
-                if self.needs_reconcile:
-                    self.needs_reconcile = False
-                    await self.reconcile("day-roll")
-                if not self.stopped and not self.halted_today:
-                    picks = self.scan()
-                    self.load_borrow_flags(picks)
-                    for sym in picks:
-                        self.st(sym).easy_to_borrow = self.borrow.get(sym, True)
-                    await self.subscribe(picks[:200])
+                for strat in self.strategies:
+                    await strat.roll_day()
+                    if strat.needs_reconcile:
+                        strat.needs_reconcile = False
+                        await strat.reconcile("day-roll")
+                if any(not s.stopped and not s.halted_today
+                       for s in self.strategies):
+                    picks = await self.scan()
+                    if picks:
+                        symbols = list(picks)[:MAX_WATCH]
+                        for strat in self.strategies:
+                            strat.qualified.update(symbols)
+                            for sym in symbols:
+                                st = strat.st(sym)
+                                st.day_high = max(st.day_high, picks[sym])
+                        await self.data.subscribe(symbols)
             except Exception as e:
                 log.error("scanner: %s", e)
             await asyncio.sleep(SCAN_SECONDS)
 
-    async def rebalance_loop(self):
-        while True:
-            await asyncio.sleep(5)
-            try:
-                now = time.time()
-                due = now - self.last_rebalance >= REBALANCE_SECONDS
-                event = False
-                for s in self.open_positions():
-                    f = s.fast_speed()
-                    if f is None:
-                        continue
-                    was = self.last_speeds.get(s.symbol)
-                    if was and was > 0 and (f >= SPEED_EVENT_MULT * was
-                                            or f <= was / SPEED_EVENT_MULT):
-                        event = True
-                    self.last_speeds[s.symbol] = max(f, 0.0)
-                if (due or event) and self.open_positions():
-                    await self.rebalance("clock" if due else "speed-event")
-                    self.last_rebalance = now
-            except Exception as e:
-                log.error("rebalance: %s", e)
-
     async def reconcile_loop(self):
-        """A minute is fast enough to catch drift, slow enough to cost nothing."""
         while True:
             await asyncio.sleep(RECONCILE_SECONDS)
-            try:
-                await self.reconcile("periodic")
-            except Exception as e:
-                log.error("reconcile: %s", e)
+            for strat in self.strategies:
+                try:
+                    await strat.reconcile("periodic")
+                except Exception as e:
+                    log.error("[%s] reconcile: %s", strat.name, e)
+
+    async def periodic_loop(self):
+        while True:
+            await asyncio.sleep(5)
+            for strat in self.strategies:
+                try:
+                    if not strat.stopped and not strat.halted_today:
+                        await strat.periodic()
+                except Exception as e:
+                    log.error("[%s] periodic: %s", strat.name, e)
 
     async def close_loop(self):
         while True:
             await asyncio.sleep(20)
             now = datetime.now(ET)
-            if (now.hour, now.minute) >= FLATTEN_AT and self.open_positions():
-                log.info("End of day - flattening everything.")
-                await self.flatten_all("end-of-day")
+            if (now.hour, now.minute) >= FLATTEN_AT:
+                for strat in self.strategies:
+                    if strat.open_positions():
+                        log.info("[%s] end of day - flattening.", strat.name)
+                        await strat.flatten_all("end-of-day")
 
-    async def stream_forever(self):
-        """Keep the websocket alive inside our own event loop.
-
-        alpaca-py's public .run() creates its own loop, so inside a running
-        loop we use the internal coroutine; if that name ever changes, fall
-        back to running .run() on a worker thread.
-        """
+    async def health_loop(self):
+        """One line a minute: are the queues draining, is anything stuck?"""
         while True:
-            try:
-                if hasattr(self.stream, "_run_forever"):
-                    await self.stream._run_forever()
-                else:
-                    await asyncio.to_thread(self.stream.run)
-            except Exception as e:
-                msg = str(e).lower()
-                if "connection limit" in msg:
-                    # The old socket has not been released yet. Coming straight
-                    # back only competes with ourselves - close and wait it out.
-                    try:
-                        await self.stream.close()
-                    except Exception:
-                        pass
-                    log.error("stream refused (connection limit) - waiting 30s")
-                    await asyncio.sleep(30)
-                else:
-                    log.error("stream dropped (%s) - reconnecting in 5s", e)
-                    await asyncio.sleep(5)
+            await asyncio.sleep(60)
+            parts = []
+            for s in self.strategies:
+                parts.append("%s q=%d pos=%d drop=%d"
+                             % (s.name, s.queue.qsize(),
+                                len(s.open_positions()), s.dropped_ticks))
+            log.info("health | watching %d | %s",
+                     len(self.data.subscribed), " | ".join(parts))
 
-    def check_account(self):
-        """Fail loudly at boot instead of running with equity 0.00."""
-        try:
-            acct = self.trading.get_account()
-            log.info("Connected to Alpaca %s account %s - equity %.2f",
-                     "PAPER" if self.paper else "LIVE",
-                     acct.account_number, float(acct.equity))
-            return True
-        except Exception as e:
-            log.critical("CANNOT REACH THE ACCOUNT: %s", e)
-            log.critical("Using the %s endpoint. Paper keys need ALPACA_PAPER=true "
-                         "(or 1); live keys need ALPACA_PAPER=false (or 0). "
-                         "Nothing will trade until this matches.",
-                         "PAPER" if self.paper else "LIVE")
-            return False
+    # ---- boot ---------------------------------------------------------------
+
+    async def check_accounts(self) -> bool:
+        ok = True
+        for strat in self.strategies:
+            try:
+                acct = await strat.broker.account()
+                log.info("[%s] connected to Alpaca %s account %s - equity %.2f",
+                         strat.name, "PAPER" if self.paper else "LIVE",
+                         acct.account_number, float(acct.equity))
+            except Exception as e:
+                ok = False
+                log.critical("[%s] CANNOT REACH THE ACCOUNT: %s", strat.name, e)
+                log.critical("[%s] paper keys need ALPACA_PAPER=true; live keys "
+                             "need ALPACA_PAPER=false. It will not trade.",
+                             strat.name)
+        return ok
 
     async def run(self):
-        self.check_account()
-        self.roll_day()
-        # Before a single decision is made, find out what we already own.
-        self.needs_reconcile = False
-        await self.reconcile("startup")
-        log.info("v31 starting. equity %.2f, orphan mode %s",
-                 self.day_start_equity, ORPHAN_MODE)
-        await asyncio.gather(
-            self.scanner_loop(),
-            self.rebalance_loop(),
-            self.reconcile_loop(),
-            self.close_loop(),
-            DLOG.flusher(),
-            self.stream_forever(),
-        )
+        if not self.strategies:
+            log.critical("No strategies have keys. Nothing to do.")
+            return
+        await self.check_accounts()
+        for strat in self.strategies:
+            await strat.roll_day()
+            strat.needs_reconcile = False
+            await strat.reconcile("startup")
+
+        log.info("engine up: %s | one data connection | orphan mode %s",
+                 ", ".join(s.name for s in self.strategies), ORPHAN_MODE)
+
+        tasks = [self.scanner_loop(), self.reconcile_loop(), self.periodic_loop(),
+                 self.close_loop(), self.health_loop(), self.data.run_forever()]
+        for strat in self.strategies:
+            tasks.append(strat.tick_worker())
+            tasks.append(strat.dlog.flusher())
+        await asyncio.gather(*tasks)
 
 
 if __name__ == "__main__":
-    asyncio.run(V31().run())
+    asyncio.run(Engine().run())
