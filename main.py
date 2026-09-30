@@ -1,10 +1,3 @@
-Wed Sep 30, 6:43 AM ET
-
-To be clear on one thing: the last line isn't wrong — I was telling you where the code ends, so you know not to paste any of my chat text after it. It ends at asyncio.run(Engine().run()).
-
-Here is the whole file, A to Z. Paste it over main.py.
-
-python
 """
 Trading engine - three strategies, one process, one market-data connection.
 
