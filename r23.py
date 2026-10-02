@@ -763,6 +763,42 @@ class Strategy:
             return HALT_PCT_OVERRIDE[self.name]
         return HALT_LADDER[min(self.halt_streak, len(HALT_LADDER) - 1)]
 
+    async def self_check(self):
+        """Verify our OWN state against our OWN hard rules. A violation here
+        means the sizing or stop logic is wrong somewhere, not a market
+        event - it must never be silent. Added 2026-10-02 after a v31
+        starter entry landed at 35% of equity against a 25% cap, discovered
+        only by reading a fill by hand."""
+        eq = await self.broker.equity(self.day_start_equity)
+        if eq <= 0:
+            return
+        cap = {"v31": V31_LEADER_CAP, "v34": V34_MAX_POSITION_PCT}.get(
+            self.name, MAX_POSITION_PCT)
+        total_value = 0.0
+        for s in self.open_positions():
+            price = s.last_price or s.entry
+            value = s.shares * price
+            total_value += value
+            pct = value / eq
+            if pct > cap + 0.03:
+                log.critical(
+                    "[%s] SELF-CHECK VIOLATION: %s is %.1f%% of equity "
+                    "(cap %.0f%%) - %d shares @ %.4f = $%.0f",
+                    self.name, s.symbol, 100 * pct, 100 * cap,
+                    s.shares, price, value)
+            if not s.stop or s.stop <= 0:
+                log.critical(
+                    "[%s] SELF-CHECK VIOLATION: %s has no real stop "
+                    "(stop=%s) while holding %d shares",
+                    self.name, s.symbol, s.stop, s.shares)
+        exposure_pct = total_value / eq
+        if exposure_pct > MAX_EXPOSURE_PCT + 0.03:
+            log.critical(
+                "[%s] SELF-CHECK VIOLATION: total exposure %.1f%% of "
+                "equity (cap %.0f%%), $%.0f held",
+                self.name, 100 * exposure_pct, 100 * MAX_EXPOSURE_PCT,
+                total_value)
+
     def offer_tick(self, symbol, price, size, conds=()):
         """Called from the shared stream. NEVER blocks - just queues."""
         try:
@@ -1967,6 +2003,7 @@ class Engine:
                 try:
                     if strat.stopped or not strat.day_start_equity:
                         continue
+                    await strat.self_check()
                     # A threshold of 0 means the halt is DELIBERATELY OFF.
                     # Without this line the limit equals the baseline and the
                     # first cent of loss halts the strategy - which is exactly
