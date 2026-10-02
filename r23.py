@@ -207,14 +207,16 @@ SUBSCRIBE_INTERVAL = 30
 
 # --- v31 ---------------------------------------------------------------------
 V31_MAX_POSITIONS = 3
-V31_LEADER_CAP = 0.80
+V31_LEADER_CAP = 0.25
 V31_RISK_PER_TRADE = 0.01
 V31_ENTRY_TICK = 0.01
 V31_TRADE_WINDOW = 50
-V31_SPEED_ADD_MULT = 5.0
+V31_SPEED_ADD_MULT = 2.0
 V31_SPEED_FADE_MULT = 0.25
 V31_SPEED_FLUSH_MULT = 5.0
-V31_BASELINE_MIN_SAMPLES = 10
+V31_FLUSH_DROP_PCT = 0.03
+V31_FLUSH_SPEED_ABS = -0.03
+V31_BASELINE_MIN_SAMPLES = 1
 V31_ABR_BARS = 10
 V31_ABR_MIN_BARS = 3
 V31_ABR_GROWTH_CAP = 1.5
@@ -1230,8 +1232,10 @@ class V31(Strategy):
         if s.in_position:
             self.update_trail(s, price)
 
-            # 2. flush - large NEGATIVE speed. Never consults the trail.
-            if fast is not None and base > 0 and fast <= -V31_SPEED_FLUSH_MULT * base:
+            if s.peak > 0 and price <= s.peak * (1 - V31_FLUSH_DROP_PCT):
+                await self.exit(s, "flush")
+                return
+            if fast is not None and fast <= V31_FLUSH_SPEED_ABS:
                 await self.exit(s, "flush")
                 return
             # 3. entry stop, while unproven
@@ -1246,11 +1250,13 @@ class V31(Strategy):
             if s.quiet_bars >= V31_STALL_BARS:
                 await self.exit(s, "stall")
                 return
-            if fast is not None and base > 0 and fast < 0 and s.quiet_bars >= 2:
+            if fast is not None and base > 0 and len(s.bars) >= 5 and fast < 0 and s.quiet_bars >= 2:
                 await self.exit(s, "fade")
                 return
             # 7. add on strong speed
-            if fast is not None and base > 0 and fast >= V31_SPEED_ADD_MULT * base:
+            if (fast is not None and base > 0 and
+                    fast >= V31_SPEED_ADD_MULT * base and
+                    (not s.entry_at or time.time() - s.entry_at >= 60)):
                 await self.add(s, price)
             return
 
@@ -1268,8 +1274,6 @@ class V31(Strategy):
         if not self.thin_ok(s):
             return
         if fast is None or fast <= 0:
-            return
-        if base > 0 and fast < V31_SPEED_ADD_MULT * base:
             return
         if s.traded_today and price < s.day_high + margin_for(price):
             return
@@ -1433,6 +1437,8 @@ class V31(Strategy):
         for s in self.open_positions():
             price = s.last_price
             if price <= 0:
+                continue
+            if s.entry_at and time.time() - s.entry_at < 60:
                 continue
             target = await self.target_dollars(s.symbol)
             diff = target - s.shares * price
