@@ -187,6 +187,7 @@ DEAD_CHECK_SECONDS = 30
 HALT_PCT_OVERRIDE = {
     "v32": float(os.getenv("V32_HALT_PCT", "0") or 0) / 100.0,
     "v33": float(os.getenv("V33_HALT_PCT", "0") or 0) / 100.0,
+    "v34": float(os.getenv("V34_HALT_PCT", "0") or 0) / 100.0,
 }
 
 ORPHAN_MODE = os.environ.get("ORPHAN_MODE", "adopt").strip().lower()
