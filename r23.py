@@ -1609,6 +1609,180 @@ class V33(Strategy):
 # THE ENGINE - one scan, one connection, three strategies
 # ----------------------------------------------------------------------------
 
+V34_MAX_POSITIONS = 1
+V34_STARTER_PCT = 0.10
+V34_ADD_MIN_AGE_SEC = 90
+V34_ADD_CONFIRM_MARGIN = 0.02
+V34_ADD_MULT = 2.0
+V34_MAX_POSITION_PCT = 0.40
+V34_TRAIL_LOOSE_PCT = 0.15
+V34_TRAIL_MED_PCT = 0.08
+V34_TRAIL_TIGHT_PCT = 0.03
+V34_FLUSH_DROP_PCT = 0.04
+V34_ENTRY_WINDOW = ((4, 0), (10, 30))
+
+
+class V34(Strategy):
+    """One position at a time, picked by rank, sized in stages, protected in
+    stages. Built 2026-10-02 from everything learned the two days before it:
+    unselective entry loses, one big jump in size is dangerous, one stop width
+    is wrong for every stage of a move, and a fresh position needs an instant,
+    history-free floor under it from its very first tick.
+    """
+
+    name = "v34"
+
+    def offer_bar(self, raw):
+        s = self.st(raw.symbol)
+        bar = Bar(ts=raw.timestamp, o=raw.open, h=raw.high,
+                  l=raw.low, c=raw.close, v=raw.volume)
+        s.bars.append(bar)
+        if len(s.bars) > 400:
+            s.bars = s.bars[-400:]
+        s.day_high = max(s.day_high, bar.h)
+        self._refresh_setup(s)
+
+    def note_trade(self, s, price, size):
+        s.trades.append((price, size))
+
+    def _refresh_setup(self, s):
+        s.setup_ready = False
+        if len(s.bars) < 2:
+            return
+        green, red = s.bars[-2], s.bars[-1]
+        if green.green and red.red:
+            s.setup_level = red.o + V31_ENTRY_TICK
+            s.setup_low = red.l
+            s.setup_ready = True
+
+    def _speed(self, s):
+        n = V31_TRADE_WINDOW
+        if len(s.trades) < 2 * n:
+            return None
+        recent = list(s.trades)[-n:]
+        prior = list(s.trades)[-2 * n:-n]
+        p0, p1 = prior[0][0], recent[-1][0]
+        v_recent = sum(t[1] for t in recent)
+        v_prior = sum(t[1] for t in prior)
+        if p0 <= 0 or v_prior <= 0:
+            return None
+        return ((p1 - p0) / p0) * (v_recent / v_prior)
+
+    def _dollar_volume_recent(self, s, n=50):
+        if len(s.trades) < 1:
+            return 0.0
+        recent = list(s.trades)[-n:]
+        return sum(p * sz for p, sz in recent)
+
+    def _rank(self, sym):
+        s = self.st(sym)
+        sp = self._speed(s)
+        if sp is None or sp <= 0:
+            return 0.0
+        return self._dollar_volume_recent(s) * sp
+
+    def _best_candidate(self):
+        best_sym, best_score = None, 0.0
+        for sym in self.qualified:
+            s = self.st(sym)
+            if s.in_position or not s.setup_ready:
+                continue
+            score = self._rank(sym)
+            if score > best_score:
+                best_sym, best_score = sym, score
+        return best_sym
+
+    def _entries_allowed(self):
+        now = datetime.now(ET)
+        start, end = V34_ENTRY_WINDOW
+        return start <= (now.hour, now.minute) < end
+
+    async def evaluate(self, s, price):
+        if await self.halted():
+            if s.in_position:
+                await self.exit(s, "halted")
+            return
+
+        if s.in_position:
+            s.peak = max(s.peak, price)
+            if s.peak > 0 and price <= s.peak * (1 - V34_FLUSH_DROP_PCT):
+                await self.exit(s, "flush")
+                return
+            if not s.armed and s.stop and price <= s.stop:
+                await self.exit(s, "entry-stop")
+                return
+            gain = (s.peak / s.entry - 1) if s.entry else 0.0
+            if gain >= 1.0:
+                trail_pct = V34_TRAIL_TIGHT_PCT
+            elif gain >= 0.25:
+                trail_pct = V34_TRAIL_MED_PCT
+            else:
+                trail_pct = V34_TRAIL_LOOSE_PCT
+            if gain >= 0.25:
+                s.armed = True
+                s.trail_stop = max(s.trail_stop, s.peak * (1 - trail_pct))
+                if price <= s.trail_stop:
+                    await self.exit(s, "trail")
+                    return
+            if (s.entry_at and time.time() - s.entry_at >= V34_ADD_MIN_AGE_SEC
+                    and price >= s.setup_level * (1 + V34_ADD_CONFIRM_MARGIN)):
+                await self._add(s, price)
+            return
+
+        if not self._entries_allowed():
+            return
+        if s.symbol not in self.qualified:
+            return
+        if len(self.open_positions()) >= V34_MAX_POSITIONS:
+            return
+        if not s.setup_ready or price < s.setup_level:
+            return
+        if self._best_candidate() != s.symbol:
+            return
+
+        eq = await self.broker.equity(self.day_start_equity)
+        shares = int((eq * V34_STARTER_PCT) / price)
+        if shares * price < MIN_TRADE_DOLLARS:
+            return
+        filled = await self.buy(s.symbol, shares, price)
+        if filled:
+            s.shares = filled
+            s.entry = price
+            s.stop = s.setup_low
+            s.peak = price
+            s.trail_stop = 0.0
+            s.armed = False
+            s.adopted = False
+            s.traded_today = True
+            s.entry_at = time.time()
+            self.dlog.record(ev="ENTER", sym=s.symbol, px=price, sh=filled,
+                             level=s.setup_level, stop=s.setup_low)
+            log.info("[v34] ENTER %s %d @ %.4f = $%.0f (%.0f%% of equity) | "
+                     "stop %.4f | rank earned it",
+                     s.symbol, filled, price, filled * price,
+                     100 * filled * price / eq if eq else 0.0, s.stop)
+
+    async def _add(self, s, price):
+        eq = await self.broker.equity(self.day_start_equity)
+        current_pct = (s.shares * price) / eq if eq else 0.0
+        if current_pct >= V34_MAX_POSITION_PCT:
+            return
+        target_pct = min(current_pct * V34_ADD_MULT, V34_MAX_POSITION_PCT)
+        gap = target_pct * eq - s.shares * price
+        if gap < MIN_TRADE_DOLLARS:
+            return
+        shares = int(gap / price)
+        if shares <= 0:
+            return
+        filled = await self.buy(s.symbol, shares, price)
+        if filled:
+            s.shares += filled
+            s.entry_at = time.time()
+            self.dlog.record(ev="ADD", sym=s.symbol, px=price, sh=filled)
+            log.info("[v34] ADD %s %d @ %.4f -> now %.0f%% of equity",
+                     s.symbol, filled, price,
+                     100 * s.shares * price / eq if eq else 0.0)
+
 class Engine:
 
     def __init__(self):
@@ -1628,7 +1802,7 @@ class Engine:
         self.add_strategy(V31, key, secret)
         self.add_strategy(V32, os.environ.get("V32_API_KEY"),
                           os.environ.get("V32_SECRET_KEY"))
-        self.add_strategy(V33, os.environ.get("V33_API_KEY"),
+        self.add_strategy(V34, os.environ.get("V33_API_KEY"),
                           os.environ.get("V33_SECRET_KEY"))
 
         for strat in self.strategies:
