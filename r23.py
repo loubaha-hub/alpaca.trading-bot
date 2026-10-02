@@ -1315,6 +1315,22 @@ class V31(Strategy):
         if s.traded_today and price < s.day_high + margin_for(price):
             return
 
+        # TWO OVERLAPPING EVALUATIONS of the same symbol must never both
+        # size and buy before either one finishes - an await further down
+        # (the quote confirm) hands control back, and a second tick for the
+        # same symbol can land in that gap, each one computing its own valid
+        # capped size against zero current shares and both buying - which is
+        # how one entry became 35% instead of 25%. Added 2026-10-02 after
+        # exactly that happened on QTEX.
+        if getattr(s, "entering", False):
+            return
+        s.entering = True
+        try:
+            await self._maybe_enter_inner(s, price, fast, base)
+        finally:
+            s.entering = False
+
+    async def _maybe_enter_inner(self, s, price, fast, base):
         # A stop nearer than MIN_STOP_PCT is treated as MIN_STOP_PCT. Without
         # that floor a 4-cent stop divides into the risk budget and asks for
         # thousands of shares - which is exactly how a $29k account ended up
