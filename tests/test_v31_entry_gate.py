@@ -150,11 +150,14 @@ def test_entry_window(v31, clock, hour, minute, allowed):
 
 # ---- re-entry: a new day high plus the margin --------------------------------
 
-def test_reentry_below_day_high_plus_margin_is_blocked(v31, clock):
+@pytest.mark.usefixtures("hod_on")
+def test_reentry_below_day_high_plus_5_cents_is_blocked(v31, clock):
+    """r27: a name traded today re-enters at the day's high + 5 cents."""
     s = breakout(v31, clock)
     s.traded_today = True
     s.day_high = 10.50
-    tick(v31, s, 10.60)                  # needs 10.50 + 0.106 = 10.606
+    s.hod_closed = 10.50
+    tick(v31, s, 10.54)
     assert not entered(v31, s)
 
 
@@ -243,3 +246,89 @@ def test_price_range_at_entry(v31, clock, red_open, red_low, price, allowed):
     s = breakout(v31, clock, red_open=red_open, red_low=red_low)
     tick(v31, s, price)
     assert entered(v31, s) is allowed
+
+
+# ---- r27: re-enter a runner at every new high of the day ----------------------
+# The feature ships switched off (V31_HOD_REENTRY = False); these tests switch
+# it on to keep checking that it works.
+
+@pytest.fixture
+def hod_on(monkeypatch):
+    monkeypatch.setattr(bot, "V31_HOD_REENTRY", True, raising=False)
+
+
+def no_setup(strat, clock, symbol="ABCD"):
+    """A traded name whose last closed bar is green - no green/red setup."""
+    s = breakout(strat, clock, symbol)
+    now = clock.now.astimezone(bot.timezone.utc)
+    strat.offer_bar(raw_bar(symbol, now, 10.00, 10.40, 9.95, 10.35, 40_000))
+    assert not s.setup_ready
+    s.traded_today = True
+    s.day_high = 10.50
+    s.hod_closed = 10.50                 # the highest closed bar: the resistance
+    return s
+
+
+@pytest.mark.usefixtures("hod_on")
+def test_new_high_reentry_needs_no_setup(v31, clock):
+    s = no_setup(v31, clock)
+    tick(v31, s, 10.55)                  # 10.50 + 0.05
+    assert entered(v31, s)
+
+
+@pytest.mark.usefixtures("hod_on")
+def test_new_high_reentry_stop_sits_under_the_old_high(v31, clock):
+    s = no_setup(v31, clock)
+    abr = v31.abr(s)
+    tick(v31, s, 10.55)
+    assert entered(v31, s)
+    assert s.stop == pytest.approx(min(10.50 - max(abr, 0.01), s.entry * 0.99))
+    assert s.stop < 10.50
+
+
+@pytest.mark.usefixtures("hod_on")
+def test_first_entry_still_needs_a_setup(v31, clock):
+    s = no_setup(v31, clock)
+    s.traded_today = False               # never traded today
+    tick(v31, s, 10.60)
+    assert not entered(v31, s)
+
+
+def test_new_high_reentry_is_off_by_default(v31, clock):
+    s = no_setup(v31, clock)
+    tick(v31, s, 10.60)
+    assert not entered(v31, s)
+
+
+@pytest.mark.usefixtures("hod_on")
+def test_new_high_reentry_still_needs_volume_and_speed(v31, clock):
+    s = no_setup(v31, clock)
+    s.bars[-1].v = bot.V31_BAR_SHARES_MIN - 1        # thin last bar
+    tick(v31, s, 10.60)
+    assert not entered(v31, s)
+
+
+@pytest.mark.usefixtures("hod_on")
+def test_new_high_reentry_fires_on_a_steady_climb(v31, clock):
+    """The bug r27 first shipped with: measured against s.day_high, which rises
+    with every print, a smooth climb never stood 5c above it. Measured against
+    the highest closed bar, the climb breaks out."""
+    s = no_setup(v31, clock)
+    for p in [10.44, 10.47, 10.50, 10.52, 10.54, 10.56]:   # one cent-ish at a time
+        s.last_price = p
+        v31.note_trade(s, p, 100)
+        run(v31.evaluate(s, p))
+        s.day_high = max(s.day_high, p)                    # what tick_worker does
+        if s.in_position:
+            break
+    assert entered(v31, s)
+
+
+def test_reentry_above_day_high_plus_margin_still_enters_with_a_setup(v31, clock):
+    """With new-high re-entry off, a traded name still re-enters through a
+    green/red setup that also clears the day's high plus margin_for()."""
+    s = breakout(v31, clock)
+    s.traded_today = True
+    s.day_high = 10.50
+    tick(v31, s, 10.65)                  # margin at 10.65 is 0.1065
+    assert entered(v31, s)
