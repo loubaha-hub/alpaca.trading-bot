@@ -65,6 +65,10 @@ class FakeBroker:
         await asyncio.sleep(0)
         return 0
 
+    async def avg_entry(self, symbol):
+        await asyncio.sleep(0)
+        return self.avg_cost(symbol) or None
+
     async def positions(self):
         await asyncio.sleep(0)
         return {sym: {"qty": q, "entry": self.avg_cost(sym), "price": self.avg_cost(sym)}

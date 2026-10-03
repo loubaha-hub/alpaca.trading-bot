@@ -1,12 +1,12 @@
 """
-KNOWN v31 BUGS - each test states what SHOULD happen, and fails today.
+v31 REGRESSIONS - bugs found in r23.py, fixed in r24.py. Each test states what
+must happen and names what used to happen instead, so a fix cannot quietly
+come undone.
 
-Every test here is marked xfail(strict=True). That means:
-  * today it fails, and the run reports it as "xfailed" - expected
-  * the day a fix makes it pass, the run FAILS with "XPASS(strict)"
-    -> delete the @known_bug line in the same change as the fix
-
-So this file is the to-do list, and it cannot go stale.
+To record a NEW known bug before fixing it, write the test the same way and
+mark it @pytest.mark.xfail(strict=True, reason="..."). It then shows as
+"xfailed" until the fix lands, and the strict setting makes the run fail the
+moment it starts passing - remove the marker in the same change as the fix.
 """
 
 import asyncio
@@ -19,11 +19,7 @@ import bot
 from helpers import breakout, feed_trades, hold, run
 
 
-def known_bug(reason):
-    return pytest.mark.xfail(strict=True, reason=reason)
-
-
-# ---- buy() can end up holding more than it asked for -------------------------
+# ---- buy() never ends up holding more than it asked for ----------------------
 
 class WorkingOrdersClient:
     """Stands in for alpaca's TradingClient. A limit order fills a slice of its
@@ -64,7 +60,7 @@ class WorkingOrdersClient:
     def get_open_position(self, symbol):
         if not self.held:
             raise Exception("position does not exist")
-        return SimpleNamespace(qty=self.held)
+        return SimpleNamespace(qty=self.held, avg_entry_price=10.0)
 
     def still_working(self):
         return sum(o["qty"] - o["filled"] for o in self.orders.values() if o["open"])
@@ -74,40 +70,55 @@ class WorkingOrdersClient:
             self._trade()
 
 
-@known_bug("Broker.send returns on the first partial fill without cancelling the "
-           "rest of the order (r23.py:465). buy() then sends another order for "
-           "the remainder while the first is still working, and never cancels "
-           "either. Likeliest cause of the QTEX 35%-of-equity starter.")
 def test_buy_leaves_no_order_working_that_could_overfill(monkeypatch, data, no_sleep):
+    """r23: Broker.send returned on the first partial fill without cancelling
+    the rest, buy() sent another order for the remainder, and both kept
+    filling - 1,000 asked, 1,890 held. Likeliest cause of QTEX at 35%."""
     client = WorkingOrdersClient()
     monkeypatch.setattr(bot, "TradingClient", lambda *a, **k: client)
     strat = bot.V31(bot.Broker("key", "secret", True, "v31"), data)
 
     run(strat.buy("ABCD", 1000, 10.0))
+    assert client.still_working() == 0
     client.market_fills_the_rest()
-
     assert client.held <= 1000
 
 
-@known_bug("buy() counts a failed share-count read as 'nothing filled' "
-           "(r23.py:979) and re-sends the FULL size on top of what already "
-           "filled.")
 def test_buy_survives_one_failed_position_read(v31, broker):
+    """r23: a failed share-count read counted as 'nothing filled' and the
+    FULL size was re-sent on top of a 400-share partial - 1,400 held."""
     broker.fills = [0.4]               # first order: 400 of 1,000
     broker.qty_fails_on = {3}          # the read right after it fails
-    run(v31.buy("ABCD", 1000, 10.0))
-    assert broker.held["ABCD"] <= 1000
+    got = run(v31.buy("ABCD", 1000, 10.0))
+    assert broker.held["ABCD"] == 1000
+    assert got == 1000
+
+
+def test_buy_does_not_buy_blind(v31, broker):
+    """r23: an unreadable STARTING count was taken as 0, so anything already
+    held was counted as a new fill."""
+    broker.qty_fails_on = {1}
+    assert run(v31.buy("ABCD", 1000, 10.0)) == 0
+    assert broker.orders == []
+
+
+def test_sell_survives_one_failed_position_read(v31, broker):
+    """Same rule on the way out: a trim of 500 must not become 800 because
+    one read in the middle failed."""
+    hold(v31, "AAA", 2500, 10.0)
+    broker.fills = [0.6]               # first sell: 300 of 500
+    broker.qty_fails_on = {3}
+    run(v31.sell("AAA", 500, 10.0))
+    assert broker.held["AAA"] == 2000
 
 
 # ---- two tasks acting on one position at once --------------------------------
 
-@known_bug("add() runs from the tick handler (r23.py:1297) AND the rebalance "
-           "(r23.py:1501), which are separate tasks. Both size the add from the "
-           "same share count. Depending on timing either both buy (the account "
-           "goes to 40%) or the second buy() counts the first one's fill as its "
-           "own (here: broker 2,500 shares, memory 4,000). The `entering` guard "
-           "covers only first entries, which can never overlap.")
 def test_tick_add_and_rebalance_add_at_once(v31, broker):
+    """r23: add() runs from the tick handler AND the rebalance, separate tasks.
+    Both sized from the same share count: either both bought (40% of the
+    account) or the second counted the first one's fill as its own (broker
+    2,500 shares, memory 4,000)."""
     s = hold(v31, "AAA", 1000, 10.0)                 # $10,000 = 10%
     feed_trades(v31, "AAA", 9.0, 10.0)               # strong speed
 
@@ -119,12 +130,9 @@ def test_tick_add_and_rebalance_add_at_once(v31, broker):
     assert s.shares == broker.held["AAA"]
 
 
-@known_bug("buy() and sell() both measure progress by the change in the broker's "
-           "share count, so when an exit (tick task) and a rebalance add "
-           "(periodic task) run on one name at once, each counts the other's "
-           "fills as its own. Going flat from 1,000 shares here took 6 orders: "
-           "4,000 bought and 5,000 sold, paying the spread on all of it.")
 def test_exit_racing_an_add_does_not_churn(v31, broker):
+    """r23: buy() and sell() each counted the other's fills as their own.
+    Closing 1,000 shares took 6 orders: 4,000 bought, 5,000 sold."""
     s = hold(v31, "AAA", 1000, 10.0, stop=9.50)
     feed_trades(v31, "AAA", 9.0, 10.0)
 
@@ -133,15 +141,33 @@ def test_exit_racing_an_add_does_not_churn(v31, broker):
 
     run(together())
     bought = sum(o[4] for o in broker.buys("AAA"))
-    assert bought <= 1500                            # the one add it planned
+    assert bought <= 1500                            # at most the one add
+    assert broker.held["AAA"] == s.shares
 
 
-# ---- the entry is the trigger print, not what was paid -----------------------
+def test_reconcile_leaves_an_order_in_flight_alone(v31, broker):
+    """Reconciliation runs on its own clock. If it corrects the share count
+    while an add is mid-fill, the add then adds its fill on top - counted
+    twice. r24 skips a name whose lock is held."""
+    s = hold(v31, "AAA", 1000, 10.0)
+    feed_trades(v31, "AAA", 9.0, 10.0)
+    fill = broker.send
 
-@known_bug("The entry is recorded as the triggering print (r23.py:1375), but "
-           "buy() may pay up to 2% above it. P/L and stop distance are measured "
-           "from a price the account never paid.")
+    async def fill_then_reconcile(*order):
+        got = await fill(*order)
+        await v31.reconcile("periodic")     # lands after the fill, before add() books it
+        return got
+
+    broker.send = fill_then_reconcile
+    run(v31.add(s, 10.0))
+    assert s.shares == broker.held["AAA"]
+
+
+# ---- the entry is what was paid ----------------------------------------------
+
 def test_entry_is_what_was_paid(v31, clock, data, broker):
+    """r23 recorded the triggering print as the entry, though buy() may pay
+    up to 2% more. P/L and the stop were measured from a price never paid."""
     s = breakout(v31, clock)
     data.quotes[(s.symbol, "ask")] = 10.16          # market ran 1.5% past the print
     s.last_price = 10.01
@@ -150,10 +176,9 @@ def test_entry_is_what_was_paid(v31, clock, data, broker):
     assert s.entry == pytest.approx(broker.avg_cost(s.symbol))
 
 
-@known_bug("Sizing and the stop are worked out from the trigger print, so a fill "
-           "above it risks more than 1% of equity: here $1,333 instead of $1,000.")
 def test_loss_at_the_stop_from_the_real_fill_is_at_most_1_percent(v31, clock, data, broker):
-    s = breakout(v31, clock, red_low=9.50)          # risk-sized: 1,960 shares
+    """r23 sized from the print, so a fill above it risked $1,333, not $1,000."""
+    s = breakout(v31, clock, red_low=9.50)
     data.quotes[(s.symbol, "ask")] = 10.16
     s.last_price = 10.01
     run(v31.evaluate(s, 10.01))
@@ -161,9 +186,8 @@ def test_loss_at_the_stop_from_the_real_fill_is_at_most_1_percent(v31, clock, da
     assert broker.held[s.symbol] * (paid - s.stop) <= 0.01 * 100_000
 
 
-@known_bug("add() never updates s.entry to the new average cost, so every P/L "
-           "after an add is computed from the first fill only.")
 def test_add_moves_the_entry_to_the_average_cost(v31, broker):
+    """r23 never updated the entry after an add, so P/L ignored the add."""
     s = hold(v31, "AAA", 1000, 12.0, entry=10.0)
     feed_trades(v31, "AAA", 11.0, 12.0)
     run(v31.add(s, 12.0))
@@ -171,12 +195,12 @@ def test_add_moves_the_entry_to_the_average_cost(v31, broker):
     assert s.entry == pytest.approx(broker.avg_cost("AAA"))
 
 
-# ---- the rebalance sells, and does not book it -------------------------------
+# ---- the rebalance -----------------------------------------------------------
 
-@known_bug("After a restart the adopted position has no prints in memory, so its "
-           "speed reads as zero, its rebalance target is $0, and the first "
-           "rebalance (due immediately: last_rebalance starts at 0) sells it.")
 def test_adopted_position_survives_the_first_rebalance(v31, broker):
+    """r23: after a restart the adopted position had no prints in memory, its
+    speed read as zero, its target as $0, and the first rebalance - due the
+    moment the process starts - sold it."""
     broker.held["AAA"], broker.cost["AAA"] = 500.0, 2_500.0
     run(v31.reconcile("startup"))
     assert v31.st("AAA").adopted
@@ -184,14 +208,23 @@ def test_adopted_position_survives_the_first_rebalance(v31, broker):
     assert broker.held["AAA"] == 500
 
 
-@known_bug("When the rebalance sells a position out entirely it goes through "
-           "sell(), not exit(): no EXIT line, nothing in closed_today, and the "
-           "old entry and stop stay in memory.")
 def test_a_position_closed_by_the_rebalance_is_booked(v31, broker):
+    """r23 sold around exit(): no EXIT line, nothing in closed_today, and the
+    old entry and stop left in memory."""
     s = hold(v31, "AAA", 1000, 10.0, stop=9.50)
     s.entry_at = time.time() - 600
     feed_trades(v31, "AAA", 10.0, 9.8)              # speed turned negative
     run(v31.periodic())
-    if broker.held["AAA"] == 0:
-        assert [c[0] for c in v31.closed_today] == ["AAA"]
-        assert s.entry == 0 and s.stop == 0
+    assert broker.held["AAA"] == 0
+    assert [c[0] for c in v31.closed_today] == ["AAA"]
+    assert s.entry == 0 and s.stop == 0
+
+
+def test_a_partial_trim_is_booked_too(v31, broker):
+    s = hold(v31, "AAA", 3000, 10.0)                # 30%, above the 25% target
+    s.entry_at = time.time() - 600
+    feed_trades(v31, "AAA", 9.0, 10.0)
+    run(v31.periodic())
+    assert broker.held["AAA"] == 2500
+    assert v31.closed_today and v31.closed_today[0][3] == 500
+    assert s.shares == 2500 and s.entry == 10.0

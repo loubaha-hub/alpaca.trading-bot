@@ -26,7 +26,7 @@ def test_full_setup_enters(v31, clock):
     s = breakout(v31, clock)
     tick(v31, s, TRIGGER)
     assert entered(v31, s)
-    assert s.entry == TRIGGER
+    assert s.entry == pytest.approx(v31.broker.avg_cost(s.symbol))
     assert s.traded_today
 
 

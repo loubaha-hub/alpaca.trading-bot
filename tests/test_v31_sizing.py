@@ -4,13 +4,15 @@ entry stop goes.
 
 All on a $100,000 account, trigger 10.01 (red bar open 10.00 + 1 tick).
 
-THE SHAPE OF IT, as the code stands:
-  shares = 1% of equity / risk-per-share, risk-per-share floored at 1% of price
-  then capped at 25% of equity, and at whatever room is left under 95% total.
+THE SHAPE OF IT:
+  Everything is worked out for the WORST price buy() may pay - the print plus
+  BUY_CHASE_CAP (2%), 10.2102 here - so no fill can break either limit.
 
-  With a 1% floor the risk formula asks for up to 100% of equity, so the 25%
-  cap is what sets the size whenever the stop is within 4% of the price. Only
-  wider stops are sized by risk. Both regimes are pinned below.
+  shares = 1% of equity / risk-per-share (worst price - red bar low, floored
+  at 1%), then capped at 25% of equity and at the room left under 95% total.
+
+  The 25% cap sets the size when the red bar's low is within about 2% of the
+  print; wider stops are sized by risk. Both regimes are pinned below.
 """
 
 import pytest
@@ -19,7 +21,9 @@ import bot
 from helpers import breakout, feed_trades, hold, run
 
 TRIGGER = 10.01
-CAP_SHARES = 2497                  # int(25,000 / 10.01)
+WORST = TRIGGER * 1.02             # the most buy() may pay
+CAP_SHARES = 2448                  # int(25,000 / 10.2102)
+PAID = 10.03                       # FakeBroker fill with no quote: 10.01 * 1.002
 
 
 def enter(strat, clock, price=TRIGGER, **setup):
@@ -36,12 +40,12 @@ def order_sizes(broker, symbol="ABCD"):
 # ---- the starter -------------------------------------------------------------
 
 @pytest.mark.parametrize("red_low,shares", [
-    (9.99, CAP_SHARES),            # 0.2% away -> 1% floor -> cap
-    (9.75, CAP_SHARES),            # 2.6% away -> risk asks 3846 -> cap
-    (9.65, CAP_SHARES),            # 3.6% away -> risk asks 2777 -> cap
-    (9.50, 1960),                  # 5.1% away -> risk sizes it, under the cap
-    (9.00, 990),                   # 10.1%
-    (8.00, 497),                   # 20.1%
+    (9.99, CAP_SHARES),            # risk asks 4541 -> cap
+    (9.75, 2172),                  # risk 0.4602/share, under the cap
+    (9.65, 1785),
+    (9.50, 1408),
+    (9.00, 826),
+    (8.00, 452),
 ])
 def test_starter_size(v31, clock, broker, red_low, shares):
     s = enter(v31, clock, red_low=red_low)
@@ -52,20 +56,22 @@ def test_starter_size(v31, clock, broker, red_low, shares):
 @pytest.mark.parametrize("red_low", [9.99, 9.75, 9.50, 9.00, 8.00])
 def test_starter_never_above_25_percent_of_equity(v31, clock, red_low):
     s = enter(v31, clock, red_low=red_low)
-    assert s.shares * TRIGGER <= 0.25 * 100_000
+    assert s.shares * WORST <= 0.25 * 100_000
 
 
 @pytest.mark.parametrize("red_low", [9.99, 9.75, 9.50, 9.00, 8.00])
 def test_loss_at_the_stop_is_at_most_1_percent(v31, clock, red_low):
-    """Measured from the trigger, which is what the bot records as the entry."""
+    """Measured from the entry, which is what the account paid."""
     s = enter(v31, clock, red_low=red_low)
     assert s.shares * (s.entry - s.stop) <= 0.01 * 100_000 + 1e-6
 
 
 def test_one_percent_floor_applies_to_sizing(v31, clock, broker, monkeypatch):
-    """The floor is invisible at the shipped 1% risk (the cap always wins), so
-    lower the risk until the floor is what decides. A 2-cent stop would ask
-    for 10,000 shares; floored at 1% of price it asks for 1,998."""
+    """With the 2% chase allowance the worst price is always more than 1% above
+    the red bar's low, so the floor only shows with no chase allowed, and
+    with the risk lowered until the cap no longer wins. A 2-cent stop would
+    then ask for 10,000 shares; floored at 1% of price it asks for 1,998."""
+    monkeypatch.setattr(bot, "BUY_CHASE_CAP", 0.0)
     monkeypatch.setattr(bot, "V31_RISK_PER_TRADE", 0.002)
     enter(v31, clock, red_low=9.99)
     assert order_sizes(broker) == [1998]
@@ -80,15 +86,15 @@ def test_stop_at_red_bar_low_when_it_is_more_than_1_percent_away(v31, clock):
 
 def test_stop_floored_1_percent_under_entry_when_red_low_is_closer(v31, clock):
     """IBRX, 2026-09-30: a 1-cent stop was a coin toss. Sizing and the stop
-    use the same 1% floor."""
+    use the same 1% floor, measured from what was paid."""
     s = enter(v31, clock, red_low=9.99)
-    assert s.stop == pytest.approx(TRIGGER * 0.99)
+    assert s.stop == pytest.approx(PAID * 0.99)
 
 
 def test_state_after_a_fill(v31, clock):
     s = enter(v31, clock)
-    assert s.entry == TRIGGER
-    assert s.peak == TRIGGER
+    assert s.entry == pytest.approx(PAID)        # what was paid, not the print
+    assert s.peak == pytest.approx(PAID)
     assert s.trail_stop == 0.0
     assert not s.armed
     assert not s.adopted
@@ -102,7 +108,7 @@ def test_starter_shrinks_to_the_room_left(v31, clock, broker):
     hold(v31, "AAA", 4000, 10.0)                # $40,000
     hold(v31, "BBB", 4000, 10.0)                # $40,000 -> $15,000 of room
     enter(v31, clock, red_low=9.75)
-    assert order_sizes(broker) == [1498]        # int(15,000 / 10.01)
+    assert order_sizes(broker) == [1469]        # int(15,000 / 10.2102)
 
 
 def test_room_counts_other_positions_at_their_last_price(v31, clock, broker):
@@ -110,7 +116,7 @@ def test_room_counts_other_positions_at_their_last_price(v31, clock, broker):
     hold(v31, "BBB", 4000, 10.0)
     assert a.last_price == 10.0
     enter(v31, clock, red_low=9.75)
-    assert order_sizes(broker) == [1498]
+    assert order_sizes(broker) == [1469]
 
 
 def test_no_room_no_order(v31, clock, broker):
@@ -169,8 +175,8 @@ def test_target_gives_non_leaders_the_leaders_excess(v31):
 def test_add_tops_up_to_25_percent(v31, broker):
     s = speeding(v31, "AAA", 1000, 10.0, 9.0, 10.0)  # $10,000 = 10%
     run(v31.add(s, 10.0))
-    assert order_sizes(broker, "AAA") == [1500]
-    assert s.shares == 2500
+    assert order_sizes(broker, "AAA") == [1470]      # $15,000 at worst 10.20
+    assert s.shares == 2470
 
 
 def test_add_never_past_25_percent_for_a_follower(v31, broker):
@@ -184,7 +190,7 @@ def test_add_limited_by_room(v31, broker):
     hold(v31, "BBB", 8000, 10.0)                     # $80,000
     s = speeding(v31, "AAA", 1000, 10.0, 9.0, 10.0)  # $10,000 -> $5,000 room
     run(v31.add(s, 10.0))
-    assert order_sizes(broker, "AAA") == [500]
+    assert order_sizes(broker, "AAA") == [490]       # $5,000 at worst 10.20
 
 
 def test_add_does_nothing_at_the_cap(v31, broker):
