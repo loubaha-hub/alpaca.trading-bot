@@ -148,3 +148,26 @@ def test_strong_speed_no_longer_adds(v31, clock, broker):
     v31.st(s.symbol).speed_samples[:] = [0.0001]     # tiny baseline: add would fire
     run(v31.evaluate(s, PRICE))
     assert broker.buys(s.symbol) == []
+
+
+# ---- r27: a longer leash for new-high re-entries (neutral by default) ---------
+
+def test_runner_crash_line_is_wider_for_a_reentry(v31, clock, monkeypatch):
+    monkeypatch.setattr(bot, "V31_RUNNER_CRASH_MULT", 2.0, raising=False)
+    s = position(v31, clock)                         # crash at 3% normally
+    s.entry_kind = "hod"
+    tick(v31, s, PRICE)
+    tick(v31, s, 9.69)                               # -3.1%: inside the 6% line
+    assert s.in_position
+    s2 = position(v31, clock, sym="SETUP")
+    s2.entry_kind = "setup"                          # same drop, ordinary leash
+    tick(v31, s2, PRICE)
+    tick(v31, s2, 9.69)
+    assert not s2.in_position
+
+
+def test_runner_leash_settings_are_neutral_by_default():
+    assert bot.V31_RUNNER_CRASH_MULT == 1.0
+    assert bot.V31_RUNNER_TRAIL_MULT == 1.0
+    assert bot.V31_RUNNER_RISK == bot.V31_RISK_PER_TRADE
+    assert bot.V31_RUNNER_FADE is True

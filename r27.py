@@ -240,6 +240,13 @@ V31_HOD_REENTRY = False
 V31_HOD_BREAK_CENTS = 0.05
 V31_HOD_STOP_ABR = 1.0          # entry stop this many ABRs under the broken high
 V31_HOD_MAX_REENTRIES = 0       # new-high re-entries per name per day; 0 = no limit
+# A LONGER LEASH FOR RE-ENTRIES. A runner's normal pullbacks shook re-entries
+# out within minutes. These apply only to positions opened by a new-high
+# re-entry; 1.0 / the base risk mean "same as any other position".
+V31_RUNNER_CRASH_MULT = 1.0     # crash line x this
+V31_RUNNER_TRAIL_MULT = 1.0     # trail distance x this
+V31_RUNNER_RISK = V31_RISK_PER_TRADE   # risk budget per re-entry
+V31_RUNNER_FADE = True          # False: the fade exit does not apply
 V31_SPEED_FADE_MULT = 0.25
 V31_SPEED_FLUSH_MULT = 5.0
 # THE FLUSH: out when the price gives back this much from its high since
@@ -774,6 +781,7 @@ class SymState:
     last_tick_at: float = 0.0               # when this name last printed a trade
     recent: deque = field(default_factory=deque)   # v31: (time, price) prints
     hod_reentries: int = 0           # v31: new-high re-entries taken today
+    entry_kind: str = ""             # v31: "setup" or "hod" for the open position
     hod_closed: float = 0.0          # v31: highest CLOSED one-minute bar today -
                                      # the resistance a new-high re-entry breaks
                                                    # inside the crash window
@@ -1352,7 +1360,10 @@ class V31(Strategy):
         if not since:
             return False
         high = max(since)
-        return price <= high * (1 - self.crash_pct(s, high))
+        pct = self.crash_pct(s, high)
+        if s.entry_kind == "hod":
+            pct = min(0.95, pct * V31_RUNNER_CRASH_MULT)
+        return price <= high * (1 - pct)
 
     def baseline(self, s) -> float:
         if len(s.speed_samples) < V31_BASELINE_MIN_SAMPLES:
@@ -1406,6 +1417,8 @@ class V31(Strategy):
         if not s.armed:
             return
         distance = V31_TRAIL_MULT * abr
+        if s.entry_kind == "hod":
+            distance *= V31_RUNNER_TRAIL_MULT
         distance = max(distance, V31_TRAIL_MIN_PCT * s.peak)     # never tighter
         distance = min(distance, V31_TRAIL_MAX_PCT * s.peak)     # never wider
         entry_risk = s.entry - s.stop
@@ -1456,7 +1469,8 @@ class V31(Strategy):
             if s.quiet_bars >= V31_STALL_BARS:
                 await self.exit(s, "stall")
                 return
-            if fast is not None and base > 0 and len(s.bars) >= 5 and fast < 0 and s.quiet_bars >= 2:
+            if (fast is not None and base > 0 and len(s.bars) >= 5 and fast < 0
+                    and s.quiet_bars >= 2 and (V31_RUNNER_FADE or s.entry_kind != "hod")):
                 await self.exit(s, "fade")
                 return
             # 7. add on strong speed - off while V31_ADDS is False
@@ -1547,7 +1561,8 @@ class V31(Strategy):
         worst = price * (1 + BUY_CHASE_CAP)
         risk_per_share = max(worst - stop_ref, MIN_STOP_PCT * worst, 0.01)
         eq = await self.broker.equity(self.day_start_equity)
-        shares = int((eq * V31_RISK_PER_TRADE) / risk_per_share)
+        risk = V31_RUNNER_RISK if kind == "hod" else V31_RISK_PER_TRADE
+        shares = int((eq * risk) / risk_per_share)
 
         # Hard ceiling on the starter, whatever the risk maths says. Speed
         # weights may grow a winner beyond this later; a fresh entry never
@@ -1584,6 +1599,7 @@ class V31(Strategy):
             s.hod_reentries += 1
         if filled:
             s.shares = filled
+            s.entry_kind = kind
             # THE ENTRY IS WHAT THE ACCOUNT PAID, not the print that triggered
             # it. P/L, the stop floor and the trail all measure from here.
             s.entry = await self.broker.avg_entry(s.symbol) or price
