@@ -44,7 +44,7 @@ from zoneinfo import ZoneInfo
 
 ET = ZoneInfo("America/New_York")
 REPO = Path(__file__).resolve().parent.parent
-CLASSES = {"v31": "V31", "v32": "V32", "v34": "V34"}
+CLASSES = {"v31": "V31", "v32": "V32", "v33": "V33", "v34": "V34"}
 
 
 # ---- the simulated world -----------------------------------------------------
