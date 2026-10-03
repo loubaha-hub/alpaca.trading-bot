@@ -36,6 +36,7 @@ def test_all_three_ship_off():
     assert bot.V31_SPEED_BY_TIME is False
     assert bot.V31_SPIKE_HOD_OK is False
     assert bot.V31_RES_EXIT is False
+    assert bot.V31_LEADER_TOP == 0
 
 
 # ---- speed by time ----------------------------------------------------------------
@@ -173,3 +174,30 @@ def test_a_buy_under_the_day_high_remembers_it(v31, clock):
     s.hod_closed = 11.00
     tick(v31, s, TRIGGER)
     assert entered(v31, s) and s.res_level == 11.00
+
+
+# ---- the day's leaders --------------------------------------------------------------
+
+def leader_setup(strat, clock, dollar_volume_rank):
+    """ABCD plus two other names on the list; ABCD has the most, middle or
+    least dollar volume. ABCD has no setup and was never traded; its day high
+    is 10.50."""
+    now = clock.now.astimezone(bot.timezone.utc)
+    for sym, v in (("BIG", 500_000), ("MID", 200_000)):
+        feed_bars(strat, sym, now, [(10.0, 10.0, 10.0, 10.0, v)] * 3)
+        strat.qualified.add(sym)
+    v = {1: 1_000_000, 2: 300_000, 3: 40_000}[dollar_volume_rank]
+    s = breakout(strat, clock, bar_volume=v)
+    strat.offer_bar(raw_bar("ABCD", now, 10.00, 10.50, 9.95, 10.35, v))
+    s.hod_closed = 10.50
+    return s
+
+
+@pytest.mark.parametrize("rank,allowed", [(1, True), (2, False), (3, False)])
+def test_only_the_top_names_by_dollar_volume_get_breakout_buys(v31, clock, monkeypatch,
+                                                                rank, allowed):
+    monkeypatch.setattr(bot, "V31_LEADER_TOP", 1)
+    s = leader_setup(v31, clock, rank)
+    assert v31.leader_rank("ABCD") == rank
+    tick(v31, s, 10.56)
+    assert entered(v31, s) is allowed

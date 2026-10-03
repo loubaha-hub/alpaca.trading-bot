@@ -345,6 +345,15 @@ V31_HOD_SKIP_COOLOFF = False
 # The replay draws each bar open-low-high-close, which meets a breakout buy
 # with the bar's drop at once - likely unfair to this entry. Try it live.
 V31_SPIKE_HOD_OK = False
+# THE DAY'S LEADERS. The top V31_LEADER_TOP names by dollar volume traded
+# today (of those on the scanner's list, from the bars this strategy holds)
+# may be bought on a break of the day high - traded today or not, spiked
+# earlier or not - when every other rule passes. Traders crowd one to three
+# names a day; this aims the breakout entry at those only. 0 = off.
+# Replayed over 2026-09-28..10-02 (r29: +$2,971): top 1 +$2,784, top 2
+# +$2,453, top 3 +$2,385, top 5 +$2,233; top 2 with the 5-minute speed
+# +$2,412. Same caveat as V31_SPIKE_HOD_OK - try it live.
+V31_LEADER_TOP = 0
 # THE SPEED AN ENTRY NEEDS. v31 used to ask only that its 100-print speed be
 # above zero. Checked against the 1-minute charts (replay/research/
 # speed_check.py), the bot's speed lit up on minutes that were really ripping
@@ -1508,6 +1517,7 @@ class V31(Strategy):
         super().__init__(broker, data)
         self.last_rebalance = 0.0
         self.last_speeds: dict[str, float] = {}
+        self.leader_cache = (None, {})
         if V31_FLOAT_SIZING:
             if FLOATS:
                 log.info("[v31] float sizing: %d names from %s; under %.0fM "
@@ -1771,6 +1781,22 @@ class V31(Strategy):
     async def reduce(self, s, shares, why):
         log.info("[v31]   %s %s (selling: %s)", s.symbol, self.tape_text(s), why)
         await super().reduce(s, shares, why)
+
+    # ---- the day's leaders ------------------------------------------------------
+
+    def leader_rank(self, symbol) -> int:
+        """1 for the scanner-list name with the most dollar volume today (from
+        the bars held here), 2 for the next... Recounted once a minute."""
+        minute = int(time.time() // 60)
+        if self.leader_cache[0] != minute:
+            dv = {}
+            for sym in self.qualified:
+                st = self.state.get(sym)
+                if st and st.bars:
+                    dv[sym] = sum(b.c * b.v for b in st.bars)
+            order = sorted(dv, key=dv.get, reverse=True)
+            self.leader_cache = (minute, {sym: i + 1 for i, sym in enumerate(order)})
+        return self.leader_cache[1].get(symbol, 10**6)
 
     # ---- the speed an entry needs ---------------------------------------------
 
@@ -2088,7 +2114,9 @@ class V31(Strategy):
                      and (not V31_HOD_MAX_REENTRIES
                           or s.hod_reentries < V31_HOD_MAX_REENTRIES))
         hod_ok = hod_break and s.traded_today
-        runner = V31_SPIKE_HOD_OK and hod_break     # decided after the spike check
+        leader = bool(V31_LEADER_TOP and hod_break
+                      and self.leader_rank(s.symbol) <= V31_LEADER_TOP)
+        runner = (V31_SPIKE_HOD_OK and hod_break) or leader
         if not (setup_ok or hod_ok or runner):
             return
         if not self.thin_ok(s):
@@ -2110,7 +2138,7 @@ class V31(Strategy):
                 return
         elif setup_ok:
             kind = "setup"
-        elif hod_ok:
+        elif hod_ok or leader:
             kind = "hod"
         else:
             return          # an untraded name's new high with no spike: the setup rules apply
