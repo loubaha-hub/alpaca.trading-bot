@@ -164,8 +164,8 @@ class SimData:
     async def bars_between(self, symbol, start, end):
         """What the data API would return: bars that opened in [start, end]."""
         rows = [b for b in self.bars.get(symbol, []) if start <= b.t <= end]
-        if self.with_volume:
-            return [(b.t, b.c, b.v) for b in rows]
+        if self.with_volume:                  # r30 reads the high too
+            return [(b.t, b.c, b.v, b.h) for b in rows]
         return [(b.t, b.c) for b in rows]
 
     async def quote(self, symbol, side):
