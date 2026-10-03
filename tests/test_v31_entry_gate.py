@@ -419,6 +419,25 @@ def test_a_failing_data_api_does_not_block(v31, clock, data):
     assert entered(v31, s)
 
 
+def test_a_plan_without_recent_bars_still_gets_the_older_ones(v31, clock, data):
+    """Alpaca's free plan refuses SIP bars from the last 15 minutes. The
+    request is then made again without them."""
+    now = clock.now.astimezone(bot.timezone.utc)
+    data.history["ABCD"] = [(now - timedelta(minutes=60), 8.00),
+                            (now - timedelta(minutes=45), 9.40)]   # a spike
+    real = data.bars_between
+
+    async def free_plan(symbol, start, end):
+        if end > now - timedelta(minutes=15):
+            raise RuntimeError("subscription does not permit querying recent SIP data")
+        return await real(symbol, start, end)
+
+    data.bars_between = free_plan
+    s = breakout(v31, clock)
+    tick(v31, s, TRIGGER)
+    assert not entered(v31, s)
+
+
 def test_no_chase_switched_off(v31, clock, monkeypatch):
     monkeypatch.setattr(bot, "V31_NO_CHASE", False)
     bar_minutes_ago(v31, clock, "ABCD", 16, 7.00)       # +43%

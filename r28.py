@@ -808,8 +808,8 @@ class MarketData:
 
     async def bars_between(self, symbol: str, start, end):
         """[(bar start, close)] of the one-minute bars that opened between
-        start and end, oldest first. Bars this old (the no-chase check asks for
-        bars 15+ minutes back) are served on every Alpaca data plan."""
+        start and end, oldest first. SIP bars from the last 15 minutes need a
+        paid data plan; the caller retries without them if this is refused."""
         res = await asyncio.to_thread(
             self.hist.get_stock_bars,
             StockBarsRequest(symbol_or_symbols=symbol, timeframe=TimeFrame.Minute,
@@ -1584,12 +1584,17 @@ class V31(Strategy):
                    and s.chase_bars[0] >= own[0][0].timestamp())
         if not covered and (not s.chase_bars
                             or time.time() - s.chase_bars[0] > 60):
-            try:
-                got = await self.data.bars_between(s.symbol, need - minute, now)
-            except Exception as e:
-                log.warning("[v31] %s bars for the no-chase check failed: %s",
-                            s.symbol, e)
-                got = None
+            got = None
+            # The free data plan refuses SIP bars from the last 15 minutes;
+            # then the older part is still worth having.
+            for end in (now, now - timedelta(minutes=16)):
+                try:
+                    got = await self.data.bars_between(s.symbol, need - minute, end)
+                    break
+                except Exception as e:
+                    log.warning("[v31] %s bars to %s for the no-chase check "
+                                "failed: %s", s.symbol,
+                                end.astimezone(ET).strftime("%H:%M"), e)
             s.chase_bars = (time.time(), list(got or []))
         first_own = own[0][0] if own else now
         older = [(ts, c) for ts, c in s.chase_bars[1]
