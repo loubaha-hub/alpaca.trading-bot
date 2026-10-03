@@ -1,3 +1,7 @@
 __pycache__/
 *.pyc
 .pytest_cache/
+
+# Market data pulled for replays - kept out of git (vendor data, re-pullable).
+replay/data/
+replay/out/
