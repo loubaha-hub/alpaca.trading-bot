@@ -250,6 +250,11 @@ async def tick(strat, s, price, size, now):
 
 async def run(args):
     bot = load_bot(REPO / args.bot)
+    for item in args.set:                     # what-if: override a setting
+        name, value = item.split("=", 1)
+        if not hasattr(bot, name):
+            sys.exit("%s has no setting %s" % (args.bot, name))
+        setattr(bot, name, type(getattr(bot, name))(float(value)))
     day = datetime.strptime(args.day, "%Y-%m-%d").date()
     folder = REPO / "replay" / "data" / args.day
     meta = json.load(open(folder / "meta.json"))
@@ -260,6 +265,8 @@ async def run(args):
     out = REPO / "replay" / "out"
     out.mkdir(exist_ok=True)
     stem = "%s_%s_%s" % (args.day, Path(args.bot).stem, args.strategy)
+    if args.tag:
+        stem += "_" + args.tag
     root = logging.getLogger()
     for h in list(root.handlers):
         root.removeHandler(h)
@@ -360,6 +367,8 @@ async def run(args):
                     pending.clear()
                     last_flush = when
             elif name == "periodic":                           # Engine.periodic_loop
+                if args.no_rebalance:
+                    continue
                 if not strat.stopped and not strat.halted_today:
                     broker.reason = "rebalance"
                     await strat.periodic()
@@ -452,6 +461,9 @@ def report(bot, args, broker, strat, subscribed, violations, out, stem,
     w("=" * 92)
     w("%s  %s  replay of %s  (%d symbols in the data, %d subscribed during the day)"
       % (args.strategy, bot.VERSION, args.day, n_symbols, len(subscribed)))
+    if args.set or args.no_rebalance:
+        w("settings changed: " + ", ".join(
+            args.set + (["no rebalance"] if args.no_rebalance else [])))
     w("start $%s  ->  end $%s   P/L %+.2f (%+.2f%%)"
       % (f"{broker.start:,.2f}", f"{end_eq:,.2f}", pl, 100 * pl / broker.start))
     wins = sum(1 for c in trips if c["sc"] - c["bc"] > 0)
@@ -498,6 +510,12 @@ def main():
     ap.add_argument("--day", default="2026-10-02")
     ap.add_argument("--equity", type=float, default=30_000.0)
     ap.add_argument("--symbols", default="", help="comma list; default all files")
+    ap.add_argument("--set", action="append", default=[], metavar="NAME=VALUE",
+                    help="override one of the bot's settings for this run, e.g. "
+                         "--set V31_FLUSH_DROP_PCT=0.06 (repeatable)")
+    ap.add_argument("--tag", default="", help="suffix for the output file names")
+    ap.add_argument("--no-rebalance", action="store_true",
+                    help="what-if: never run the strategy's periodic() rebalance")
     asyncio.run(run(ap.parse_args()))
 
 
