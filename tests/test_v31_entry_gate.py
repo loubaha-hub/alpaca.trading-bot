@@ -338,12 +338,12 @@ def test_reentry_above_day_high_plus_margin_still_enters_with_a_setup(v31, clock
 
 # ---- r28: don't chase a stock already up 15% in 15 minutes -------------------
 
-def bar_minutes_ago(strat, clock, symbol, minutes, close):
+def bar_minutes_ago(strat, clock, symbol, minutes, close, volume=40_000):
     """A closed one-minute bar that opened `minutes` minutes ago. Call it before
     breakout(), whose three bars must stay the newest."""
     now = clock.now.astimezone(bot.timezone.utc)
     strat.offer_bar(raw_bar(symbol, now - timedelta(minutes=minutes),
-                            close, close, close, close, 40_000))
+                            close, close, close, close, volume))
 
 
 def test_up_15_percent_in_15_minutes_is_not_bought(v31, clock):
@@ -531,6 +531,80 @@ def test_a_gradual_climb_is_not_a_spike(v31, clock):
     """+30% over an hour, never 15% within 15 minutes."""
     for m, c in [(70, 7.70), (55, 8.20), (40, 8.70), (25, 9.20), (10, 9.60)]:
         bar_minutes_ago(v31, clock, "ABCD", m, c)
+    s = breakout(v31, clock)
+    tick(v31, s, TRIGGER)
+    assert entered(v31, s)
+
+
+# ---- r29: volume must be rising --------------------------------------------------
+# It is 10:00. The last 5 closed minutes are 9:55-9:59; breakout() puts 40k
+# shares in each of 9:57, 9:58 and 9:59 and nothing in 9:55-9:56 - 24k a
+# minute. The 30 minutes before are 9:25-9:54. Entry needs x1.5 their pace.
+
+def earlier_volume(strat, clock, per_minute, minutes=range(6, 36), symbol="ABCD"):
+    for m in minutes:
+        bar_minutes_ago(strat, clock, symbol, m, 10.00, per_minute)
+
+
+def test_drying_volume_blocks_entry(v31, clock):
+    earlier_volume(v31, clock, 200_000)                 # 24k now vs 200k a minute before
+    s = breakout(v31, clock)
+    tick(v31, s, TRIGGER)
+    assert not entered(v31, s)
+
+
+def test_rising_volume_enters(v31, clock):
+    earlier_volume(v31, clock, 15_000)                  # x1.6
+    s = breakout(v31, clock)
+    tick(v31, s, TRIGGER)
+    assert entered(v31, s)
+
+
+@pytest.mark.parametrize("per_minute,allowed", [(16_000, True), (16_001, False)])
+def test_volume_1_5_times_the_pace_before_is_enough(v31, clock, per_minute, allowed):
+    earlier_volume(v31, clock, per_minute)
+    s = breakout(v31, clock)
+    tick(v31, s, TRIGGER)
+    assert entered(v31, s) is allowed
+
+
+def test_minutes_without_a_bar_count_as_no_volume(v31, clock):
+    """Three busy minutes in a quiet half hour are a slow pace, not a fast one."""
+    earlier_volume(v31, clock, 100_000, minutes=(30, 20, 10))   # 10k a minute: x2.4
+    s = breakout(v31, clock)
+    tick(v31, s, TRIGGER)
+    assert entered(v31, s)
+
+
+def test_too_early_in_the_session_to_judge_does_not_block(v31, clock):
+    clock.set(4, 12)                                    # 4:07-4:12 vs 4:00-4:06
+    earlier_volume(v31, clock, 500_000, minutes=range(6, 12))
+    s = breakout(v31, clock)
+    tick(v31, s, TRIGGER)
+    assert entered(v31, s)
+
+
+def test_volume_from_before_subscribing_comes_from_the_data_api(v31, clock, data):
+    now = clock.now.astimezone(bot.timezone.utc)
+    data.history["ABCD"] = [(now - timedelta(minutes=m), 10.00, 200_000)
+                            for m in range(35, 5, -1)]
+    s = breakout(v31, clock)
+    tick(v31, s, TRIGGER)
+    assert not entered(v31, s)
+
+
+def test_no_volume_figures_do_not_block(v31, clock, data):
+    now = clock.now.astimezone(bot.timezone.utc)
+    data.history["ABCD"] = [(now - timedelta(minutes=m), 10.00)          # no volume
+                            for m in range(35, 5, -1)]
+    s = breakout(v31, clock)
+    tick(v31, s, TRIGGER)
+    assert entered(v31, s)
+
+
+def test_rising_volume_switched_off(v31, clock, monkeypatch):
+    monkeypatch.setattr(bot, "V31_VOL_RISING_MIN", 0)
+    earlier_volume(v31, clock, 200_000)
     s = breakout(v31, clock)
     tick(v31, s, TRIGGER)
     assert entered(v31, s)

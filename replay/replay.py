@@ -156,13 +156,17 @@ class SimBroker:
 
 
 class SimData:
-    def __init__(self, market, bars=None):
+    def __init__(self, market, bars=None, with_volume=True):
         self.market = market
         self.bars = bars or {}
+        self.with_volume = with_volume        # r28 takes (start, close), r29+ adds volume
 
     async def bars_between(self, symbol, start, end):
         """What the data API would return: bars that opened in [start, end]."""
-        return [(b.t, b.c) for b in self.bars.get(symbol, []) if start <= b.t <= end]
+        rows = [b for b in self.bars.get(symbol, []) if start <= b.t <= end]
+        if self.with_volume:
+            return [(b.t, b.c, b.v) for b in rows]
+        return [(b.t, b.c) for b in rows]
 
     async def quote(self, symbol, side):
         if symbol not in self.market.last:
@@ -300,7 +304,8 @@ async def run(args):
 
     market = Market()
     broker = SimBroker(bot, market, clock, args.equity, args.strategy)
-    strat = getattr(bot, CLASSES[args.strategy])(broker, SimData(market, bars))
+    strat = getattr(bot, CLASSES[args.strategy])(broker, SimData(
+        market, bars, with_volume=hasattr(getattr(bot, "V31", object), "volume_ratio")))
 
     orig_exit = strat.exit
 
