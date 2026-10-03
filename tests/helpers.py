@@ -90,9 +90,15 @@ class FakeData:
 
     def __init__(self):
         self.quotes = {}               # (symbol, "ask"|"bid") -> price
+        self.history = {}              # symbol -> [(bar start, close)] the data API has
+        self.bar_requests = 0
 
     async def quote(self, symbol, side):
         return self.quotes.get((symbol, side))
+
+    async def bars_between(self, symbol, start, end):
+        self.bar_requests += 1
+        return [(ts, c) for ts, c in self.history.get(symbol, []) if start <= ts <= end]
 
     async def subscribe(self, symbols, force=False):
         return None

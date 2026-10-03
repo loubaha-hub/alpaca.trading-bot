@@ -5,6 +5,8 @@ Each test starts from a setup that DOES enter (test_full_setup_enters) and
 breaks exactly one condition, so a failure names the gate that changed.
 """
 
+from datetime import timedelta
+
 import pytest
 
 import bot
@@ -331,4 +333,185 @@ def test_reentry_above_day_high_plus_margin_still_enters_with_a_setup(v31, clock
     s.traded_today = True
     s.day_high = 10.50
     tick(v31, s, 10.65)                  # margin at 10.65 is 0.1065
+    assert entered(v31, s)
+
+
+# ---- r28: don't chase a stock already up 15% in 15 minutes -------------------
+
+def bar_minutes_ago(strat, clock, symbol, minutes, close):
+    """A closed one-minute bar that opened `minutes` minutes ago. Call it before
+    breakout(), whose three bars must stay the newest."""
+    now = clock.now.astimezone(bot.timezone.utc)
+    strat.offer_bar(raw_bar(symbol, now - timedelta(minutes=minutes),
+                            close, close, close, close, 40_000))
+
+
+def test_up_15_percent_in_15_minutes_is_not_bought(v31, clock):
+    bar_minutes_ago(v31, clock, "ABCD", 16, 8.70)       # closed 15 min ago at 8.70
+    s = breakout(v31, clock)
+    tick(v31, s, TRIGGER)                               # 10.01 = +15.1%
+    assert not entered(v31, s)
+
+
+def test_up_less_than_15_percent_is_bought(v31, clock):
+    bar_minutes_ago(v31, clock, "ABCD", 16, 8.71)       # 10.01 = +14.9%
+    s = breakout(v31, clock)
+    tick(v31, s, TRIGGER)
+    assert entered(v31, s)
+
+
+def test_the_reference_is_the_last_bar_closed_15_minutes_ago(v31, clock):
+    """A bar that closed only 14 minutes ago is too recent; the one before it
+    sets the reference."""
+    bar_minutes_ago(v31, clock, "ABCD", 20, 9.50)       # +5%: the reference
+    bar_minutes_ago(v31, clock, "ABCD", 15, 8.00)       # closed 14 min ago - too new
+    s = breakout(v31, clock)
+    tick(v31, s, TRIGGER)
+    assert entered(v31, s)
+
+
+def test_a_name_found_minutes_ago_is_checked_through_the_data_api(v31, clock, data):
+    """Bars only arrive after subscribing, so a name the scanner just found has
+    none 15 minutes old. That is when a chase happens - so ask the data API."""
+    now = clock.now.astimezone(bot.timezone.utc)
+    data.history["ABCD"] = [(now - timedelta(minutes=30), 7.90),
+                            (now - timedelta(minutes=17), 8.20)]
+    s = breakout(v31, clock)
+    tick(v31, s, TRIGGER)
+    assert not entered(v31, s)
+    assert data.bar_requests == 1
+
+
+def test_the_data_api_is_asked_once_a_minute_not_on_every_print(v31, clock, data):
+    now = clock.now.astimezone(bot.timezone.utc)
+    data.history["ABCD"] = [(now - timedelta(minutes=17), 8.20)]
+    s = breakout(v31, clock)
+    for _ in range(5):
+        tick(v31, s, TRIGGER)
+    assert data.bar_requests == 1
+
+
+def test_own_bars_reaching_back_are_used_without_asking(v31, clock, data):
+    """Back far enough means to the 4:00am session start (the cool-off lasts
+    the rest of the day); it is 10:00am."""
+    bar_minutes_ago(v31, clock, "ABCD", 360, 9.50)
+    bar_minutes_ago(v31, clock, "ABCD", 16, 9.50)
+    s = breakout(v31, clock)
+    tick(v31, s, TRIGGER)
+    assert entered(v31, s)
+    assert data.bar_requests == 0
+
+
+def test_no_history_anywhere_does_not_block(v31, clock, data):
+    """Unknown is not the same as chasing: with nothing to measure from, the
+    other gates decide."""
+    s = breakout(v31, clock)
+    tick(v31, s, TRIGGER)
+    assert entered(v31, s)
+
+
+def test_a_failing_data_api_does_not_block(v31, clock, data):
+    async def broken(*a, **k):
+        raise RuntimeError("timeout")
+    data.bars_between = broken
+    s = breakout(v31, clock)
+    tick(v31, s, TRIGGER)
+    assert entered(v31, s)
+
+
+def test_no_chase_switched_off(v31, clock, monkeypatch):
+    monkeypatch.setattr(bot, "V31_NO_CHASE", False)
+    bar_minutes_ago(v31, clock, "ABCD", 16, 7.00)       # +43%
+    s = breakout(v31, clock)
+    tick(v31, s, TRIGGER)
+    assert entered(v31, s)
+
+
+@pytest.mark.usefixtures("hod_on")
+def test_no_chase_applies_to_new_high_reentries_too(v31, clock):
+    bar_minutes_ago(v31, clock, "ABCD", 16, 8.00)
+    s = no_setup(v31, clock)
+    tick(v31, s, 10.55)
+    assert not entered(v31, s)
+
+
+# ---- r28: ...and don't buy the fade after a spike -----------------------------
+# Every trade that replaced a skipped chase in the replay was the same name
+# bought minutes later on the pullback - and those lost as much.
+
+def test_a_spike_hours_ago_keeps_the_name_off_limits_all_day(v31, clock):
+    bar_minutes_ago(v31, clock, "ABCD", 300, 8.00)      # 5:00am
+    bar_minutes_ago(v31, clock, "ABCD", 285, 9.40)      # +17.5% by 5:16am
+    s = breakout(v31, clock)
+    tick(v31, s, TRIGGER)
+    assert not entered(v31, s)
+
+
+def test_yesterdays_spike_does_not_count(v31, clock, data):
+    """The look-back stops at today's 4:00am."""
+    now = clock.now.astimezone(bot.timezone.utc)
+    data.history["ABCD"] = [(now - timedelta(hours=20), 8.00),   # 2pm yesterday
+                            (now - timedelta(hours=20) + timedelta(minutes=15), 9.40)]
+    s = breakout(v31, clock)
+    tick(v31, s, TRIGGER)
+    assert entered(v31, s)
+
+
+def test_a_spike_40_minutes_ago_keeps_the_name_off_limits(v31, clock):
+    bar_minutes_ago(v31, clock, "ABCD", 60, 8.00)
+    bar_minutes_ago(v31, clock, "ABCD", 45, 9.40)       # +17.5% in 15 min
+    s = breakout(v31, clock)
+    tick(v31, s, TRIGGER)                               # only +6.5% on 15 min ago
+    assert not entered(v31, s)
+
+
+def test_a_spike_older_than_a_shorter_cool_off_has_cooled_off(v31, clock, data,
+                                                              monkeypatch):
+    monkeypatch.setattr(bot, "V31_CHASE_COOLOFF_MIN", 60)
+    bar_minutes_ago(v31, clock, "ABCD", 90, 8.00)
+    bar_minutes_ago(v31, clock, "ABCD", 75, 9.40)       # ended 74 minutes ago
+    s = breakout(v31, clock)
+    tick(v31, s, TRIGGER)
+    assert entered(v31, s)
+    assert data.bar_requests == 0                       # own bars reach back
+
+
+def test_a_spike_before_subscribing_is_seen_through_the_data_api(v31, clock, data):
+    now = clock.now.astimezone(bot.timezone.utc)
+    data.history["ABCD"] = [(now - timedelta(minutes=60), 8.00),
+                            (now - timedelta(minutes=45), 9.40)]
+    s = breakout(v31, clock)
+    tick(v31, s, TRIGGER)
+    assert not entered(v31, s)
+
+
+def test_cool_off_zero_checks_the_current_print_only(v31, clock, monkeypatch):
+    monkeypatch.setattr(bot, "V31_CHASE_COOLOFF_MIN", 0)
+    bar_minutes_ago(v31, clock, "ABCD", 60, 8.00)
+    bar_minutes_ago(v31, clock, "ABCD", 45, 9.40)
+    s = breakout(v31, clock)
+    tick(v31, s, TRIGGER)
+    assert entered(v31, s)
+
+
+def test_the_pre_subscription_bars_are_asked_for_once(v31, clock, data, monkeypatch):
+    """They are in the past; once an answer reaches our own first bar it is
+    kept, even though our own bars never reach back to 4:00am - not asked
+    again every minute."""
+    now = clock.now.astimezone(bot.timezone.utc)
+    data.history["ABCD"] = [(now - timedelta(minutes=200), 9.00)]
+    s = breakout(v31, clock)
+    seconds = iter(range(int(now.timestamp()), int(now.timestamp()) + 10_000, 120))
+    monkeypatch.setattr(bot.time, "time", lambda: next(seconds))   # 2 min per call
+    for _ in range(3):
+        run(v31.chasing(s, TRIGGER))
+    assert data.bar_requests == 1
+
+
+def test_a_gradual_climb_is_not_a_spike(v31, clock):
+    """+30% over an hour, never 15% within 15 minutes."""
+    for m, c in [(70, 7.70), (55, 8.20), (40, 8.70), (25, 9.20), (10, 9.60)]:
+        bar_minutes_ago(v31, clock, "ABCD", m, c)
+    s = breakout(v31, clock)
+    tick(v31, s, TRIGGER)
     assert entered(v31, s)

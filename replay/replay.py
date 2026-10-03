@@ -156,8 +156,13 @@ class SimBroker:
 
 
 class SimData:
-    def __init__(self, market):
+    def __init__(self, market, bars=None):
         self.market = market
+        self.bars = bars or {}
+
+    async def bars_between(self, symbol, start, end):
+        """What the data API would return: bars that opened in [start, end]."""
+        return [(b.t, b.c) for b in self.bars.get(symbol, []) if start <= b.t <= end]
 
     async def quote(self, symbol, side):
         if symbol not in self.market.last:
@@ -293,7 +298,7 @@ async def run(args):
 
     market = Market()
     broker = SimBroker(bot, market, clock, args.equity, args.strategy)
-    strat = getattr(bot, CLASSES[args.strategy])(broker, SimData(market))
+    strat = getattr(bot, CLASSES[args.strategy])(broker, SimData(market, bars))
 
     orig_exit = strat.exit
 
