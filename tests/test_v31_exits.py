@@ -171,3 +171,105 @@ def test_runner_leash_settings_are_neutral_by_default():
     assert bot.V31_RUNNER_TRAIL_MULT == 1.0
     assert bot.V31_RUNNER_RISK == bot.V31_RISK_PER_TRADE
     assert bot.V31_RUNNER_FADE is True
+
+
+# ---- r28: protecting a gain - sell half at +20% ---------------------------------
+
+@pytest.fixture
+def trim_on(monkeypatch):
+    monkeypatch.setattr(bot, "V31_TRIM_FRACTION", 0.5)
+
+
+@pytest.fixture
+def keep_on(monkeypatch):
+    monkeypatch.setattr(bot, "V31_KEEP_GAIN", 0.5)
+    monkeypatch.setattr(bot, "V31_TRIM_FRACTION", 0.0)   # this rule alone
+
+
+def test_shipped_settings_sell_half_at_20_percent_and_keep_no_gain_line(v31, clock, broker):
+    assert bot.V31_TRIM_FRACTION == 0.5 and bot.V31_TRIM_AT == 0.20
+    assert bot.V31_KEEP_GAIN == 0.0
+    s = position(v31, clock, rng=0.50)
+    for p in (12.0, 11.5, 11.0):                         # no keep-gain exit at 11.00
+        tick(v31, s, p)
+    assert broker.held["ABCD"] == 500
+
+
+@pytest.mark.usefixtures("keep_on")
+def test_keep_gain_alone(v31, clock, broker, monkeypatch):
+    monkeypatch.setattr(bot, "V31_TRIM_FRACTION", 0.0)
+    s = position(v31, clock, rng=0.50)
+    for p in (12.0, 11.5, 11.0):
+        tick(v31, s, p)
+    assert broker.held["ABCD"] == 0
+
+
+@pytest.mark.usefixtures("trim_on")
+def test_first_print_20_percent_up_sells_half(v31, clock, broker):
+    s = position(v31, clock)
+    tick(v31, s, 12.0)
+    assert broker.held["ABCD"] == 500 and s.shares == 500
+    assert v31.closed_today[-1][3] == 500                # booked as a trim
+    assert s.entry == PRICE                              # the rest keeps its entry
+
+
+@pytest.mark.usefixtures("trim_on")
+def test_nothing_is_sold_short_of_20_percent(v31, clock, broker):
+    s = position(v31, clock)
+    tick(v31, s, 11.99)
+    assert broker.held["ABCD"] == 1000
+
+
+@pytest.mark.usefixtures("trim_on")
+def test_the_trim_happens_once(v31, clock, broker):
+    s = position(v31, clock)
+    for p in (12.0, 12.5, 13.0):
+        tick(v31, s, p)
+    assert broker.held["ABCD"] == 500
+
+
+@pytest.mark.usefixtures("trim_on")
+def test_after_the_trim_the_rest_cannot_close_below_the_entry(v31, clock):
+    s = position(v31, clock)
+    tick(v31, s, 12.0)
+    assert s.stop >= PRICE and s.trail_stop >= PRICE
+
+
+@pytest.mark.usefixtures("trim_on")
+def test_stop_to_entry_can_be_switched_off(v31, clock, monkeypatch):
+    monkeypatch.setattr(bot, "V31_TRIM_STOP_TO_ENTRY", False)
+    s = position(v31, clock)
+    tick(v31, s, 12.0)
+    assert s.stop < PRICE
+
+
+@pytest.mark.usefixtures("trim_on")
+def test_a_new_position_can_trim_again(v31, clock, broker):
+    s = position(v31, clock)
+    tick(v31, s, 12.0)
+    run(v31.exit(s, "test"))
+    assert not s.trimmed                                 # cleared with the position
+
+
+# ---- r28: protecting a gain - keep half of it ------------------------------------
+# A wild name (5% typical range), so the trail and flush sit further away than
+# half of a 20% gain and only this rule can fire.
+
+@pytest.mark.usefixtures("keep_on")
+def test_falling_back_to_half_the_best_gain_closes_it_all(v31, clock, broker):
+    s = position(v31, clock, rng=0.50)
+    for p in (12.0, 11.5, 11.01):
+        tick(v31, s, p)
+    assert broker.held["ABCD"] == 1000                   # still above 11.00
+    tick(v31, s, 11.0)                                   # 10 + half of 2.00
+    assert broker.held["ABCD"] == 0
+    assert v31.closed_today[-1][5] == "keep-gain"
+
+
+@pytest.mark.usefixtures("keep_on")
+def test_keep_gain_arms_only_after_20_percent(v31, clock, broker):
+    s = position(v31, clock, rng=0.50)
+    for p in (11.9, 11.2, 10.95):                        # best gain 19%
+        tick(v31, s, p)
+    assert broker.held["ABCD"] == 1000
+

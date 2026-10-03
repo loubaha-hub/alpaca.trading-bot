@@ -304,6 +304,27 @@ V31_FLOAT_SMALL = 5_000_000
 V31_FLOAT_SMALL_MULT = 0.5
 V31_FLOAT_UNKNOWN_MULT = 1.0
 FLOAT_FILE = os.environ.get("FLOAT_FILE", "floats.csv")
+# PROTECTING A GAIN - two ways, built side by side.
+#  SELL HALF AT +20% (ON): the first time the price is V31_TRIM_AT above the
+#    entry, sell V31_TRIM_FRACTION of the shares; the rest runs on the normal
+#    exits, and with V31_TRIM_STOP_TO_ENTRY its stop moves up to the entry, so
+#    the rest of a trade that reached +20% can no longer lose.
+#  KEEP HALF THE GAIN (off): once a position has been up V31_KEEP_GAIN_ARM
+#    from its entry, close ALL of it if the price falls back to entry +
+#    V31_KEEP_GAIN x the best gain so far (0.5 = keep half of it).
+# Replayed over 2026-09-28..10-02 with the no-chase rule and float sizing
+# (+$1,671 with neither): sell half at +20% +$1,937; at +30% +$1,855; at +15%
+# +$1,519; at +10% +$1,055 - too early cuts the winners. Keep half the gain
+# +$1,718 (armed at +10% or +20%), +$1,676 armed at +30% - the trail and the
+# flush almost always close a position before half its gain is gone. Both
+# together +$1,961. Moving the rest's stop to the entry changed nothing here
+# (the flush, at most 12% under the high, always fires above it); it is kept
+# for a print that gaps through everything.
+V31_KEEP_GAIN = 0.0             # 0 = off
+V31_KEEP_GAIN_ARM = 0.20
+V31_TRIM_FRACTION = 0.5         # 0 = off
+V31_TRIM_AT = 0.20
+V31_TRIM_STOP_TO_ENTRY = True
 V31_SPEED_FADE_MULT = 0.25
 V31_SPEED_FLUSH_MULT = 5.0
 # THE FLUSH: out when the price gives back this much from its high since
@@ -878,6 +899,7 @@ class SymState:
     chase_bars: tuple = ()           # v31: (fetched at, [(bar start, close)]) from
                                      # the data API, for the no-chase check
     chase_logged_at: float = 0.0     # v31: last "not chasing" log line
+    trimmed: bool = False            # v31: this position has sold its part at V31_TRIM_AT
     hod_closed: float = 0.0          # v31: highest CLOSED one-minute bar today -
                                      # the resistance a new-high re-entry breaks
                                                    # inside the crash window
@@ -1171,6 +1193,7 @@ class Strategy:
         s.armed = False
         s.adopted = False
         s.quiet_bars = 0
+        s.trimmed = False
 
     # ---- execution ----------------------------------------------------------
 
@@ -1507,6 +1530,24 @@ class V31(Strategy):
         else:
             s.quiet_bars = 0
 
+    # ---- protecting a gain -----------------------------------------------------
+
+    async def trim(self, s):
+        """Sell V31_TRIM_FRACTION once, at the first print V31_TRIM_AT above
+        the entry; then, with V31_TRIM_STOP_TO_ENTRY, the rest cannot close
+        below the entry - the entry stop while unarmed, the trail once armed."""
+        async with self.lock(s.symbol):
+            if s.shares <= 0 or s.trimmed:
+                return
+            s.trimmed = True
+            n = int(s.shares * V31_TRIM_FRACTION)
+            if n <= 0:
+                return
+            await self.reduce(s, n, "trim +%.0f%%" % (100 * V31_TRIM_AT))
+            if s.shares > 0 and V31_TRIM_STOP_TO_ENTRY:
+                s.stop = max(s.stop, s.entry)
+                s.trail_stop = max(s.trail_stop, s.entry)
+
     # ---- float sizing ---------------------------------------------------------
 
     def float_mult(self, symbol) -> float:
@@ -1649,6 +1690,16 @@ class V31(Strategy):
         if s.in_position:
             self.update_trail(s, price)
 
+            # 0. protecting a gain - sell half at +20% (see V31_TRIM_FRACTION)
+            if (V31_TRIM_FRACTION and not s.trimmed and s.entry
+                    and price >= s.entry * (1 + V31_TRIM_AT)):
+                await self.trim(s)
+                return
+            if (V31_KEEP_GAIN and s.entry
+                    and s.peak >= s.entry * (1 + V31_KEEP_GAIN_ARM)
+                    and price <= s.entry + V31_KEEP_GAIN * (s.peak - s.entry)):
+                await self.exit(s, "keep-gain")
+                return
             if self.crashed(s, price):
                 await self.exit(s, "crash")
                 return
