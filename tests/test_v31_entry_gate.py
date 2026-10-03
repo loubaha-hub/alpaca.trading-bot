@@ -229,3 +229,17 @@ def test_entry_allowed_just_above_the_halt_line(v31, clock, broker):
     broker.eq = v31.day_start_equity * 0.901
     tick(v31, s, TRIGGER)
     assert entered(v31, s)
+
+
+# ---- r26: the $1-$20 range is checked when buying, not only when scanning -----
+
+@pytest.mark.parametrize("red_open,red_low,price,allowed", [
+    (0.94, 0.90, 0.95, False),          # fell under $1 after qualifying
+    (1.00, 0.95, 1.01, True),
+    (20.20, 19.90, 20.21, False),       # ran above $20
+    (19.90, 19.60, 19.91, True),
+])
+def test_price_range_at_entry(v31, clock, red_open, red_low, price, allowed):
+    s = breakout(v31, clock, red_open=red_open, red_low=red_low)
+    tick(v31, s, price)
+    assert entered(v31, s) is allowed

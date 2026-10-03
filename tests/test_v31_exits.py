@@ -137,3 +137,14 @@ def test_crash_line_is_floored_and_capped(v31, clock):
     wild = position(v31, clock, sym="WILD", rng=0.50)     # 5% -> 15% -> 10%
     assert v31.crash_pct(calm, PRICE) == pytest.approx(0.03)
     assert v31.crash_pct(wild, PRICE) == pytest.approx(0.10)
+
+
+# ---- r26: adds off, price range checked at entry ------------------------------
+
+def test_strong_speed_no_longer_adds(v31, clock, broker):
+    s = position(v31, clock)
+    s.entry_at = time.time() - 600
+    feed_trades(v31, s.symbol, 9.0, 10.0)            # far above any baseline
+    v31.st(s.symbol).speed_samples[:] = [0.0001]     # tiny baseline: add would fire
+    run(v31.evaluate(s, PRICE))
+    assert broker.buys(s.symbol) == []
