@@ -114,6 +114,15 @@ def test_sell_survives_one_failed_position_read(v31, broker):
 
 # ---- two tasks acting on one position at once --------------------------------
 
+@pytest.fixture
+def rebalance_on(monkeypatch):
+    """r25 turned the rebalance off (V31_REBALANCE = False). Its code is still
+    there and could be switched back on, so the tests that guard it switch
+    it on for themselves."""
+    monkeypatch.setattr(bot, "V31_REBALANCE", True, raising=False)
+
+
+@pytest.mark.usefixtures("rebalance_on")
 def test_tick_add_and_rebalance_add_at_once(v31, broker):
     """r23: add() runs from the tick handler AND the rebalance, separate tasks.
     Both sized from the same share count: either both bought (40% of the
@@ -130,6 +139,7 @@ def test_tick_add_and_rebalance_add_at_once(v31, broker):
     assert s.shares == broker.held["AAA"]
 
 
+@pytest.mark.usefixtures("rebalance_on")
 def test_exit_racing_an_add_does_not_churn(v31, broker):
     """r23: buy() and sell() each counted the other's fills as their own.
     Closing 1,000 shares took 6 orders: 4,000 bought, 5,000 sold."""
@@ -197,6 +207,7 @@ def test_add_moves_the_entry_to_the_average_cost(v31, broker):
 
 # ---- the rebalance -----------------------------------------------------------
 
+@pytest.mark.usefixtures("rebalance_on")
 def test_adopted_position_survives_the_first_rebalance(v31, broker):
     """r23: after a restart the adopted position had no prints in memory, its
     speed read as zero, its target as $0, and the first rebalance - due the
@@ -208,6 +219,7 @@ def test_adopted_position_survives_the_first_rebalance(v31, broker):
     assert broker.held["AAA"] == 500
 
 
+@pytest.mark.usefixtures("rebalance_on")
 def test_a_position_closed_by_the_rebalance_is_booked(v31, broker):
     """r23 sold around exit(): no EXIT line, nothing in closed_today, and the
     old entry and stop left in memory."""
@@ -220,6 +232,7 @@ def test_a_position_closed_by_the_rebalance_is_booked(v31, broker):
     assert s.entry == 0 and s.stop == 0
 
 
+@pytest.mark.usefixtures("rebalance_on")
 def test_a_partial_trim_is_booked_too(v31, broker):
     s = hold(v31, "AAA", 3000, 10.0)                # 30%, above the 25% target
     s.entry_at = time.time() - 600
