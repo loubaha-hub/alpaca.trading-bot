@@ -53,6 +53,8 @@ def _load_bot():
     module = importlib.util.module_from_spec(spec)
     sys.modules["bot"] = module
     spec.loader.exec_module(module)
+    if hasattr(module, "FLOATS"):
+        module.FLOATS = {}             # r28+: no float file - tests set floats themselves
     return module
 
 

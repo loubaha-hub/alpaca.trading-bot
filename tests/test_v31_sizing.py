@@ -197,3 +197,77 @@ def test_add_does_nothing_at_the_cap(v31, broker):
     s = speeding(v31, "AAA", 2500, 10.0, 9.0, 10.0)  # already 25%
     run(v31.add(s, 10.0))
     assert broker.buys("AAA") == []
+
+
+# ---- r28: size by float ---------------------------------------------------------
+# Floats under 5M shares buy half: the risk budget and the 25% cap alike.
+
+@pytest.fixture
+def floats(monkeypatch):
+    table = {}
+    monkeypatch.setattr(bot, "FLOATS", table)
+    return table
+
+
+@pytest.mark.parametrize("float_shares,shares", [
+    (3_000_000, 1086),             # under 5M: half of 2172
+    (4_999_999, 1086),
+    (5_000_000, 2172),             # 5M and up: full size
+    (40_000_000, 2172),
+])
+def test_starter_size_by_float(v31, clock, broker, floats, float_shares, shares):
+    floats["ABCD"] = float_shares
+    enter(v31, clock, red_low=9.75)
+    assert order_sizes(broker) == [shares]
+
+
+def test_a_capped_starter_halves_too(v31, clock, broker, floats):
+    """The risk maths asks for more than the cap; the cap is what halves."""
+    floats["ABCD"] = 1_000_000
+    enter(v31, clock, red_low=9.99)
+    assert order_sizes(broker) == [CAP_SHARES // 2]
+
+
+def test_a_small_float_risks_half(v31, clock, floats):
+    floats["ABCD"] = 2_000_000
+    s = enter(v31, clock, red_low=9.50)
+    assert s.shares * (s.entry - s.stop) <= 0.005 * 100_000 + 1e-6
+
+
+def test_a_name_not_in_the_float_file_is_full_size(v31, clock, broker, floats):
+    floats["OTHER"] = 1_000_000
+    enter(v31, clock, red_low=9.75)
+    assert order_sizes(broker) == [2172]
+
+
+def test_unknown_floats_can_be_sized_down(v31, clock, broker, floats, monkeypatch):
+    monkeypatch.setattr(bot, "V31_FLOAT_UNKNOWN_MULT", 0.5)
+    enter(v31, clock, red_low=9.75)
+    assert order_sizes(broker) == [1086]
+
+
+def test_float_sizing_switched_off(v31, clock, broker, floats, monkeypatch):
+    monkeypatch.setattr(bot, "V31_FLOAT_SIZING", False)
+    floats["ABCD"] = 1_000_000
+    enter(v31, clock, red_low=9.75)
+    assert order_sizes(broker) == [2172]
+
+
+def test_half_of_a_tiny_order_is_not_sent(v31, clock, broker, floats):
+    """Halving can take an order under MIN_TRADE_DOLLARS; then nothing is sent."""
+    floats["ABCD"] = 1_000_000
+    broker.eq = v31.day_start_equity = 700.0      # 15 shares by risk, half 7 = $70
+    s = enter(v31, clock)
+    assert broker.orders == []
+    assert not s.in_position
+
+
+def test_load_floats(tmp_path):
+    f = tmp_path / "floats.csv"
+    f.write_text("symbol,price,float_shares\n"
+                 "abcd,2.5,3000000\n"
+                 "EFGH,4,\n"                 # no number: skipped
+                 "IJKL,1,n/a\n"              # not a number: skipped
+                 "MNOP,9,12500000.0\n")
+    assert bot.load_floats(f) == {"ABCD": 3_000_000, "MNOP": 12_500_000}
+    assert bot.load_floats(tmp_path / "missing.csv") == {}

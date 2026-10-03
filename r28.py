@@ -32,6 +32,7 @@ ENVIRONMENT VARIABLES
 """
 
 import asyncio
+import csv
 import logging
 import os
 import statistics
@@ -39,6 +40,7 @@ import time
 from collections import deque
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from alpaca.data.historical import StockHistoricalDataClient
@@ -279,6 +281,29 @@ V31_CHASE_MAX_PCT = 0.15
 V31_CHASE_COOLOFF_MIN = 1440    # how long a spike keeps a name off-limits;
                                 # 1440 = the rest of the day (never looks back
                                 # before today's 4:00am), 0 = the current print only
+# SIZE BY FLOAT. A name with fewer than V31_FLOAT_SMALL shares free to trade
+# buys V31_FLOAT_SMALL_MULT of the normal size - the risk budget AND the 25%
+# cap, so a capped starter shrinks too. The tiny floats run hardest and fall
+# hardest. Research over 2026-09-28..10-02 (replay/research/): r26's trades in
+# floats under 5M lost -$1,556 over 46 trades (28% won), 5M-30M made +$1,324
+# over 16 (44% won); across every name the bot could have bought, under 5M
+# fell 7.5% before rising 15% in 51-58% of cases, 5M-30M in 35-37%.
+# Alpaca has no float data: floats come from FLOAT_FILE (CSV with columns
+# symbol,float_shares; a path relative to this file), read at startup. A name
+# not in it gets V31_FLOAT_UNKNOWN_MULT - full size unless that is changed.
+#
+# Replayed over 2026-09-28..10-02 on top of the no-chase rule it protects
+# rather than earns: +$1,671 vs +$1,825 without it, the same 47 trades, but
+# losses of $2,976 instead of $3,730, worst trade -$232 instead of -$296,
+# worst day -$400 instead of -$450. The two rules overlap - the spikes the
+# no-chase rule skips are mostly tiny floats; on r27's entries alone float
+# sizing turned -$439 into +$349. Halving under 2M instead: +$1,922; under
+# 10M: +$496; skipping small floats outright: +$1,515.
+V31_FLOAT_SIZING = True
+V31_FLOAT_SMALL = 5_000_000
+V31_FLOAT_SMALL_MULT = 0.5
+V31_FLOAT_UNKNOWN_MULT = 1.0
+FLOAT_FILE = os.environ.get("FLOAT_FILE", "floats.csv")
 V31_SPEED_FADE_MULT = 0.25
 V31_SPEED_FLUSH_MULT = 5.0
 # THE FLUSH: out when the price gives back this much from its high since
@@ -357,6 +382,30 @@ SIMPLE_STOP_PCT = 0.001
 logging.basicConfig(level=logging.INFO,
                     format="%(asctime)s %(levelname)s %(message)s")
 log = logging.getLogger("engine")
+
+
+def load_floats(path) -> dict:
+    """{symbol: float shares} from a CSV with symbol and float_shares columns.
+    Rows without a usable number are skipped; a missing file is an empty map."""
+    path = Path(path)
+    if not path.is_absolute():
+        path = Path(__file__).resolve().parent / path
+    floats = {}
+    try:
+        with open(path, newline="") as f:
+            for row in csv.DictReader(f):
+                try:
+                    n = float(row.get("float_shares") or 0)
+                except ValueError:
+                    continue
+                if n > 0 and row.get("symbol"):
+                    floats[row["symbol"].strip().upper()] = n
+    except FileNotFoundError:
+        pass
+    return floats
+
+
+FLOATS = load_floats(FLOAT_FILE)
 
 # THE LOG IS THE ONLY WINDOW ONTO THIS BOT, so it has to be readable. alpaca-py
 # dumps the ENTIRE symbol list on every subscribe - four times, one line per
@@ -1298,6 +1347,16 @@ class V31(Strategy):
         super().__init__(broker, data)
         self.last_rebalance = 0.0
         self.last_speeds: dict[str, float] = {}
+        if V31_FLOAT_SIZING:
+            if FLOATS:
+                log.info("[v31] float sizing: %d names from %s; under %.0fM "
+                         "shares buy %.0f%% size, names not listed %.0f%%",
+                         len(FLOATS), FLOAT_FILE, V31_FLOAT_SMALL / 1e6,
+                         100 * V31_FLOAT_SMALL_MULT, 100 * V31_FLOAT_UNKNOWN_MULT)
+            else:
+                log.warning("[v31] float sizing is on but %s has no floats - "
+                            "every name is sized as unknown (%.0f%%)",
+                            FLOAT_FILE, 100 * V31_FLOAT_UNKNOWN_MULT)
 
     # ---- bars ---------------------------------------------------------------
 
@@ -1447,6 +1506,16 @@ class V31(Strategy):
             s.quiet_bars += 1
         else:
             s.quiet_bars = 0
+
+    # ---- float sizing ---------------------------------------------------------
+
+    def float_mult(self, symbol) -> float:
+        if not V31_FLOAT_SIZING:
+            return 1.0
+        shares = FLOATS.get(symbol)
+        if not shares:
+            return V31_FLOAT_UNKNOWN_MULT
+        return V31_FLOAT_SMALL_MULT if shares < V31_FLOAT_SMALL else 1.0
 
     # ---- don't chase ---------------------------------------------------------
 
@@ -1709,6 +1778,13 @@ class V31(Strategy):
             log.info("[v31] %s sized down %d -> %d shares (25%% cap)",
                      s.symbol, shares, cap)
             shares = cap
+        mult = self.float_mult(s.symbol)
+        if mult != 1.0:
+            flt = FLOATS.get(s.symbol)
+            log.info("[v31] %s float %s -> %d shares x %.2f = %d",
+                     s.symbol, "%.1fM" % (flt / 1e6) if flt else "unknown",
+                     shares, mult, int(shares * mult))
+            shares = int(shares * mult)
         if shares * price < MIN_TRADE_DOLLARS:
             return
 

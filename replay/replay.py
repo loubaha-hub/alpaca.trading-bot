@@ -255,6 +255,8 @@ async def tick(strat, s, price, size, now):
 
 async def run(args):
     bot = load_bot(REPO / args.bot)
+    if hasattr(bot, "load_floats"):               # r28+: float sizing
+        bot.FLOATS = bot.load_floats(REPO / args.floats) if args.floats else {}
     for item in args.set:                     # what-if: override a setting
         name, value = item.split("=", 1)
         if not hasattr(bot, name):
@@ -520,6 +522,8 @@ def main():
                     help="override one of the bot's settings for this run, e.g. "
                          "--set V31_FLUSH_DROP_PCT=0.06 (repeatable)")
     ap.add_argument("--tag", default="", help="suffix for the output file names")
+    ap.add_argument("--floats", default="replay/data/float.csv",
+                    help="float file for bots that size by float ('' = none)")
     ap.add_argument("--no-rebalance", action="store_true",
                     help="what-if: never run the strategy's periodic() rebalance")
     asyncio.run(run(ap.parse_args()))
