@@ -29,6 +29,9 @@ ENVIRONMENT VARIABLES
   ALPACA_PAPER   "1"/"true" for paper (default), "0"/"false" for live
   ALPACA_FEED    "sip" (default) or "iex"
   ORPHAN_MODE    "adopt" (default) or "flatten" - leave unset
+  FLOAT_FILE     v31's float list (default floats.csv next to this file)
+  TAPE_QUOTES    "positions" (default), "all" or "off" - quotes for v31's
+                 tape log (see TAPE_QUOTES below)
 """
 
 import asyncio
@@ -320,6 +323,21 @@ FLOAT_FILE = os.environ.get("FLOAT_FILE", "floats.csv")
 V31_VOL_RISING_MIN = 1.5        # 0 = off
 V31_VOL_RECENT_MIN = 5
 V31_VOL_BEFORE_MIN = 30
+# THE TAPE - LOG ONLY, nothing trades on it yet. Every print is marked the
+# moment it arrives: a BUY (green) at or above the ask, a SELL (red) at or
+# below the bid, BETWEEN (white) inside the spread - against the latest quote
+# when it is at most TAPE_QUOTE_MAX_AGE seconds old. Without a fresh quote the
+# tick rule stands in: above the previous print a buy, below it a sell, at the
+# same price whatever the last price change was. The split over the last
+# minute and five minutes is logged at every v31 entry, trim and exit, and
+# once a minute for each open position, so the logs can show whether it
+# predicts anything before any rule uses it.
+# TAPE_QUOTES (environment): "positions" (default) streams quotes for the
+# names v31 holds; "all" for every watched name - far more messages; "off"
+# for none, the tick rule only.
+TAPE_QUOTES = os.environ.get("TAPE_QUOTES", "positions").strip().lower()
+TAPE_QUOTE_MAX_AGE = 2.0
+TAPE_WINDOWS = (60, 300)
 # PROTECTING A GAIN - two ways, built side by side.
 #  SELL HALF AT +20% (ON): the first time the price is V31_TRIM_AT above the
 #    entry, sell V31_TRIM_FRACTION of the shares; the rest runs on the normal
@@ -752,6 +770,8 @@ class MarketData:
         self.last_sub_at = 0.0
         self.trade_sinks = []                  # callables(symbol, price, size)
         self.bar_sinks = []                    # callables(bar)
+        self.quote_sinks = []                  # callables(symbol, bid, ask) - the tape
+        self.quoted: set[str] = set()
 
     async def subscribe(self, symbols, force: bool = False):
         """Queue names for the next batch. force=True sends them right now."""
@@ -794,6 +814,33 @@ class MarketData:
         self.last_sub_at = time.time()
         log.info("watching %d names (+%d batched) on the shared connection",
                  len(self.subscribed), len(batch))
+        if TAPE_QUOTES == "all":
+            await self.watch_quotes(batch)
+
+    async def watch_quotes(self, symbols):
+        """Stream quotes for these names as well, for the tape. Same
+        connection; on a running stream the SDK sends one subscribe message
+        (no reconnect). Through a thread, for the reason given above."""
+        new = [s for s in symbols if s not in self.quoted]
+        if not new:
+            return
+        try:
+            await asyncio.to_thread(self.stream.subscribe_quotes,
+                                    self._on_quote, *new)
+        except Exception as e:
+            log.error("quote subscribe failed (%d names): %s", len(new), e)
+            return
+        self.quoted.update(new)
+        log.info("quotes for the tape: %d names (+%d)", len(self.quoted), len(new))
+
+    async def _on_quote(self, quote):
+        try:
+            bid = float(quote.bid_price or 0)
+            ask = float(quote.ask_price or 0)
+        except Exception:
+            return
+        for sink in self.quote_sinks:
+            sink(quote.symbol, bid, ask)
 
     async def subscribe_loop(self):
         """First batch goes immediately; after that, at most every 30 seconds."""
@@ -916,6 +963,13 @@ class SymState:
                                      # the data API, for the no-chase check
     chase_logged_at: float = 0.0     # v31: last "not chasing" log line
     vol_logged_at: float = 0.0       # v31: last "volume not rising" log line
+    quote: tuple = ()                # v31 tape: (bid, ask, time) of the latest quote
+    tape: deque = field(default_factory=lambda: deque(maxlen=20000))
+                                     # v31 tape: (time, size, side, by quote);
+                                     # side 1 buy, -1 sell, 0 between
+    tape_last_px: float = 0.0
+    tape_tick_dir: int = 0           # last price change: 1 up, -1 down
+    tape_logged_at: float = 0.0
     trimmed: bool = False            # v31: this position has sold its part at V31_TRIM_AT
     hod_closed: float = 0.0          # v31: highest CLOSED one-minute bar today -
                                      # the resistance a new-high re-entry breaks
@@ -1055,6 +1109,10 @@ class Strategy:
 
     def offer_bar(self, bar):
         """Bars are cheap and rare - handled inline."""
+        pass
+
+    def offer_quote(self, symbol, bid, ask):
+        """Quotes, for the strategies that keep a tape (v31). Never blocks."""
         pass
 
     async def tick_worker(self):
@@ -1565,6 +1623,92 @@ class V31(Strategy):
                 s.stop = max(s.stop, s.entry)
                 s.trail_stop = max(s.trail_stop, s.entry)
 
+    # ---- the tape (log only) ---------------------------------------------------
+
+    def offer_tick(self, symbol, price, size, conds=()):
+        # Marked on arrival, against the quote as it stood when the print came
+        # in - not when the queue gets to it.
+        if qualifies(conds):
+            try:
+                self.tape_add(self.st(symbol), price, size)
+            except Exception as e:
+                log.error("[v31] tape %s: %s", symbol, e)
+        super().offer_tick(symbol, price, size, conds)
+
+    def offer_quote(self, symbol, bid, ask):
+        if bid > 0 and ask >= bid:
+            self.st(symbol).quote = (bid, ask, time.time())
+
+    def tape_add(self, s, price, size, now=None):
+        now = time.time() if now is None else now
+        if s.tape_last_px:
+            if price > s.tape_last_px:
+                s.tape_tick_dir = 1
+            elif price < s.tape_last_px:
+                s.tape_tick_dir = -1
+        s.tape_last_px = price
+        q = s.quote
+        by_quote = bool(q) and now - q[2] <= TAPE_QUOTE_MAX_AGE
+        if by_quote:
+            bid, ask = q[0], q[1]
+            side = 1 if price >= ask else -1 if price <= bid else 0
+        else:
+            side = s.tape_tick_dir
+        s.tape.append((now, size, side, by_quote))
+        horizon = now - max(TAPE_WINDOWS)
+        while s.tape and s.tape[0][0] < horizon:
+            s.tape.popleft()
+
+    def tape_split(self, s, seconds, now=None):
+        """(buy, sell, between, total shares, share marked by quote) over the
+        last `seconds`."""
+        now = time.time() if now is None else now
+        cut = now - seconds
+        buy = sell = mid = quoted = 0.0
+        for t, size, side, by_quote in reversed(s.tape):
+            if t < cut:
+                break
+            if side > 0:
+                buy += size
+            elif side < 0:
+                sell += size
+            else:
+                mid += size
+            if by_quote:
+                quoted += size
+        total = buy + sell + mid
+        return buy, sell, mid, total, (quoted / total if total else 0.0)
+
+    def tape_text(self, s, now=None) -> str:
+        parts = []
+        for seconds in TAPE_WINDOWS:
+            buy, sell, mid, total, quoted = self.tape_split(s, seconds, now)
+            label = "%ds" % seconds if seconds < 120 else "%dm" % (seconds // 60)
+            if not total:
+                parts.append("%s: no prints" % label)
+                continue
+            parts.append("%s: buy %.0f%% sell %.0f%% between %.0f%% of %s sh "
+                         "(%.0f%% by quote)" % (
+                             label, 100 * buy / total, 100 * sell / total,
+                             100 * mid / total, format(int(total), ","),
+                             100 * quoted))
+        return "tape " + " | ".join(parts)
+
+    async def watch_quotes(self, symbol):
+        if TAPE_QUOTES != "positions":
+            return
+        watch = getattr(self.data, "watch_quotes", None)
+        if watch is None:
+            return
+        try:
+            await watch([symbol])
+        except Exception as e:
+            log.warning("[v31] %s quotes for the tape: %s", symbol, e)
+
+    async def reduce(self, s, shares, why):
+        log.info("[v31]   %s %s (selling: %s)", s.symbol, self.tape_text(s), why)
+        await super().reduce(s, shares, why)
+
     # ---- volume must be rising -------------------------------------------------
 
     def volume_ratio(self, bars, now):
@@ -1957,6 +2101,8 @@ class V31(Strategy):
                      100 * filled * s.entry / eq if eq else 0.0,
                      s.stop, 100 * (s.entry - s.stop) / s.entry if s.entry else 0.0,
                      "new-high" if kind == "hod" else "setup", trigger)
+            log.info("[v31]   %s %s (buying)", s.symbol, self.tape_text(s))
+            await self.watch_quotes(s.symbol)
             if kind == "hod":
                 return                           # no green/red bars to show
             # THE TWO BARS THE SETUP WAS BUILT FROM, printed in full. Without
@@ -2047,7 +2193,16 @@ class V31(Strategy):
 
     async def periodic(self):
         """The 5-minute rebalance clock, plus off-clock speed events.
-        Does nothing while V31_REBALANCE is False."""
+        Does nothing while V31_REBALANCE is False - except log the tape of
+        each open position once a minute."""
+        now = time.time()
+        for s in self.open_positions():
+            if now - s.tape_logged_at >= 60:
+                s.tape_logged_at = now
+                pct = 100 * (s.last_price / s.entry - 1) if s.entry and s.last_price else 0.0
+                log.info("[v31] TAPE %s held %+.1f%% | %s", s.symbol, pct,
+                         self.tape_text(s))
+                await self.watch_quotes(s.symbol)    # adopted positions too
         if not V31_REBALANCE:
             return
         now = time.time()
@@ -2451,6 +2606,7 @@ class Engine:
         for strat in self.strategies:
             self.data.trade_sinks.append(strat.offer_tick)
             self.data.bar_sinks.append(strat.offer_bar)
+            self.data.quote_sinks.append(strat.offer_quote)
 
         self.last_auth_warn = 0.0
         self.last_probe = 0.0

@@ -30,7 +30,8 @@ REPO = Path(__file__).resolve().parent.parent
 # tests see the shipped defaults whatever the developer's shell has exported.
 _BOT_ENV = ("CONFIRM_ENTRY_WITH_QUOTE", "DAY_BASELINE", "SIMPLE_STOP_REF",
             "SIMPLE_REENTRY_TICK", "BOOK_SECONDS", "PROBE_LOG", "ORPHAN_MODE",
-            "V32_HALT_PCT", "V33_HALT_PCT", "V34_HALT_PCT")
+            "V32_HALT_PCT", "V33_HALT_PCT", "V34_HALT_PCT", "FLOAT_FILE",
+            "TAPE_QUOTES")
 
 
 def bot_path() -> Path:
