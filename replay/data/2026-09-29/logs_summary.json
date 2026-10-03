@@ -1,0 +1,1106 @@
+{
+  "day": "2026-09-29",
+  "source": "cycle check mover lists sampled every 10 minutes",
+  "samples": 91,
+  "symbols": {
+    "EGG": {
+      "first_et": "04:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "SMJF": {
+      "first_et": "04:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "ABLV": {
+      "first_et": "04:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "SANG": {
+      "first_et": "04:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "YMT": {
+      "first_et": "04:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "BTLN": {
+      "first_et": "04:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "SMMT": {
+      "first_et": "04:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "CD": {
+      "first_et": "04:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "FBGL": {
+      "first_et": "04:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "MINE": {
+      "first_et": "04:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "QNC": {
+      "first_et": "04:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "BBUL": {
+      "first_et": "04:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "TANH": {
+      "first_et": "04:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "ZSQR": {
+      "first_et": "04:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "BKYI": {
+      "first_et": "04:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "TMCR": {
+      "first_et": "04:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "BNKK": {
+      "first_et": "04:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "INLF": {
+      "first_et": "04:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "YDES": {
+      "first_et": "04:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "SFIX": {
+      "first_et": "04:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "MAAS": {
+      "first_et": "04:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "SLBT": {
+      "first_et": "04:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "FLX": {
+      "first_et": "04:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "MAGH": {
+      "first_et": "04:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "GAUZ": {
+      "first_et": "04:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "ABCL": {
+      "first_et": "04:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "RENX": {
+      "first_et": "04:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "FBYD": {
+      "first_et": "04:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "ONFO": {
+      "first_et": "04:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "AMC": {
+      "first_et": "04:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "CBIO": {
+      "first_et": "04:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "NAUT": {
+      "first_et": "04:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "PDC": {
+      "first_et": "04:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "BUDA": {
+      "first_et": "04:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "BB": {
+      "first_et": "04:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "WYY": {
+      "first_et": "04:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "XERS": {
+      "first_et": "04:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "CNTB": {
+      "first_et": "04:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "VIOT": {
+      "first_et": "04:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "BEZ": {
+      "first_et": "04:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "AIOS": {
+      "first_et": "04:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "MWC": {
+      "first_et": "04:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "NTWK": {
+      "first_et": "04:10",
+      "by": [
+        "scanner"
+      ]
+    },
+    "REBN": {
+      "first_et": "04:10",
+      "by": [
+        "scanner"
+      ]
+    },
+    "SONM": {
+      "first_et": "04:20",
+      "by": [
+        "scanner"
+      ]
+    },
+    "BRIA": {
+      "first_et": "04:20",
+      "by": [
+        "scanner"
+      ]
+    },
+    "NVTS": {
+      "first_et": "04:20",
+      "by": [
+        "scanner"
+      ]
+    },
+    "ARKR": {
+      "first_et": "04:40",
+      "by": [
+        "scanner"
+      ]
+    },
+    "INTJ": {
+      "first_et": "04:40",
+      "by": [
+        "scanner"
+      ]
+    },
+    "INAB": {
+      "first_et": "04:40",
+      "by": [
+        "scanner"
+      ]
+    },
+    "AVAZ": {
+      "first_et": "04:50",
+      "by": [
+        "scanner"
+      ]
+    },
+    "BYSI": {
+      "first_et": "05:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "NVTX": {
+      "first_et": "05:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "QTTB": {
+      "first_et": "05:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "XRPN": {
+      "first_et": "05:20",
+      "by": [
+        "scanner"
+      ]
+    },
+    "AVX": {
+      "first_et": "05:40",
+      "by": [
+        "scanner"
+      ]
+    },
+    "GOSS": {
+      "first_et": "06:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "SXTP": {
+      "first_et": "06:30",
+      "by": [
+        "scanner"
+      ]
+    },
+    "ACRS": {
+      "first_et": "07:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "AGEN": {
+      "first_et": "07:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "IVVD": {
+      "first_et": "07:10",
+      "by": [
+        "scanner"
+      ]
+    },
+    "RZLT": {
+      "first_et": "07:10",
+      "by": [
+        "scanner"
+      ]
+    },
+    "IMMX": {
+      "first_et": "07:10",
+      "by": [
+        "scanner"
+      ]
+    },
+    "SNTG": {
+      "first_et": "07:30",
+      "by": [
+        "scanner"
+      ]
+    },
+    "SSTI": {
+      "first_et": "07:40",
+      "by": [
+        "scanner"
+      ]
+    },
+    "UNCY": {
+      "first_et": "07:40",
+      "by": [
+        "scanner"
+      ]
+    },
+    "BHST": {
+      "first_et": "08:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "WW": {
+      "first_et": "08:10",
+      "by": [
+        "scanner"
+      ]
+    },
+    "CLRB": {
+      "first_et": "08:10",
+      "by": [
+        "scanner"
+      ]
+    },
+    "IOVA": {
+      "first_et": "08:10",
+      "by": [
+        "scanner"
+      ]
+    },
+    "TNMG": {
+      "first_et": "08:20",
+      "by": [
+        "scanner"
+      ]
+    },
+    "NNVC": {
+      "first_et": "08:20",
+      "by": [
+        "scanner"
+      ]
+    },
+    "SGMT": {
+      "first_et": "08:30",
+      "by": [
+        "scanner"
+      ]
+    },
+    "JELD": {
+      "first_et": "08:40",
+      "by": [
+        "scanner"
+      ]
+    },
+    "NVTC": {
+      "first_et": "08:50",
+      "by": [
+        "scanner"
+      ]
+    },
+    "CDT": {
+      "first_et": "09:10",
+      "by": [
+        "scanner"
+      ]
+    },
+    "ONMD": {
+      "first_et": "09:10",
+      "by": [
+        "scanner"
+      ]
+    },
+    "TRUG": {
+      "first_et": "09:10",
+      "by": [
+        "scanner"
+      ]
+    },
+    "IRD": {
+      "first_et": "09:10",
+      "by": [
+        "scanner"
+      ]
+    },
+    "SWVL": {
+      "first_et": "09:10",
+      "by": [
+        "scanner"
+      ]
+    },
+    "GAIA": {
+      "first_et": "09:20",
+      "by": [
+        "scanner"
+      ]
+    },
+    "ASTX": {
+      "first_et": "09:20",
+      "by": [
+        "scanner"
+      ]
+    },
+    "AGRZ": {
+      "first_et": "09:30",
+      "by": [
+        "scanner"
+      ]
+    },
+    "ASTG": {
+      "first_et": "09:30",
+      "by": [
+        "scanner"
+      ]
+    },
+    "ASUP": {
+      "first_et": "09:30",
+      "by": [
+        "scanner"
+      ]
+    },
+    "ASTY": {
+      "first_et": "09:30",
+      "by": [
+        "scanner"
+      ]
+    },
+    "DXST": {
+      "first_et": "09:40",
+      "by": [
+        "scanner"
+      ]
+    },
+    "NCI": {
+      "first_et": "09:40",
+      "by": [
+        "scanner"
+      ]
+    },
+    "EDTK": {
+      "first_et": "09:40",
+      "by": [
+        "scanner"
+      ]
+    },
+    "NCPL": {
+      "first_et": "09:50",
+      "by": [
+        "scanner"
+      ]
+    },
+    "LONA": {
+      "first_et": "09:50",
+      "by": [
+        "scanner"
+      ]
+    },
+    "HTLM": {
+      "first_et": "09:50",
+      "by": [
+        "scanner"
+      ]
+    },
+    "ITG": {
+      "first_et": "09:50",
+      "by": [
+        "scanner"
+      ]
+    },
+    "SDEV": {
+      "first_et": "09:50",
+      "by": [
+        "scanner"
+      ]
+    },
+    "TGL": {
+      "first_et": "09:50",
+      "by": [
+        "scanner"
+      ]
+    },
+    "ONEN": {
+      "first_et": "09:50",
+      "by": [
+        "scanner"
+      ]
+    },
+    "ASTN": {
+      "first_et": "09:50",
+      "by": [
+        "scanner"
+      ]
+    },
+    "XPON": {
+      "first_et": "09:50",
+      "by": [
+        "scanner"
+      ]
+    },
+    "AXTL": {
+      "first_et": "10:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "ALDX": {
+      "first_et": "10:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "BEC": {
+      "first_et": "10:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "IBO": {
+      "first_et": "10:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "PWP": {
+      "first_et": "10:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "SLMT": {
+      "first_et": "10:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "RDZN": {
+      "first_et": "10:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "WVVI": {
+      "first_et": "10:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "NAMI": {
+      "first_et": "10:10",
+      "by": [
+        "scanner"
+      ]
+    },
+    "MF": {
+      "first_et": "10:10",
+      "by": [
+        "scanner"
+      ]
+    },
+    "FOIL": {
+      "first_et": "10:10",
+      "by": [
+        "scanner"
+      ]
+    },
+    "KMRK": {
+      "first_et": "10:10",
+      "by": [
+        "scanner"
+      ]
+    },
+    "JAGX": {
+      "first_et": "10:10",
+      "by": [
+        "scanner"
+      ]
+    },
+    "PFSA": {
+      "first_et": "10:20",
+      "by": [
+        "scanner"
+      ]
+    },
+    "BRLS": {
+      "first_et": "10:20",
+      "by": [
+        "scanner"
+      ]
+    },
+    "NWGL": {
+      "first_et": "10:20",
+      "by": [
+        "scanner"
+      ]
+    },
+    "CNET": {
+      "first_et": "10:20",
+      "by": [
+        "scanner"
+      ]
+    },
+    "EEIQ": {
+      "first_et": "10:30",
+      "by": [
+        "scanner"
+      ]
+    },
+    "ORCU": {
+      "first_et": "10:30",
+      "by": [
+        "scanner"
+      ]
+    },
+    "ORCX": {
+      "first_et": "10:30",
+      "by": [
+        "scanner"
+      ]
+    },
+    "FEAM": {
+      "first_et": "10:30",
+      "by": [
+        "scanner"
+      ]
+    },
+    "SHMD": {
+      "first_et": "10:30",
+      "by": [
+        "scanner"
+      ]
+    },
+    "OIO": {
+      "first_et": "10:30",
+      "by": [
+        "scanner"
+      ]
+    },
+    "NEOV": {
+      "first_et": "10:30",
+      "by": [
+        "scanner"
+      ]
+    },
+    "INHD": {
+      "first_et": "10:40",
+      "by": [
+        "scanner"
+      ]
+    },
+    "TREO": {
+      "first_et": "10:40",
+      "by": [
+        "scanner"
+      ]
+    },
+    "WETO": {
+      "first_et": "11:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "ZSTK": {
+      "first_et": "11:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "CLRO": {
+      "first_et": "11:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "BNR": {
+      "first_et": "11:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "CBRX": {
+      "first_et": "11:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "CBRG": {
+      "first_et": "11:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "ATHE": {
+      "first_et": "11:10",
+      "by": [
+        "scanner"
+      ]
+    },
+    "KBSX": {
+      "first_et": "11:20",
+      "by": [
+        "scanner"
+      ]
+    },
+    "MSTZ": {
+      "first_et": "11:20",
+      "by": [
+        "scanner"
+      ]
+    },
+    "SMST": {
+      "first_et": "11:20",
+      "by": [
+        "scanner"
+      ]
+    },
+    "OIG": {
+      "first_et": "11:20",
+      "by": [
+        "scanner"
+      ]
+    },
+    "BMNZ": {
+      "first_et": "11:20",
+      "by": [
+        "scanner"
+      ]
+    },
+    "CDTG": {
+      "first_et": "11:30",
+      "by": [
+        "scanner"
+      ]
+    },
+    "SLE": {
+      "first_et": "11:40",
+      "by": [
+        "scanner"
+      ]
+    },
+    "WFCF": {
+      "first_et": "11:50",
+      "by": [
+        "scanner"
+      ]
+    },
+    "RVSN": {
+      "first_et": "11:50",
+      "by": [
+        "scanner"
+      ]
+    },
+    "BOXL": {
+      "first_et": "12:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "QSI": {
+      "first_et": "12:10",
+      "by": [
+        "scanner"
+      ]
+    },
+    "NOMA": {
+      "first_et": "12:10",
+      "by": [
+        "scanner"
+      ]
+    },
+    "SXTC": {
+      "first_et": "12:10",
+      "by": [
+        "scanner"
+      ]
+    },
+    "SPAI": {
+      "first_et": "12:10",
+      "by": [
+        "scanner"
+      ]
+    },
+    "BGIN": {
+      "first_et": "12:20",
+      "by": [
+        "scanner"
+      ]
+    },
+    "OBX": {
+      "first_et": "12:30",
+      "by": [
+        "scanner"
+      ]
+    },
+    "AIFU": {
+      "first_et": "12:30",
+      "by": [
+        "scanner"
+      ]
+    },
+    "ULBI": {
+      "first_et": "12:30",
+      "by": [
+        "scanner"
+      ]
+    },
+    "MTNB": {
+      "first_et": "12:40",
+      "by": [
+        "scanner"
+      ]
+    },
+    "NHTC": {
+      "first_et": "12:50",
+      "by": [
+        "scanner"
+      ]
+    },
+    "NEXR": {
+      "first_et": "13:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "NXL": {
+      "first_et": "13:10",
+      "by": [
+        "scanner"
+      ]
+    },
+    "TURB": {
+      "first_et": "13:10",
+      "by": [
+        "scanner"
+      ]
+    },
+    "CTOR": {
+      "first_et": "13:10",
+      "by": [
+        "scanner"
+      ]
+    },
+    "GLND": {
+      "first_et": "13:20",
+      "by": [
+        "scanner"
+      ]
+    },
+    "XCH": {
+      "first_et": "13:30",
+      "by": [
+        "scanner"
+      ]
+    },
+    "HTOO": {
+      "first_et": "13:30",
+      "by": [
+        "scanner"
+      ]
+    },
+    "YHGJ": {
+      "first_et": "13:30",
+      "by": [
+        "scanner"
+      ]
+    },
+    "DNA": {
+      "first_et": "13:40",
+      "by": [
+        "scanner"
+      ]
+    },
+    "KFFB": {
+      "first_et": "13:50",
+      "by": [
+        "scanner"
+      ]
+    },
+    "MSGY": {
+      "first_et": "13:50",
+      "by": [
+        "scanner"
+      ]
+    },
+    "UZX": {
+      "first_et": "14:20",
+      "by": [
+        "scanner"
+      ]
+    },
+    "MSS": {
+      "first_et": "14:20",
+      "by": [
+        "scanner"
+      ]
+    },
+    "NXB": {
+      "first_et": "14:30",
+      "by": [
+        "scanner"
+      ]
+    },
+    "PLUT": {
+      "first_et": "14:40",
+      "by": [
+        "scanner"
+      ]
+    },
+    "GGR": {
+      "first_et": "14:50",
+      "by": [
+        "scanner"
+      ]
+    },
+    "LXEH": {
+      "first_et": "14:50",
+      "by": [
+        "scanner"
+      ]
+    },
+    "ASPS": {
+      "first_et": "15:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "VBIO": {
+      "first_et": "15:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "XAIR": {
+      "first_et": "15:10",
+      "by": [
+        "scanner"
+      ]
+    },
+    "LXEO": {
+      "first_et": "15:20",
+      "by": [
+        "scanner"
+      ]
+    },
+    "SORA": {
+      "first_et": "15:20",
+      "by": [
+        "scanner"
+      ]
+    },
+    "SMX": {
+      "first_et": "15:20",
+      "by": [
+        "scanner"
+      ]
+    },
+    "RKLZ": {
+      "first_et": "15:50",
+      "by": [
+        "scanner"
+      ]
+    },
+    "TDTH": {
+      "first_et": "16:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "WTF": {
+      "first_et": "16:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "THCH": {
+      "first_et": "16:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "XPOF": {
+      "first_et": "16:00",
+      "by": [
+        "scanner"
+      ]
+    },
+    "PTLE": {
+      "first_et": "16:10",
+      "by": [
+        "scanner"
+      ]
+    },
+    "BIYA": {
+      "first_et": "16:30",
+      "by": [
+        "scanner"
+      ]
+    },
+    "VNDA": {
+      "first_et": "18:50",
+      "by": [
+        "scanner"
+      ]
+    },
+    "CSAI": {
+      "first_et": "18:50",
+      "by": [
+        "scanner"
+      ]
+    }
+  },
+  "excluded": 17
+}
