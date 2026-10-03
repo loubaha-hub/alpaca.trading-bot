@@ -1,0 +1,1466 @@
+{
+ "day": "2026-10-01",
+ "symbols": {
+  "AAOG": {
+   "first_et": "10:21:57",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "AAOX": {
+   "first_et": "10:37:34",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "ABAT": {
+   "first_et": "06:05:41",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "ABLV": {
+   "first_et": "09:43:47",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "ADVB": {
+   "first_et": "11:01:35",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "AGRZ": {
+   "first_et": "15:49:35",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "AHG": {
+   "first_et": "13:54:43",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "AIAI": {
+   "first_et": "12:39:39",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "AIB": {
+   "first_et": "04:06:14",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "AIFU": {
+   "first_et": "14:05:37",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "AISP": {
+   "first_et": "09:08:40",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "AKTX": {
+   "first_et": "14:18:01",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "AMOD": {
+   "first_et": "11:38:04",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "ARBB": {
+   "first_et": "04:05:56",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "ATHR": {
+   "first_et": "09:56:16",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "ATOM": {
+   "first_et": "13:53:33",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "ATOS": {
+   "first_et": "14:19:20",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "AXTL": {
+   "first_et": "10:37:10",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "BAIG": {
+   "first_et": "13:30:02",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "BCDA": {
+   "first_et": "09:16:29",
+   "by": [
+    "v32"
+   ]
+  },
+  "BENF": {
+   "first_et": "09:37:21",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "BGLC": {
+   "first_et": "09:45:41",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "BGM": {
+   "first_et": "10:02:49",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "BIRD": {
+   "first_et": "11:43:42",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "BLIV": {
+   "first_et": "04:35:33",
+   "by": [
+    "v32"
+   ]
+  },
+  "BON": {
+   "first_et": "09:46:46",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "BTLN": {
+   "first_et": "09:58:30",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "BURU": {
+   "first_et": "04:02:27",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "CALC": {
+   "first_et": "17:50:00",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "CAST": {
+   "first_et": "05:16:24",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "CBRG": {
+   "first_et": "09:18:22",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "CBRX": {
+   "first_et": "09:18:52",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "CBRZ": {
+   "first_et": "10:19:47",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "CCEL": {
+   "first_et": "04:49:33",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "CCG": {
+   "first_et": "04:05:24",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "CCHH": {
+   "first_et": "16:09:48",
+   "by": [
+    "v33"
+   ]
+  },
+  "CD": {
+   "first_et": "14:40:53",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "CDNG": {
+   "first_et": "09:49:01",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "CDXS": {
+   "first_et": "08:09:29",
+   "by": [
+    "v32"
+   ]
+  },
+  "CELZ": {
+   "first_et": "17:01:34",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "CHGA": {
+   "first_et": "14:48:03",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "CHWM": {
+   "first_et": "11:39:30",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "CIEG": {
+   "first_et": "10:58:09",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "CIEX": {
+   "first_et": "12:28:59",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "CLIR": {
+   "first_et": "14:20:37",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "CMCT": {
+   "first_et": "11:08:25",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "CMMB": {
+   "first_et": "12:08:05",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "CNET": {
+   "first_et": "09:38:41",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "CNSY": {
+   "first_et": "10:59:53",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "COHC": {
+   "first_et": "11:44:46",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "COHH": {
+   "first_et": "10:10:23",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "CPOP": {
+   "first_et": "04:27:46",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "CRD": {
+   "first_et": "12:28:02",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "CRDU": {
+   "first_et": "12:18:28",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "CSEX": {
+   "first_et": "13:30:12",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "CTSO": {
+   "first_et": "11:40:16",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "CTW": {
+   "first_et": "11:23:52",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "CUPR": {
+   "first_et": "11:30:27",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "CVM": {
+   "first_et": "13:46:57",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "DAIC": {
+   "first_et": "10:02:01",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "DBGI": {
+   "first_et": "11:18:02",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "DCX": {
+   "first_et": "09:37:22",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "DFNS": {
+   "first_et": "14:02:16",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "DMRC": {
+   "first_et": "08:16:46",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "DXST": {
+   "first_et": "09:58:10",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "EAF": {
+   "first_et": "15:41:51",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "EDTK": {
+   "first_et": "09:41:59",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "EJH": {
+   "first_et": "06:39:21",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "ELUT": {
+   "first_et": "16:46:13",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "EOCN": {
+   "first_et": "13:11:55",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "EVCM": {
+   "first_et": "13:28:18",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "EZRA": {
+   "first_et": "08:18:19",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "FHTX": {
+   "first_et": "10:54:06",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "FLNA": {
+   "first_et": "07:25:26",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "FNG": {
+   "first_et": "11:01:37",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "FVN": {
+   "first_et": "11:04:40",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "GEVX": {
+   "first_et": "12:46:10",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "GLUE": {
+   "first_et": "04:02:35",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "HTCO": {
+   "first_et": "13:54:09",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "HTCR": {
+   "first_et": "17:58:32",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "IBX": {
+   "first_et": "07:28:41",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "ICCM": {
+   "first_et": "07:31:42",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "IMCC": {
+   "first_et": "04:03:33",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "INGN": {
+   "first_et": "12:13:25",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "INSG": {
+   "first_et": "04:12:23",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "IPST": {
+   "first_et": "05:25:15",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "IPW": {
+   "first_et": "17:15:24",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "IVA": {
+   "first_et": "09:44:38",
+   "by": [
+    "v31",
+    "v32",
+    "v33"
+   ]
+  },
+  "JAGU": {
+   "first_et": "09:40:56",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "JLHL": {
+   "first_et": "09:26:13",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "KUST": {
+   "first_et": "09:38:34",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "LFWD": {
+   "first_et": "09:44:45",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "LHAI": {
+   "first_et": "08:10:41",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "LITS": {
+   "first_et": "18:32:06",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "LNAI": {
+   "first_et": "07:25:28",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "LONA": {
+   "first_et": "11:08:31",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "LPA": {
+   "first_et": "04:02:28",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "LRHC": {
+   "first_et": "09:00:13",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "LWLG": {
+   "first_et": "14:59:56",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "LWLX": {
+   "first_et": "15:35:57",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "MAT": {
+   "first_et": "14:38:37",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "MEDS": {
+   "first_et": "04:10:08",
+   "by": [
+    "v31",
+    "v32",
+    "v33"
+   ]
+  },
+  "MGN": {
+   "first_et": "09:47:59",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "MKZR": {
+   "first_et": "04:29:01",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "MRDN": {
+   "first_et": "09:35:34",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "MSGY": {
+   "first_et": "09:59:48",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "MTSG": {
+   "first_et": "12:44:03",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "MUG": {
+   "first_et": "17:20:26",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "MWC": {
+   "first_et": "09:35:20",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "MYPS": {
+   "first_et": "09:48:30",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "NAMM": {
+   "first_et": "05:53:24",
+   "by": [
+    "v31",
+    "v32",
+    "v33"
+   ]
+  },
+  "NAUT": {
+   "first_et": "10:42:27",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "NCI": {
+   "first_et": "17:11:59",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "NCPL": {
+   "first_et": "11:47:04",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "NCT": {
+   "first_et": "04:27:30",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "NOMA": {
+   "first_et": "11:04:21",
+   "by": [
+    "v32"
+   ]
+  },
+  "NUG": {
+   "first_et": "04:42:12",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "NVNO": {
+   "first_et": "09:38:48",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "NVTX": {
+   "first_et": "13:51:25",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "NXL": {
+   "first_et": "08:32:26",
+   "by": [
+    "v31",
+    "v32",
+    "v33"
+   ]
+  },
+  "OM": {
+   "first_et": "15:24:51",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "ONG": {
+   "first_et": "15:54:10",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "ONX": {
+   "first_et": "16:38:06",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "OSSL": {
+   "first_et": "16:28:19",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "OUSL": {
+   "first_et": "13:59:01",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "OXBR": {
+   "first_et": "10:50:22",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "PAYS": {
+   "first_et": "14:37:35",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "PDC": {
+   "first_et": "16:09:46",
+   "by": [
+    "v33"
+   ]
+  },
+  "PMAX": {
+   "first_et": "08:14:24",
+   "by": [
+    "v31",
+    "v32",
+    "v33"
+   ]
+  },
+  "PMVP": {
+   "first_et": "12:56:26",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "QNC": {
+   "first_et": "05:38:33",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "QSI": {
+   "first_et": "04:02:26",
+   "by": [
+    "v31",
+    "v32",
+    "v33"
+   ]
+  },
+  "RDAC": {
+   "first_et": "04:10:17",
+   "by": [
+    "v32"
+   ]
+  },
+  "RFL": {
+   "first_et": "09:52:59",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "RKLX": {
+   "first_et": "06:12:31",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "RKX": {
+   "first_et": "08:58:27",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "RPGL": {
+   "first_et": "08:42:34",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "RPID": {
+   "first_et": "06:03:13",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "RR": {
+   "first_et": "13:30:47",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "RVSN": {
+   "first_et": "08:32:39",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "RZLT": {
+   "first_et": "07:12:57",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "SCYX": {
+   "first_et": "10:50:28",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "SDEV": {
+   "first_et": "04:03:39",
+   "by": [
+    "v31",
+    "v32",
+    "v33"
+   ]
+  },
+  "SDOT": {
+   "first_et": "06:37:16",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "SEGG": {
+   "first_et": "11:29:55",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "SFWL": {
+   "first_et": "15:43:27",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "SHFS": {
+   "first_et": "13:33:46",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "SMX": {
+   "first_et": "18:49:38",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "SORA": {
+   "first_et": "16:09:10",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "SSM": {
+   "first_et": "13:27:48",
+   "by": [
+    "v31",
+    "v32",
+    "v33"
+   ]
+  },
+  "STKH": {
+   "first_et": "11:13:58",
+   "by": [
+    "v31",
+    "v32",
+    "v33"
+   ]
+  },
+  "SVCO": {
+   "first_et": "10:16:38",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "SVRE": {
+   "first_et": "09:55:23",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "TMS": {
+   "first_et": "13:17:13",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "TSEG": {
+   "first_et": "13:44:22",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "TSEU": {
+   "first_et": "10:02:12",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "TTEC": {
+   "first_et": "11:47:41",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "TVRD": {
+   "first_et": "08:08:40",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "USGO": {
+   "first_et": "09:44:01",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "VCRE": {
+   "first_et": "16:02:45",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "VEEA": {
+   "first_et": "08:00:22",
+   "by": [
+    "v31",
+    "v32",
+    "v33"
+   ]
+  },
+  "VIAG": {
+   "first_et": "12:01:49",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "VIOT": {
+   "first_et": "11:58:34",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "VRA": {
+   "first_et": "14:05:26",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "VSA": {
+   "first_et": "12:02:28",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "VUZI": {
+   "first_et": "09:35:06",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "WATR": {
+   "first_et": "07:12:53",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "WETO": {
+   "first_et": "04:02:41",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "WFCF": {
+   "first_et": "11:43:07",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "WIT": {
+   "first_et": "08:33:11",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "WZRD": {
+   "first_et": "09:52:06",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "XRPN": {
+   "first_et": "10:06:44",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "XRTX": {
+   "first_et": "05:28:07",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "YDES": {
+   "first_et": "12:24:54",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "YHC": {
+   "first_et": "17:30:22",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "ZNB": {
+   "first_et": "07:13:06",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  }
+ },
+ "v31_enters": [
+  {
+   "et": "08:36:02",
+   "sym": "NXL",
+   "shares": 835,
+   "price": 6.9200,
+   "line": "[v31] ENTER NXL 835 @ 6.9200 = $5778 (26% of equity) | stop 6.6600 (3.76% away) | trigger 6.9100"
+  },
+  {
+   "et": "08:38:13",
+   "sym": "VEEA",
+   "shares": 1861,
+   "price": 3.0200,
+   "line": "[v31] ENTER VEEA 1861 @ 3.0200 = $5620 (25% of equity) | stop 2.9898 (1.00% away) | trigger 3.0200"
+  },
+  {
+   "et": "08:50:08",
+   "sym": "NXL",
+   "shares": 740,
+   "price": 7.5900,
+   "line": "[v31] ENTER NXL 740 @ 7.5900 = $5617 (25% of equity) | stop 7.3800 (2.77% away) | trigger 7.5900"
+  },
+  {
+   "et": "08:50:17",
+   "sym": "VEEA",
+   "shares": 1224,
+   "price": 2.8520,
+   "line": "[v31] ENTER VEEA 1224 @ 2.8520 = $3491 (16% of equity) | stop 2.7900 (2.17% away) | trigger 2.8515"
+  },
+  {
+   "et": "08:58:07",
+   "sym": "NAMM",
+   "shares": 4447,
+   "price": 1.2000,
+   "line": "[v31] ENTER NAMM 4447 @ 1.2000 = $5336 (24% of equity) | stop 1.1500 (4.17% away) | trigger 1.2000"
+  },
+  {
+   "et": "08:58:16",
+   "sym": "SDEV",
+   "shares": 978,
+   "price": 3.4700,
+   "line": "[v31] ENTER SDEV 978 @ 3.4700 = $3394 (15% of equity) | stop 3.4353 (1.00% away) | trigger 3.4608"
+  },
+  {
+   "et": "09:15:05",
+   "sym": "NXL",
+   "shares": 809,
+   "price": 6.8100,
+   "line": "[v31] ENTER NXL 809 @ 6.8100 = $5509 (25% of equity) | stop 6.6800 (1.91% away) | trigger 6.8100"
+  },
+  {
+   "et": "09:15:11",
+   "sym": "SDEV",
+   "shares": 1514,
+   "price": 3.6300,
+   "line": "[v31] ENTER SDEV 1514 @ 3.6300 = $5496 (25% of equity) | stop 3.5937 (1.00% away) | trigger 3.6298"
+  },
+  {
+   "et": "09:26:09",
+   "sym": "VEEA",
+   "shares": 3217,
+   "price": 3.0100,
+   "line": "[v31] ENTER VEEA 3217 @ 3.0100 = $9683 (44% of equity) | stop 2.9799 (1.00% away) | trigger 3.0100"
+  },
+  {
+   "et": "09:29:13",
+   "sym": "NXL",
+   "shares": 615,
+   "price": 8.8500,
+   "line": "[v31] ENTER NXL 615 @ 8.8500 = $5443 (25% of equity) | stop 8.6500 (2.26% away) | trigger 8.8200"
+  },
+  {
+   "et": "09:37:11",
+   "sym": "SDEV",
+   "shares": 1428,
+   "price": 3.8100,
+   "line": "[v31] ENTER SDEV 1428 @ 3.8100 = $5441 (25% of equity) | stop 3.6800 (3.41% away) | trigger 3.8089"
+  },
+  {
+   "et": "09:39:27",
+   "sym": "MEDS",
+   "shares": 1364,
+   "price": 4.1100,
+   "line": "[v31] ENTER MEDS 1364 @ 4.1100 = $5606 (26% of equity) | stop 4.0400 (1.70% away) | trigger 4.1100"
+  },
+  {
+   "et": "09:53:53",
+   "sym": "IVA",
+   "shares": 1451,
+   "price": 3.7100,
+   "line": "[v31] ENTER IVA 1451 @ 3.7100 = $5383 (25% of equity) | stop 3.6729 (1.00% away) | trigger 3.7100"
+  },
+  {
+   "et": "10:12:44",
+   "sym": "QSI",
+   "shares": 4831,
+   "price": 1.3500,
+   "line": "[v31] ENTER QSI 4831 @ 1.3500 = $6522 (30% of equity) | stop 1.3300 (1.48% away) | trigger 1.3480"
+  },
+  {
+   "et": "10:13:37",
+   "sym": "PMAX",
+   "shares": 5359,
+   "price": 0.9000,
+   "line": "[v31] ENTER PMAX 5359 @ 0.9000 = $4823 (22% of equity) | stop 0.8600 (4.44% away) | trigger 0.8979"
+  },
+  {
+   "et": "11:21:00",
+   "sym": "STKH",
+   "shares": 1708,
+   "price": 1.7800,
+   "line": "[v31] ENTER STKH 1708 @ 1.7800 = $3040 (14% of equity) | stop 1.6600 (6.74% away) | trigger 1.7600"
+  },
+  {
+   "et": "13:07:07",
+   "sym": "NAMM",
+   "shares": 8130,
+   "price": 1.2600,
+   "line": "[v31] ENTER NAMM 8130 @ 1.2600 = $10244 (48% of equity) | stop 1.2400 (1.59% away) | trigger 1.2509"
+  },
+  {
+   "et": "13:34:22",
+   "sym": "SSM",
+   "shares": 2633,
+   "price": 1.4198,
+   "line": "[v31] ENTER SSM 2633 @ 1.4198 = $3738 (17% of equity) | stop 1.3037 (8.18% away) | trigger 1.4100"
+  }
+ ],
+ "v31_exits": [
+  {
+   "et": "08:36:38",
+   "sym": "NXL",
+   "why": "entry-stop",
+   "shares": 5,
+   "price": 6.5772,
+   "pl": -1.70
+  },
+  {
+   "et": "08:51:03",
+   "sym": "VEEA",
+   "why": "entry-stop",
+   "shares": 321,
+   "price": 2.8300,
+   "pl": -4.18
+  },
+  {
+   "et": "08:59:07",
+   "sym": "NAMM",
+   "why": "entry-stop",
+   "shares": 343,
+   "price": 1.1810,
+   "pl": -5.53
+  },
+  {
+   "et": "09:26:43",
+   "sym": "VEEA",
+   "why": "entry-stop",
+   "shares": 57,
+   "price": 2.9900,
+   "pl": -1.71
+  },
+  {
+   "et": "09:37:48",
+   "sym": "SDEV",
+   "why": "entry-stop",
+   "shares": 15,
+   "price": 3.8050,
+   "pl": -0.17
+  },
+  {
+   "et": "09:40:48",
+   "sym": "MEDS",
+   "why": "entry-stop",
+   "shares": 1154,
+   "price": 4.0600,
+   "pl": -112.86
+  },
+  {
+   "et": "13:35:45",
+   "sym": "SSM",
+   "why": "halted",
+   "shares": 4068,
+   "price": 1.3900,
+   "pl": -121.23
+  },
+  {
+   "et": "13:35:48",
+   "sym": "SSM",
+   "why": "halted",
+   "shares": 4068,
+   "price": 1.3900,
+   "pl": -121.23
+  },
+  {
+   "et": "13:35:52",
+   "sym": "SSM",
+   "why": "halted",
+   "shares": 215,
+   "price": 1.3900,
+   "pl": -6.41
+  },
+  {
+   "et": "13:35:52",
+   "sym": "SSM",
+   "why": "halted",
+   "shares": 338,
+   "price": 1.3900,
+   "pl": 0.00
+  },
+  {
+   "et": "13:36:11",
+   "sym": "SSM",
+   "why": "halted",
+   "shares": 7363,
+   "price": 1.3901,
+   "pl": -210.87
+  }
+ ],
+ "v31_baseline": 22649.31,
+ "last_health": "health v31-r23 | v31 eq 20263.54 (-10.5% day, halt 20384.38) | v32 eq 11056.71 (-31.5% day, halt OFF) | v33 eq 23472.82 (-49.0% day, halt OFF) | watching 84 (+0 queued) | v31 q=0 pos=0 drop=0 skipped=167434 | v32 q=0 pos=0 drop=0 skipped=167434 | v33 q=0 pos=0 drop=0 skipped=167434",
+ "counts": {
+  "enter_lines": 574,
+  "v31_enters": 18,
+  "v31_exits": 11
+ },
+ "notes": "enter_lines counts plain \"[vNN] ENTER\" lines only (574). RE-ENTER lines were not individually enumerated (thousands, v32/v33 only); their symbols/strategies were verified by regex-exclusion queries (only extra pair found: v33 RE-ENTER GLUE with no v33 ENTER). first_et = earliest ENTER (or RE-ENTER if a symbol has no ENTER) in ET (UTC-4). No v34 lines found. v31 baseline is first v31 new-day line (12:24:41Z)."
+}

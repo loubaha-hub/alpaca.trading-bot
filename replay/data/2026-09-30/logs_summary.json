@@ -1,0 +1,910 @@
+{
+ "day": "2026-09-30",
+ "symbols": {
+  "VBIO": {
+   "first_et": "08:10:16",
+   "by": [
+    "v31"
+   ]
+  },
+  "KIDZ": {
+   "first_et": "08:10:42",
+   "by": [
+    "v31"
+   ]
+  },
+  "CNTB": {
+   "first_et": "08:11:43",
+   "by": [
+    "v31"
+   ]
+  },
+  "AIB": {
+   "first_et": "08:22:19",
+   "by": [
+    "v31"
+   ]
+  },
+  "NCI": {
+   "first_et": "09:34:20",
+   "by": [
+    "v31"
+   ]
+  },
+  "MSGY": {
+   "first_et": "09:35:41",
+   "by": [
+    "v31",
+    "v32",
+    "v33"
+   ]
+  },
+  "TNON": {
+   "first_et": "10:39:03",
+   "by": [
+    "v31",
+    "v32",
+    "v33"
+   ]
+  },
+  "PACB": {
+   "first_et": "10:39:19",
+   "by": [
+    "v31",
+    "v32",
+    "v33"
+   ]
+  },
+  "MSTZ": {
+   "first_et": "10:50:48",
+   "by": [
+    "v31",
+    "v32",
+    "v33"
+   ]
+  },
+  "IBRX": {
+   "first_et": "10:52:17",
+   "by": [
+    "v31"
+   ]
+  },
+  "SDEV": {
+   "first_et": "11:01:40",
+   "by": [
+    "v31"
+   ]
+  },
+  "TGE": {
+   "first_et": "12:06:53",
+   "by": [
+    "v31",
+    "v32",
+    "v33"
+   ]
+  },
+  "GLND": {
+   "first_et": "12:08:53",
+   "by": [
+    "v31",
+    "v32",
+    "v33"
+   ]
+  },
+  "CHGA": {
+   "first_et": "12:58:15",
+   "by": [
+    "v31",
+    "v32",
+    "v33"
+   ]
+  },
+  "GOW": {
+   "first_et": "13:40:02",
+   "by": [
+    "v31",
+    "v32",
+    "v33"
+   ]
+  },
+  "AHG": {
+   "first_et": "14:19:15",
+   "by": [
+    "v31"
+   ]
+  },
+  "MNKD": {
+   "first_et": "14:29:19",
+   "by": [
+    "v31",
+    "v32",
+    "v33"
+   ]
+  },
+  "CMCT": {
+   "first_et": "14:53:20",
+   "by": [
+    "v31",
+    "v32",
+    "v33"
+   ]
+  },
+  "DKI": {
+   "first_et": "16:08:04",
+   "by": [
+    "v31"
+   ]
+  },
+  "QSI": {
+   "first_et": "17:58:17",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "BURU": {
+   "first_et": "17:58:49",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "LPA": {
+   "first_et": "17:58:54",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "DXST": {
+   "first_et": "17:59:11",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "BEZ": {
+   "first_et": "17:59:30",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "XRPN": {
+   "first_et": "17:59:46",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "NCNA": {
+   "first_et": "18:00:18",
+   "by": [
+    "v32"
+   ]
+  },
+  "ANTA": {
+   "first_et": "18:01:54",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "PWCM": {
+   "first_et": "18:04:18",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "TLSA": {
+   "first_et": "18:05:15",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "GLUE": {
+   "first_et": "18:07:49",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "GRAN": {
+   "first_et": "18:09:48",
+   "by": [
+    "v32"
+   ]
+  },
+  "ABLV": {
+   "first_et": "18:10:24",
+   "by": [
+    "v32"
+   ]
+  },
+  "XOS": {
+   "first_et": "18:10:58",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "VRME": {
+   "first_et": "18:13:27",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "DMRC": {
+   "first_et": "18:14:06",
+   "by": [
+    "v32"
+   ]
+  },
+  "SMST": {
+   "first_et": "18:14:28",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "CLRO": {
+   "first_et": "18:16:36",
+   "by": [
+    "v32"
+   ]
+  },
+  "GRDX": {
+   "first_et": "18:19:54",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "TORO": {
+   "first_et": "18:24:41",
+   "by": [
+    "v32"
+   ]
+  },
+  "CVM": {
+   "first_et": "18:30:45",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "LVO": {
+   "first_et": "18:38:44",
+   "by": [
+    "v32"
+   ]
+  },
+  "GURE": {
+   "first_et": "18:40:17",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "VIOT": {
+   "first_et": "18:47:46",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "ANNA": {
+   "first_et": "18:57:07",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "MNDR": {
+   "first_et": "19:02:42",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "BRLS": {
+   "first_et": "19:08:30",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  }
+ },
+ "v31_enters": [
+  {
+   "et": "08:10:16",
+   "sym": "VBIO",
+   "shares": 2439,
+   "price": 3.8000,
+   "line": "[v31] ENTER VBIO 2439 @ 3.8000 stop 3.6800"
+  },
+  {
+   "et": "08:10:42",
+   "sym": "KIDZ",
+   "shares": 7107,
+   "price": 2.8900,
+   "line": "[v31] ENTER KIDZ 7107 @ 2.8900 stop 2.8158"
+  },
+  {
+   "et": "08:11:43",
+   "sym": "CNTB",
+   "shares": 2665,
+   "price": 1.9500,
+   "line": "[v31] ENTER CNTB 2665 @ 1.9500 stop 1.8400"
+  },
+  {
+   "et": "08:22:19",
+   "sym": "AIB",
+   "shares": 2903,
+   "price": 2.0400,
+   "line": "[v31] ENTER AIB 2903 @ 2.0400 stop 1.9400"
+  },
+  {
+   "et": "09:28:06",
+   "sym": "VBIO",
+   "shares": 9994,
+   "price": 3.9400,
+   "line": "[v31] ENTER VBIO 9994 @ 3.9400 stop 3.9000"
+  },
+  {
+   "et": "09:34:20",
+   "sym": "NCI",
+   "shares": 2069,
+   "price": 1.9500,
+   "line": "[v31] ENTER NCI 2069 @ 1.9500 stop 1.8101"
+  },
+  {
+   "et": "09:35:41",
+   "sym": "MSGY",
+   "shares": 1712,
+   "price": 5.6500,
+   "line": "[v31] ENTER MSGY 1712 @ 5.6500 stop 5.4300"
+  },
+  {
+   "et": "10:39:03",
+   "sym": "TNON",
+   "shares": 1218,
+   "price": 3.7000,
+   "line": "[v31] ENTER TNON 1218 @ 3.7000 stop 3.5000"
+  },
+  {
+   "et": "10:39:19",
+   "sym": "PACB",
+   "shares": 9723,
+   "price": 2.1850,
+   "line": "[v31] ENTER PACB 9723 @ 2.1850 stop 2.1600"
+  },
+  {
+   "et": "10:44:43",
+   "sym": "TNON",
+   "shares": 1542,
+   "price": 3.9100,
+   "line": "[v31] ENTER TNON 1542 @ 3.9100 stop 3.7600"
+  },
+  {
+   "et": "10:47:31",
+   "sym": "PACB",
+   "shares": 3202,
+   "price": 2.2300,
+   "line": "[v31] ENTER PACB 3202 @ 2.2300 stop 2.2100"
+  },
+  {
+   "et": "10:50:48",
+   "sym": "MSTZ",
+   "shares": 3364,
+   "price": 2.7500,
+   "line": "[v31] ENTER MSTZ 3364 @ 2.7500 stop 2.7350"
+  },
+  {
+   "et": "10:52:17",
+   "sym": "IBRX",
+   "shares": 708,
+   "price": 9.9924,
+   "line": "[v31] ENTER IBRX 708 @ 9.9924 stop 9.9550"
+  },
+  {
+   "et": "11:01:40",
+   "sym": "SDEV",
+   "shares": 2190,
+   "price": 2.8500,
+   "line": "[v31] ENTER SDEV 2190 @ 2.8500 stop 2.8000"
+  },
+  {
+   "et": "12:05:43",
+   "sym": "TNON",
+   "shares": 1954,
+   "price": 3.8899,
+   "line": "[v31] ENTER TNON 1954 @ 3.8899 stop 3.8400"
+  },
+  {
+   "et": "12:06:53",
+   "sym": "TGE",
+   "shares": 3775,
+   "price": 1.5800,
+   "line": "[v31] ENTER TGE 3775 @ 1.5800 stop 1.5300"
+  },
+  {
+   "et": "12:08:53",
+   "sym": "GLND",
+   "shares": 1346,
+   "price": 5.1800,
+   "line": "[v31] ENTER GLND 1346 @ 5.1800 stop 5.0300"
+  },
+  {
+   "et": "12:18:10",
+   "sym": "GLND",
+   "shares": 1138,
+   "price": 5.3300,
+   "line": "[v31] ENTER GLND 1138 @ 5.3300 stop 5.2501"
+  },
+  {
+   "et": "12:49:04",
+   "sym": "PACB",
+   "shares": 2510,
+   "price": 2.3900,
+   "line": "[v31] ENTER PACB 2510 @ 2.3900 stop 2.3700"
+  },
+  {
+   "et": "12:50:01",
+   "sym": "IBRX",
+   "shares": 606,
+   "price": 9.8883,
+   "line": "[v31] ENTER IBRX 606 @ 9.8883 stop 9.8500"
+  },
+  {
+   "et": "12:58:15",
+   "sym": "CHGA",
+   "shares": 1898,
+   "price": 3.1600,
+   "line": "[v31] ENTER CHGA 1898 @ 3.1600 stop 3.0400"
+  },
+  {
+   "et": "13:00:53",
+   "sym": "TGE",
+   "shares": 4090,
+   "price": 1.4600,
+   "line": "[v31] ENTER TGE 4090 @ 1.4600 stop 1.4308"
+  },
+  {
+   "et": "13:39:19",
+   "sym": "TGE",
+   "shares": 4161,
+   "price": 1.5899,
+   "line": "[v31] ENTER TGE 4161 @ 1.5899 stop 1.5300"
+  },
+  {
+   "et": "13:40:02",
+   "sym": "GOW",
+   "shares": 2863,
+   "price": 2.0700,
+   "line": "[v31] ENTER GOW 2863 @ 2.0700 stop 2.0100"
+  },
+  {
+   "et": "13:50:36",
+   "sym": "TGE",
+   "shares": 3620,
+   "price": 1.6100,
+   "line": "[v31] ENTER TGE 3620 @ 1.6100 stop 1.5461"
+  },
+  {
+   "et": "14:09:37",
+   "sym": "TGE",
+   "shares": 7593,
+   "price": 1.5200,
+   "line": "[v31] ENTER TGE 7593 @ 1.5200 stop 1.5000"
+  },
+  {
+   "et": "14:19:15",
+   "sym": "AHG",
+   "shares": 11677,
+   "price": 0.9534,
+   "line": "[v31] ENTER AHG 11677 @ 0.9534 stop 0.9206"
+  },
+  {
+   "et": "14:29:19",
+   "sym": "MNKD",
+   "shares": 1441,
+   "price": 4.0200,
+   "line": "[v31] ENTER MNKD 1441 @ 4.0200 = $5793 (25% of equity) | stop 3.9798 (1.00% away) | trigger 4.0186"
+  },
+  {
+   "et": "14:53:20",
+   "sym": "CMCT",
+   "shares": 1911,
+   "price": 3.0300,
+   "line": "[v31] ENTER CMCT 1911 @ 3.0300 = $5790 (25% of equity) | stop 2.9400 (2.97% away) | trigger 3.0201"
+  },
+  {
+   "et": "14:58:49",
+   "sym": "TGE",
+   "shares": 3798,
+   "price": 1.5400,
+   "line": "[v31] ENTER TGE 3798 @ 1.5400 = $5849 (25% of equity) | stop 1.5100 (1.95% away) | trigger 1.5391"
+  },
+  {
+   "et": "15:08:26",
+   "sym": "PACB",
+   "shares": 3282,
+   "price": 2.4050,
+   "line": "[v31] ENTER PACB 3282 @ 2.4050 = $7893 (34% of equity) | stop 2.3809 (1.00% away) | trigger 2.4036"
+  },
+  {
+   "et": "15:33:55",
+   "sym": "GOW",
+   "shares": 2194,
+   "price": 3.2600,
+   "line": "[v31] ENTER GOW 2194 @ 3.2600 = $7152 (31% of equity) | stop 3.2200 (1.23% away) | trigger 3.2424"
+  },
+  {
+   "et": "16:08:04",
+   "sym": "DKI",
+   "shares": 4139,
+   "price": 2.3100,
+   "line": "[v31] ENTER DKI 4139 @ 2.3100 = $9561 (42% of equity) | stop 2.2000 (4.76% away) | trigger 2.3100"
+  },
+  {
+   "et": "17:07:12",
+   "sym": "TGE",
+   "shares": 3691,
+   "price": 1.7700,
+   "line": "[v31] ENTER TGE 3691 @ 1.7700 = $6533 (29% of equity) | stop 1.7400 (1.69% away) | trigger 1.7700"
+  }
+ ],
+ "v31_exits": [
+  {
+   "et": "08:11:44",
+   "sym": "CNTB",
+   "why": "entry-stop",
+   "shares": 2665,
+   "price": 1.8300,
+   "pl": null
+  },
+  {
+   "et": "08:15:04",
+   "sym": "VBIO",
+   "why": "entry-stop",
+   "shares": 848,
+   "price": 3.5308,
+   "pl": null
+  },
+  {
+   "et": "08:15:05",
+   "sym": "VBIO",
+   "why": "entry-stop",
+   "shares": 80,
+   "price": 3.5466,
+   "pl": null
+  },
+  {
+   "et": "08:15:05",
+   "sym": "VBIO",
+   "why": "entry-stop",
+   "shares": 3,
+   "price": 3.5400,
+   "pl": null
+  },
+  {
+   "et": "08:15:05",
+   "sym": "VBIO",
+   "why": "entry-stop",
+   "shares": 49,
+   "price": 3.5400,
+   "pl": null
+  },
+  {
+   "et": "08:15:06",
+   "sym": "VBIO",
+   "why": "entry-stop",
+   "shares": 2,
+   "price": 3.5500,
+   "pl": null
+  },
+  {
+   "et": "08:15:06",
+   "sym": "VBIO",
+   "why": "entry-stop",
+   "shares": 4,
+   "price": 3.5500,
+   "pl": null
+  },
+  {
+   "et": "08:15:07",
+   "sym": "VBIO",
+   "why": "entry-stop",
+   "shares": 1,
+   "price": 3.5400,
+   "pl": null
+  },
+  {
+   "et": "08:15:07",
+   "sym": "VBIO",
+   "why": "entry-stop",
+   "shares": 1,
+   "price": 3.5303,
+   "pl": null
+  },
+  {
+   "et": "09:34:52",
+   "sym": "NCI",
+   "why": "entry-stop",
+   "shares": 12056,
+   "price": 1.8100,
+   "pl": null
+  },
+  {
+   "et": "09:34:52",
+   "sym": "NCI",
+   "why": "entry-stop",
+   "shares": 2298,
+   "price": 1.8100,
+   "pl": null
+  },
+  {
+   "et": "09:36:19",
+   "sym": "MSGY",
+   "why": "entry-stop",
+   "shares": 5270,
+   "price": 5.4200,
+   "pl": null
+  },
+  {
+   "et": "10:40:16",
+   "sym": "PACB",
+   "why": "entry-stop",
+   "shares": 87,
+   "price": 2.1800,
+   "pl": null
+  },
+  {
+   "et": "10:40:17",
+   "sym": "PACB",
+   "why": "entry-stop",
+   "shares": 2004,
+   "price": 2.1800,
+   "pl": null
+  },
+  {
+   "et": "10:40:19",
+   "sym": "PACB",
+   "why": "entry-stop",
+   "shares": 971,
+   "price": 2.1800,
+   "pl": null
+  },
+  {
+   "et": "10:40:22",
+   "sym": "PACB",
+   "why": "entry-stop",
+   "shares": 52,
+   "price": 2.1800,
+   "pl": null
+  },
+  {
+   "et": "10:51:13",
+   "sym": "MSTZ",
+   "why": "entry-stop",
+   "shares": 454,
+   "price": 2.7350,
+   "pl": null
+  },
+  {
+   "et": "10:51:15",
+   "sym": "MSTZ",
+   "why": "entry-stop",
+   "shares": 54,
+   "price": 2.7300,
+   "pl": null
+  },
+  {
+   "et": "10:51:17",
+   "sym": "MSTZ",
+   "why": "entry-stop",
+   "shares": 371,
+   "price": 2.7300,
+   "pl": null
+  },
+  {
+   "et": "10:51:19",
+   "sym": "MSTZ",
+   "why": "entry-stop",
+   "shares": 17,
+   "price": 2.7350,
+   "pl": null
+  },
+  {
+   "et": "10:52:07",
+   "sym": "MSTZ",
+   "why": "entry-stop",
+   "shares": 9929,
+   "price": 2.7400,
+   "pl": null
+  },
+  {
+   "et": "10:52:19",
+   "sym": "IBRX",
+   "why": "entry-stop",
+   "shares": 291,
+   "price": 9.9304,
+   "pl": null
+  },
+  {
+   "et": "10:52:21",
+   "sym": "IBRX",
+   "why": "entry-stop",
+   "shares": 188,
+   "price": 9.9300,
+   "pl": null
+  },
+  {
+   "et": "10:52:23",
+   "sym": "IBRX",
+   "why": "entry-stop",
+   "shares": 144,
+   "price": 9.9300,
+   "pl": null
+  },
+  {
+   "et": "10:52:25",
+   "sym": "IBRX",
+   "why": "entry-stop",
+   "shares": 62,
+   "price": 9.9300,
+   "pl": null
+  },
+  {
+   "et": "10:52:26",
+   "sym": "IBRX",
+   "why": "entry-stop",
+   "shares": 23,
+   "price": 9.9300,
+   "pl": null
+  },
+  {
+   "et": "12:06:30",
+   "sym": "TNON",
+   "why": "entry-stop",
+   "shares": 85,
+   "price": 3.8500,
+   "pl": null
+  },
+  {
+   "et": "12:06:32",
+   "sym": "TNON",
+   "why": "entry-stop",
+   "shares": 725,
+   "price": 3.8500,
+   "pl": null
+  },
+  {
+   "et": "12:06:34",
+   "sym": "TNON",
+   "why": "entry-stop",
+   "shares": 51,
+   "price": 3.8500,
+   "pl": null
+  },
+  {
+   "et": "12:49:05",
+   "sym": "PACB",
+   "why": "entry-stop",
+   "shares": 2510,
+   "price": 2.3682,
+   "pl": null
+  },
+  {
+   "et": "12:50:03",
+   "sym": "IBRX",
+   "why": "entry-stop",
+   "shares": 606,
+   "price": 9.8500,
+   "pl": null
+  },
+  {
+   "et": "12:58:29",
+   "sym": "CHGA",
+   "why": "entry-stop",
+   "shares": 2,
+   "price": 3.1499,
+   "pl": null
+  },
+  {
+   "et": "13:39:53",
+   "sym": "TGE",
+   "why": "entry-stop",
+   "shares": 7349,
+   "price": 1.5850,
+   "pl": null
+  },
+  {
+   "et": "13:40:53",
+   "sym": "GOW",
+   "why": "entry-stop",
+   "shares": 478,
+   "price": 2.0600,
+   "pl": null
+  },
+  {
+   "et": "13:40:54",
+   "sym": "GOW",
+   "why": "entry-stop",
+   "shares": 59,
+   "price": 2.0400,
+   "pl": null
+  },
+  {
+   "et": "13:40:57",
+   "sym": "GOW",
+   "why": "entry-stop",
+   "shares": 31,
+   "price": 2.0400,
+   "pl": null
+  },
+  {
+   "et": "14:29:20",
+   "sym": "MNKD",
+   "why": "entry-stop",
+   "shares": 1441,
+   "price": 3.9652,
+   "pl": -78.97
+  },
+  {
+   "et": "14:54:09",
+   "sym": "CMCT",
+   "why": "entry-stop",
+   "shares": 2259,
+   "price": 3.0300,
+   "pl": -31.56
+  }
+ ],
+ "v31_exit_zero_share": {
+  "note": "v31 EXIT lines logged with 0 shares (duplicate/retry spam, no fill). Not included in v31_exits.",
+  "count": 198,
+  "by_sym": {
+   "NCI": {
+    "count": 1,
+    "first_et": "09:34:52",
+    "last_et": "09:34:52"
+   },
+   "MSGY": {
+    "count": 2,
+    "first_et": "09:36:14",
+    "last_et": "09:36:14"
+   },
+   "PACB": {
+    "count": 9,
+    "first_et": "10:40:22",
+    "last_et": "10:41:03"
+   },
+   "MSTZ": {
+    "count": 36,
+    "first_et": "10:51:19",
+    "last_et": "10:51:42"
+   },
+   "AHG": {
+    "count": 150,
+    "first_et": "14:21:00",
+    "last_et": "14:21:43"
+   }
+  }
+ },
+ "v31_baseline": 28772.24,
+ "v31_baseline_note": "first line tagged '[v31] new day' at 10:32:34 UTC (06:32:34 ET); earlier untagged 'New day' lines (08:19-10:06 UTC) showed 28776.12, 28764.48, 28743.14, 28794.90, 28772.24; later v31 lines show 'last_equity' baseline 28772.24",
+ "last_health": "health v31-r23 | v31 eq 22669.51 (-21.2% day, halt 25895.02) | v32 eq 16151.45 (-24.0% day, halt OFF) | v33 eq 46085.41 (-16.1% day, halt OFF) | watching 52 (+0 queued) | v31 q=0 pos=0 drop=0 skipped=4334 | v32 q=0 pos=0 drop=0 skipped=4334 | v33 q=0 pos=0 drop=0 skipped=4334",
+ "last_health_et": "19:59:19",
+ "counts": {
+  "enter_lines": 415,
+  "v31_enters": 34,
+  "v31_exits": 38,
+  "v31_exit_lines_total": 236,
+  "v31_exit_lines_zero_share": 198,
+  "distinct_symbols": 46
+ }
+}

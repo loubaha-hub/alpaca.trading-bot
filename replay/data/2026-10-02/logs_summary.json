@@ -1,0 +1,1800 @@
+{
+ "day": "2026-10-02",
+ "symbols": {
+  "SORA": {
+   "first_et": "04:00:17",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "AMOD": {
+   "first_et": "04:02:13",
+   "by": [
+    "v31",
+    "v32",
+    "v33"
+   ]
+  },
+  "SGRX": {
+   "first_et": "04:02:15",
+   "by": [
+    "v31",
+    "v32",
+    "v33"
+   ]
+  },
+  "SDEV": {
+   "first_et": "04:02:17",
+   "by": [
+    "v31",
+    "v32",
+    "v33",
+    "v34"
+   ]
+  },
+  "SMX": {
+   "first_et": "04:02:17",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "SSM": {
+   "first_et": "04:02:17",
+   "by": [
+    "v31",
+    "v32",
+    "v33",
+    "v34"
+   ]
+  },
+  "GOW": {
+   "first_et": "04:03:38",
+   "by": [
+    "v31",
+    "v32",
+    "v33"
+   ]
+  },
+  "HTCR": {
+   "first_et": "04:04:01",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "EPSM": {
+   "first_et": "04:04:36",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "NYXH": {
+   "first_et": "04:05:26",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "ONG": {
+   "first_et": "04:05:35",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "BTCT": {
+   "first_et": "04:08:02",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "CMCT": {
+   "first_et": "04:08:32",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "CHWM": {
+   "first_et": "04:18:00",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "AIXI": {
+   "first_et": "04:21:36",
+   "by": [
+    "v31",
+    "v32",
+    "v33"
+   ]
+  },
+  "NCT": {
+   "first_et": "04:34:10",
+   "by": [
+    "v31",
+    "v32",
+    "v33"
+   ]
+  },
+  "CYPH": {
+   "first_et": "04:44:05",
+   "by": [
+    "v31",
+    "v32",
+    "v33"
+   ]
+  },
+  "JAGU": {
+   "first_et": "05:01:42",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "CDT": {
+   "first_et": "05:25:13",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "TNMG": {
+   "first_et": "05:38:05",
+   "by": [
+    "v31",
+    "v32",
+    "v33"
+   ]
+  },
+  "DBGI": {
+   "first_et": "05:44:12",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "SMXT": {
+   "first_et": "05:52:38",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "XBIO": {
+   "first_et": "06:40:06",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "ONX": {
+   "first_et": "06:43:40",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "QXL": {
+   "first_et": "06:54:16",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "ALP": {
+   "first_et": "07:00:56",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "GLOO": {
+   "first_et": "07:04:40",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "TNON": {
+   "first_et": "07:05:45",
+   "by": [
+    "v31",
+    "v32",
+    "v33"
+   ]
+  },
+  "RECT": {
+   "first_et": "07:09:45",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "LICN": {
+   "first_et": "07:35:07",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "PLUT": {
+   "first_et": "07:45:36",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "AGIG": {
+   "first_et": "07:46:12",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "AMIX": {
+   "first_et": "08:06:05",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "ICCM": {
+   "first_et": "08:17:00",
+   "by": [
+    "v32"
+   ]
+  },
+  "TARA": {
+   "first_et": "08:19:05",
+   "by": [
+    "v32"
+   ]
+  },
+  "FPSX": {
+   "first_et": "08:35:01",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "GRI": {
+   "first_et": "08:35:02",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "CYCU": {
+   "first_et": "08:44:50",
+   "by": [
+    "v31",
+    "v32",
+    "v33",
+    "v34"
+   ]
+  },
+  "NMTC": {
+   "first_et": "08:45:58",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "ATPC": {
+   "first_et": "08:50:05",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "INBS": {
+   "first_et": "08:55:48",
+   "by": [
+    "v32"
+   ]
+  },
+  "CUPR": {
+   "first_et": "09:01:06",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "RETO": {
+   "first_et": "09:02:58",
+   "by": [
+    "v31",
+    "v32",
+    "v33",
+    "v34"
+   ]
+  },
+  "ZCMD": {
+   "first_et": "09:03:05",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "NAMM": {
+   "first_et": "09:03:14",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "BLSG": {
+   "first_et": "09:18:24",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "SWAG": {
+   "first_et": "09:25:33",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "BETR": {
+   "first_et": "09:34:14",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "ORBS": {
+   "first_et": "09:34:20",
+   "by": [
+    "v31",
+    "v32",
+    "v33"
+   ]
+  },
+  "FEAM": {
+   "first_et": "09:36:05",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "NXAT": {
+   "first_et": "09:37:34",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "SMJF": {
+   "first_et": "09:38:23",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "CABO": {
+   "first_et": "09:40:44",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "OPEX": {
+   "first_et": "09:42:05",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "MWC": {
+   "first_et": "09:42:14",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "BGM": {
+   "first_et": "09:42:32",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "MYPS": {
+   "first_et": "09:42:37",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "TP": {
+   "first_et": "09:42:48",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "PAVM": {
+   "first_et": "09:43:24",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "BTDL": {
+   "first_et": "09:43:38",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "ERNA": {
+   "first_et": "09:44:13",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "TORO": {
+   "first_et": "09:45:22",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "CNTB": {
+   "first_et": "09:45:36",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "QTEX": {
+   "first_et": "09:45:50",
+   "by": [
+    "v31",
+    "v32",
+    "v33",
+    "v34"
+   ]
+  },
+  "RNAC": {
+   "first_et": "09:45:56",
+   "by": [
+    "v32"
+   ]
+  },
+  "IDAI": {
+   "first_et": "09:48:16",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "ADIL": {
+   "first_et": "09:52:55",
+   "by": [
+    "v32"
+   ]
+  },
+  "LUNL": {
+   "first_et": "09:54:04",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "ASUP": {
+   "first_et": "09:55:06",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "ECOR": {
+   "first_et": "09:56:21",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "IBRX": {
+   "first_et": "09:58:34",
+   "by": [
+    "v31",
+    "v32",
+    "v33"
+   ]
+  },
+  "CRDU": {
+   "first_et": "09:58:47",
+   "by": [
+    "v31",
+    "v32",
+    "v33"
+   ]
+  },
+  "ZNB": {
+   "first_et": "09:59:39",
+   "by": [
+    "v31",
+    "v32",
+    "v34"
+   ]
+  },
+  "AEHL": {
+   "first_et": "10:00:35",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "CRD": {
+   "first_et": "10:02:25",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "ARMA": {
+   "first_et": "10:02:49",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "APLX": {
+   "first_et": "10:02:54",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "NVTX": {
+   "first_et": "10:03:54",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "POEL": {
+   "first_et": "10:05:03",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "REBN": {
+   "first_et": "10:07:31",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "JXG": {
+   "first_et": "10:08:26",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "SVIA": {
+   "first_et": "10:08:29",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "SPCH": {
+   "first_et": "10:09:22",
+   "by": [
+    "v31",
+    "v32",
+    "v33"
+   ]
+  },
+  "SPAL": {
+   "first_et": "10:09:25",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "SPCF": {
+   "first_et": "10:09:34",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "SPAX": {
+   "first_et": "10:09:35",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "NEOV": {
+   "first_et": "10:10:25",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "SPCM": {
+   "first_et": "10:10:28",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "LOFF": {
+   "first_et": "10:10:49",
+   "by": [
+    "v32",
+    "v33",
+    "v34"
+   ]
+  },
+  "RDWU": {
+   "first_et": "10:12:19",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "OCG": {
+   "first_et": "10:18:14",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "CELU": {
+   "first_et": "10:19:34",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "INDP": {
+   "first_et": "10:21:35",
+   "by": [
+    "v32"
+   ]
+  },
+  "DSC": {
+   "first_et": "10:21:51",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "AAOX": {
+   "first_et": "10:25:58",
+   "by": [
+    "v31",
+    "v32",
+    "v33"
+   ]
+  },
+  "AAOG": {
+   "first_et": "10:26:08",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "WCT": {
+   "first_et": "10:26:13",
+   "by": [
+    "v32",
+    "v33",
+    "v34"
+   ]
+  },
+  "WYFL": {
+   "first_et": "10:28:55",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "SPCU": {
+   "first_et": "10:29:05",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "AIB": {
+   "first_et": "10:29:54",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "NAUT": {
+   "first_et": "10:34:50",
+   "by": [
+    "v31",
+    "v32",
+    "v33",
+    "v34"
+   ]
+  },
+  "BIRD": {
+   "first_et": "10:35:25",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "COHH": {
+   "first_et": "10:35:57",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "HSCS": {
+   "first_et": "10:36:04",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "MNOV": {
+   "first_et": "10:37:49",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "PLU": {
+   "first_et": "10:44:54",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "SXTP": {
+   "first_et": "10:49:07",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "EPOW": {
+   "first_et": "10:50:01",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "PUSA": {
+   "first_et": "10:56:42",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "VELL": {
+   "first_et": "10:59:39",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "GRDX": {
+   "first_et": "11:04:12",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "ECHX": {
+   "first_et": "11:16:44",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "DKI": {
+   "first_et": "11:21:08",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "EEIQ": {
+   "first_et": "11:23:55",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "VAI": {
+   "first_et": "11:23:58",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "SYNX": {
+   "first_et": "11:24:38",
+   "by": [
+    "v32",
+    "v33"
+   ]
+  },
+  "GRNQ": {
+   "first_et": "11:36:16",
+   "by": [
+    "v32"
+   ]
+  },
+  "QMLS": {
+   "first_et": "11:45:32",
+   "by": [
+    "v32"
+   ]
+  },
+  "BMNZ": {
+   "first_et": "11:47:05",
+   "by": [
+    "v32"
+   ]
+  },
+  "CRCD": {
+   "first_et": "11:47:37",
+   "by": [
+    "v32"
+   ]
+  },
+  "IMC": {
+   "first_et": "11:53:37",
+   "by": [
+    "v32"
+   ]
+  },
+  "CRMT": {
+   "first_et": "11:54:10",
+   "by": [
+    "v32"
+   ]
+  },
+  "YFOR": {
+   "first_et": "12:11:51",
+   "by": [
+    "v32"
+   ]
+  },
+  "NNBR": {
+   "first_et": "12:13:06",
+   "by": [
+    "v32"
+   ]
+  },
+  "NFE": {
+   "first_et": "12:19:47",
+   "by": [
+    "v32"
+   ]
+  },
+  "HYFM": {
+   "first_et": "12:23:01",
+   "by": [
+    "v32"
+   ]
+  },
+  "WVVI": {
+   "first_et": "12:27:01",
+   "by": [
+    "v32"
+   ]
+  },
+  "ICU": {
+   "first_et": "12:30:39",
+   "by": [
+    "v32"
+   ]
+  },
+  "DCX": {
+   "first_et": "12:48:17",
+   "by": [
+    "v32"
+   ]
+  },
+  "SWRD": {
+   "first_et": "12:49:11",
+   "by": [
+    "v32"
+   ]
+  },
+  "MWYN": {
+   "first_et": "13:10:20",
+   "by": [
+    "v32"
+   ]
+  },
+  "MSTZ": {
+   "first_et": "13:14:52",
+   "by": [
+    "v31",
+    "v32"
+   ]
+  },
+  "SMST": {
+   "first_et": "13:14:58",
+   "by": [
+    "v32"
+   ]
+  },
+  "SHFS": {
+   "first_et": "13:17:45",
+   "by": [
+    "v32"
+   ]
+  },
+  "ATRA": {
+   "first_et": "13:31:09",
+   "by": [
+    "v32"
+   ]
+  },
+  "BTLN": {
+   "first_et": "13:33:44",
+   "by": [
+    "v32"
+   ]
+  },
+  "PFAI": {
+   "first_et": "13:56:46",
+   "by": [
+    "v32"
+   ]
+  },
+  "FISN": {
+   "first_et": "14:03:17",
+   "by": [
+    "v32"
+   ]
+  },
+  "PMI": {
+   "first_et": "14:04:05",
+   "by": [
+    "v32"
+   ]
+  },
+  "DFNS": {
+   "first_et": "14:05:19",
+   "by": [
+    "v32",
+    "v34"
+   ]
+  },
+  "NWTG": {
+   "first_et": "14:21:05",
+   "by": [
+    "v32"
+   ]
+  },
+  "EHLD": {
+   "first_et": "14:21:48",
+   "by": [
+    "v32"
+   ]
+  },
+  "OPTX": {
+   "first_et": "14:21:48",
+   "by": [
+    "v32"
+   ]
+  },
+  "ABLV": {
+   "first_et": "14:22:12",
+   "by": [
+    "v32"
+   ]
+  },
+  "RGTZ": {
+   "first_et": "14:24:16",
+   "by": [
+    "v32"
+   ]
+  },
+  "NOMA": {
+   "first_et": "14:40:58",
+   "by": [
+    "v32"
+   ]
+  },
+  "HQ": {
+   "first_et": "14:41:15",
+   "by": [
+    "v32"
+   ]
+  },
+  "QSI": {
+   "first_et": "14:49:06",
+   "by": [
+    "v32"
+   ]
+  },
+  "QBTZ": {
+   "first_et": "14:50:29",
+   "by": [
+    "v32"
+   ]
+  },
+  "JDZG": {
+   "first_et": "14:51:56",
+   "by": [
+    "v32"
+   ]
+  },
+  "AZ": {
+   "first_et": "15:25:35",
+   "by": [
+    "v32"
+   ]
+  },
+  "FLYX": {
+   "first_et": "15:33:43",
+   "by": [
+    "v32"
+   ]
+  },
+  "LONA": {
+   "first_et": "15:58:09",
+   "by": [
+    "v32"
+   ]
+  },
+  "OUSL": {
+   "first_et": "15:59:24",
+   "by": [
+    "v32"
+   ]
+  },
+  "RTB": {
+   "first_et": "16:03:26",
+   "by": [
+    "v32"
+   ]
+  },
+  "YYAI": {
+   "first_et": "16:04:34",
+   "by": [
+    "v32"
+   ]
+  },
+  "SMTK": {
+   "first_et": "16:05:14",
+   "by": [
+    "v32"
+   ]
+  },
+  "VCIG": {
+   "first_et": "16:05:46",
+   "by": [
+    "v31",
+    "v32",
+    "v34"
+   ]
+  },
+  "SAIQ": {
+   "first_et": "16:10:25",
+   "by": [
+    "v31",
+    "v32",
+    "v34"
+   ]
+  },
+  "IMXI": {
+   "first_et": "16:25:38",
+   "by": [
+    "v32"
+   ]
+  },
+  "CJMB": {
+   "first_et": "16:32:56",
+   "by": [
+    "v32"
+   ]
+  },
+  "AGRZ": {
+   "first_et": "16:38:03",
+   "by": [
+    "v32"
+   ]
+  },
+  "SILO": {
+   "first_et": "16:38:34",
+   "by": [
+    "v31",
+    "v32"
+   ]
+  },
+  "LITB": {
+   "first_et": "16:39:57",
+   "by": [
+    "v32"
+   ]
+  },
+  "MTNB": {
+   "first_et": "16:44:29",
+   "by": [
+    "v32"
+   ]
+  },
+  "OKYO": {
+   "first_et": "16:44:55",
+   "by": [
+    "v32"
+   ]
+  },
+  "IPW": {
+   "first_et": "16:54:28",
+   "by": [
+    "v32"
+   ]
+  },
+  "BBDO": {
+   "first_et": "17:29:59",
+   "by": [
+    "v32"
+   ]
+  },
+  "BURU": {
+   "first_et": "17:46:54",
+   "by": [
+    "v32"
+   ]
+  },
+  "XCH": {
+   "first_et": "17:55:32",
+   "by": [
+    "v32"
+   ]
+  },
+  "CVM": {
+   "first_et": "18:18:47",
+   "by": [
+    "v32"
+   ]
+  },
+  "VEEA": {
+   "first_et": "18:57:58",
+   "by": [
+    "v32",
+    "v34"
+   ]
+  }
+ },
+ "v31_enters": [
+  {
+   "et": "07:22:11",
+   "sym": "TNMG",
+   "shares": 1060,
+   "price": 5.15,
+   "line": "[v31] ENTER TNMG 1060 @ 5.1500 = $5459 (27% of equity) | stop 4.9900 (3.11% away) | trigger 5.1427"
+  },
+  {
+   "et": "07:24:34",
+   "sym": "AMOD",
+   "shares": 2150,
+   "price": 2.34,
+   "line": "[v31] ENTER AMOD 2150 @ 2.3400 = $5031 (25% of equity) | stop 2.3166 (1.00% away) | trigger 2.3301"
+  },
+  {
+   "et": "07:37:13",
+   "sym": "SSM",
+   "shares": 1953,
+   "price": 2.79,
+   "line": "[v31] ENTER SSM 1953 @ 2.7900 = $5449 (27% of equity) | stop 2.7200 (2.51% away) | trigger 2.7898"
+  },
+  {
+   "et": "07:48:07",
+   "sym": "AMOD",
+   "shares": 3634,
+   "price": 2.66,
+   "line": "[v31] ENTER AMOD 3634 @ 2.6600 = $9666 (49% of equity) | stop 2.6300 (1.13% away) | trigger 2.6502"
+  },
+  {
+   "et": "07:49:07",
+   "sym": "SDEV",
+   "shares": 1016,
+   "price": 4.97,
+   "line": "[v31] ENTER SDEV 1016 @ 4.9700 = $5050 (25% of equity) | stop 4.9203 (1.00% away) | trigger 4.9700"
+  },
+  {
+   "et": "08:08:10",
+   "sym": "SDEV",
+   "shares": 981,
+   "price": 5.055,
+   "line": "[v31] ENTER SDEV 981 @ 5.0550 = $4959 (25% of equity) | stop 4.9702 (1.68% away) | trigger 5.0501"
+  },
+  {
+   "et": "08:13:06",
+   "sym": "AIXI",
+   "shares": 2717,
+   "price": 1.82,
+   "line": "[v31] ENTER AIXI 2717 @ 1.8200 = $4945 (25% of equity) | stop 1.7500 (3.85% away) | trigger 1.8200"
+  },
+  {
+   "et": "08:21:52",
+   "sym": "AMOD",
+   "shares": 3207,
+   "price": 2.47,
+   "line": "[v31] ENTER AMOD 3207 @ 2.4700 = $7921 (40% of equity) | stop 2.4400 (1.21% away) | trigger 2.4700"
+  },
+  {
+   "et": "08:29:36",
+   "sym": "GOW",
+   "shares": 1296,
+   "price": 3.8754,
+   "line": "[v31] ENTER GOW 1296 @ 3.8754 = $5023 (25% of equity) | stop 3.7500 (3.24% away) | trigger 3.8750"
+  },
+  {
+   "et": "08:54:30",
+   "sym": "TNON",
+   "shares": 1667,
+   "price": 4.6,
+   "line": "[v31] ENTER TNON 1667 @ 4.6000 = $7668 (38% of equity) | stop 4.4654 (2.93% away) | trigger 4.5900"
+  },
+  {
+   "et": "09:05:19",
+   "sym": "AMOD",
+   "shares": 1601,
+   "price": 3.09,
+   "line": "[v31] ENTER AMOD 1601 @ 3.0900 = $4947 (25% of equity) | stop 3.0200 (2.27% away) | trigger 3.0801"
+  },
+  {
+   "et": "09:25:20",
+   "sym": "SDEV",
+   "shares": 977,
+   "price": 5.07,
+   "line": "[v31] ENTER SDEV 977 @ 5.0700 = $4953 (25% of equity) | stop 5.0193 (1.00% away) | trigger 5.0700"
+  },
+  {
+   "et": "09:25:45",
+   "sym": "AIXI",
+   "shares": 1745,
+   "price": 1.71,
+   "line": "[v31] ENTER AIXI 1745 @ 1.7100 = $2984 (15% of equity) | stop 1.6500 (3.51% away) | trigger 1.7090"
+  },
+  {
+   "et": "09:28:09",
+   "sym": "AMOD",
+   "shares": 1788,
+   "price": 3.5,
+   "line": "[v31] ENTER AMOD 1788 @ 3.5000 = $6258 (32% of equity) | stop 3.4500 (1.43% away) | trigger 3.5000"
+  },
+  {
+   "et": "09:34:08",
+   "sym": "CYPH",
+   "shares": 1521,
+   "price": 3.17,
+   "line": "[v31] ENTER CYPH 1521 @ 3.1700 = $4822 (25% of equity) | stop 3.1200 (1.58% away) | trigger 3.1700"
+  },
+  {
+   "et": "09:35:46",
+   "sym": "ORBS",
+   "shares": 3626,
+   "price": 1.3244,
+   "line": "[v31] ENTER ORBS 3626 @ 1.3244 = $4802 (25% of equity) | stop 1.3000 (1.84% away) | trigger 1.3220"
+  },
+  {
+   "et": "09:37:47",
+   "sym": "SGRX",
+   "shares": 2886,
+   "price": 1.72,
+   "line": "[v31] ENTER SGRX 2886 @ 1.7200 = $4964 (25% of equity) | stop 1.6800 (2.33% away) | trigger 1.7100"
+  },
+  {
+   "et": "10:00:17",
+   "sym": "QTEX",
+   "shares": 5172,
+   "price": 1.08,
+   "line": "[v31] ENTER QTEX 5172 @ 1.0800 = $5586 (28% of equity) | stop 1.0500 (2.78% away) | trigger 1.0800"
+  },
+  {
+   "et": "10:02:40",
+   "sym": "IBRX",
+   "shares": 622,
+   "price": 10.37,
+   "line": "[v31] ENTER IBRX 622 @ 10.3700 = $6450 (32% of equity) | stop 10.2663 (1.00% away) | trigger 10.3700"
+  },
+  {
+   "et": "10:04:32",
+   "sym": "CRDU",
+   "shares": 511,
+   "price": 12.49,
+   "line": "[v31] ENTER CRDU 511 @ 12.4900 = $6382 (32% of equity) | stop 12.3651 (1.00% away) | trigger 12.4900"
+  },
+  {
+   "et": "10:13:54",
+   "sym": "SSM",
+   "shares": 1354,
+   "price": 2.6,
+   "line": "[v31] ENTER SSM 1354 @ 2.6000 = $3520 (18% of equity) | stop 2.3980 (7.77% away) | trigger 2.4790"
+  },
+  {
+   "et": "10:18:50",
+   "sym": "SPCH",
+   "shares": 652,
+   "price": 10.8512,
+   "line": "[v31] ENTER SPCH 652 @ 10.8512 = $7075 (36% of equity) | stop 10.7427 (1.00% away) | trigger 10.8500"
+  },
+  {
+   "et": "10:21:06",
+   "sym": "SDEV",
+   "shares": 767,
+   "price": 6.41,
+   "line": "[v31] ENTER SDEV 767 @ 6.4100 = $4916 (25% of equity) | stop 6.3459 (1.00% away) | trigger 6.4003"
+  },
+  {
+   "et": "10:27:10",
+   "sym": "IBRX",
+   "shares": 475,
+   "price": 10.335,
+   "line": "[v31] ENTER IBRX 475 @ 10.3350 = $4909 (25% of equity) | stop 10.2317 (1.00% away) | trigger 10.3300"
+  },
+  {
+   "et": "10:33:01",
+   "sym": "AIXI",
+   "shares": 2762,
+   "price": 1.78,
+   "line": "[v31] ENTER AIXI 2762 @ 1.7800 = $4916 (25% of equity) | stop 1.7500 (1.69% away) | trigger 1.7751"
+  },
+  {
+   "et": "10:33:16",
+   "sym": "SDEV",
+   "shares": 913,
+   "price": 7.33,
+   "line": "[v31] ENTER SDEV 913 @ 7.3300 = $6692 (34% of equity) | stop 7.1500 (2.46% away) | trigger 7.3300"
+  },
+  {
+   "et": "10:33:36",
+   "sym": "AMOD",
+   "shares": 1551,
+   "price": 3.68,
+   "line": "[v31] ENTER AMOD 1551 @ 3.6800 = $5708 (29% of equity) | stop 3.6300 (1.36% away) | trigger 3.6750"
+  },
+  {
+   "et": "10:35:17",
+   "sym": "CYCU",
+   "shares": 1210,
+   "price": 3.84,
+   "line": "[v31] ENTER CYCU 1210 @ 3.8400 = $4646 (24% of equity) | stop 3.6800 (4.17% away) | trigger 3.8301"
+  },
+  {
+   "et": "10:37:27",
+   "sym": "SPCH",
+   "shares": 570,
+   "price": 10.905,
+   "line": "[v31] ENTER SPCH 570 @ 10.9050 = $6216 (32% of equity) | stop 10.7959 (1.00% away) | trigger 10.9029"
+  },
+  {
+   "et": "10:48:28",
+   "sym": "NAUT",
+   "shares": 2752,
+   "price": 1.935,
+   "line": "[v31] ENTER NAUT 2752 @ 1.9350 = $5325 (27% of equity) | stop 1.9100 (1.29% away) | trigger 1.9250"
+  },
+  {
+   "et": "11:17:06",
+   "sym": "AAOX",
+   "shares": 509,
+   "price": 12.22,
+   "line": "[v31] ENTER AAOX 509 @ 12.2200 = $6220 (32% of equity) | stop 12.0978 (1.00% away) | trigger 12.2200"
+  },
+  {
+   "et": "11:49:28",
+   "sym": "CYCU",
+   "shares": 1192,
+   "price": 4.05,
+   "line": "[v31] ENTER CYCU 1192 @ 4.0500 = $4828 (25% of equity) | stop 4.0095 (1.00% away) | trigger 4.0500"
+  },
+  {
+   "et": "12:10:18",
+   "sym": "SDEV",
+   "shares": 870,
+   "price": 6.1,
+   "line": "[v31] ENTER SDEV 870 @ 6.1000 = $5307 (28% of equity) | stop 6.0200 (1.31% away) | trigger 6.1000"
+  },
+  {
+   "et": "12:21:22",
+   "sym": "SDEV",
+   "shares": 785,
+   "price": 6.12,
+   "line": "[v31] ENTER SDEV 785 @ 6.1200 = $4804 (25% of equity) | stop 6.0301 (1.47% away) | trigger 6.1150"
+  },
+  {
+   "et": "12:22:32",
+   "sym": "QTEX",
+   "shares": 4057,
+   "price": 1.21,
+   "line": "[v31] ENTER QTEX 4057 @ 1.2100 = $4909 (25% of equity) | stop 1.1900 (1.65% away) | trigger 1.2100"
+  },
+  {
+   "et": "12:25:03",
+   "sym": "NCT",
+   "shares": 1775,
+   "price": 1.869,
+   "line": "[v31] ENTER NCT 1775 @ 1.8690 = $3317 (17% of equity) | stop 1.7601 (5.83% away) | trigger 1.8600"
+  },
+  {
+   "et": "12:29:21",
+   "sym": "CYCU",
+   "shares": 1232,
+   "price": 3.91,
+   "line": "[v31] ENTER CYCU 1232 @ 3.9100 = $4817 (25% of equity) | stop 3.8500 (1.53% away) | trigger 3.9100"
+  },
+  {
+   "et": "12:47:46",
+   "sym": "QTEX",
+   "shares": 5862,
+   "price": 1.15,
+   "line": "[v31] ENTER QTEX 5862 @ 1.1500 = $6741 (35% of equity) | stop 1.1300 (1.74% away) | trigger 1.1450"
+  },
+  {
+   "et": "12:52:18",
+   "sym": "SDEV",
+   "shares": 810,
+   "price": 5.96,
+   "line": "[v31] ENTER SDEV 810 @ 5.9600 = $4828 (25% of equity) | stop 5.9004 (1.00% away) | trigger 5.9598"
+  },
+  {
+   "et": "13:18:35",
+   "sym": "CYCU",
+   "shares": 1189,
+   "price": 4.07,
+   "line": "[v31] ENTER CYCU 1189 @ 4.0700 = $4839 (25% of equity) | stop 3.9900 (1.97% away) | trigger 4.0699"
+  },
+  {
+   "et": "13:57:15",
+   "sym": "QTEX",
+   "shares": 4926,
+   "price": 1.21,
+   "line": "[v31] ENTER QTEX 4926 @ 1.2100 = $5960 (31% of equity) | stop 1.1900 (1.65% away) | trigger 1.2084"
+  },
+  {
+   "et": "14:05:12",
+   "sym": "SDEV",
+   "shares": 764,
+   "price": 6.67,
+   "line": "[v31] ENTER SDEV 764 @ 6.6700 = $5096 (26% of equity) | stop 6.6033 (1.00% away) | trigger 6.6450"
+  },
+  {
+   "et": "14:18:18",
+   "sym": "SDEV",
+   "shares": 772,
+   "price": 6.85,
+   "line": "[v31] ENTER SDEV 772 @ 6.8500 = $5288 (27% of equity) | stop 6.7400 (1.61% away) | trigger 6.8400"
+  },
+  {
+   "et": "14:45:29",
+   "sym": "MSTZ",
+   "shares": 1950,
+   "price": 2.62,
+   "line": "[v31] ENTER MSTZ 1950 @ 2.6200 = $5109 (27% of equity) | stop 2.5938 (1.00% away) | trigger 2.6200"
+  },
+  {
+   "et": "15:01:29",
+   "sym": "ZNB",
+   "shares": 3224,
+   "price": 1.49,
+   "line": "[v31] ENTER ZNB 3224 @ 1.4900 = $4804 (25% of equity) | stop 1.4500 (2.68% away) | trigger 1.4900"
+  },
+  {
+   "et": "15:31:22",
+   "sym": "SPCH",
+   "shares": 725,
+   "price": 11.16,
+   "line": "[v31] ENTER SPCH 725 @ 11.1600 = $8091 (42% of equity) | stop 11.0484 (1.00% away) | trigger 11.1600"
+  },
+  {
+   "et": "16:09:55",
+   "sym": "VCIG",
+   "shares": 2056,
+   "price": 1.79,
+   "line": "[v31] ENTER VCIG 2056 @ 1.7900 = $3680 (19% of equity) | stop 1.6900 (5.59% away) | trigger 1.7809"
+  },
+  {
+   "et": "16:18:04",
+   "sym": "SAIQ",
+   "shares": 1835,
+   "price": 2.6884,
+   "line": "[v31] ENTER SAIQ 1835 @ 2.6884 = $4933 (26% of equity) | stop 2.6000 (3.29% away) | trigger 2.6809"
+  },
+  {
+   "et": "16:45:38",
+   "sym": "SILO",
+   "shares": 2852,
+   "price": 1.6854,
+   "line": "[v31] ENTER SILO 2852 @ 1.6854 = $4807 (25% of equity) | stop 1.6400 (2.69% away) | trigger 1.6600"
+  },
+  {
+   "et": "18:23:12",
+   "sym": "RETO",
+   "shares": 2191,
+   "price": 2.18,
+   "line": "[v31] ENTER RETO 2191 @ 2.1800 = $4776 (25% of equity) | stop 2.1400 (1.83% away) | trigger 2.1750"
+  }
+ ],
+ "v31_exits": [
+  {
+   "et": "07:22:27",
+   "sym": "TNMG",
+   "why": "entry-stop",
+   "shares": 29,
+   "price": 5.15,
+   "pl": -0.31
+  },
+  {
+   "et": "07:37:30",
+   "sym": "SSM",
+   "why": "entry-stop",
+   "shares": 204,
+   "price": 2.78,
+   "pl": -3.52
+  },
+  {
+   "et": "08:54:46",
+   "sym": "TNON",
+   "why": "entry-stop",
+   "shares": 3521,
+   "price": 4.46,
+   "pl": -492.94
+  },
+  {
+   "et": "09:06:02",
+   "sym": "AMOD",
+   "why": "entry-stop",
+   "shares": 2502,
+   "price": 3.07,
+   "pl": -29.41
+  },
+  {
+   "et": "09:26:28",
+   "sym": "SDEV",
+   "why": "entry-stop",
+   "shares": 32,
+   "price": 5.01,
+   "pl": -1.92
+  },
+  {
+   "et": "09:28:17",
+   "sym": "AMOD",
+   "why": "entry-stop",
+   "shares": 1788,
+   "price": 3.45,
+   "pl": -89.4
+  },
+  {
+   "et": "09:29:19",
+   "sym": "AMOD",
+   "why": "entry-stop",
+   "shares": 418,
+   "price": 3.4,
+   "pl": -39.85
+  },
+  {
+   "et": "09:37:28",
+   "sym": "ORBS",
+   "why": "entry-stop",
+   "shares": 2,
+   "price": 1.32,
+   "pl": -0.02
+  },
+  {
+   "et": "09:40:12",
+   "sym": "CYPH",
+   "why": "flush",
+   "shares": 0,
+   "price": 3.3939,
+   "pl": 0.0
+  },
+  {
+   "et": "10:03:30",
+   "sym": "IBRX",
+   "why": "entry-stop",
+   "shares": 90,
+   "price": 10.4,
+   "pl": -1.01
+  },
+  {
+   "et": "10:14:05",
+   "sym": "SSM",
+   "why": "flush",
+   "shares": 6095,
+   "price": 2.581,
+   "pl": -115.81
+  },
+  {
+   "et": "10:14:36",
+   "sym": "SSM",
+   "why": "entry-stop",
+   "shares": 95,
+   "price": 2.585,
+   "pl": -3.04
+  },
+  {
+   "et": "10:14:46",
+   "sym": "SSM",
+   "why": "entry-stop",
+   "shares": 28,
+   "price": 2.585,
+   "pl": -0.9
+  },
+  {
+   "et": "10:19:16",
+   "sym": "SPCH",
+   "why": "entry-stop",
+   "shares": 927,
+   "price": 10.845,
+   "pl": -13.85
+  },
+  {
+   "et": "10:21:21",
+   "sym": "SDEV",
+   "why": "entry-stop",
+   "shares": 767,
+   "price": 6.3994,
+   "pl": -15.8
+  },
+  {
+   "et": "10:33:32",
+   "sym": "AIXI",
+   "why": "entry-stop",
+   "shares": 2762,
+   "price": 1.75,
+   "pl": -82.86
+  },
+  {
+   "et": "10:34:23",
+   "sym": "SDEV",
+   "why": "flush",
+   "shares": 1022,
+   "price": 7.16,
+   "pl": -173.74
+  },
+  {
+   "et": "10:35:21",
+   "sym": "CYCU",
+   "why": "flush",
+   "shares": 1210,
+   "price": 4.09,
+   "pl": 302.5
+  },
+  {
+   "et": "10:37:33",
+   "sym": "SPCH",
+   "why": "fade",
+   "shares": 570,
+   "price": 10.899,
+   "pl": -3.42
+  },
+  {
+   "et": "10:37:47",
+   "sym": "SPCH",
+   "why": "entry-stop",
+   "shares": 292,
+   "price": 10.8701,
+   "pl": -11.65
+  },
+  {
+   "et": "10:49:14",
+   "sym": "NAUT",
+   "why": "entry-stop",
+   "shares": 4669,
+   "price": 1.91,
+   "pl": -116.73
+  },
+  {
+   "et": "11:18:04",
+   "sym": "AAOX",
+   "why": "fade",
+   "shares": 509,
+   "price": 12.17,
+   "pl": -25.45
+  },
+  {
+   "et": "11:19:06",
+   "sym": "AAOX",
+   "why": "entry-stop",
+   "shares": 185,
+   "price": 12.185,
+   "pl": -8.32
+  },
+  {
+   "et": "12:10:26",
+   "sym": "SDEV",
+   "why": "entry-stop",
+   "shares": 1185,
+   "price": 6.09,
+   "pl": -11.85
+  },
+  {
+   "et": "12:25:16",
+   "sym": "NCT",
+   "why": "flush",
+   "shares": 1775,
+   "price": 1.84,
+   "pl": -51.47
+  },
+  {
+   "et": "13:19:33",
+   "sym": "CYCU",
+   "why": "flush",
+   "shares": 1189,
+   "price": 4.02,
+   "pl": -59.45
+  },
+  {
+   "et": "14:05:32",
+   "sym": "SDEV",
+   "why": "entry-stop",
+   "shares": 764,
+   "price": 6.6,
+   "pl": -53.48
+  },
+  {
+   "et": "14:05:41",
+   "sym": "SDEV",
+   "why": "entry-stop",
+   "shares": 564,
+   "price": 6.57,
+   "pl": -48.21
+  },
+  {
+   "et": "14:19:03",
+   "sym": "SDEV",
+   "why": "flush",
+   "shares": 1243,
+   "price": 6.75,
+   "pl": -124.3
+  },
+  {
+   "et": "16:10:27",
+   "sym": "VCIG",
+   "why": "flush",
+   "shares": 2816,
+   "price": 1.78,
+   "pl": -28.16
+  },
+  {
+   "et": "16:18:34",
+   "sym": "SAIQ",
+   "why": "flush",
+   "shares": 1864,
+   "price": 2.66,
+   "pl": -52.94
+  },
+  {
+   "et": "16:46:15",
+   "sym": "SILO",
+   "why": "entry-stop",
+   "shares": 2852,
+   "price": 1.64,
+   "pl": -129.48
+  }
+ ],
+ "v31_baseline": 20256.44,
+ "last_health": "health v31-r23 | v31 eq 19135.55 (-5.5% day, halt 18230.80) | v32 eq 7162.95 (-35.2% day, halt OFF) | v34 eq 15551.07 (-33.6% day, halt OFF) | watching 114 (+0 queued) | v31 q=0 pos=0 drop=0 skipped=565503 | v32 q=0 pos=0 drop=483 skipped=565174 | v34 q=0 pos=0 drop=0 skipped=565503",
+ "counts": {
+  "enter_lines": 2348,
+  "v31_enters": 50,
+  "v31_exits": 32
+ }
+}
