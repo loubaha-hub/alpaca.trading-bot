@@ -149,7 +149,7 @@ def test_a_wide_spread_is_not_bought(v35, clock, data):
     assert not entered(v35, s)
 
 
-def test_a_name_traded_today_needs_a_new_day_high(v35, clock):
+def test_a_name_traded_today_is_not_bought_on_a_pullback(v35, clock):
     s = climb(v35, clock)
     s.traded_today = True
     tick(v35, s, TRIGGER)
@@ -233,6 +233,54 @@ def test_the_add_never_passes_40_percent(v35, clock, broker):
     price = round(s.entry * 1.06, 2)
     tick(v35, s, price)
     assert s.shares * price <= 0.40 * broker.eq + price
+
+
+# ---- re-entry on a new high ------------------------------------------------------
+
+def closed(strat, clock, monkeypatch, win=True):
+    """One trade in and out - a winner out on the trail, or a loser out on the
+    stop. No add, so the sizes stay simple."""
+    monkeypatch.setattr(bot, "V35_ADD_AT", 0.0)
+    s = bought(strat, clock)
+    if win:
+        tick(strat, s, s.entry * 1.20)
+        tick(strat, s, s.trail_stop - 0.01)
+    else:
+        tick(strat, s, s.stop - 0.01)
+    assert not s.in_position
+    assert (strat.closed_today[-1][4] > 0) == win
+    return s
+
+
+def test_back_in_5c_over_the_high_after_a_winner(v35, clock, monkeypatch):
+    s = closed(v35, clock, monkeypatch)
+    high = max(s.hod_closed, s.v35_peak)
+    tick(v35, s, round(high + 0.04, 2))
+    assert len(v35.broker.buys("ABCD")) == 1
+    tick(v35, s, round(high + 0.05, 2))
+    assert entered(v35, s) and len(v35.broker.buys("ABCD")) == 2
+
+
+def test_the_reentry_stop_is_at_the_broken_high(v35, clock, monkeypatch):
+    s = closed(v35, clock, monkeypatch)
+    high = max(s.hod_closed, s.v35_peak)
+    tick(v35, s, round(high + 0.05, 2))
+    assert s.stop == pytest.approx(min(high, s.entry * 0.99))
+
+
+def test_no_reentry_under_the_last_trades_peak(v35, clock, monkeypatch):
+    """The peak printed inside the minute is not in a closed candle yet - the
+    re-entry still has to clear it."""
+    s = closed(v35, clock, monkeypatch)
+    assert s.v35_peak > s.hod_closed
+    tick(v35, s, round(s.hod_closed + 0.10, 2))
+    assert len(v35.broker.buys("ABCD")) == 1
+
+
+def test_no_reentry_after_a_loser(v35, clock, monkeypatch):
+    s = closed(v35, clock, monkeypatch, win=False)
+    tick(v35, s, round(max(s.hod_closed, s.v35_peak) + 0.50, 2))
+    assert len(v35.broker.buys("ABCD")) == 1
 
 
 # ---- the daily halt -------------------------------------------------------------------

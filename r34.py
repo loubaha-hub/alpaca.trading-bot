@@ -945,7 +945,10 @@ class MarketData:
         except Exception:
             return
         for sink in self.quote_sinks:
-            sink(quote.symbol, bid, ask)
+            try:
+                sink(quote.symbol, bid, ask)
+            except Exception as e:          # one strategy's error is its own
+                log.error("quote %s: %s", quote.symbol, e)
 
     async def subscribe_loop(self):
         """First batch goes immediately; after that, at most every 30 seconds."""
@@ -963,11 +966,17 @@ class MarketData:
         # cannot tell them apart will trigger on prices the market never had.
         conds = tuple(getattr(trade, "conditions", None) or ())
         for sink in self.trade_sinks:
-            sink(trade.symbol, float(trade.price), float(trade.size), conds)
+            try:
+                sink(trade.symbol, float(trade.price), float(trade.size), conds)
+            except Exception as e:          # one strategy's error is its own
+                log.error("trade %s: %s", trade.symbol, e)
 
     async def _on_bar(self, bar):
         for sink in self.bar_sinks:
-            sink(bar)
+            try:
+                sink(bar)
+            except Exception as e:          # one strategy's error is its own
+                log.error("bar %s: %s", getattr(bar, "symbol", "?"), e)
 
     async def snapshots(self, symbols):
         return await asyncio.to_thread(
@@ -1068,6 +1077,7 @@ class SymState:
     ema_break: bool = False          # v35: a candle closed under EMA9 since the buy
     v35_added: bool = False
     v35_starter: float = 0.0
+    v35_peak: float = 0.0            # v35: the highest price seen while holding, today
     last_exit: float = 0.0           # v33: the level that threw us out
     skipped_prints: int = 0          # odd lots etc. we refused to act on
     adopted: bool = False
@@ -2961,6 +2971,13 @@ class V34(V31):
 # from +20% (+$1,357); a 3 or 5 ABR leash; half at +20% (no change); volume
 # drying up on the pullback (+$440); buying only until 9:30 or 11:00 (+$92 /
 # +$309); the ignition candle (never fired at 15-20%; at 10% +$719).
+# RE-ENTRY (on top of step 9): back in when a name that made money breaks the
+# day's highest closed candle by 5c - no margin when it crosses at 3x its
+# usual speed - with the stop AT the broken high, out if it slips back under.
+# +$1,896, 18 trades. Re-entering every traded name instead: +$1,154 (AMOD,
+# a loser, was bought back three times on 10-02); a stop 1-3 ABRs under the
+# high: +$491..+$1,845. No re-entry at all: +$2,016 - kept anyway, on the
+# runners it is the only way back in, and 5 days cannot tell $120 apart.
 # 4 winners average +$752, 12 losers -$83 - small, fast losses and a few big
 # winners. Without the 2 best trades it is -$41: 16 trades is thin evidence.
 V35_LEADERS = 2                 # only today's top N names by dollar volume (0 = any)
@@ -2989,6 +3006,19 @@ V35_NO_CHASE = False            # v31's no-chase rule on pullback entries - off:
 V35_IGNITION_PCT = 0.0          # a 1-min candle up this much on V31_BAR_SHARES_MIN
                                 # x 3 shares: buy its high at once, out at its
                                 # midpoint - no pullback, no chase rule (0 = off)
+V35_REENTRY_HOD = True          # a name traded today: back in when the price breaks
+                                # the day's highest CLOSED candle + margin_for(),
+                                # stop V31_HOD_STOP_ABR under it (False: only a
+                                # new pullback that is also a new day high)
+V35_MAX_REENTRIES = 0           # new-high re-entries per name per day (0 = no limit)
+V35_REENTRY_STOP_ABR = 0.0      # a re-entry's stop: this many ABRs under the broken
+                                # high; 0 = AT the broken high - a short leash, out
+                                # if it slips back under (never nearer than 1%)
+V35_REENTRY_CENTS = 0.05        # the break needed over the high: these cents
+                                # (0 = margin_for(), 5c to $5 then 1%)
+V35_REENTRY_FAST_MULT = 3.0     # crossing at this many times the name's usual
+                                # speed: no margin at all (0 = off)
+V35_REENTRY_AFTER_WIN = True    # re-enter only a name whose last trade made money
 V35_EMA_EXIT = True             # young trade: out when a candle closes under EMA9
 V35_LEASH_AT = 0.10             # once up this much from the entry: the long leash
 V35_LEASH_ABR = 2.0             # long leash: this many ABRs under the high, kept
@@ -3089,20 +3119,43 @@ class V35(V31):
             return
         if V35_LEADERS and self.leader_rank(s.symbol) > V35_LEADERS:
             return
-        # A name already traded today has to make a new day high to be
-        # bought again - no buying back the same failed level.
-        if s.traded_today and price < s.day_high + margin_for(price):
-            return
-        kind = "setup"
-        found = self.ignition(s)
-        if found and price >= found[0]:
-            kind = "ignition"
-        else:
-            found = self.pullback(s)
-            if not found or price < found[0]:
+        kind, found = "setup", None
+        ignition = self.ignition(s)
+        if ignition and price >= ignition[0]:
+            kind, found = "ignition", ignition
+        elif s.traded_today and V35_REENTRY_HOD and s.hod_closed:
+            # RE-ENTRY ON A NEW HIGH. Measured against the highest CLOSED
+            # candle: s.day_high moves with every print, so nothing can ever
+            # stand above it.
+            if V35_MAX_REENTRIES and s.hod_reentries >= V35_MAX_REENTRIES:
                 return
+            if V35_REENTRY_AFTER_WIN:
+                last = [c for c in self.closed_today if c[0] == s.symbol]
+                if not last or last[-1][4] <= 0:
+                    return
+            margin = V35_REENTRY_CENTS or margin_for(price)
+            if (V35_REENTRY_FAST_MULT and fast is not None and base > 0
+                    and fast >= V35_REENTRY_FAST_MULT * base):
+                margin = 0.0                    # flying through it: no waiting
+            # The high to break: the highest closed candle, or the highest
+            # price seen while holding if that is higher - a peak printed
+            # inside the current minute is not in a closed candle yet, and
+            # without it a trail exit could buy straight back in under its
+            # own high. (s.peak is cleared when a position closes.)
+            high = max(s.hod_closed, s.v35_peak)
+            level = high + margin
+            kind = "hod"
+            found = (level, high - V35_REENTRY_STOP_ABR * max(self.abr(s), 0.01))
+        else:
+            # A name already traded today has to make a new day high to be
+            # bought again - no buying back the same failed level.
+            if s.traded_today and price < s.day_high + margin_for(price):
+                return
+            found = self.pullback(s)
+        if not found or price < found[0]:
+            return
         trigger, stop_ref = found
-        if kind == "setup":
+        if kind != "ignition":
             if not self.thin_ok(s):
                 return
             if V35_TREND and not self.trend_ok(s, price):
@@ -3132,7 +3185,9 @@ class V35(V31):
                 return
             s.ema_break = False
             s.v35_added = False
-            await self._maybe_enter_inner(s, price, fast, base, "setup",
+            s.setup_level = trigger             # what the entry log prints
+            await self._maybe_enter_inner(s, price, fast, base,
+                                          "hod" if kind == "hod" else "setup",
                                           trigger, stop_ref)
             if s.in_position:
                 s.v35_starter = s.shares
@@ -3151,6 +3206,7 @@ class V35(V31):
             await self.maybe_enter(s, price, self.fast_speed(s), self.baseline(s))
             return
         s.peak = max(s.peak, price)
+        s.v35_peak = max(s.v35_peak, price)
         if s.entry and s.peak >= s.entry * (1 + V35_LEASH_AT):
             s.armed = True
         if self.crashed(s, price):
