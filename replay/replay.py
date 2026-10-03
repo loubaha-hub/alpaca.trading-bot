@@ -355,6 +355,7 @@ async def run(args):
                         continue
                     strat.qualified.add(sym)
                     st = strat.st(sym)
+                    st.ref_price = meta.get(sym, {}).get("pre_close", 0.0)   # for strategies that read it
                     st.day_high = max(st.day_high, max(seed, last))
                     if sym not in subscribed:
                         pending.add(sym)
