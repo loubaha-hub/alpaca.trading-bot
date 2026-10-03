@@ -44,7 +44,7 @@ from zoneinfo import ZoneInfo
 
 ET = ZoneInfo("America/New_York")
 REPO = Path(__file__).resolve().parent.parent
-CLASSES = {"v31": "V31", "v32": "V32", "v33": "V33", "v34": "V34"}
+CLASSES = {"v31": "V31", "v32": "V32", "v33": "V33", "v34": "V34", "v35": "V35"}
 
 
 # ---- the simulated world -----------------------------------------------------
@@ -269,6 +269,12 @@ async def run(args):
     day = datetime.strptime(args.day, "%Y-%m-%d").date()
     folder = REPO / "replay" / "data" / args.day
     meta = json.load(open(folder / "meta.json"))
+    daily = REPO / "replay" / "data" / "daily_bars.json"
+    prev_high = {}                            # the prior session's high (v35)
+    for sym, days in (json.load(open(daily)) if daily.exists() else {}).items():
+        before = [d for d in days if d < args.day]
+        if before:
+            prev_high[sym] = days[max(before)][1]
     bars = load_bars(folder, set(args.symbols.split(",")) if args.symbols else None)
     if not bars:
         sys.exit("no bar files in %s" % folder)
@@ -368,6 +374,8 @@ async def run(args):
                     strat.qualified.add(sym)
                     st = strat.st(sym)
                     st.ref_price = meta.get(sym, {}).get("pre_close", 0.0)   # for strategies that read it
+                    if hasattr(st, "prev_high"):
+                        st.prev_high = prev_high.get(sym, 0.0)
                     st.day_high = max(st.day_high, max(seed, last))
                     if sym not in subscribed:
                         pending.add(sym)
