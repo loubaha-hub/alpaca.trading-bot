@@ -296,10 +296,35 @@ def test_first_entry_still_needs_a_setup(v31, clock):
     assert not entered(v31, s)
 
 
-def test_new_high_reentry_is_off_by_default(v31, clock):
+def test_new_high_reentry_is_on_in_r29(v31, clock):
+    """Off through r28; r29 switches it on behind the volume and no-chase rules."""
+    assert bot.V31_HOD_REENTRY is True
     s = no_setup(v31, clock)
     tick(v31, s, 10.60)
+    assert entered(v31, s)
+
+
+@pytest.mark.usefixtures("hod_on")
+def test_reentry_can_need_more_volume_than_a_first_entry(v31, clock, monkeypatch):
+    monkeypatch.setattr(bot, "V31_HOD_VOL_MIN", 3.0)
+    for m in range(6, 36):                               # 15k a minute before:
+        bar_minutes_ago(v31, clock, "ABCD", m, 10.00, 15_000)   # now x1.6
+    s = no_setup(v31, clock)
+    tick(v31, s, 10.55)
     assert not entered(v31, s)
+
+
+@pytest.mark.usefixtures("hod_on")
+def test_reentry_can_skip_the_cool_off(v31, clock, monkeypatch):
+    bar_minutes_ago(v31, clock, "ABCD", 300, 8.00)       # a spike at 5am
+    bar_minutes_ago(v31, clock, "ABCD", 285, 9.40)
+    s = no_setup(v31, clock)
+    tick(v31, s, 10.55)
+    assert not entered(v31, s)                           # the cool-off holds by default
+    monkeypatch.setattr(bot, "V31_HOD_SKIP_COOLOFF", True)
+    s.chase_logged_at = 0
+    tick(v31, s, 10.56)
+    assert entered(v31, s)
 
 
 @pytest.mark.usefixtures("hod_on")

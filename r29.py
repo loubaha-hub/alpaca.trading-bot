@@ -242,7 +242,14 @@ V31_ADDS = False
 # draws each minute bar as open-low-high-close, so a buy at a new high always
 # meets that bar's drop to its close at once - likely unfair to exactly this
 # entry. Settle it with tick data before switching it on.
-V31_HOD_REENTRY = False
+#
+# ON IN r29. Behind the no-chase rule and the rising-volume rule (which apply
+# to re-entries too) it made 7 re-entries over the same five days, 4 up, and
+# +$196 net (+$2,971 vs +$2,775 without). Stricter volume for re-entries
+# (2x, 3x, 5x) did worse (+$2,441 to +$2,676), and letting re-entries past
+# the rest-of-day cool-off did worse too (+$2,359, 17 re-entries). Seven
+# trades is thin evidence - watch it live.
+V31_HOD_REENTRY = True
 V31_HOD_BREAK_CENTS = 0.05
 V31_HOD_STOP_ABR = 1.0          # entry stop this many ABRs under the broken high
 V31_HOD_MAX_REENTRIES = 0       # new-high re-entries per name per day; 0 = no limit
@@ -321,6 +328,12 @@ FLOAT_FILE = os.environ.get("FLOAT_FILE", "floats.csv")
 # x1.5 was ahead of r28 on four of the five days; with a 10-minute recent
 # window +$2,119, with 60 minutes before +$2,257.
 V31_VOL_RISING_MIN = 1.5        # 0 = off
+# New-high re-entries (V31_HOD_REENTRY) can be held to a stricter volume
+# pickup, and can be let past the no-chase cool-off - a runner that spiked
+# earlier is exactly what they are for. The current print's 15%-in-15-minutes
+# check still applies to them. Neutral by default.
+V31_HOD_VOL_MIN = 0.0           # 0 = the same as V31_VOL_RISING_MIN
+V31_HOD_SKIP_COOLOFF = False
 V31_VOL_RECENT_MIN = 5
 V31_VOL_BEFORE_MIN = 30
 # THE TAPE - LOG ONLY, nothing trades on it yet. Every print is marked the
@@ -1738,19 +1751,19 @@ class V31(Strategy):
             return float("inf") if recent > 0 else None
         return (recent / V31_VOL_RECENT_MIN) / (before / before_minutes)
 
-    async def volume_rising(self, s) -> bool:
-        if not V31_VOL_RISING_MIN:
+    async def volume_rising(self, s, needed=None) -> bool:
+        needed = V31_VOL_RISING_MIN if needed is None else needed
+        if not needed:
             return True
         ratio = self.volume_ratio(await self.recent_bars(s),
                                   datetime.now(timezone.utc))
-        if ratio is None or ratio >= V31_VOL_RISING_MIN:
+        if ratio is None or ratio >= needed:
             return True
         if time.time() - s.vol_logged_at >= 60:
             s.vol_logged_at = time.time()
             log.info("[v31] %s VOLUME NOT RISING - the last %d minutes traded "
                      "x%.2f the pace of the %d before (needs x%.2f)", s.symbol,
-                     V31_VOL_RECENT_MIN, ratio, V31_VOL_BEFORE_MIN,
-                     V31_VOL_RISING_MIN)
+                     V31_VOL_RECENT_MIN, ratio, V31_VOL_BEFORE_MIN, needed)
         return False
 
     # ---- float sizing ---------------------------------------------------------
@@ -1809,7 +1822,7 @@ class V31(Strategy):
                  if need - minute <= row[0] < first_own and row[0] + minute <= now]
         return older + own
 
-    def spike(self, closes, now, price):
+    def spike(self, closes, now, price, cooloff=None):
         """The first rise of V31_CHASE_MAX_PCT or more within
         V31_CHASE_MINUTES that ended in the last V31_CHASE_COOLOFF_MIN minutes
         or ends now at `price`, as (rise, from price, when it ended); None if
@@ -1818,7 +1831,8 @@ class V31(Strategy):
         before."""
         minute = timedelta(minutes=1)
         span = timedelta(minutes=V31_CHASE_MINUTES)
-        start = now - timedelta(minutes=V31_CHASE_COOLOFF_MIN)
+        start = now - timedelta(minutes=V31_CHASE_COOLOFF_MIN
+                                if cooloff is None else cooloff)
         points = [(row[0] + minute, row[1]) for row in closes] + [(now, price)]
         j = -1
         for i, (t, c) in enumerate(points):
@@ -1831,11 +1845,11 @@ class V31(Strategy):
                 return c / ref - 1, ref, t
         return None
 
-    async def chasing(self, s, price) -> bool:
+    async def chasing(self, s, price, cooloff=None) -> bool:
         if not V31_NO_CHASE:
             return False
         now = datetime.now(timezone.utc)
-        hit = self.spike(await self.recent_bars(s), now, price)
+        hit = self.spike(await self.recent_bars(s), now, price, cooloff)
         if not hit:
             return False
         if time.time() - s.chase_logged_at >= 60:
@@ -1984,15 +1998,17 @@ class V31(Strategy):
             return
         if fast is None or fast <= 0:
             return
-        if await self.chasing(s, price):
-            return
-        if not await self.volume_rising(s):
-            return
         if setup_ok:
             kind, trigger, stop_ref = "setup", s.setup_level, s.setup_low
         else:
             kind, trigger = "hod", hod_level
             stop_ref = s.hod_closed - V31_HOD_STOP_ABR * max(self.abr(s), 0.01)
+        hod = kind == "hod"
+        if await self.chasing(s, price, 0 if hod and V31_HOD_SKIP_COOLOFF else None):
+            return
+        if not await self.volume_rising(
+                s, V31_HOD_VOL_MIN if hod and V31_HOD_VOL_MIN else None):
+            return
 
         # The symbol's lock, not a flag. The r23 `entering` flag guarded
         # against two ticks overlapping, which cannot happen - one task
