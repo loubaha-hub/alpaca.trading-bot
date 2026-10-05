@@ -1198,8 +1198,11 @@ class Strategy:
         eq = await self.broker.equity(self.day_start_equity)
         if eq <= 0:
             return
-        cap = {"v31": V31_LEADER_CAP, "v34": V34_MAX_POSITION_PCT}.get(
-            self.name, MAX_POSITION_PCT)
+        # Each strategy against ITS OWN cap. v35 was missing here and was held
+        # to 25% while its add is designed to reach 40% - every winner with an
+        # add would log a false CRITICAL every 5 seconds, burying a real one.
+        cap = {"v31": V31_LEADER_CAP, "v34": V34_MAX_POSITION_PCT,
+               "v35": V35_MAX_POSITION_PCT}.get(self.name, MAX_POSITION_PCT)
         total_value = 0.0
         for s in self.open_positions():
             price = s.last_price or s.entry

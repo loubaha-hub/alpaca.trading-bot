@@ -292,3 +292,23 @@ def test_v35_halts_at_10_percent_down(v35):
 def test_the_environment_can_set_the_halt(v35, monkeypatch):
     monkeypatch.setenv("V35_HALT_PCT", "5")
     assert v35.halt_threshold() == pytest.approx(0.05)
+
+
+# ---- the self-check -------------------------------------------------------------------
+
+def violations(caplog):
+    return [r for r in caplog.records if "SELF-CHECK VIOLATION" in r.getMessage()]
+
+
+def test_self_check_holds_v35_to_its_own_40_percent_cap(v35, caplog):
+    """A starter plus its add is allowed up to 40% of the account. Against the
+    generic 25% cap the replay logged 149 false CRITICALs on 2026-10-02."""
+    hold(v35, "ABCD", 3_800, 10.00)                    # $38,000 of $100,000
+    run(v35.self_check())
+    assert violations(caplog) == []
+
+
+def test_self_check_still_flags_v35_past_its_cap(v35, caplog):
+    hold(v35, "ABCD", 4_500, 10.00)                    # 45%: over 40% + 3% slack
+    run(v35.self_check())
+    assert len(violations(caplog)) == 1
