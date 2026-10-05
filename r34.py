@@ -96,7 +96,7 @@ RISK_CHECK_SECONDS = 5                      # the halt runs on a CLOCK, not tick
 # The file name and this string are changed together, every single time. The
 # log then answers "which code is actually running?" without anyone guessing
 # from line numbers or from behaviour that only shows up once a trade is on.
-VERSION = "v31-r34"
+VERSION = "v31-r34.1"
 
 # WHERE THE DAY'S HALT BASELINE COMES FROM.
 #   "last_equity" - equity at the PREVIOUS session's close, read from the broker.
@@ -674,6 +674,15 @@ class Broker:
         self._eq = 0.0
         self._eq_at = 0.0
         self.baseline_source = DAY_BASELINE
+        self._fill_log: dict[str, list] = {}   # symbol -> [(shares, avg price)]
+
+    def take_fill_price(self, symbol: str) -> float:
+        """The average price of everything that filled on this symbol since
+        the last call - what a sale REALLY got, not the print that triggered
+        it. 0.0 when nothing filled or the broker did not say."""
+        rows = self._fill_log.pop(symbol, [])
+        shares = sum(q for q, _ in rows)
+        return sum(q * p for q, p in rows) / shares if shares else 0.0
 
     async def account(self):
         return await asyncio.to_thread(self.client.get_account)
@@ -781,6 +790,7 @@ class Broker:
         except Exception as e:
             return self.classify(e, side, symbol)
         filled = 0
+        o = None
         try:
             for _ in range(10):
                 await asyncio.sleep(0.2)
@@ -798,6 +808,9 @@ class Broker:
                 await asyncio.to_thread(self.client.cancel_order_by_id, order.id)
             except Exception:
                 pass
+        avg = float(getattr(o, "filled_avg_price", 0) or 0) if filled > 0 else 0.0
+        if avg > 0:
+            self._fill_log.setdefault(symbol, []).append((filled, avg))
         return filled
 
     def classify(self, e, side, symbol) -> int:
@@ -965,9 +978,15 @@ class MarketData:
         # print from an odd lot or a derivatively-priced one, and a bot that
         # cannot tell them apart will trigger on prices the market never had.
         conds = tuple(getattr(trade, "conditions", None) or ())
+        # The print's own time, so an exit can say how old the print that
+        # triggered it was. On 2026-10-05 at 4:06am a QTEX print at 1.27 threw
+        # v31 and v34 out of a position while QTEX traded 1.40-1.52 - its last
+        # 1.27 had been four minutes earlier.
+        ts = getattr(trade, "timestamp", None)
+        ts = ts.timestamp() if hasattr(ts, "timestamp") else 0.0
         for sink in self.trade_sinks:
             try:
-                sink(trade.symbol, float(trade.price), float(trade.size), conds)
+                sink(trade.symbol, float(trade.price), float(trade.size), conds, ts)
             except Exception as e:          # one strategy's error is its own
                 log.error("trade %s: %s", trade.symbol, e)
 
@@ -1064,6 +1083,7 @@ class SymState:
     entry_at: float = 0.0            # time.time() of the fill, for hold-time
     last_conds: tuple = ()           # condition codes of the last print
     last_size: float = 0.0           # size of the last print
+    last_print_ts: float = 0.0       # when the last print traded (epoch s, 0 = unknown)
     first_entry: float = 0.0         # v32: today's original entry, fixed
     first_stop: float = 0.0          # v32: today's original stop, fixed
     v32_trips: int = 0               # v32: entries taken in this name today
@@ -1228,14 +1248,14 @@ class Strategy:
                 self.name, 100 * exposure_pct, 100 * MAX_EXPOSURE_PCT,
                 total_value)
 
-    def offer_tick(self, symbol, price, size, conds=()):
+    def offer_tick(self, symbol, price, size, conds=(), ts=0.0):
         """Called from the shared stream. NEVER blocks - just queues."""
         try:
-            self.queue.put_nowait((symbol, price, size, conds))
+            self.queue.put_nowait((symbol, price, size, conds, ts))
         except asyncio.QueueFull:
             try:
                 self.queue.get_nowait()        # drop the oldest, keep the newest
-                self.queue.put_nowait((symbol, price, size, conds))
+                self.queue.put_nowait((symbol, price, size, conds, ts))
             except Exception:
                 pass
             self.dropped_ticks += 1
@@ -1255,7 +1275,7 @@ class Strategy:
         order chase, its queue backs up and nobody else's does.
         """
         while True:
-            symbol, price, size, conds = await self.queue.get()
+            symbol, price, size, conds, ts = await self.queue.get()
             try:
                 s = self.st(symbol)
                 if not qualifies(conds):
@@ -1267,6 +1287,7 @@ class Strategy:
                 s.last_price = price
                 s.last_conds = conds
                 s.last_size = size
+                s.last_print_ts = ts
                 s.last_tick_at = time.time()
                 self.note_trade(s, price, size)
                 # Evaluate FIRST, then raise the day high. "A new high plus the
@@ -1512,27 +1533,46 @@ class Strategy:
         the decision log and closed_today. Every sale goes through here; the
         rebalance used to sell around it, so a position it closed left no
         record and kept its old entry and stop. Caller holds the lock."""
+        # What the decision was made on, taken before the sale: the chase
+        # awaits, and the price moves on under it.
+        trigger = self.print_text(s)
+        self.broker.take_fill_price(s.symbol)    # drop fills from before this sale
         sold = await self.sell(s.symbol, shares, s.last_price)
-        self.dlog.record(ev="EXIT", sym=s.symbol, why=why, px=s.last_price,
+        # Booked at what the sale REALLY got. The print that triggered it can
+        # be far from the market: QTEX, 2026-10-05 4:06am, was logged at 1.27
+        # and -$311 while the shares sold near 1.44 and the account barely
+        # moved. v35's re-entry-after-a-winner reads this P/L.
+        px = (self.broker.take_fill_price(s.symbol) if sold else 0.0) or s.last_price
+        self.dlog.record(ev="EXIT", sym=s.symbol, why=why, px=px, trigger=trigger,
                          sh=sold, entry=s.entry, peak=s.peak, stop=s.stop)
-        pl = (s.last_price - s.entry) * sold if s.entry else 0.0
-        self.closed_today.append((s.symbol, s.entry, s.last_price, sold, pl, why))
+        pl = (px - s.entry) * sold if s.entry else 0.0
+        self.closed_today.append((s.symbol, s.entry, px, sold, pl, why))
         # The level that threw us out. v33 re-enters just above it, so the
         # ladder climbs with the stock instead of waiting for a new day high.
         s.last_exit = s.last_price
         held = (time.time() - s.entry_at) if s.entry_at else 0.0
         eq = await self.broker.equity(self.day_start_equity)
-        log.info("[%s] %s %s %s %d @ %.4f | entry %.4f peak %.4f stop %.4f | "
-                 "held %.0fs | P/L %+.2f (%+.2f%% of the trade, %+.2f%% of the "
-                 "account)",
+        log.info("[%s] %s %s %s %d @ %.4f | trigger %s | entry %.4f peak %.4f "
+                 "stop %.4f | held %.0fs | P/L %+.2f (%+.2f%% of the trade, "
+                 "%+.2f%% of the account)",
                  self.name, "EXIT" if s.shares - sold <= 0 else "TRIM", why,
-                 s.symbol, sold, s.last_price, s.entry, s.peak,
+                 s.symbol, sold, px, trigger, s.entry, s.peak,
                  s.stop, held, pl,
-                 100 * (s.last_price - s.entry) / s.entry if s.entry else 0.0,
+                 100 * (px - s.entry) / s.entry if s.entry else 0.0,
                  100 * pl / eq if eq else 0.0)
         s.shares = max(0.0, s.shares - sold)
         if s.shares <= 0:
             self.clear(s)
+
+    @staticmethod
+    def print_text(s: SymState) -> str:
+        """The print a decision was made on: price x size, condition codes,
+        and how long before now it traded. A late-reported print - one that
+        arrives minutes after it happened - shows here as its age."""
+        age = ("%.1fs old" % (time.time() - s.last_print_ts)
+               if s.last_print_ts else "age unknown")
+        return "print %.4f x %d cond %s, %s" % (
+            s.last_price, s.last_size, list(s.last_conds) or "-", age)
 
     async def flatten_all(self, why: str):
         for s in self.open_positions():
@@ -1762,7 +1802,7 @@ class V31(Strategy):
 
     # ---- the tape (log only) ---------------------------------------------------
 
-    def offer_tick(self, symbol, price, size, conds=()):
+    def offer_tick(self, symbol, price, size, conds=(), ts=0.0):
         # Marked on arrival, against the quote as it stood when the print came
         # in - not when the queue gets to it.
         if qualifies(conds):
@@ -1770,7 +1810,7 @@ class V31(Strategy):
                 self.tape_add(self.st(symbol), price, size)
             except Exception as e:
                 self.log.error("[v31] tape %s: %s", symbol, e)
-        super().offer_tick(symbol, price, size, conds)
+        super().offer_tick(symbol, price, size, conds, ts)
 
     def offer_quote(self, symbol, bid, ask):
         if bid > 0 and ask >= bid:

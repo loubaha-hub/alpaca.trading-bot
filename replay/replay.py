@@ -88,6 +88,7 @@ class SimBroker:
         self.cost = defaultdict(float)
         self.label = label
         self.fills = []          # (time, sym, side, qty, price, reason)
+        self.fill_log = {}       # symbol -> [(qty, price)] since take_fill_price
         self.reason = ""
         self.max_pos_pct = (0.0, "", None)
         self.max_exposure_pct = (0.0, None)
@@ -118,6 +119,11 @@ class SimBroker:
         q = self.held.get(symbol, 0.0)
         return self.cost[symbol] / q if q else None
 
+    def take_fill_price(self, symbol):
+        rows = self.fill_log.pop(symbol, [])
+        qty = sum(q for q, _ in rows)
+        return sum(q * p for q, p in rows) / qty if qty else 0.0
+
     async def cancel_open(self, symbol):
         return 0
 
@@ -143,6 +149,7 @@ class SimBroker:
             self.held[symbol] -= qty
             self.cost[symbol] = avg * self.held[symbol]
         self.fills.append((self.clock.t, symbol, side, qty, px, self.reason))
+        self.fill_log.setdefault(symbol, []).append((qty, px))   # as Broker.send
         eq = self._equity()
         if side == self.bot.OrderSide.BUY and eq > 0:
             pct = self.held[symbol] * px / eq

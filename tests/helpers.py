@@ -29,6 +29,7 @@ class FakeBroker:
         self.cost = {}                 # symbol -> total dollars paid
         self.orders = []               # (symbol, qty, side, limit, filled)
         self.fills = []
+        self.fill_log = {}             # symbol -> [(shares, price)], as Broker
         self.qty_fails_on = set()
         self.qty_calls = 0
 
@@ -59,7 +60,14 @@ class FakeBroker:
                 self.held[symbol] -= got
                 self.cost[symbol] = avg * self.held[symbol]
         self.orders.append((symbol, qty, side, limit, got))
+        if got > 0:                    # as Broker.send: what filled, at what price
+            self.fill_log.setdefault(symbol, []).append((got, limit))
         return got
+
+    def take_fill_price(self, symbol):
+        rows = self.fill_log.pop(symbol, [])
+        shares = sum(q for q, _ in rows)
+        return sum(q * p for q, p in rows) / shares if shares else 0.0
 
     async def cancel_open(self, symbol):
         await asyncio.sleep(0)
