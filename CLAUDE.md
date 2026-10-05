@@ -34,7 +34,9 @@ numbers into any file here - memory files included.
   **Live results outrank replays.**
 - Premarket (4:00-9:30 ET) is prime time and gets its own design; regular
   hours (9:30-4:00, with LULD halts) get a separate one.
-- The no-chase rule stays. Work on the leash and on re-entry instead.
+- The day's #1 and #2 leaders come first, and a stock is never banned for
+  ripping (2026-10-05; replaces "the no-chase rule stays"). The owner's
+  method is in `memory/playbook.md`; the bot is to follow it point by point.
 
 ## Memory
 

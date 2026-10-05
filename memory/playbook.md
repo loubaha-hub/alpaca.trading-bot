@@ -20,11 +20,17 @@ is not part of it.
 - After a retracement well below the high of the day, wait for it to come back
   to the high of the day.
 - Re-enter while the stock keeps really moving.
+- The pattern most traders use: a green candle, then a red one; when the
+  next candle turns green and the price goes over the red's open, buy. Stop
+  at the bottom of the red. If that green turns red before it closes, out with
+  a small loss. When the stock is ripping it goes up "almost 90%" of the time.
+- Room: the next resistance must be at least double the risk away (usually
+  much more). If it is close, no entry.
 
 ## Do not enter
 - A green candle with a high wick (it retreated from its high).
 - A wide spread, or a thinly traded stock - go to liquid stocks.
-- Sell orders in the way on Level 2.
+- Sell orders in the way on Level 2. Level 2 is "a must".
 
 ## Confirm with the tape
 - Time and sales: most prints green (at the ask). Red = at the bid, white = in
@@ -42,13 +48,22 @@ is not part of it.
 ## Exit
 - Out very quickly when it starts coming down. The 10-second chart is what
   says "out". Many trades are scalps.
+- When it starts to retrace, out completely - or reduce the position if the
+  stock is not wild and is drifting down.
+- Hot keys: one key in, one key out.
+
+## The trader the owner learns from
+- Trades only the leader, and only once it rips fast; knows which names
+  repeat and which retrace. Enters, then keeps adding as it runs, with heavy
+  leverage (8-9x; the owner's broker allows 4x). Watches Level 2 closely.
 
 ## Results
+- Aim: 5-10% a day, not 100%.
 - Over three to four months: 60-65% of trades won (some stretches 80%); the
   average win was bigger than the average loss, up to about double. Rare
   large losses; the rule is to jump out quickly.
-- Most days about $350-550 (range about $180-600); some days over $1,000, a
-  few over $2,000.
+- Most days about $350-550 (range about $150-1,000; "if I made six or seven
+  hundred I'm happy"); some days over $1,000, a few over $2,000.
 - The first bot built from this, before the added rules, ran about -1% to +1%
   a day.
 

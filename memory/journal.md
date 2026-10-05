@@ -5,6 +5,20 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-05
 
+### The owner on the leaders and the no-chase ban
+- Decided by the owner: trading the day's #1 and #2 leaders comes before
+  anything else, and the bot must not ban a stock for ripping ("how could we
+  make any money if we ban something that rips"). This replaces the earlier
+  standing rule "the no-chase rule stays". How the ban is replaced is being
+  worked out point by point.
+- History: the all-day ban came in r28 (Saturday 10-03), because the five-day
+  replay went from -$439 to +$1,825 with it - the same five days it was
+  designed on. The leader switch (r30, by dollar volume, extra breakout buys)
+  was left off because the replay made $187 less with it. v31 has never been
+  limited to the leaders; only v35 is (top 2 by dollar volume).
+- Level 2: Webull's API returns it (10 levels pulled for MI on 10-05). The
+  bot could read it with a Webull API key; Alpaca has no Level 2 for stocks.
+
 ### The four filters: v35 only, and they do not separate v31's winners
 - The owner's filters (MACD over zero, above VWAP and EMA9, EMA9 over EMA20)
   and the top-2 leaders were built into v35 only (c1a9fb4, Saturday 10-03;
