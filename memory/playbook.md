@@ -16,8 +16,10 @@ is not part of it.
 - Price $1-$20.
 - Float under about 20 million shares - big floats are stodgy and do not rip.
 - Relative volume at least 2-3x normal (often 5x or more), and rising.
-- News - very important; very few trades without it. US stocks over Chinese
-  ones (Chinese can run but are unreliable). Typical: an unprofitable pharma
+- News - very important; very few trades without it.
+- Chinese companies are fine - the owner made MORE money on them than on US
+  ones - but they retrace fast: be on your toes and get out early, even while
+  it is still going up. Give up a little of the top; never ride the collapse. Typical: an unprofitable pharma
   or biotech that raised money, did a reverse split, then has news.
 - A recent reverse split (a 1-for-10 turns 50M shares into 5M; a depressed
   stock near $1 can go to $10).
