@@ -21,6 +21,10 @@ Updated 2026-10-05, evening ET.
    `main` with the next after-hours release, so every new session loads it.
 
 ## Next steps
+0. Waiting on the owner (10-05 evening): read their Webull order history
+   (read-only) to compare their trades with the bot's; what to do with the
+   bots tomorrow (pause, smaller size, or as is); their walkthrough.
+   Fixable on the branch, not shipped: the buy overfill (see the journal).
 1. Keep the past week's live log lines (`replay/live/`) in the project.
 2. With tick data: replay the six days print by print, then compare each live
    trade with the replay - the bot's execution vs what the market did.

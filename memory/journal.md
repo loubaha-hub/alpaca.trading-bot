@@ -5,6 +5,21 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-05
 
+### Execution bugs found in the live logs (evening)
+- Buys still overfill in r34: NU at 9:35am ET was sized to 300 shares (25%
+  cap) and ended at 394 (32%). On 10-02 (r23) AMOD was sized to 1,869 and
+  ended at 3,634 (49%). The order is polled, partly filled, cancelled, and the
+  chase re-sends before the broker's count catches up. Not fixed yet.
+- A position the broker no longer holds is retried on every print until the
+  60s reconcile clears it: 150 zero-share AHG exits in one minute on 09-30
+  (r16); 81 zero-share exits on 10-01 and 44 on 10-02.
+- "STILL HOLDING" (an exit that did not complete): 839 on 10-01 and 492 on
+  10-02, nearly all v33 and v32 - both off now.
+- Restarts during trading hours: 46 on 09-30, 5 between 7:13 and 8:00am ET on
+  10-02, 3 on 10-05. Old and new copies overlap for about a minute.
+- The owner's screenshots, 10-05 close: T6HH (v31) -3.79% (-$724), P28T
+  (v34) -1.41% (-$218), each a staircase of separate small losses.
+
 ### The bot does not record every trade print
 - Checked the live code (r34.3). The "tape" reads every print and labels it
   buyer/seller, but keeps only the last 5 minutes in memory and writes a
