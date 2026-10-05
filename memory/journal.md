@@ -5,6 +5,22 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-05
 
+### What v31's stocks did after it sold them (10-05)
+- v31 made 22 trades on 10-05 and won 2 (STNE, SPCH). Webull 1-minute bars
+  after each sale: 9 of the 22 went 3% or more above the entry price within
+  an hour of the sale.
+- The big ones were sold fast: SAIQ bought 6.50 at 4:05am, sold 3s later
+  (crash guard), high 18.37 within the hour (after a dip to -9%). ALEC sold
+  after 14s, then +29%. NVAX sold after 41s and 125s, then +8% within the
+  hour and +13% within two. QTEX 4:06am, then +17%.
+- But it is not only the exits: from each entry, 10 of 22 fell 3% before
+  they rose 3% (6 rose first, 6 did neither). SAIQ dipped 9% and ALEC 4% before
+  running. The entry moment and the size are part of it too.
+- Reading: the scanner finds the right stocks (the owner says it is close to
+  the one they trade by hand); the bot loses on entry timing, size, and
+  patience. One day only - to be checked on every saved day.
+- Script: scratchpad after_exit.py (not kept); bars from Webull get_stock_bars.
+
 ### Execution bugs found in the live logs (evening)
 - Buys still overfill in r34: NU at 9:35am ET was sized to 300 shares (25%
   cap) and ended at 394 (32%). On 10-02 (r23) AMOD was sized to 1,869 and
