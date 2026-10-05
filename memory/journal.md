@@ -5,6 +5,20 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-05
 
+### How the bot buys a fast stock (10-05)
+- buy(): a limit at the ask + 0.2%, never over the trigger + 2%
+  (BUY_CHASE_CAP); each try waits about 2s for a fill (send() polls 10 x
+  0.2s), then cancels and re-prices; at most 8 tries. A buy that fills
+  nothing is not logged - misses cannot be counted from the logs.
+- Before any order, the quote check (CONFIRM_ENTRY_WITH_QUOTE) refuses when
+  the ask is under the trigger - by half a cent: RETO 4:06am (ask 1.99 vs
+  1.9993, 9 refusals in 4s - RETO was a top-2 "ripping now" at 4:07), BBD
+  9:36am (4.30 vs 4.305, ~20 refusals), NVAX 1:48pm (11.79 vs 11.795).
+- The owner: on a real runner, buy at once, even 50c over; in premarket a
+  limit is passed and must be reloaded fast - the bot should do this better
+  than hot keys. Proposed: price the limit from the stock's speed, re-price
+  every few hundred ms, cap from the playbook, log every miss.
+
 ### The ripping rule on 1-minute bars (replay/research/rip_test.py)
 - Rule: two greens adding 5%+, each on 3x+ the volume of the 5 minutes
   before, the second bigger; then the first red(s); buy 1c over the last red's
