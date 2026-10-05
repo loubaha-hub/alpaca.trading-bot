@@ -58,6 +58,11 @@ is not part of it.
 ## Do not enter
 - A stock flying on skinny volume with a wide spread: "stay away, period".
   The spread eats the gain and an order of a few thousand shares moves it.
+- But when a stock with real volume is going to the roof, the spread does not
+  matter: buy at once, even half a point over. 500 shares that then run $2 is
+  $1,000 in two or three minutes. The guard is volume, not the spread.
+  (The bot caps a buy at 2% over the ask - BUY_CHASE_CAP - which would miss
+  these fills.)
 - A green candle with a high wick (it retreated from its high).
 - A wide spread, or a thinly traded stock - go to liquid stocks.
 - Sell orders in the way on Level 2. Level 2 is "a must".
