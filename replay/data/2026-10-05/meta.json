@@ -1,0 +1,563 @@
+{
+ "ABEV": {
+  "high": 3.34,
+  "low": 3.0951,
+  "open": 3.0951,
+  "pre_close": 2.99,
+  "volume": 111668
+ },
+ "ACB": {
+  "high": 4.38,
+  "low": 3.86,
+  "open": 3.887,
+  "pre_close": 3.92,
+  "volume": 121919
+ },
+ "AFYA": {
+  "high": 13.65,
+  "low": 12.49,
+  "open": 12.49,
+  "pre_close": 12.22,
+  "volume": 19316
+ },
+ "AGBK": {
+  "high": 6.41,
+  "low": 5.9,
+  "open": 5.9,
+  "pre_close": 5.46,
+  "volume": 7556
+ },
+ "AGRZ": {
+  "high": 3.49,
+  "low": 3.26,
+  "open": 3.26,
+  "pre_close": 3.25,
+  "volume": 120
+ },
+ "AIFA": {
+  "high": 5.37,
+  "low": 4.67,
+  "open": 4.67,
+  "pre_close": 4.47,
+  "volume": 19290
+ },
+ "AKTX": {
+  "high": 9.8,
+  "low": 8.54,
+  "open": 8.54,
+  "pre_close": 8.72,
+  "volume": 22
+ },
+ "ALEC": {
+  "high": 3.24,
+  "low": 2.05,
+  "open": 2.62,
+  "pre_close": 1.81,
+  "volume": 24089061
+ },
+ "ALVO": {
+  "high": 6.0111,
+  "low": 5.2926,
+  "open": 5.8144,
+  "pre_close": 5.45,
+  "volume": 32935
+ },
+ "AMOD": {
+  "high": 4.85,
+  "low": 2.9,
+  "open": 3.46,
+  "pre_close": 3.49,
+  "volume": 5826381
+ },
+ "APT": {
+  "high": 5.87,
+  "low": 5.3,
+  "open": 5.49,
+  "pre_close": 5.09,
+  "volume": 22344
+ },
+ "APUS": {
+  "high": 6.99,
+  "low": 3.21,
+  "open": 3.2125,
+  "pre_close": 3.22,
+  "volume": 9834810
+ },
+ "ARCO": {
+  "high": 7.96,
+  "low": 7.33,
+  "open": 7.34,
+  "pre_close": 7.11,
+  "volume": 31085
+ },
+ "ATXG": {
+  "high": 3.52,
+  "low": 3.41,
+  "open": 3.52,
+  "pre_close": 3.28,
+  "volume": 263
+ },
+ "AUUD": {
+  "high": 1.4,
+  "low": 1.26,
+  "open": 1.26,
+  "pre_close": 1.21,
+  "volume": 38155
+ },
+ "BBDO": {
+  "high": 3.6,
+  "low": 3.2277,
+  "open": 3.2277,
+  "pre_close": 3.156605,
+  "volume": 1838
+ },
+ "BMHL": {
+  "high": 4.84,
+  "low": 4.84,
+  "open": 4.84,
+  "pre_close": 4.498,
+  "volume": 1
+ },
+ "BVS": {
+  "high": 14.12,
+  "low": 13.05,
+  "open": 13.05,
+  "pre_close": 13.13,
+  "volume": 199
+ },
+ "CKX": {
+  "high": 12.23,
+  "low": 12.23,
+  "open": 12.23,
+  "pre_close": 10.63,
+  "volume": 20
+ },
+ "CRML": {
+  "high": 8.06,
+  "low": 7.0307,
+  "open": 7.1957,
+  "pre_close": 7.03,
+  "volume": 1143867
+ },
+ "CTNT": {
+  "high": 3.19,
+  "low": 2.51,
+  "open": 2.62,
+  "pre_close": 2.62,
+  "volume": 599721
+ },
+ "DLO": {
+  "high": 14.88,
+  "low": 13.75,
+  "open": 13.8566,
+  "pre_close": 13.745,
+  "volume": 38946
+ },
+ "EJH": {
+  "high": 1.77,
+  "low": 1.42,
+  "open": 1.77,
+  "pre_close": 1.49,
+  "volume": 982
+ },
+ "ELPC": {
+  "high": 15.96,
+  "low": 12.9302,
+  "open": 12.9302,
+  "pre_close": 12.86,
+  "volume": 90380
+ },
+ "ERNA": {
+  "high": 3.29,
+  "low": 2.9303,
+  "open": 2.9303,
+  "pre_close": 2.96,
+  "volume": 52
+ },
+ "FVN": {
+  "high": 9.7,
+  "low": 8.11,
+  "open": 8.11,
+  "pre_close": 8.005,
+  "volume": 34
+ },
+ "GAUZ": {
+  "high": 5.53,
+  "low": 5.02,
+  "open": 5.02,
+  "pre_close": 5.145,
+  "volume": 9
+ },
+ "GRML": {
+  "high": 8.9,
+  "low": 7.26,
+  "open": 7.76,
+  "pre_close": 7.88,
+  "volume": 558601
+ },
+ "GRNQ": {
+  "high": 9.5,
+  "low": 8.96,
+  "open": 9.5,
+  "pre_close": 8.48,
+  "volume": 11
+ },
+ "GRO": {
+  "high": 2.3468,
+  "low": 2.22,
+  "open": 2.22,
+  "pre_close": 2.15,
+  "volume": 12736
+ },
+ "GWAV": {
+  "high": 2.51,
+  "low": 2.38,
+  "open": 2.38,
+  "pre_close": 2.305,
+  "volume": 122
+ },
+ "INTR": {
+  "high": 6.5682,
+  "low": 5.9512,
+  "open": 6.0397,
+  "pre_close": 5.48,
+  "volume": 513284
+ },
+ "INTT": {
+  "high": 13.85,
+  "low": 12.3,
+  "open": 12.3,
+  "pre_close": 12.3,
+  "volume": 4415
+ },
+ "JAGX": {
+  "high": 4.7391,
+  "low": 4.01,
+  "open": 4.11,
+  "pre_close": 3.66,
+  "volume": 427064
+ },
+ "KBSX": {
+  "high": 1.61,
+  "low": 1.45,
+  "open": 1.61,
+  "pre_close": 1.45,
+  "volume": 44
+ },
+ "LFMD": {
+  "high": 3.0,
+  "low": 2.78,
+  "open": 2.78,
+  "pre_close": 2.74,
+  "volume": 2200
+ },
+ "LITB": {
+  "high": 3.03,
+  "low": 3.01,
+  "open": 3.01,
+  "pre_close": 2.81,
+  "volume": 183
+ },
+ "LND": {
+  "high": 3.9988,
+  "low": 3.5212,
+  "open": 3.9988,
+  "pre_close": 3.51,
+  "volume": 4708
+ },
+ "MGN": {
+  "high": 4.19,
+  "low": 3.68,
+  "open": 3.79,
+  "pre_close": 3.71,
+  "volume": 7022
+ },
+ "MI": {
+  "high": 4.41,
+  "low": 0.869,
+  "open": 0.9454,
+  "pre_close": 0.894,
+  "volume": 11273740
+ },
+ "MTNB": {
+  "high": 3.0,
+  "low": 2.64,
+  "open": 2.64,
+  "pre_close": 2.64,
+  "volume": 7995
+ },
+ "NAUT": {
+  "high": 2.4702,
+  "low": 2.1,
+  "open": 2.33,
+  "pre_close": 1.96,
+  "volume": 1464387
+ },
+ "NPT": {
+  "high": 2.8,
+  "low": 2.34,
+  "open": 2.7,
+  "pre_close": 2.44,
+  "volume": 309
+ },
+ "NU": {
+  "high": 15.25,
+  "low": 14.3299,
+  "open": 14.5402,
+  "pre_close": 13.43,
+  "volume": 2453580
+ },
+ "ONEN": {
+  "high": 2.4,
+  "low": 1.91,
+  "open": 1.91,
+  "pre_close": 1.87,
+  "volume": 715740
+ },
+ "PAGS": {
+  "high": 10.6,
+  "low": 9.47,
+  "open": 9.71,
+  "pre_close": 9.02,
+  "volume": 202437
+ },
+ "PAVS": {
+  "high": 4.14,
+  "low": 3.75,
+  "open": 4.14,
+  "pre_close": 3.75,
+  "volume": 4854
+ },
+ "PICS": {
+  "high": 10.25,
+  "low": 9.76,
+  "open": 9.78,
+  "pre_close": 9.09,
+  "volume": 15170
+ },
+ "PLRZ": {
+  "high": 10.56,
+  "low": 10.56,
+  "open": 10.56,
+  "pre_close": 9.61,
+  "volume": 250
+ },
+ "PZG": {
+  "high": 1.32,
+  "low": 1.32,
+  "open": 1.32,
+  "pre_close": 1.2,
+  "volume": 63
+ },
+ "QTEX": {
+  "high": 1.68,
+  "low": 1.25,
+  "open": 1.28,
+  "pre_close": 1.1,
+  "volume": 20532707
+ },
+ "RECT": {
+  "high": 1.39,
+  "low": 1.39,
+  "open": 1.39,
+  "pre_close": 1.28,
+  "volume": 100
+ },
+ "RETO": {
+  "high": 2.47,
+  "low": 1.9032,
+  "open": 1.91,
+  "pre_close": 1.55,
+  "volume": 4943078
+ },
+ "RLMD": {
+  "high": 3.94,
+  "low": 3.51,
+  "open": 3.56,
+  "pre_close": 3.6,
+  "volume": 104
+ },
+ "RNAZ": {
+  "high": 1.739,
+  "low": 1.5,
+  "open": 1.5,
+  "pre_close": 1.57,
+  "volume": 2462
+ },
+ "RZLV": {
+  "high": 2.26,
+  "low": 2.06,
+  "open": 2.11,
+  "pre_close": 2.06,
+  "volume": 1796645
+ },
+ "SABS": {
+  "high": 3.26,
+  "low": 2.99,
+  "open": 3.06,
+  "pre_close": 2.98,
+  "volume": 8754
+ },
+ "SAIQ": {
+  "high": 18.37,
+  "low": 3.49,
+  "open": 3.49,
+  "pre_close": 1.85,
+  "volume": 12488111
+ },
+ "SBS": {
+  "high": 6.4921,
+  "low": 5.84,
+  "open": 5.96,
+  "pre_close": 5.38,
+  "volume": 132547
+ },
+ "SDEV": {
+  "high": 12.73,
+  "low": 7.72,
+  "open": 8.9482,
+  "pre_close": 7.48,
+  "volume": 11029171
+ },
+ "SER": {
+  "high": 2.2,
+  "low": 1.9612,
+  "open": 2.2,
+  "pre_close": 1.96,
+  "volume": 34
+ },
+ "SID": {
+  "high": 1.3098,
+  "low": 1.23,
+  "open": 1.24,
+  "pre_close": 1.16,
+  "volume": 81977
+ },
+ "SLMT": {
+  "high": 4.7,
+  "low": 4.34,
+  "open": 4.34,
+  "pre_close": 4.33,
+  "volume": 56
+ },
+ "SMXT": {
+  "high": 2.5,
+  "low": 2.2867,
+  "open": 2.5,
+  "pre_close": 2.16,
+  "volume": 4
+ },
+ "SQFT": {
+  "high": 1.3038,
+  "low": 1.01,
+  "open": 1.01,
+  "pre_close": 1.18,
+  "volume": 493
+ },
+ "STNE": {
+  "high": 11.15,
+  "low": 10.08,
+  "open": 10.3295,
+  "pre_close": 9.55,
+  "volume": 277366
+ },
+ "SXTP": {
+  "high": 1.57,
+  "low": 1.42,
+  "open": 1.44,
+  "pre_close": 1.39,
+  "volume": 43944
+ },
+ "TIMB": {
+  "high": 19.94,
+  "low": 17.95,
+  "open": 18.1345,
+  "pre_close": 17.83,
+  "volume": 3269
+ },
+ "TV": {
+  "high": 2.6,
+  "low": 2.55,
+  "open": 2.6,
+  "pre_close": 2.29,
+  "volume": 10
+ },
+ "TVRD": {
+  "high": 1.25,
+  "low": 1.1699,
+  "open": 1.22,
+  "pre_close": 1.15,
+  "volume": 1039
+ },
+ "UGP": {
+  "high": 8.4,
+  "low": 7.49,
+  "open": 7.66,
+  "pre_close": 7.45,
+  "volume": 31203
+ },
+ "UUU": {
+  "high": 5.4,
+  "low": 4.9918,
+  "open": 5.3997,
+  "pre_close": 4.88,
+  "volume": 357
+ },
+ "VEEA": {
+  "high": 5.99,
+  "low": 3.87,
+  "open": 4.2797,
+  "pre_close": 3.33,
+  "volume": 18318788
+ },
+ "VIV": {
+  "high": 12.94,
+  "low": 12.0,
+  "open": 12.0,
+  "pre_close": 11.54,
+  "volume": 32746
+ },
+ "VRAX": {
+  "high": 3.03,
+  "low": 2.1603,
+  "open": 2.23,
+  "pre_close": 2.2,
+  "volume": 374686
+ },
+ "VS": {
+  "high": 1.18,
+  "low": 1.18,
+  "open": 1.18,
+  "pre_close": 1.085,
+  "volume": 1
+ },
+ "WQEY": {
+  "high": 31.79,
+  "low": 10.98,
+  "open": 12.68,
+  "pre_close": 12.5,
+  "volume": 14398
+ },
+ "WWW": {
+  "high": 21.0,
+  "low": 19.11,
+  "open": 19.3,
+  "pre_close": 19.2,
+  "volume": 19
+ },
+ "XCUR": {
+  "high": 1.29,
+  "low": 1.11,
+  "open": 1.16,
+  "pre_close": 1.15,
+  "volume": 98
+ },
+ "ZNTL": {
+  "high": 2.79,
+  "low": 2.58,
+  "open": 2.58,
+  "pre_close": 2.52,
+  "volume": 10921
+ },
+ "_source": "Webull, pulled 2026-10-05 09:31 ET (PRE_MARKET gainers pages 1-3, change >= ~5.6%, kept $1-$20; page-3 names only if they reached 10%+ above pre_close in that band; plus SAIQ, QTEX, SDEV, CRML). Minute bars are the PRE session only, 4:00-9:29 ET. pre_close is Friday 2026-10-02's daily close (WQEY: its last daily close, 2026-07-28). open/high/low/volume are today's premarket figures from the minute bars, since today's daily bar was not complete yet."
+}

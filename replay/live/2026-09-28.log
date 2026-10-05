@@ -1,0 +1,28 @@
+2026-09-28T16:36:02.698458+00:00  ADD AMC step 1 (gain 3.0%): 1870 -> 2739 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-n7d6x
+2026-09-28T20:25:06.248754+00:00  ADD NVTS step 1 (gain 3.0%): 134 -> 250 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-n7d6x
+2026-09-28T20:33:06.163442+00:00  ADD YMT step 1 (gain 6.0%): 285 -> 546 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-n7d6x
+2026-09-28T20:33:15.510009+00:00  ADD YMT step 2 (gain 8.9%): 546 -> 741 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-n7d6x
+2026-09-28T21:01:57.830989+00:00  Starting Alpaca v31 bot (REBUILT 2026-09-28: position watcher, chase, halt ladder). paper=True  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-tbg4b
+2026-09-28T21:01:58.247164+00:00  Starting Alpaca v24 bot (REBUILT 2026-09-28: position watcher, chase, halt ladder). paper=True  || resource=srv-dar96949v7es739usomg instance=srv-dar96949v7es739usomg-vqlkq
+2026-09-28T21:01:58.387839+00:00  NEW DAY 2026-09-28: baseline equity 29910.42, halt threshold 10.0%, halted days in a row 0  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-tbg4b
+2026-09-28T21:01:58.588479+00:00  Starting Alpaca v30 bot (REBUILT 2026-09-28: position watcher, chase, halt ladder). paper=True  || resource=srv-daral2npn0mc738oe7cg instance=srv-daral2npn0mc738oe7cg-gs6pl
+2026-09-28T21:01:58.773564+00:00  NEW DAY 2026-09-28: baseline equity 24085.62, halt threshold 10.0%, halted days in a row 0  || resource=srv-dar96949v7es739usomg instance=srv-dar96949v7es739usomg-vqlkq
+2026-09-28T21:01:59.048994+00:00  NEW DAY 2026-09-28: baseline equity 69868.35, halt threshold 10.0%, halted days in a row 0  || resource=srv-daral2npn0mc738oe7cg instance=srv-daral2npn0mc738oe7cg-gs6pl
+2026-09-28T21:03:50.977861+00:00  Starting Alpaca v31 bot (REBUILT 2026-09-28: position watcher, chase, halt ladder). paper=True  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-g5pp2
+2026-09-28T21:03:51.433088+00:00  NEW DAY 2026-09-28: baseline equity 29899.47, halt threshold 10.0%, halted days in a row 0  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-g5pp2
+2026-09-28T21:05:08.734307+00:00  CEILING approaching: NVTS trimmed to 89 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-g5pp2
+2026-09-28T21:06:27.373921+00:00  CEILING approaching: NVTS trimmed to 89 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-g5pp2
+2026-09-28T21:06:29.461326+00:00  CEILING jittery: NVTS trimmed to 44 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-g5pp2
+2026-09-28T21:13:22.342552+00:00  DAILY HALT: down 10.0% from 69868.35 (limit 10.0%) - flattening everything, no new entries for the rest of today  || resource=srv-daral2npn0mc738oe7cg instance=srv-daral2npn0mc738oe7cg-gs6pl
+2026-09-28T22:11:35.571645+00:00  CEILING approaching: YMT trimmed to 536 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-g5pp2
+2026-09-28T22:12:51.642144+00:00  CEILING approaching: YMT trimmed to 535 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-g5pp2
+2026-09-28T22:26:59.168552+00:00  CEILING approaching: IVVD trimmed to 982 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-g5pp2
+2026-09-28T22:47:45.745150+00:00  CEILING approaching: NVTS trimmed to 68 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-g5pp2
+2026-09-28T22:51:40.908283+00:00  CEILING approaching: IVVD trimmed to 973 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-g5pp2
+2026-09-28T22:52:03.832168+00:00  CEILING jittery: NVTS trimmed to 34 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-g5pp2
+2026-09-28T22:54:58.054054+00:00  CEILING jittery: IVVD trimmed to 486 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-g5pp2
+2026-09-28T23:16:16.381127+00:00  ADD ONFO step 1 (price 1.35): 2275 -> 4550 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-g5pp2
+2026-09-28T23:55:00.686644+00:00  END OF DAY FLATTEN: 19:55 ET - closing every real position  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-g5pp2
+2026-09-28T23:55:02.543984+00:00  place_sell(NVTS) end_of_day_flatten -> done  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-g5pp2
+2026-09-28T23:55:03.681899+00:00  END OF DAY FLATTEN: 19:55 ET - closing every real position  || resource=srv-daral2npn0mc738oe7cg instance=srv-daral2npn0mc738oe7cg-gs6pl
+2026-09-28T23:55:04.957204+00:00  END OF DAY FLATTEN: 19:55 ET - closing every real position  || resource=srv-dar96949v7es739usomg instance=srv-dar96949v7es739usomg-vqlkq

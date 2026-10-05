@@ -80,8 +80,9 @@ class Market:
 class SimBroker:
     """One account, with the same async methods the bot's Broker has."""
 
-    def __init__(self, bot, market, clock, equity, label):
+    def __init__(self, bot, market, clock, equity, label, slip=0.0):
         self.bot, self.market, self.clock = bot, market, clock
+        self.slip = slip         # stress test: fills this much worse
         self.start = equity
         self.cash = equity
         self.held = defaultdict(float)
@@ -134,6 +135,7 @@ class SimBroker:
             px = self.market.ask(symbol)
             if limit + 1e-9 < px:
                 return 0
+            px = min(limit, px * (1 + self.slip))
             self.cash -= qty * px
             self.held[symbol] += qty
             self.cost[symbol] += qty * px
@@ -141,6 +143,8 @@ class SimBroker:
             px = self.market.bid(symbol)
             if limit - 1e-9 > px:
                 return 0
+            # uncapped: an exit chases the bid down until it is filled
+            px = px * (1 - self.slip)
             qty = min(qty, int(self.held.get(symbol, 0.0)))
             if qty <= 0:
                 return -1                         # "not allowed to short"
@@ -316,7 +320,8 @@ async def run(args):
     install_clock(bot, clock)
 
     market = Market()
-    broker = SimBroker(bot, market, clock, args.equity, args.strategy)
+    broker = SimBroker(bot, market, clock, args.equity, args.strategy,
+                       args.slip_pct / 100)
     strat = getattr(bot, CLASSES[args.strategy])(broker, SimData(
         market, bars, with_volume=hasattr(getattr(bot, "V31", object), "volume_ratio")))
 
@@ -544,6 +549,10 @@ def main():
     ap.add_argument("--tag", default="", help="suffix for the output file names")
     ap.add_argument("--floats", default="replay/data/float.csv",
                     help="float file for bots that size by float ('' = none)")
+    ap.add_argument("--slip-pct", type=float, default=0.0,
+                    help="stress test: every fill this many %% worse than the "
+                         "quote (a buy never past its limit) - a runner's "
+                         "real book is far wider than the simulated 0.2%%")
     ap.add_argument("--no-rebalance", action="store_true",
                     help="what-if: never run the strategy's periodic() rebalance")
     asyncio.run(run(ap.parse_args()))
