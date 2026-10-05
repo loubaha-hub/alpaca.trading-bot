@@ -44,6 +44,9 @@ is not part of it.
   says "out". Many trades are scalps.
 
 ## Results
+- Over three to four months: 60-65% of trades won (some stretches 80%); the
+  average win was bigger than the average loss, up to about double. Rare
+  large losses; the rule is to jump out quickly.
 - Most days about $350-550 (range about $180-600); some days over $1,000, a
   few over $2,000.
 - The first bot built from this, before the added rules, ran about -1% to +1%
