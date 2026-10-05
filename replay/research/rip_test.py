@@ -51,8 +51,11 @@ def consecutive(bars, i, n):
                for k in range(i - n + 2, i + 1))
 
 
-def trades_for(sym, bars, a):
+def trades_for(sym, bars, a, flt=0.0):
     out = []
+    cum = [0.0]
+    for b in bars:
+        cum.append(cum[-1] + b[5])           # shares traded so far today
     i = a.before + 1
     entries = 0
     while i < len(bars) and entries < a.max_entries:
@@ -65,7 +68,8 @@ def trades_for(sym, bars, a):
                and avg > 0 and v1 >= a.vol * avg and v >= a.vol * avg and v > v1
                and min(v, v1) >= a.min_shares
                and min(v * c, v1 * c1) >= a.min_dollars
-               and a.pmin <= c <= a.pmax)
+               and a.pmin <= c <= a.pmax
+               and (not a.min_rotation or (flt and cum[i + 1] / flt >= a.min_rotation)))
         if not rip:
             i += 1
             continue
@@ -125,6 +129,9 @@ def main():
     ap.add_argument("--slip", type=float, default=0.0, help="%% worse on every fill")
     ap.add_argument("--max-entries", type=int, default=2, help="per name per day")
     ap.add_argument("--max-float", type=float, default=0, help="shares; 0 = any")
+    ap.add_argument("--min-rotation", type=float, default=0,
+                    help="shares traded so far today / float, at the rip - the "
+                         "float turning over (the owner's guru); 0 = off")
     ap.add_argument("--pmin", type=float, default=1.0)
     ap.add_argument("--pmax", type=float, default=20.0)
     ap.add_argument("--list", action="store_true")
@@ -132,7 +139,7 @@ def main():
 
     floats = {}
     fpath = os.path.join(os.path.dirname(__file__), "..", "..", "floats.csv")
-    if a.max_float and os.path.exists(fpath):
+    if (a.max_float or a.min_rotation) and os.path.exists(fpath):
         for r in csv.DictReader(open(fpath)):
             try:
                 floats[r["symbol"]] = float(r["float_shares"])
@@ -147,7 +154,7 @@ def main():
         for sym, bars in data.items():
             if a.max_float and floats.get(sym, 0) > a.max_float:
                 continue
-            dt_ += trades_for(sym, bars, a)
+            dt_ += trades_for(sym, bars, a, floats.get(sym, 0.0))
         allt += dt_
         w = sum(1 for t in dt_ if t["pct"] > 0)
         print("%s  %3d trades  %3d won  %+7.2f%% summed" % (

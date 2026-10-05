@@ -5,6 +5,18 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-05
 
+### Float rotation (shares traded / float), 10-05
+- Regular hours: MI 413x (0.4M float), SAIQ 25x, SDEV 16x, JAGX 10x, QTEX
+  1.8x, ALEC 0.9x; the bot's large caps NU, CLF, PAGS, STNE, RXRX 0.0-0.1x.
+  Premarket 1x or more: MI 28x, APUS 16x, AMOD 10x, VEEA 10x, SAIQ 5x, SDEV
+  2x - the morning's runners exactly. It finds where everybody is.
+- As a buy condition in rip_test (rotation 1x+ at the rip, liquid, first
+  entry): 23 trades, 22% won, -1.39% a trade - worse than float under 20M
+  (28 trades, 36%, +1.33%). Likely late: by the time the float has turned,
+  the minute-candle entries come late. Floats are as of 10-03, so a reverse
+  split earlier in the week distorts older days. Use it to choose the
+  stocks, not as the trigger - to be tested again with tick data.
+
 ### How the bot buys a fast stock (10-05)
 - buy(): a limit at the ask + 0.2%, never over the trigger + 2%
   (BUY_CHASE_CAP); each try waits about 2s for a fill (send() polls 10 x

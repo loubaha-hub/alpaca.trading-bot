@@ -25,6 +25,9 @@ is not part of it.
   stock near $1 can go to $10).
 - Short interest / hard to borrow - some shorting helps: the short squeeze.
 - No shelf: the company is not selling shares.
+- Float rotation (the guru's tell): the shares traded churn through the float
+  many times - a 5M float trading 20-40M shares within an hour. Supply small,
+  demand huge.
 - Then the key: wait for the stock to start running.
 
 ## Filters
@@ -88,6 +91,8 @@ is not part of it.
 - Hot keys: one key in, one key out.
 
 ## The trader the owner learns from
+- Grows $2,000 to $100,000 in 40-56 trading days, again and again, for
+  charity; over $1.5M in half a year on a large account. Very selective.
 - Trades only the leader, and only once it rips fast; knows which names
   repeat and which retrace. Enters, then keeps adding as it runs, with heavy
   leverage (8-9x; the owner's broker allows 4x). Watches Level 2 closely.
