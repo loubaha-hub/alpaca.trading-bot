@@ -38,9 +38,9 @@ def bar_ago(strat, clock, minutes, close, volume=40_000, symbol="ABCD"):
 
 
 def test_all_ship_off():
-    assert bot.V31_EARN_LEADERS == 0
+    assert bot.V31_EARN_LEADERS == 1                    # on since r34.2
     assert bot.V31_LEADER_WINDOW_MIN == 0
-    assert bot.V35_REENTRY_EARN is False
+    assert bot.V35_REENTRY_EARN is False                 # off: broke even over six days
     assert bot.V35_IGNITION_PCT == 0
     assert bot.V35_IGNITION_FIRST_BARS == 0 and bot.V35_IGNITION_LEADERS == 0
 
@@ -49,6 +49,13 @@ def test_all_ship_off():
 def tight(data):
     data.quotes[("ABCD", "bid")] = 10.55
     data.quotes[("ABCD", "ask")] = 10.56
+
+
+@pytest.fixture
+def earn_off(monkeypatch):
+    """The rule ships ON since r34.2; these tests are the without-it controls."""
+    monkeypatch.setattr(bot, "V31_EARN_LEADERS", 0)
+    monkeypatch.setattr(bot, "V35_REENTRY_EARN", False)
 
 
 @pytest.fixture
@@ -75,7 +82,7 @@ def spiked_leader(strat, clock, *, last_volume=100_000, spike_now=False):
 
 # ---- v31 ------------------------------------------------------------------------------
 
-def test_off_a_shut_out_leader_stays_out(v31, clock, tight):
+def test_off_a_shut_out_leader_stays_out(v31, clock, tight, earn_off):
     s = spiked_leader(v31, clock)
     tick(v31, s, 10.56)
     assert not entered(v31, s)
@@ -96,7 +103,7 @@ def test_it_passes_the_up_15_percent_right_now_rule_too(v31, clock):
 
 
 def test_without_it_the_right_now_rule_still_stops_that_break(v31, clock, tight,
-                                                              monkeypatch):
+                                                              monkeypatch, earn_off):
     monkeypatch.setattr(bot, "V31_SPIKE_HOD_OK", True)   # r30's switch alone
     s = spiked_leader(v31, clock, spike_now=True)
     tick(v31, s, 10.56)
@@ -145,7 +152,7 @@ def v34(broker, data, clock):
     return strat
 
 
-def test_v34_off_a_shut_out_leader_stays_out(v34, clock, tight):
+def test_v34_off_a_shut_out_leader_stays_out(v34, clock, tight, earn_off):
     s = spiked_leader(v34, clock)
     tick(v34, s, 10.56)
     assert not entered(v34, s)
@@ -189,6 +196,7 @@ def heavy_minute_then_break(strat, clock, data, s, volume):
 
 def test_v35_off_a_loser_is_not_bought_back(v35, clock, data, monkeypatch):
     monkeypatch.setattr(bot, "V31_EARN_LEADERS", 1)
+    monkeypatch.setattr(bot, "V35_REENTRY_EARN", False)
     s = closed(v35, clock, monkeypatch, win=False)
     heavy_minute_then_break(v35, clock, data, s, 400_000)
     assert len(v35.broker.buys("ABCD")) == 1

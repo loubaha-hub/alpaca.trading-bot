@@ -96,7 +96,7 @@ RISK_CHECK_SECONDS = 5                      # the halt runs on a CLOCK, not tick
 # The file name and this string are changed together, every single time. The
 # log then answers "which code is actually running?" without anyone guessing
 # from line numbers or from behaviour that only shows up once a trade is on.
-VERSION = "v31-r34.1"
+VERSION = "v31-r34.2"
 
 # WHERE THE DAY'S HALT BASELINE COMES FROM.
 #   "last_equity" - equity at the PREVIOUS session's close, read from the broker.
@@ -377,7 +377,10 @@ V31_LEADER_TOP = 0
 # before it, and the ask within V31_EARN_MAX_SPREAD of the bid (SAIQ's book
 # after its top: 10.80 / 11.60 - a 7% loss the moment it fills). Every other
 # entry rule still applies. 0 = off.
-V31_EARN_LEADERS = 0
+V31_EARN_LEADERS = 1           # ON 2026-10-05 (r34.2): the day's top leader.
+# Replayed 09-28..10-02 + 10-05 premarket: v31 +$462, v34 +$311 over the six
+# days, gaining on both samples at x1.5 and x2 volume (x3 hardly fires).
+# v35's loser re-entry through it (V35_REENTRY_EARN) only broke even: +$10.
 V31_EARN_VOL_MULT = 2.0
 V31_EARN_PAUSE_BARS = 5
 V31_EARN_MAX_SPREAD = 0.01
