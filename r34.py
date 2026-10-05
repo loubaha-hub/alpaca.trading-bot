@@ -365,6 +365,27 @@ V31_SPIKE_HOD_OK = False
 # +$2,453, top 3 +$2,385, top 5 +$2,233; top 2 with the 5-minute speed
 # +$2,412. Same caveat as V31_SPIKE_HOD_OK - try it live.
 V31_LEADER_TOP = 0
+# EARN YOUR WAY BACK IN (2026-10-05). The no-chase rule shut SAIQ out for the
+# day at 4:18am - it then ran from ~7 to 18.37 - and each breakout it made on
+# the way was itself "up 15% in 15 minutes right now". For that one minute a
+# fade and a run look alike; what tells them apart is the high: a run keeps
+# making new ones, on volume, and a fade does not. So a name the rule shut out
+# may be bought again - by v31, v34 and v35 alike - only by proving it: one of
+# the day's top V31_EARN_LEADERS names by dollar volume, breaking its highest
+# closed candle by V31_HOD_BREAK_CENTS, the last closed minute's volume at
+# least V31_EARN_VOL_MULT times the average of the V31_EARN_PAUSE_BARS minutes
+# before it, and the ask within V31_EARN_MAX_SPREAD of the bid (SAIQ's book
+# after its top: 10.80 / 11.60 - a 7% loss the moment it fills). Every other
+# entry rule still applies. 0 = off.
+V31_EARN_LEADERS = 0
+V31_EARN_VOL_MULT = 2.0
+V31_EARN_PAUSE_BARS = 5
+V31_EARN_MAX_SPREAD = 0.01
+# LEADERS BY WHAT IS MOVING NOW. leader_rank() sums the whole day's dollar
+# volume, so SAIQ's 4am volume kept it #1 for hours after it stopped moving -
+# and v35 trades only the top 2. With this set, only the last N minutes count.
+# 0 = the whole day.
+V31_LEADER_WINDOW_MIN = 0
 # THE SPEED AN ENTRY NEEDS. v31 used to ask only that its 100-print speed be
 # above zero. Checked against the 1-minute charts (replay/research/
 # speed_check.py), the bot's speed lit up on minutes that were really ripping
@@ -1084,6 +1105,7 @@ class SymState:
     last_conds: tuple = ()           # condition codes of the last print
     last_size: float = 0.0           # size of the last print
     last_print_ts: float = 0.0       # when the last print traded (epoch s, 0 = unknown)
+    earn_logged_at: float = 0.0      # V31_EARN_LEADERS: the last "earned" log line
     first_entry: float = 0.0         # v32: today's original entry, fixed
     first_stop: float = 0.0          # v32: today's original stop, fixed
     v32_trips: int = 0               # v32: entries taken in this name today
@@ -1893,11 +1915,15 @@ class V31(Strategy):
         the bars held here), 2 for the next... Recounted once a minute."""
         minute = int(time.time() // 60)
         if self.leader_cache[0] != minute:
+            since = (datetime.now(timezone.utc)
+                     - timedelta(minutes=V31_LEADER_WINDOW_MIN)
+                     if V31_LEADER_WINDOW_MIN else None)
             dv = {}
             for sym in self.qualified:
                 st = self.state.get(sym)
                 if st and st.bars:
-                    dv[sym] = sum(b.c * b.v for b in st.bars)
+                    dv[sym] = sum(b.c * b.v for b in st.bars
+                                  if since is None or b.ts >= since)
             order = sorted(dv, key=dv.get, reverse=True)
             self.leader_cache = (minute, {sym: i + 1 for i, sym in enumerate(order)})
         return self.leader_cache[1].get(symbol, 10**6)
@@ -2069,6 +2095,41 @@ class V31(Strategy):
         self.log_chase(s, price, hit)
         return True
 
+    def earn_candidate(self, s, price) -> bool:
+        """The cheap half of earned(): a top leader through its day high."""
+        # 1e-9: 10.45 + 0.05 is 10.500000000000002 in floating point, and a
+        # print at exactly 10.50 is the 5c break.
+        return bool(V31_EARN_LEADERS and s.hod_closed > 0
+                    and price >= s.hod_closed + V31_HOD_BREAK_CENTS - 1e-9
+                    and self.leader_rank(s.symbol) <= V31_EARN_LEADERS)
+
+    async def earned(self, s, price) -> bool:
+        """V31_EARN_LEADERS: a name the chase rule shut out proves it is
+        running, not fading - a top leader breaking its day high on volume
+        well above the pause before it, with a tight spread."""
+        if not self.earn_candidate(s, price):
+            return False
+        bars = list(s.bars)
+        if len(bars) < V31_EARN_PAUSE_BARS + 1:
+            return False
+        pause = bars[-1 - V31_EARN_PAUSE_BARS:-1]
+        avg = sum(b.v for b in pause) / len(pause)
+        if avg <= 0 or bars[-1].v < V31_EARN_VOL_MULT * avg:
+            return False
+        bid = ask = 0.0
+        if V31_EARN_MAX_SPREAD:
+            bid = await self.data.quote(s.symbol, "bid")
+            ask = await self.data.quote(s.symbol, "ask")
+            if not bid or not ask or ask > bid * (1 + V31_EARN_MAX_SPREAD):
+                return False
+        if time.time() - s.earn_logged_at >= 60:
+            s.earn_logged_at = time.time()
+            self.log.info("[%s] %s EARNED ITS WAY BACK IN - %.4f over the day "
+                          "high %.4f, last minute %.1fx the pause's volume, "
+                          "spread %.4f/%.4f", self.name, s.symbol, price,
+                          s.hod_closed, bars[-1].v / avg, bid or 0, ask or 0)
+        return True
+
     def log_chase(self, s, price, hit):
         now = datetime.now(timezone.utc)
         if time.time() - s.chase_logged_at >= 60:
@@ -2221,7 +2282,8 @@ class V31(Strategy):
         leader = bool(V31_LEADER_TOP and hod_break
                       and self.leader_rank(s.symbol) <= V31_LEADER_TOP)
         runner = (V31_SPIKE_HOD_OK and hod_break) or leader
-        if not (setup_ok or hod_ok or runner):
+        earn_try = self.earn_candidate(s, price)
+        if not (setup_ok or hod_ok or runner or earn_try):
             return
         if not self.thin_ok(s):
             return
@@ -2230,12 +2292,14 @@ class V31(Strategy):
         # THE NO-CHASE RULE. Up 15% in the last 15 minutes right now: never.
         # A spike earlier today: no pullback buys; with V31_SPIKE_HOD_OK a
         # break of the day high still may (and with V31_HOD_SKIP_COOLOFF a
-        # traded name's new-high re-entry).
-        if await self.chasing(s, price, 0):
+        # traded name's new-high re-entry). A leader that EARNS its way back
+        # (V31_EARN_LEADERS) passes both.
+        earn = earn_try and await self.earned(s, price)
+        if not earn and await self.chasing(s, price, 0):
             return
         earlier = await self.spike_hit(s, price)
         if earlier:
-            if runner or (hod_ok and V31_HOD_SKIP_COOLOFF):
+            if runner or earn or (hod_ok and V31_HOD_SKIP_COOLOFF):
                 kind = "hod"
             else:
                 self.log_chase(s, price, earlier)
@@ -2921,29 +2985,50 @@ class V34(V31):
             return
         if len(self.open_positions()) >= V34_MAX_POSITIONS:
             return
-        if not s.setup_ready or price < s.setup_level:
+        setup = s.setup_ready and price >= s.setup_level
+        earn_try = self.earn_candidate(s, price)        # V31_EARN_LEADERS
+        if not (setup or earn_try):
             return
-        if (V34_REENTRY_HIGH and s.traded_today
+        if (setup and V34_REENTRY_HIGH and s.traded_today
                 and price < s.day_high + margin_for(price)):
-            return
+            setup = False
+            if not earn_try:
+                return
         if V34_THIN_OK and not self.thin_ok(s):
             return
-        if V34_RANKED and self.best_candidate() != s.symbol:
-            return
+        # The ranking picks among names with a setup; an earned breakout has
+        # none - being a top leader (V31_EARN_LEADERS) is its ranking.
+        if setup and V34_RANKED and self.best_candidate() != s.symbol:
+            setup = False
+            if not earn_try:
+                return
         if not V34_RANKED and (fast is None or fast <= 0):
             return
-        if await self.chasing(s, price):        # V31_NO_CHASE
-            return
+        # The no-chase rule (V31_NO_CHASE) - unless the name earns its way
+        # back in on a new high. Only that breakout may then be bought.
+        earn = False
+        if await self.spike_hit(s, price):
+            earn = earn_try and await self.earned(s, price)
+            if not earn:
+                await self.chasing(s, price)    # says why, once a minute
+                return
+        elif not setup:
+            return                              # no spike: the setup rules apply
         if not await self.volume_rising(s):     # V31_VOL_RISING_MIN
             return
+        if earn:
+            kind, trigger = "hod", s.hod_closed + V31_HOD_BREAK_CENTS
+            stop_ref = s.hod_closed - V31_HOD_STOP_ABR * max(self.abr(s), 0.01)
+        else:
+            kind, trigger, stop_ref = "setup", s.setup_level, s.setup_low
         lock = self.lock(s.symbol)
         if lock.locked():
             return
         async with lock:
             if s.in_position:
                 return
-            await self._maybe_enter_inner(s, price, fast, base, "setup",
-                                          s.setup_level, s.setup_low)
+            await self._maybe_enter_inner(s, price, fast, base, kind,
+                                          trigger, stop_ref)
 
     def entry_shares(self, s, price, worst, stop_ref, eq, kind) -> int:
         """V34_STARTER_PCT of the account at the worst fill, inside the room
@@ -3049,6 +3134,11 @@ V35_NO_CHASE = False            # v31's no-chase rule on pullback entries - off:
 V35_IGNITION_PCT = 0.0          # a 1-min candle up this much on V31_BAR_SHARES_MIN
                                 # x 3 shares: buy its high at once, out at its
                                 # midpoint - no pullback, no chase rule (0 = off)
+V35_IGNITION_FIRST_BARS = 0     # ignition only within a name's first N candles
+                                # held - its first minutes on the scanner, where a
+                                # runner like SAIQ (4:00, +42%) shows (0 = any time)
+V35_IGNITION_LEADERS = 0        # ignition only for the top N leaders by dollar
+                                # volume (0 = V35_LEADERS, like every v35 entry)
 V35_REENTRY_HOD = True          # a name traded today: back in when the price breaks
                                 # the day's highest CLOSED candle + margin_for(),
                                 # stop V31_HOD_STOP_ABR under it (False: only a
@@ -3062,6 +3152,9 @@ V35_REENTRY_CENTS = 0.05        # the break needed over the high: these cents
 V35_REENTRY_FAST_MULT = 3.0     # crossing at this many times the name's usual
                                 # speed: no margin at all (0 = off)
 V35_REENTRY_AFTER_WIN = True    # re-enter only a name whose last trade made money
+V35_REENTRY_EARN = False        # ...and a name whose last trade LOST may come back
+                                # only by earning it (V31_EARN_LEADERS: new day
+                                # high, volume over the pause, tight spread)
 V35_EMA_EXIT = True             # young trade: out when a candle closes under EMA9
 V35_LEASH_AT = 0.10             # once up this much from the entry: the long leash
 V35_LEASH_ABR = 2.0             # long leash: this many ABRs under the high, kept
@@ -3136,6 +3229,10 @@ class V35(V31):
         Returns (trigger at its high, stop at its midpoint) or None."""
         if not V35_IGNITION_PCT or not s.bars:
             return None
+        if V35_IGNITION_FIRST_BARS and len(s.bars) > V35_IGNITION_FIRST_BARS:
+            return None
+        if V35_IGNITION_LEADERS and self.leader_rank(s.symbol) > V35_IGNITION_LEADERS:
+            return None
         b = s.bars[-1]
         if b.o <= 0 or b.c < b.o * (1 + V35_IGNITION_PCT):
             return None
@@ -3175,7 +3272,9 @@ class V35(V31):
             if V35_REENTRY_AFTER_WIN:
                 last = [c for c in self.closed_today if c[0] == s.symbol]
                 if not last or last[-1][4] <= 0:
-                    return
+                    # A loser comes back only by earning it.
+                    if not (V35_REENTRY_EARN and await self.earned(s, price)):
+                        return
             margin = V35_REENTRY_CENTS or margin_for(price)
             if (V35_REENTRY_FAST_MULT and fast is not None and base > 0
                     and fast >= V35_REENTRY_FAST_MULT * base):
