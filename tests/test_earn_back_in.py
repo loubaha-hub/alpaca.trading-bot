@@ -43,6 +43,10 @@ def test_all_ship_off():
     assert bot.V35_REENTRY_EARN is False
     assert bot.V35_IGNITION_PCT == 0
     assert bot.V35_IGNITION_FIRST_BARS == 0 and bot.V35_IGNITION_LEADERS == 0
+    assert bot.V31_EARN_VOL_MODE == 0 and bot.V31_EARN_SPREAD_ABR == 0
+    assert bot.V31_FOLLOW_ABOVE_MAX is False
+    assert bot.V31_EARN_SKIP_VOL_RISING is False
+    assert bot.V31_EARN_UNTIL_MIN == 0
 
 
 @pytest.fixture
@@ -57,16 +61,18 @@ def earn_on(monkeypatch, tight):
     monkeypatch.setattr(bot, "V31_VOL_RISING_MIN", 0.0)     # one rule at a time
 
 
-def spiked_leader(strat, clock, *, last_volume=100_000, spike_now=False):
-    """Spiked 8.00 -> 9.40 at 5am - shut out for the rest of the day - then a
-    pause of 40,000-share minutes and a green minute to a 10.50 day high on
-    `last_volume` shares. spike_now: also 9.00 sixteen minutes ago, so 10.56 is
-    "up 15% in 15 minutes right now" (SAIQ's 4:20 and 4:30 breakouts)."""
+def spiked_leader(strat, clock, *, last_volume=100_000, spike_now=False,
+                  pause_volume=40_000):
+    """Spiked 8.00 -> 9.40 five hours ago - shut out for the rest of the day -
+    then a pause of `pause_volume`-share minutes and a green minute to a 10.50
+    day high on `last_volume` shares. spike_now: also 9.00 sixteen minutes
+    ago, so 10.56 is "up 15% in 15 minutes right now" (SAIQ's 4:20 and 4:30
+    breakouts)."""
     bar_ago(strat, clock, 300, 8.00)
     bar_ago(strat, clock, 285, 9.40)
     if spike_now:
         bar_ago(strat, clock, 16, 9.00)
-    s = breakout(strat, clock)
+    s = breakout(strat, clock, bar_volume=pause_volume)
     now = clock.now.astimezone(bot.timezone.utc)
     strat.offer_bar(raw_bar("ABCD", now, 10.00, 10.50, 9.95, 10.35, last_volume))
     s.hod_closed = 10.50
@@ -310,3 +316,149 @@ def test_a_spread_that_keeps_a_runner_out_is_logged(v31, clock, data, caplog):
         tick(v31, s, 10.56)
     assert not entered(v31, s)
     assert any("but the spread is 2.9%" in r.getMessage() for r in caplog.records)
+
+
+# ---- the user's earn-rule changes (2026-10-05): volume vs the day, a spread by --------
+# ---- speed, following a name past $20, the earn rule's own volume test, premarket ----
+
+@pytest.mark.usefixtures("earn_on")
+def test_vs_the_pause_a_runner_trading_heavily_never_surges(v31, clock):
+    """SAIQ kept trading heavily while it pulled back, so its breakouts were
+    never 2x the minutes just before them (mode 0, live)."""
+    s = spiked_leader(v31, clock, pause_volume=150_000, last_volume=200_000)
+    tick(v31, s, 10.56)
+    assert not entered(v31, s)
+
+
+@pytest.mark.usefixtures("earn_on")
+def test_vs_the_days_average_minute_that_runner_qualifies(v31, clock, monkeypatch):
+    monkeypatch.setattr(bot, "V31_EARN_VOL_MODE", 1)
+    monkeypatch.setattr(bot, "V31_EARN_VOL_MULT", 1.5)
+    s = spiked_leader(v31, clock, pause_volume=150_000, last_volume=200_000)
+    tick(v31, s, 10.56)                       # 200k vs a 122k day average
+    assert entered(v31, s)
+
+
+@pytest.mark.usefixtures("earn_on")
+def test_vs_the_days_average_a_quiet_break_still_stays_out(v31, clock, monkeypatch):
+    monkeypatch.setattr(bot, "V31_EARN_VOL_MODE", 1)
+    monkeypatch.setattr(bot, "V31_EARN_VOL_MULT", 1.5)
+    s = spiked_leader(v31, clock, last_volume=40_000)
+    tick(v31, s, 10.56)
+    assert not entered(v31, s)
+
+
+@pytest.mark.usefixtures("earn_on")
+def test_the_minute_in_progress_counts_in_mode_2(v31, clock, monkeypatch):
+    """The surge comes IN the breakout minute: the last closed one was quiet."""
+    monkeypatch.setattr(bot, "V31_EARN_VOL_MODE", 2)
+    monkeypatch.setattr(bot.time, "time", lambda: 1_790_000_080.0)   # 40s into a minute
+    s = spiked_leader(v31, clock, last_volume=40_000)
+    s.min_index, s.min_vol = int(bot.time.time() // 60), 0.0   # the minute starts here
+    v31.note_trade(s, 10.50, 120_000)
+    tick(v31, s, 10.56)                       # 180k a minute vs a 40k average
+    assert entered(v31, s)
+
+
+@pytest.mark.usefixtures("earn_on")
+def test_mode_2_without_the_volume_stays_out(v31, clock, monkeypatch):
+    monkeypatch.setattr(bot, "V31_EARN_VOL_MODE", 2)
+    monkeypatch.setattr(bot.time, "time", lambda: 1_790_000_080.0)
+    s = spiked_leader(v31, clock, last_volume=40_000)
+    s.min_index, s.min_vol = int(bot.time.time() // 60), 0.0   # the minute starts here
+    v31.note_trade(s, 10.50, 20_000)
+    tick(v31, s, 10.56)                       # 30k a minute vs a 40k average
+    assert not entered(v31, s)
+
+
+@pytest.mark.usefixtures("earn_on")
+def test_a_fast_stock_may_carry_a_wider_spread(v31, clock, data, monkeypatch):
+    monkeypatch.setattr(bot, "V31_EARN_SPREAD_ABR", 0.5)
+    monkeypatch.setattr(v31, "abr", lambda s: 0.63)       # 6% a minute
+    data.quotes[("ABCD", "bid")] = 10.50
+    data.quotes[("ABCD", "ask")] = 10.80                 # 2.9%, under 0.5 x 6%
+    s = spiked_leader(v31, clock)
+    tick(v31, s, 10.56)
+    assert entered(v31, s)
+
+
+@pytest.mark.usefixtures("earn_on")
+def test_a_slow_stock_keeps_the_one_percent_spread(v31, clock, data, monkeypatch):
+    monkeypatch.setattr(bot, "V31_EARN_SPREAD_ABR", 0.5)
+    monkeypatch.setattr(v31, "abr", lambda s: 0.10)       # 1% a minute
+    data.quotes[("ABCD", "bid")] = 10.50
+    data.quotes[("ABCD", "ask")] = 10.80
+    s = spiked_leader(v31, clock)
+    tick(v31, s, 10.56)
+    assert not entered(v31, s)
+
+
+@pytest.mark.usefixtures("earn_on")
+def test_no_stock_is_fast_enough_for_an_empty_book(v31, clock, data, monkeypatch):
+    monkeypatch.setattr(bot, "V31_EARN_SPREAD_ABR", 0.5)
+    monkeypatch.setattr(v31, "abr", lambda s: 3.00)       # 30% a minute
+    data.quotes[("ABCD", "bid")] = 10.80
+    data.quotes[("ABCD", "ask")] = 11.60                 # 7.4%, over the 5% cap
+    s = spiked_leader(v31, clock)
+    tick(v31, s, 10.56)
+    assert not entered(v31, s)
+
+
+def test_follow_a_listed_name_past_the_price_ceiling(v31, monkeypatch):
+    s = v31.st("ABCD")
+    v31.qualified.add("ABCD")
+    assert not v31.price_ok(s, bot.PRICE_MAX + 5)
+    monkeypatch.setattr(bot, "V31_FOLLOW_ABOVE_MAX", True)
+    assert v31.price_ok(s, bot.PRICE_MAX + 5)
+    assert not v31.price_ok(s, bot.PRICE_MIN - 0.01)     # the floor stays
+    other = v31.st("WXYZ")                               # not on the day's list
+    assert not v31.price_ok(other, bot.PRICE_MAX + 5)
+
+
+async def refuse(s, needed=None):
+    """volume_rising() as it answered SAIQ at 4:22 (x1.10 of the 30 minutes before)."""
+    return False
+
+
+@pytest.mark.usefixtures("earn_on")
+def test_the_general_rising_volume_rule_can_refuse_an_earned_buy(v31, clock,
+                                                                 monkeypatch):
+    monkeypatch.setattr(v31, "volume_rising", refuse)
+    s = spiked_leader(v31, clock)
+    tick(v31, s, 10.56)
+    assert not entered(v31, s)
+
+
+@pytest.mark.usefixtures("earn_on")
+def test_an_earned_buy_is_held_to_its_own_volume_test_only(v31, clock, monkeypatch):
+    monkeypatch.setattr(v31, "volume_rising", refuse)
+    monkeypatch.setattr(bot, "V31_EARN_SKIP_VOL_RISING", True)
+    s = spiked_leader(v31, clock)
+    tick(v31, s, 10.56)
+    assert entered(v31, s)
+
+
+@pytest.mark.usefixtures("earn_on")
+def test_earned_buys_in_the_premarket(v31, clock, monkeypatch):
+    monkeypatch.setattr(bot, "V31_EARN_UNTIL_MIN", 570)
+    clock.set(9, 0)
+    s = spiked_leader(v31, clock)
+    tick(v31, s, 10.56)
+    assert entered(v31, s)
+
+
+@pytest.mark.usefixtures("earn_on")
+def test_no_earned_buys_after_9_30(v31, clock, monkeypatch):
+    monkeypatch.setattr(bot, "V31_EARN_UNTIL_MIN", 570)
+    clock.set(9, 30)
+    s = spiked_leader(v31, clock)
+    tick(v31, s, 10.56)
+    assert not entered(v31, s)
+
+
+@pytest.mark.usefixtures("earn_on")
+def test_v34_no_earned_buys_after_9_30(v34, clock, monkeypatch):
+    monkeypatch.setattr(bot, "V31_EARN_UNTIL_MIN", 570)
+    s = spiked_leader(v34, clock)                        # 10:00
+    tick(v34, s, 10.56)
+    assert not entered(v34, s)

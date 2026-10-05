@@ -381,11 +381,48 @@ V31_EARN_LEADERS = 0
 V31_EARN_VOL_MULT = 2.0
 V31_EARN_PAUSE_BARS = 5
 V31_EARN_MAX_SPREAD = 0.01
+# THE VOLUME SURGE, MEASURED HOW (2026-10-05, from the user's charts): a runner
+# keeps trading heavily while it pulls back, so "2x the 5 minutes before"
+# asks for a surge on top of a surge - SAIQ's 4:21-4:25 breakouts never got
+# it. 0 = the last closed minute vs the V31_EARN_PAUSE_BARS before it (r34.2);
+# 1 = the last closed minute vs the day's average minute; 2 = the minute in
+# progress, scaled to a full minute, vs the day's average minute - the surge
+# comes IN the breakout minute, not the one before it.
+V31_EARN_VOL_MODE = 0
+# THE SPREAD, AS A SHARE OF HOW FAST THE STOCK MOVES. Paying 3% to get into a
+# name whose typical minute is 15% is cheap; on a 2% name it is the whole
+# trade. With this set, the spread may be up to this fraction of the stock's
+# typical one-minute range (its ABR) - never under V31_EARN_MAX_SPREAD, never
+# over V31_EARN_SPREAD_CAP, so an empty book never qualifies. 0 = the flat 1%.
+V31_EARN_SPREAD_ABR = 0.0
+V31_EARN_SPREAD_CAP = 0.05
+# FOLLOW A NAME PAST $20 (the user, 2026-10-05). The $1-$20 band is checked at
+# every BUY, so a name found at $15 that runs to $43 could never be bought
+# back - though everything held keeps its stops and exits at any price. With
+# this on, a name already on the day's list stays buyable above PRICE_MAX
+# under the same rules; the scanner still adds new names only at $1-$20.
+V31_FOLLOW_ABOVE_MAX = False
+# AN EARNED BUY HAS PROVED ITS VOLUME. v31's general rising-volume rule (the
+# last 5 minutes at V31_VOL_RISING_MIN x the pace of the 30 before) refused
+# SAIQ's earned breakouts at 4:22, 4:23 and 4:25 on the 2026-10-05 replay
+# (x1.10, x1.38, x1.46): a name that has traded heavily for half an hour can
+# never look like a surge against its own last half hour. With this on, an
+# earned buy is held to the earn rule's own volume test only.
+V31_EARN_SKIP_VOL_RISING = False
 # LEADERS BY WHAT IS MOVING NOW. leader_rank() sums the whole day's dollar
 # volume, so SAIQ's 4am volume kept it #1 for hours after it stopped moving -
 # and v35 trades only the top 2. With this set, only the last N minutes count.
 # 0 = the whole day.
 V31_LEADER_WINDOW_MIN = 0
+# EARNED BUYS IN THE PREMARKET ONLY (2026-10-05, six-day replay). Before
+# 9:30 a top leader through its high has no halts ahead of it and a thin
+# crowd behind it; after 9:30 the open's flood of volume makes every name
+# look "earned" and most of those breakouts fail - on 09-28..10-05 every
+# variant's earned buys made money before 9:30 (v31 live rule +$782 on 2,
+# top-2/day-average +$1,080 on 15) and lost after it (-$212 on 4, -$946 on
+# 20, mostly entry-stops at the open and in the afternoon). Minutes after
+# midnight ET at which earned buys stop - 570 = 9:30. 0 = all session.
+V31_EARN_UNTIL_MIN = 0
 # THE SPEED AN ENTRY NEEDS. v31 used to ask only that its 100-print speed be
 # above zero. Checked against the 1-minute charts (replay/research/
 # speed_check.py), the bot's speed lit up on minutes that were really ripping
@@ -1106,6 +1143,8 @@ class SymState:
     last_size: float = 0.0           # size of the last print
     last_print_ts: float = 0.0       # when the last print traded (epoch s, 0 = unknown)
     earn_logged_at: float = 0.0      # V31_EARN_LEADERS: the last "earned" log line
+    min_index: int = 0               # the minute the running volume below belongs to
+    min_vol: float = 0.0             # shares traded so far in that minute (V31_EARN_VOL_MODE 2)
     earn_high: float = 0.0           # the day high an earned buy last broke - the next
                                      # one needs a higher closed high (no re-buy churn)
     spread_logged_at: float = 0.0    # the last "spread kept it out" log line
@@ -1680,6 +1719,10 @@ class V31(Strategy):
         s.trades.append((price, size))
         now = time.time()
         s.recent.append((now, price))
+        minute = int(now // 60)
+        if s.min_index != minute:
+            s.min_index, s.min_vol = minute, 0.0
+        s.min_vol += size
         while s.recent and now - s.recent[0][0] > V31_CRASH_WINDOW_SEC:
             s.recent.popleft()
 
@@ -2098,6 +2141,23 @@ class V31(Strategy):
         self.log_chase(s, price, hit)
         return True
 
+    def minute_volume(self, s) -> float:
+        """Shares traded in the minute in progress, scaled to a full minute
+        (never from under 15 seconds of it - a few prints are not a pace)."""
+        now = time.time()
+        if s.min_index != int(now // 60):
+            return 0.0
+        return s.min_vol * 60.0 / max(15.0, now - s.min_index * 60)
+
+    def price_ok(self, s, price, lo=None, hi=None) -> bool:
+        """The price band at a buy - with V31_FOLLOW_ABOVE_MAX, a name already
+        on the day's list has no ceiling."""
+        lo = PRICE_MIN if lo is None else lo
+        hi = PRICE_MAX if hi is None else hi
+        if price < lo:
+            return False
+        return price <= hi or (V31_FOLLOW_ABOVE_MAX and s.symbol in self.qualified)
+
     def earn_candidate(self, s, price) -> bool:
         """The cheap half of earned(): a top leader through its day high -
         a HIGHER one than the last earned buy broke. On the 2026-10-05 replay
@@ -2106,6 +2166,10 @@ class V31(Strategy):
         again. One earned buy per new closed-candle high."""
         # 1e-9: 10.45 + 0.05 is 10.500000000000002 in floating point, and a
         # print at exactly 10.50 is the 5c break.
+        if V31_EARN_UNTIL_MIN:
+            now = datetime.now(ET)
+            if now.hour * 60 + now.minute >= V31_EARN_UNTIL_MIN:
+                return False
         return bool(V31_EARN_LEADERS and s.hod_closed > 0
                     and s.hod_closed > s.earn_high
                     and price >= s.hod_closed + V31_HOD_BREAK_CENTS - 1e-9
@@ -2118,33 +2182,44 @@ class V31(Strategy):
         if not self.earn_candidate(s, price):
             return False
         bars = list(s.bars)
-        if len(bars) < V31_EARN_PAUSE_BARS + 1:
-            return False
-        pause = bars[-1 - V31_EARN_PAUSE_BARS:-1]
-        avg = sum(b.v for b in pause) / len(pause)
-        if avg <= 0 or bars[-1].v < V31_EARN_VOL_MULT * avg:
+        if V31_EARN_VOL_MODE == 0:
+            if len(bars) < V31_EARN_PAUSE_BARS + 1:
+                return False
+            pause = bars[-1 - V31_EARN_PAUSE_BARS:-1]
+            avg = sum(b.v for b in pause) / len(pause)
+            vol = bars[-1].v
+        else:
+            if len(bars) < V31_EARN_PAUSE_BARS:
+                return False                    # too little of a day to average
+            avg = sum(b.v for b in bars) / len(bars)
+            vol = bars[-1].v if V31_EARN_VOL_MODE == 1 else self.minute_volume(s)
+        if avg <= 0 or vol < V31_EARN_VOL_MULT * avg:
             return False
         bid = ask = 0.0
-        if V31_EARN_MAX_SPREAD:
+        spread_ok = V31_EARN_MAX_SPREAD
+        if V31_EARN_SPREAD_ABR and price > 0:
+            spread_ok = max(spread_ok, min(V31_EARN_SPREAD_CAP,
+                                           V31_EARN_SPREAD_ABR * self.abr(s) / price))
+        if spread_ok:
             bid = await self.data.quote(s.symbol, "bid")
             ask = await self.data.quote(s.symbol, "ask")
-            if not bid or not ask or ask > bid * (1 + V31_EARN_MAX_SPREAD):
+            if not bid or not ask or ask > bid * (1 + spread_ok):
                 # Logged so the limit can be set from what runners' books
                 # really look like - a furious run widens the spread.
                 if bid and ask and time.time() - s.spread_logged_at >= 60:
                     s.spread_logged_at = time.time()
                     self.log.info("[%s] %s would earn its way back in at %.4f "
                                   "but the spread is %.1f%% (%.4f / %.4f), over "
-                                  "the %.0f%% limit", self.name, s.symbol, price,
+                                  "the %.1f%% limit", self.name, s.symbol, price,
                                   100 * (ask / bid - 1), bid, ask,
-                                  100 * V31_EARN_MAX_SPREAD)
+                                  100 * spread_ok)
                 return False
         if time.time() - s.earn_logged_at >= 60:
             s.earn_logged_at = time.time()
             self.log.info("[%s] %s EARNED ITS WAY BACK IN - %.4f over the day "
-                          "high %.4f, last minute %.1fx the pause's volume, "
-                          "spread %.4f/%.4f", self.name, s.symbol, price,
-                          s.hod_closed, bars[-1].v / avg, bid or 0, ask or 0)
+                          "high %.4f, volume %.1fx its baseline, spread "
+                          "%.4f/%.4f", self.name, s.symbol, price,
+                          s.hod_closed, vol / avg, bid or 0, ask or 0)
         return True
 
     def log_chase(self, s, price, hit):
@@ -2274,7 +2349,7 @@ class V31(Strategy):
         # when it adds a name, and a name stays qualified all day - so a stock
         # that fell under $1 after qualifying could still be bought (PMAX at
         # $0.905 on the 2026-10-01 replay).
-        if not (PRICE_MIN <= price <= PRICE_MAX):
+        if not self.price_ok(s, price):
             return
         if len(self.open_positions()) >= V31_MAX_POSITIONS:
             return
@@ -2333,7 +2408,7 @@ class V31(Strategy):
             trigger = hod_level
             stop_ref = s.hod_closed - V31_HOD_STOP_ABR * max(self.abr(s), 0.01)
         hod = kind == "hod"
-        if not await self.volume_rising(
+        if not (earn and V31_EARN_SKIP_VOL_RISING) and not await self.volume_rising(
                 s, V31_HOD_VOL_MIN if hod and V31_HOD_VOL_MIN else None):
             return
 
@@ -3000,7 +3075,7 @@ class V34(V31):
             return
         if s.symbol not in self.qualified:
             return
-        if not (PRICE_MIN <= price <= PRICE_MAX):
+        if not self.price_ok(s, price):
             return
         if len(self.open_positions()) >= V34_MAX_POSITIONS:
             return
@@ -3033,7 +3108,8 @@ class V34(V31):
                 return
         elif not setup:
             return                              # no spike: the setup rules apply
-        if not await self.volume_rising(s):     # V31_VOL_RISING_MIN
+        if not (earn and V31_EARN_SKIP_VOL_RISING) and \
+                not await self.volume_rising(s):    # V31_VOL_RISING_MIN
             return
         if earn:
             kind, trigger = "hod", s.hod_closed + V31_HOD_BREAK_CENTS
@@ -3272,7 +3348,8 @@ class V35(V31):
                 return
         if s.symbol not in self.qualified:
             return
-        if not (max(PRICE_MIN, V35_PRICE_MIN) <= price <= min(PRICE_MAX, V35_PRICE_MAX)):
+        if not self.price_ok(s, price, max(PRICE_MIN, V35_PRICE_MIN),
+                             min(PRICE_MAX, V35_PRICE_MAX)):
             return
         if len(self.open_positions()) >= V35_MAX_POSITIONS:
             return
