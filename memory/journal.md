@@ -5,6 +5,22 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-05
 
+### The ripping rule on 1-minute bars (replay/research/rip_test.py)
+- Rule: two greens adding 5%+, each on 3x+ the volume of the 5 minutes
+  before, the second bigger; then the first red(s); buy 1c over the last red's
+  open; stop at the reds' low; win at 2x the risk; 6 days 09-28..10-05
+  (10-05 premarket only).
+- Candles alone: 74 trades, 26% won, -0.39% a trade. Float under 20M and the
+  first entry only: 46 trades, 33% won, +0.42%. Plus at least $500k traded
+  in each rip minute (the owner's "stay away from thin"): 19 trades, 37% won,
+  average win +13.2%, loss -4.7%, +1.88% a trade; with fills 0.5% worse,
+  -0.14%. $250k: 28 trades, 36%, +1.33%.
+- vs the live bot (under 1 in 10 won): about 3x the win rate, near break-even
+  after costs - not the owner's 60-65%. What 1-minute bars cannot show (the
+  tape, Level 2, the 10-second exit, news) is where the rest has to be.
+  19 trades is thin evidence. On 10-05 it bought MI at 2.93 (9:19am) and was
+  stopped at 2.80.
+
 ### The owner's screen vs the bot's scanner
 - The bot's scanner checks only price $1-$20 and up 10% on the day. No float,
   relative volume, news, reverse split, short interest or shelf check. v35

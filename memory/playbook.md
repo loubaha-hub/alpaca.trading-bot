@@ -43,7 +43,19 @@ is not part of it.
 - Room: the next resistance must be at least double the risk away (usually
   much more). If it is close, no entry.
 
+## Ripping, in numbers (the owner, 10-05)
+- Two green 1-minute candles that add about 5-10% or more before the first
+  red; a single minute often +2-5%, sometimes more.
+- Volume rising bar by bar, the bars 3-5x the size of the bars before them.
+- The tape and the order book moving fast.
+- The entry the owner trusts most: a real, bigger ask on the book being eaten
+  up fast by buys - enter as it goes; the stock jumps.
+- Spoofed sell orders appear to scare buyers off, then vanish.
+- Speed first: the new runner, not the leader that has slowed.
+
 ## Do not enter
+- A stock flying on skinny volume with a wide spread: "stay away, period".
+  The spread eats the gain and an order of a few thousand shares moves it.
 - A green candle with a high wick (it retreated from its high).
 - A wide spread, or a thinly traded stock - go to liquid stocks.
 - Sell orders in the way on Level 2. Level 2 is "a must".
