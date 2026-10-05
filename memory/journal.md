@@ -5,6 +5,20 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-05
 
+### The four filters: v35 only, and they do not separate v31's winners
+- The owner's filters (MACD over zero, above VWAP and EMA9, EMA9 over EMA20)
+  and the top-2 leaders were built into v35 only (c1a9fb4, Saturday 10-03;
+  +$2,016 replayed over 09-28..10-02, but -$41 without its 2 best trades).
+  v31 and v34 never had them. The owner thought all three did.
+- v35's first live day (10-05): 6 trades, 0 winners, about -$98. It bought
+  the right names - SAIQ twice, MI at 5.22 (10:18am ET) and 5.19 (11:36am) -
+  and was out within about a minute each time (5s once). MI reached 10.42 at
+  1:38pm.
+- The filters on v31's live trades: 10-05, 16 of 22 pass and lost -$476 (all
+  22: -$721). 09-30..10-02, 15 of 24 pass, all 15 lost (average -1.99%); the
+  9 that fail averaged -1.40%. The filters pick trending stocks; v31 already
+  buys trending stocks. Its losses come from the entry moment and the exits.
+
 ### The bot against the owner's playbook (10-05)
 - The owner described their manual method (now in `memory/playbook.md`).
 - v31 checks none of its filters (MACD, VWAP, EMA9, EMA20 - only v35 does);
