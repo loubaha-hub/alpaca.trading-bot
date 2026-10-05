@@ -1,0 +1,59 @@
+2026-09-29T01:11:52.024971+00:00  Starting Alpaca v30 bot (REBUILT 2026-09-28: position watcher, chase, halt ladder). paper=True  || resource=srv-daral2npn0mc738oe7cg instance=srv-daral2npn0mc738oe7cg-wnd5x
+2026-09-29T01:11:52.665344+00:00  Starting Alpaca v24 bot (REBUILT 2026-09-28: position watcher, chase, halt ladder). paper=True  || resource=srv-dar96949v7es739usomg instance=srv-dar96949v7es739usomg-k9n8d
+2026-09-29T01:19:02.668493+00:00  Starting Alpaca v24 bot (REBUILT 2026-09-28: position watcher, chase, halt ladder). paper=True  || resource=srv-dar96949v7es739usomg instance=srv-dar96949v7es739usomg-qsqtj
+2026-09-29T01:19:02.948704+00:00  Starting Alpaca v30 bot (REBUILT 2026-09-28: position watcher, chase, halt ladder). paper=True  || resource=srv-daral2npn0mc738oe7cg instance=srv-daral2npn0mc738oe7cg-zbcqk
+2026-09-29T01:19:03.099957+00:00  Starting Alpaca v31 bot (REBUILT 2026-09-28: position watcher, chase, halt ladder). paper=True  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-z5glj
+2026-09-29T01:19:37.683256+00:00  Starting Alpaca v31 bot (REBUILT 2026-09-28: position watcher, chase, halt ladder). paper=True  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-q9gq7
+2026-09-29T08:00:04.379652+00:00  NEW DAY 2026-09-29: baseline equity 23856.57, halt threshold 10.0%, halted days in a row 0  || resource=srv-dar96949v7es739usomg instance=srv-dar96949v7es739usomg-qsqtj
+2026-09-29T08:00:04.496110+00:00  NEW DAY 2026-09-29: baseline equity 29384.49, halt threshold 10.0%, halted days in a row 0  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-q9gq7
+2026-09-29T08:00:04.814616+00:00  NEW DAY 2026-09-29: baseline equity 62597.65, halt threshold 10.0%, halted days in a row 0  || resource=srv-daral2npn0mc738oe7cg instance=srv-daral2npn0mc738oe7cg-zbcqk
+2026-09-29T08:12:39.846909+00:00  DAILY HALT: down 10.7% from 62597.65 (limit 10.0%) - flattening everything, no new entries for the rest of today  || resource=srv-daral2npn0mc738oe7cg instance=srv-daral2npn0mc738oe7cg-zbcqk
+2026-09-29T09:57:26.729204+00:00  DAILY HALT: down 10.4% from 23856.57 (limit 10.0%) - flattening everything, no new entries for the rest of today  || resource=srv-dar96949v7es739usomg instance=srv-dar96949v7es739usomg-qsqtj
+2026-09-29T11:07:46.194984+00:00  CEILING approaching: IVVD trimmed to 485 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-q9gq7
+2026-09-29T11:07:59.391178+00:00  CEILING jittery: IVVD trimmed to 242 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-q9gq7
+2026-09-29T11:08:54.334402+00:00  CEILING approaching: IVVD trimmed to 343 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-q9gq7
+2026-09-29T11:09:53.002642+00:00  CEILING approaching: IVVD trimmed to 416 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-q9gq7
+2026-09-29T12:09:36.638664+00:00  CEILING approaching: BKYI trimmed to 342 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-q9gq7
+2026-09-29T12:09:52.444065+00:00  CEILING jittery: BKYI trimmed to 171 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-q9gq7
+2026-09-29T12:21:06.336992+00:00  CEILING approaching: BKYI trimmed to 388 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-q9gq7
+2026-09-29T13:13:20.364444+00:00  CEILING approaching: BKYI trimmed to 396 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-q9gq7
+2026-09-29T13:30:28.484700+00:00  ADD BKYI step 1 (price 3.5993): 396 -> 1387 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-q9gq7
+2026-09-29T13:30:58.333789+00:00  ADD BKYI step 2 (price 3.5409): 396 -> 1387 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-q9gq7
+2026-09-29T13:31:10.864179+00:00  ADD BKYI step 3 (price 3.54): 396 -> 1387 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-q9gq7
+2026-09-29T13:31:38.486876+00:00  CEILING approaching: BKYI trimmed to 158 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-q9gq7
+2026-09-29T14:32:35.057197+00:00  CEILING approaching: ORCU trimmed to 165 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-q9gq7
+2026-09-29T14:50:38.343126+00:00  CEILING approaching: ORCU trimmed to 165 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-q9gq7
+2026-09-29T15:04:22.024352+00:00  ADD SDEV step 1 (price 2.38): 1256 -> 2512 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-q9gq7
+2026-09-29T15:05:33.552827+00:00  CEILING approaching: SDEV trimmed to 678 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-q9gq7
+2026-09-29T15:06:14.742296+00:00  ADD SDEV step 2 (price 2.59): 1695 -> 2951 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-q9gq7
+2026-09-29T15:06:21.661687+00:00  ADD SDEV step 3 (price 2.645): 2590 -> 3846 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-q9gq7
+2026-09-29T15:07:40.703222+00:00  ADD SDEV step 4 (price 2.789): 3846 -> 6358 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-q9gq7
+2026-09-29T15:09:26.616560+00:00  CEILING approaching: SDEV trimmed to 267 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-q9gq7
+2026-09-29T15:09:28.162196+00:00  CEILING jittery: SDEV trimmed to 133 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-q9gq7
+2026-09-29T16:12:35.029147+00:00  ADD SDEV step 1 (price 3.34): 429 -> 837 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-q9gq7
+2026-09-29T16:26:57.516975+00:00  CEILING approaching: SDEV trimmed to 339 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-q9gq7
+2026-09-29T16:27:20.325493+00:00  ADD SDEV step 1 (price 3.62): 339 -> 1188 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-q9gq7
+2026-09-29T16:27:29.882794+00:00  ADD SDEV step 2 (price 3.67): 339 -> 1188 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-q9gq7
+2026-09-29T16:31:33.741694+00:00  CEILING approaching: SDEV trimmed to 272 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-q9gq7
+2026-09-29T20:42:47.869632+00:00  ADD NCI step 1 (price 2.31): 1212 -> 2424 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-q9gq7
+2026-09-29T21:29:09.360192+00:00  CEILING approaching: MSGY trimmed to 125 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-q9gq7
+2026-09-29T21:29:15.182132+00:00  CEILING jittery: MSGY trimmed to 62 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-q9gq7
+2026-09-29T21:29:59.930122+00:00  ADD MSGY step 1 (price 5.66): 261 -> 575 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-q9gq7
+2026-09-29T21:30:47.468674+00:00  CEILING approaching: MSGY trimmed to 230 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-q9gq7
+2026-09-29T21:45:35.182231+00:00  CEILING approaching: MSGY trimmed to 201 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-q9gq7
+2026-09-29T21:45:37.190700+00:00  CEILING jittery: MSGY trimmed to 100 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-q9gq7
+2026-09-29T21:45:59.297782+00:00  ADD MSGY step 1 (price 5.8919): 100 -> 603 shares  || resource=srv-daqp02flot8c73ffv6eg instance=srv-daqp02flot8c73ffv6eg-q9gq7
+2026-09-29T23:04:33.093756+00:00  Starting Alpaca v24 bot (REBUILT 2026-09-28: position watcher, chase, halt ladder). paper=True  || resource=srv-dar96949v7es739usomg instance=srv-dar96949v7es739usomg-hqd5m
+2026-09-29T23:04:33.767118+00:00  NEW DAY 2026-09-29: baseline equity 21265.21, halt threshold 10.0%, halted days in a row 0  || resource=srv-dar96949v7es739usomg instance=srv-dar96949v7es739usomg-hqd5m
+2026-09-29T23:04:33.888908+00:00  Starting Alpaca v30 bot (REBUILT 2026-09-28: position watcher, chase, halt ladder). paper=True  || resource=srv-daral2npn0mc738oe7cg instance=srv-daral2npn0mc738oe7cg-hfspv
+2026-09-29T23:04:34.528029+00:00  NEW DAY 2026-09-29: baseline equity 55907.88, halt threshold 10.0%, halted days in a row 0  || resource=srv-daral2npn0mc738oe7cg instance=srv-daral2npn0mc738oe7cg-hfspv
+2026-09-29T23:19:13.089556+00:00  Starting Alpaca v30 bot (REBUILT 2026-09-28: position watcher, chase, halt ladder). paper=True  || resource=srv-daral2npn0mc738oe7cg instance=srv-daral2npn0mc738oe7cg-9t9w8
+2026-09-29T23:19:13.544682+00:00  NEW DAY 2026-09-29: baseline equity 55063.63, halt threshold 10.0%, halted days in a row 0  || resource=srv-daral2npn0mc738oe7cg instance=srv-daral2npn0mc738oe7cg-9t9w8
+2026-09-29T23:19:20.218274+00:00  Starting Alpaca v24 bot (REBUILT 2026-09-28: position watcher, chase, halt ladder). paper=True  || resource=srv-dar96949v7es739usomg instance=srv-dar96949v7es739usomg-7nt85
+2026-09-29T23:19:20.905921+00:00  NEW DAY 2026-09-29: baseline equity 21265.21, halt threshold 10.0%, halted days in a row 0  || resource=srv-dar96949v7es739usomg instance=srv-dar96949v7es739usomg-7nt85
+2026-09-29T23:48:23.429490+00:00  Starting Alpaca v24 bot (REBUILT 2026-09-28: position watcher, chase, halt ladder). paper=True  || resource=srv-dar96949v7es739usomg instance=srv-dar96949v7es739usomg-mbd7c
+2026-09-29T23:48:24.065169+00:00  NEW DAY 2026-09-29: baseline equity 21265.21, halt threshold 10.0%, halted days in a row 0  || resource=srv-dar96949v7es739usomg instance=srv-dar96949v7es739usomg-mbd7c
+2026-09-29T23:48:26.494275+00:00  Starting Alpaca v30 bot (REBUILT 2026-09-28: position watcher, chase, halt ladder). paper=True  || resource=srv-daral2npn0mc738oe7cg instance=srv-daral2npn0mc738oe7cg-jb9ch
+2026-09-29T23:48:27.121696+00:00  NEW DAY 2026-09-29: baseline equity 55063.63, halt threshold 10.0%, halted days in a row 0  || resource=srv-daral2npn0mc738oe7cg instance=srv-daral2npn0mc738oe7cg-jb9ch
+2026-09-29T23:55:01.980799+00:00  END OF DAY FLATTEN: 19:55 ET - closing every real position  || resource=srv-dar96949v7es739usomg instance=srv-dar96949v7es739usomg-mbd7c
+2026-09-29T23:55:06.641665+00:00  END OF DAY FLATTEN: 19:55 ET - closing every real position  || resource=srv-daral2npn0mc738oe7cg instance=srv-daral2npn0mc738oe7cg-jb9ch
