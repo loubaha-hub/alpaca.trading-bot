@@ -5,6 +5,14 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-05
 
+### The owner's screen vs the bot's scanner
+- The bot's scanner checks only price $1-$20 and up 10% on the day. No float,
+  relative volume, news, reverse split, short interest or shelf check. v35
+  alone has a float cap (20M); v31 HALVES its size on floats under 5M.
+- Data found: float - floats.csv (Webull). Filings, country - Webull (MI on
+  10-05: a Hong Kong company that filed a 6-K that morning). Easy-to-borrow -
+  Alpaca's asset list, which the scanner already downloads.
+
 ### "Ripping now" on the 10-05 premarket (first look)
 - Ranked by the last 5 minutes' % move (only names with $250k+ traded in
   them), MI first showed as a top-2 "ripping now" at 8:12am ET - 3 minutes

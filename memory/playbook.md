@@ -12,6 +12,19 @@ is not part of it.
   120% that has slowed loses to one up 30% that is ripping. "Speed and volume
   is everything" - go where everybody is.
 
+## The screen (what makes a stock a candidate)
+- Price $1-$20.
+- Float under about 20 million shares - big floats are stodgy and do not rip.
+- Relative volume at least 2-3x normal (often 5x or more), and rising.
+- News - very important; very few trades without it. US stocks over Chinese
+  ones (Chinese can run but are unreliable). Typical: an unprofitable pharma
+  or biotech that raised money, did a reverse split, then has news.
+- A recent reverse split (a 1-for-10 turns 50M shares into 5M; a depressed
+  stock near $1 can go to $10).
+- Short interest / hard to borrow - some shorting helps: the short squeeze.
+- No shelf: the company is not selling shares.
+- Then the key: wait for the stock to start running.
+
 ## Filters
 - MACD positive.
 - Price above VWAP and above EMA9; EMA9 above EMA20.
