@@ -5,6 +5,19 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-05
 
+### The owner's track record, and the after-sale check on every saved day
+- The owner traded by hand February to about June 2026 at $5-10k a month,
+  with 1-3 down days a month - not in Webull. Since then they have tried
+  building algorithms on several platforms (Webull included); none worked.
+  Their Webull history will not show the profitable months.
+- Same check as 10-05 on the saved live logs, 09-30..10-02 (r13-r23): 24 v31
+  trades, 0 winners, median hold 36s. 15 of 24 went 3%+ above entry within
+  an hour of the sale (GOW +54%, VEEA +38% and +31%, NXL +32%, SSM +27%, MSGY
+  +23%, SDEV +19%). From the entry, 15 of 24 fell 3% before rising 3%.
+- With 10-05: 46 trades, 2 winners; 24 of 46 went 3%+ above entry within an
+  hour of the sale. The scanner finds movers; the bot buys at a short-term
+  top and sells on the dip.
+
 ### What v31's stocks did after it sold them (10-05)
 - v31 made 22 trades on 10-05 and won 2 (STNE, SPCH). Webull 1-minute bars
   after each sale: 9 of the 22 went 3% or more above the entry price within
