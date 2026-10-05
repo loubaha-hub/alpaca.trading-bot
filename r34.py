@@ -1109,6 +1109,9 @@ class SymState:
     last_size: float = 0.0           # size of the last print
     last_print_ts: float = 0.0       # when the last print traded (epoch s, 0 = unknown)
     earn_logged_at: float = 0.0      # V31_EARN_LEADERS: the last "earned" log line
+    earn_high: float = 0.0           # the day high an earned buy last broke - the next
+                                     # one needs a higher closed high (no re-buy churn)
+    spread_logged_at: float = 0.0    # the last "spread kept it out" log line
     first_entry: float = 0.0         # v32: today's original entry, fixed
     first_stop: float = 0.0          # v32: today's original stop, fixed
     v32_trips: int = 0               # v32: entries taken in this name today
@@ -2099,10 +2102,15 @@ class V31(Strategy):
         return True
 
     def earn_candidate(self, s, price) -> bool:
-        """The cheap half of earned(): a top leader through its day high."""
+        """The cheap half of earned(): a top leader through its day high -
+        a HIGHER one than the last earned buy broke. On the 2026-10-05 replay
+        MI was bought back three times in 17 seconds on the same 3.99 high
+        (+$130, -$37, -$60): after each exit the next print over it qualified
+        again. One earned buy per new closed-candle high."""
         # 1e-9: 10.45 + 0.05 is 10.500000000000002 in floating point, and a
         # print at exactly 10.50 is the 5c break.
         return bool(V31_EARN_LEADERS and s.hod_closed > 0
+                    and s.hod_closed > s.earn_high
                     and price >= s.hod_closed + V31_HOD_BREAK_CENTS - 1e-9
                     and self.leader_rank(s.symbol) <= V31_EARN_LEADERS)
 
@@ -2124,6 +2132,15 @@ class V31(Strategy):
             bid = await self.data.quote(s.symbol, "bid")
             ask = await self.data.quote(s.symbol, "ask")
             if not bid or not ask or ask > bid * (1 + V31_EARN_MAX_SPREAD):
+                # Logged so the limit can be set from what runners' books
+                # really look like - a furious run widens the spread.
+                if bid and ask and time.time() - s.spread_logged_at >= 60:
+                    s.spread_logged_at = time.time()
+                    self.log.info("[%s] %s would earn its way back in at %.4f "
+                                  "but the spread is %.1f%% (%.4f / %.4f), over "
+                                  "the %.0f%% limit", self.name, s.symbol, price,
+                                  100 * (ask / bid - 1), bid, ask,
+                                  100 * V31_EARN_MAX_SPREAD)
                 return False
         if time.time() - s.earn_logged_at >= 60:
             s.earn_logged_at = time.time()
@@ -2336,6 +2353,8 @@ class V31(Strategy):
                 return
             await self._maybe_enter_inner(s, price, fast, base,
                                           kind, trigger, stop_ref)
+            if earn and s.in_position:
+                s.earn_high = s.hod_closed
 
     def entry_shares(self, s, price, worst, stop_ref, eq, kind) -> int:
         """1% of equity at risk to the stop, capped at 25% of equity and at
@@ -3032,6 +3051,8 @@ class V34(V31):
                 return
             await self._maybe_enter_inner(s, price, fast, base, kind,
                                           trigger, stop_ref)
+            if earn and s.in_position:
+                s.earn_high = s.hod_closed
 
     def entry_shares(self, s, price, worst, stop_ref, eq, kind) -> int:
         """V34_STARTER_PCT of the account at the worst fill, inside the room
@@ -3263,6 +3284,7 @@ class V35(V31):
         if V35_LEADERS and self.leader_rank(s.symbol) > V35_LEADERS:
             return
         kind, found = "setup", None
+        earned_back = False
         ignition = self.ignition(s)
         if ignition and price >= ignition[0]:
             kind, found = "ignition", ignition
@@ -3278,6 +3300,7 @@ class V35(V31):
                     # A loser comes back only by earning it.
                     if not (V35_REENTRY_EARN and await self.earned(s, price)):
                         return
+                    earned_back = True
             margin = V35_REENTRY_CENTS or margin_for(price)
             if (V35_REENTRY_FAST_MULT and fast is not None and base > 0
                     and fast >= V35_REENTRY_FAST_MULT * base):
@@ -3336,6 +3359,8 @@ class V35(V31):
                                           trigger, stop_ref)
             if s.in_position:
                 s.v35_starter = s.shares
+                if earned_back:
+                    s.earn_high = s.hod_closed
                 if kind == "ignition":
                     self.log.info("[v35] %s IGNITION entry - candle %+.0f%%",
                                   s.symbol, 100 * (s.bars[-1].c / s.bars[-1].o - 1))

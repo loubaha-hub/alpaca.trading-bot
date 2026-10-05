@@ -279,3 +279,42 @@ def test_climb_helper_is_untouched(v35, clock):
     """Importing test_v35's helpers must not change them."""
     s = climb(v35, clock)
     assert s.bars
+
+
+# ---- one earned buy per new high (MI, 2026-10-05: three buys in 17 seconds) ---------------
+
+@pytest.mark.usefixtures("earn_on")
+def test_no_second_earned_buy_on_the_same_high(v31, clock):
+    s = spiked_leader(v31, clock)
+    tick(v31, s, 10.56)
+    assert entered(v31, s)
+    tick(v31, s, s.stop - 0.01)                          # out
+    assert not s.in_position
+    tick(v31, s, 10.60)                                  # over the same 10.50 high again
+    assert len(v31.broker.buys("ABCD")) == 1
+
+
+@pytest.mark.usefixtures("earn_on")
+def test_a_higher_closed_high_earns_the_next_one(v31, clock, data):
+    s = spiked_leader(v31, clock)
+    tick(v31, s, 10.56)
+    tick(v31, s, s.stop - 0.01)
+    clock.now += timedelta(minutes=1)
+    now = clock.now.astimezone(bot.timezone.utc)
+    v31.offer_bar(raw_bar("ABCD", now, 10.40, 10.90, 10.35, 10.80, 300_000))
+    assert s.hod_closed == pytest.approx(10.90)
+    data.quotes[("ABCD", "bid")] = 10.96
+    data.quotes[("ABCD", "ask")] = 10.97
+    tick(v31, s, 10.96)
+    assert len(v31.broker.buys("ABCD")) == 2
+
+
+@pytest.mark.usefixtures("earn_on")
+def test_a_spread_that_keeps_a_runner_out_is_logged(v31, clock, data, caplog):
+    data.quotes[("ABCD", "bid")] = 10.50
+    data.quotes[("ABCD", "ask")] = 10.80                 # 2.9%
+    s = spiked_leader(v31, clock)
+    with caplog.at_level("INFO"):
+        tick(v31, s, 10.56)
+    assert not entered(v31, s)
+    assert any("but the spread is 2.9%" in r.getMessage() for r in caplog.records)
