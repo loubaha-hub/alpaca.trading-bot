@@ -5,6 +5,22 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-05
 
+### The bot against the owner's playbook (10-05)
+- The owner described their manual method (now in `memory/playbook.md`).
+- v31 checks none of its filters (MACD, VWAP, EMA9, EMA20 - only v35 does);
+  its leader setting is off (`V31_LEADER_TOP = 0`); the tape is logged, never
+  used to decide; the spread is checked only by the earn rule; no wick check,
+  no half-dollar levels, no 10-second chart. Alpaca's data has no Level 2.
+- The no-chase rule shut out the day's two biggest runners for the rest of
+  the day: MI at 8:09am ET (+16% from 0.91; it reached 10.42) and SAIQ at
+  4:16am (it reached 18.37). The playbook buys exactly that: the leader while
+  it rips.
+- v31 instead traded ITUB, BBD, NU, PAGS, STNE (Brazilian large caps up 13-20%
+  together that day), CLF, NVAX and others; 22 trades, 2 winners.
+- Proposed (not decided): a new strategy written only from the playbook, on
+  one account; the no-chase rule replaced there by the playbook's own checks
+  for the top two leaders. The no-chase rule is the owner's standing decision.
+
 ### The owner's track record, and the after-sale check on every saved day
 - The owner traded by hand February to about June 2026 at $5-10k a month,
   with 1-3 down days a month - not in Webull. Since then they have tried

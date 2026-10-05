@@ -7,6 +7,8 @@ repository. Before doing anything else, also read:
   live, what is waiting on the owner, the next steps.
 - `memory/journal.md` - decisions, instructions and results worth keeping,
   newest first.
+- `memory/playbook.md` - how the owner traded by hand, profitably. The bot
+  is meant to follow it.
 
 THIS REPOSITORY IS PUBLIC. Never write keys, secrets, passwords or account
 numbers into any file here - memory files included.
