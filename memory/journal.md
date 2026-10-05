@@ -5,6 +5,14 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-05
 
+### "Ripping now" on the 10-05 premarket (first look)
+- Ranked by the last 5 minutes' % move (only names with $250k+ traded in
+  them), MI first showed as a top-2 "ripping now" at 8:12am ET - 3 minutes
+  after the no-chase rule banned it. Also VEEA 7:00 (+8% in 5 min), ALEC
+  7:05, APUS 8:00 (+57% in 5 min).
+- The raw 5-minute ranking also picks noise (NU and SDEV at +0-1%); it needs
+  the volume side the owner describes. To be tuned with the owner's numbers.
+
 ### The owner on the leaders and the no-chase ban
 - Decided by the owner: trading the day's #1 and #2 leaders comes before
   anything else, and the bot must not ban a stock for ripping ("how could we

@@ -8,6 +8,9 @@ is not part of it.
 ## What to trade
 - Stocks popping on news: the day's top gainers, where the traders are.
 - Above all, the leader of the day or the second leader.
+- The leader is the stock ripping NOW, not the day's top gainer: a stock up
+  120% that has slowed loses to one up 30% that is ripping. "Speed and volume
+  is everything" - go where everybody is.
 
 ## Filters
 - MACD positive.
