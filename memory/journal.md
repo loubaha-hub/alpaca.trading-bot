@@ -5,6 +5,23 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-06
 
+### v37 "flying" = the owner's speed, 0.1 and up (ready on the branch, not live)
+- The owner's formula: speed = (P2 - P1) / P1 x (V2 / V1), rolling 60s
+  windows (P1, V1 the minute before, P2, V2 the last minute). "Anything
+  above 0.1 is good", no top limit; falling (negative) is never a buy;
+  higher = more selective; huge volume with a small move counts (1% x 20x
+  = 0.2). V2/V1 capped at 30.
+- Replay, 6 recorded days, fills 0.2% worse: up 3% in 60s (the rule now)
+  112 trades, 62% won, +$4,002, worst trade -$99; speed 0.1+ 69, 68%,
+  +$3,529, -$24; speed 0.2+ 36, 78%, +$3,222, -$13. Every day up in all.
+- Today's 106 live v37 buys: 37 at speed 0.1+ (-$338), 69 below (-$362).
+  Speed does not pick winners on its own - 84 of the 106 were made before
+  the morning's fixes (old prices, under the high). 0.3+ swings hardest
+  both ways (next 5 min: +6.5% / -14.3% medians).
+- Claude's pick (the owner left it to Claude): 0.1, with 0.2 as the next
+  step if it still churns. V37_SPEED_MIN = 0.10 on the branch (3ad0663);
+  release waits on the owner's OK and flat accounts.
+
 ### v37 rebuilt from watching it live with the owner (r34.7-r34.9)
 - Live 4:00-8:10am: 83 trades, 17 won, -$701 (-4.6%). AIXI 4:17: 10 buys in
   100s, -$256. The causes were bugs, not the owner's design: prints queued
