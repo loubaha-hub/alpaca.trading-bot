@@ -9,6 +9,8 @@ repository. Before doing anything else, also read:
   newest first.
 - `memory/playbook.md` - how the owner traded by hand, profitably. The bot
   is meant to follow it.
+- `memory/rules.md` - the playbook turned into numbers: the rule sheet for
+  the new strategy, with what is built and what is not.
 
 THIS REPOSITORY IS PUBLIC. Never write keys, secrets, passwords or account
 numbers into any file here - memory files included.

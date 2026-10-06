@@ -21,6 +21,10 @@ Updated 2026-10-05, evening ET.
    `main` with the next after-hours release, so every new session loads it.
 
 ## Next steps
+- 2026-10-06: the owner's playbook is in memory/playbook.md and as numbers in
+  memory/rules.md (draft 1, numbers marked (?) to confirm). Built on the
+  branch: the fast buy reload (7be5a47). Next: the owner corrects the rule
+  sheet, then build the playbook strategy on one account.
 0. Waiting on the owner (10-05 evening): read their Webull order history
    (read-only) to compare their trades with the bot's; what to do with the
    bots tomorrow (pause, smaller size, or as is); their walkthrough.
