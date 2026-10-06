@@ -1,38 +1,42 @@
 # Where things stand
 
-Updated 2026-10-05, evening ET.
+Updated 2026-10-06, 9:20am ET.
 
 ## Code
-- Working branch: `claude/zealous-ramanujan-br3gay` (from 2026-10-05 evening;
-  `claude/kind-goldberg-8ue38f` is merged into it). New work goes here;
+- Working branch: `claude/zealous-ramanujan-br3gay`. New work goes here;
   nothing goes to `main` without the owner's OK.
-- Live on `main` (Render): VERSION v31-r34.3 - v31, v34, v35 on paper; the
-  earn rule on for v31 and v34 (top 1, all day).
-- On the branch only, all off: the owner's earn-rule switches, the 9:30
-  cutoff, `replay.py --slip-pct`, `watchman.py` (until the real-money account).
-- Release builds are made in a separate git worktree, never by switching
-  branches in the main checkout while replays run.
+- Live on `main` (Render): VERSION v31-r34.9 (released 9:02am ET 10-06 at
+  the owner's request, all three accounts flat). Accounts: T6HH runs v36,
+  P28T ("V30-100k") runs v37, AUES runs v35.
+- v37 since r34.9 (all from watching IPDN/AIXI with the owner, 10-06): every
+  buy above the REAL high of the day (seeded from today's bars at start; odd
+  lots raise it, never trigger); buys/adds only on prints under 2s old;
+  confirmation by buy of the day 0/0/1/2 green 1-minute candles above the
+  old high (sideways = 5 minutes); volume >= 2x the stock's normal minute and
+  >= 70% of its busiest recent minute; stop a third of the last minute's
+  move (3-8%). Off: "half the gain" after +3% (hurt in every replay), the
+  faster-price exception to the 70% floor.
+- On the branch only: `watchman.py` (until the real-money account).
+- Release builds are made in a separate git worktree from `origin/main`.
 
 ## Waiting on the owner
-1. Environment settings for Alpaca tick data (network + key; see the journal).
-2. Whether to freeze rule changes, ship the 9:30 cutoff, halve position size,
-   or run the older version on one account side by side.
-3. OK to bring this memory (CLAUDE.md, memory/, the /remember skill) to
-   `main` with the next after-hours release, so every new session loads it.
+1. v36 fixes (proposed 10-06, details in the journal): the tape as green vs
+   red (between-prints set aside), no 2-minute crowd hold for a stock already
+   ripping, a "why not" log line once a minute. Build on the branch, release
+   after the close?
+2. The scored checklist (proposal): must-haves plus weighted signals, the
+   weights set from the owner marking real moments "I'd take it / I wouldn't".
+3. Environment settings for Massive (Polygon) data for the 3-month runs
+   list (network + key, typed by the owner into Render/Claude settings).
 
 ## Next steps
-- 2026-10-06: the owner's playbook is in memory/playbook.md and as numbers in
-  memory/rules.md (draft 1, numbers marked (?) to confirm). Built on the
-  branch: the fast buy reload (7be5a47). Next: the owner corrects the rule
-  sheet, then build the playbook strategy on one account.
-0. Waiting on the owner (10-05 evening): read their Webull order history
-   (read-only) to compare their trades with the bot's; what to do with the
-   bots tomorrow (pause, smaller size, or as is); their walkthrough.
-   Fixable on the branch, not shipped: the buy overfill (see the journal).
-1. Keep the past week's live log lines (`replay/live/`) in the project.
-2. With tick data: replay the six days print by print, then compare each live
-   trade with the replay - the bot's execution vs what the market did.
-3. Line up each account's daily live results against the date of every change.
-4. Later: premarket design (entry price on fast names, sizing on proven
-   runners, an adaptive leash), regular-hours design, a guard against two
-   instances overlapping during a deploy, the 9:30 tick-queue overflow.
+- 9:31am ET 10-06 check-in: v37's first trades under r34.9 at the open -
+  each buy against the real high and the volume on the chart.
+- Mid-day releases restart the bot and wipe v36/v35 state (candles, EMAs,
+  crowd timing): avoid them; or restore that state on start-up as the day
+  high now is.
+- v31/v34/v35 audit (10-06): their price queue overflowed at the open
+  (20,000 waiting, 41,007 dropped on 10-05 at 9:33) - not fixed for them.
+- Later: the 3-month runs list (Massive data), fill-quality measurement,
+  sell into strength, Level 2 via Webull, news, Chinese-stock early exit,
+  half-dollar levels.

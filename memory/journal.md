@@ -3,6 +3,59 @@
 Decisions, instructions and results worth keeping. Newest first. Dates are ET.
 Each entry: what was decided or found, the numbers, why, and where it lives.
 
+## 2026-10-06
+
+### v37 rebuilt from watching it live with the owner (r34.7-r34.9)
+- Live 4:00-8:10am: 83 trades, 17 won, -$701 (-4.6%). AIXI 4:17: 10 buys in
+  100s, -$256. The causes were bugs, not the owner's design: prints queued
+  while an order worked and were acted on oldest first (up to 58s old; a
+  "new high" at 3.30 filled at 3.06); touching the high counted as a new
+  high; a restart forgot the day's high (IPDN 5.64 bought under 5.83); odd
+  lots were kept out of the high (IPDN chart highs 6.97/7.10); the 2c stop
+  shook out every buy within seconds; the 10-buy limit locked v37 out of
+  AIXI's and SDEV's second legs.
+- Owner decisions: no daily buy limit (r34.7, 7:37am); every buy ABOVE the
+  real high of the day, odd lots counted, the high read from today's bars
+  so a restart keeps it; flying means volume up - at least 70% of the
+  busiest recent minute ("we should not go below that"); confirmation by
+  buy of the day 0/0/1/2 one-minute candles ("the first one and the second
+  one, no way - that's where the money is"), sideways = 5 minutes.
+- Released with the owner's OK: r34.8 8:10am (fresh prints), r34.9 9:02am
+  (everything above, volume 2x normal, stop a third of the last minute's
+  move 3-8%). Code: r34.py V37_* settings; tests/test_v37.py.
+
+### Replays behind r34.9 (6 days, 09-28..10-05, fills 0.2% worse)
+- This morning's rules: 686 trades, 24% won, +$6,406. r34.9's rule set:
+  125 trades, 63% won (the owner's hand-trading 60-65%), every day up,
+  +$3,924. The replay scores every junk trade a small win (smooth fills, no
+  spread) - live today those lost; read it as "which is better", not money.
+- Stop sized to speed (a): better than 2c in both fill tests. "Half the
+  gain" only after +3% (b): worse in every test - off.
+
+### Stale-price audit of v31/v34/v35 (09-30..10-06)
+- Their buys need the live ask at the trigger (quote check), so a stale
+  "new high" never became a buy: 0 of 44 buys, 0 of 37 measured sells.
+- Their losses: 09-30..10-02 share counts broken (sold far more than bought,
+  overfills; v31 -$6,103 on 09-30); 10-05 ordinary stop-outs (-$986). Their
+  price queue overflowed at the open (10-05 9:33: 20,000 waiting, 41,007
+  dropped) - not fixed for them. Files: scratchpad audit (not kept).
+
+### Why v36 made no trades (10-06) - proposals
+- The tape gate: 60% of shares at the ask never happened (26-54%); prints
+  between bid and ask (27-42%) count against it. The playbook says "green
+  outweighing red is what matters" - proposed: green/(green+red) >= 60%.
+- The 2-minute crowd hold blocked the best two first entries (AIXI 4:17 at
+  2.85, ran to 4.47; IPDN 7:29). Proposed: no hold for a stock already
+  ripping. The 7:37/8:10 restarts wiped its candles and crowd timing.
+- Proposed: a "why not" log line once a minute for the top crowd names.
+  Waiting on the owner.
+
+### The scored checklist (proposal)
+- The owner: a human weighs many variables by priority; the bot checks a
+  few, each pass/fail. Proposed: must-haves plus weighted signals, the
+  weights set from the owner marking logged moments "I'd take it / I
+  wouldn't".
+
 ## 2026-10-05
 
 ### The tape at the bot's buys (10-05)
