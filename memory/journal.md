@@ -5,6 +5,19 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-06
 
+### v37 exits stay as they are for now - the owner accepts the trade-off
+- The owner: the stops and "half the gain" cause the churn and kick v37
+  out of stocks that keep going, but the downside must be controlled.
+  Stocks don't rise in a straight line; when one goes exponential the bot
+  stays in, and that run pays for the small cuts on entries and exits.
+- The numbers: replay (6 days, fills 0.2% worse) agrees - 11 of 112 trades
+  (each $100+) made $3,316 of the $4,002; the 42 losers cost $405 in all.
+  Live 10-06 morning it did not work yet: 79 losers -$916, 23 winners
+  +$216, the biggest +$92; 74 of 106 sales were followed by a 3%+ run
+  within 15 minutes (most buys were made under the pre-fix code).
+- What to watch: does a big live winner show up to pay for the cuts? If
+  live winners stay small while stocks run after the sale, revisit exits.
+
 ### v37 speed rule: tested, held off by the owner - "up 3%" stays
 - The owner's formula: speed = (P2 - P1) / P1 x (V2 / V1), rolling 60s
   windows (P1, V1 the minute before, P2, V2 the last minute). "Anything

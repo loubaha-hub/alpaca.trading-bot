@@ -27,8 +27,9 @@ Updated 2026-10-06, 10:25am ET.
 ## Waiting on the owner
 0. v37 speed rule (0.1+): held off by the owner until "up 3%" has a big
    enough live sample; the branch logs the speed on every buy (not live yet).
-1. "Half the gain" on tiny gains (25 of today's exits under 1%): the owner is
-   thinking. Replay: arming it later hurts (+$4,002 from the first cent vs
+1. "Half the gain" on tiny gains (25 of today's exits under 1%): the owner
+   keeps the exits as they are for now (10-06) - small cuts, the big runs
+   pay for them; watch whether big live winners show up. Replay: arming it later hurts (+$4,002 from the first cent vs
    +$2,332 from 1%, fills 0.2% worse) - the wide stop and the early exit work
    as a pair. Untested option: a 15-20s grace after a buy, the stop only.
 2. The scored checklist (proposal): must-haves plus weighted signals, the
