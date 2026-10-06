@@ -1260,6 +1260,7 @@ class SymState:
     v37_sold_px: float = 0.0         # v37: what the last sale of this stock got
     v37_sold_ts: float = 0.0         # v37: when it was
     v37_peak_after: float = 0.0      # v37: the best price since the grace ended
+    v37_skip_logged: float = 0.0     # v37: when a "not running" skip was last logged
                                      # v37: (time, price, size) over V37_FAST_SECONDS
     last_exit: float = 0.0           # v33: the level that threw us out
     skipped_prints: int = 0          # odd lots etc. we refused to act on
@@ -4353,6 +4354,26 @@ V37_GIVEBACK_ARM = 0.0          # "half the gain" only once the best gain reache
 V37_GRACE_SECONDS = 0.0         # 0 = off
 V37_GRACE_FORGET = False        # True: "half the gain" counts only the gain made
                                 # after the grace, not a spike inside it
+# PROPOSED 2026-10-06 (the owner), off until the owner decides: buy only while
+# the stock is RUNNING. The 9 v37 buys from 9:02am to 2:25pm 10-06 all came at
+# the top of a one-minute burst out of quiet (already up 7-28% in 2 minutes)
+# and all lost. The owner: price up, volume up, and none of the bearish signs
+# - a wick on the candle before ("the momentum is fizzling out"), green bodies
+# getting smaller one after another. A stock truly ripping (the last 60s
+# busier than any minute of its day so far) skips these checks.
+V37_MOMENTUM = False            # the checks below; False = as before
+V37_STAIR_MINUTES = 2           # the last N closed minutes each with a low at or
+                                # above the one before (the price stepping up)
+V37_CROWD_STAYS = 2             # ...each trading at least V37_CROWD_REL x the
+V37_CROWD_REL = 2.0             # stock's normal minute - not one burst out of quiet
+V37_WICK_MAX = 0.25             # the minute before the buy: green, its top wick at
+                                # most this share of its range ("full all the way
+                                # to the top, no wick or a very short wick")...
+V37_BODY_FADE = 0.50            # ...and its body at least this share of the bigger
+                                # of the two before it (bodies not shrinking)
+V37_STEADY_PAY = 0.0            # >0: a buy may pay at most this share over the price
+                                # seen unless the stock is ripping (the owner: "you
+                                # can do that only if the stock is ripping"); 0 = off
 # PROPOSED 2026-10-06, off until the owner decides. IPDN: volume 497k, 446k,
 # 242k at 8:11, 8:12, 8:13 - "the volume has come down three candles in a
 # row" - and v37 bought at 8:14:29; it bought twice in 8:12 on falling
@@ -4499,6 +4520,42 @@ class V37(V36):
         vols = [b.v for b in s.bars[-30:]]
         return bool(vols) and self.pace(s) > max(vols)
 
+    def ripping(self, s) -> bool:
+        """The last 60 seconds traded more than any closed minute of the day
+        so far - a true rip (XHG 9:39am 10-06: 2.4M shares after 1.9M)."""
+        vols = [b.v for b in s.bars]
+        return bool(vols) and self.pace(s) > max(vols)
+
+    def not_running(self, s) -> str:
+        """V37_MOMENTUM: why the stock is NOT running right now - "" when it
+        is, when it is ripping, or when there are too few closed minutes to
+        judge. Checked on the minutes before the buy."""
+        if not V37_MOMENTUM or self.ripping(s):
+            return ""
+        bars = s.bars
+        need = max(V37_STAIR_MINUTES + 1, V37_CROWD_STAYS, 3)
+        if len(bars) < need:
+            return ""
+        last = bars[-1]
+        if not last.green:
+            return "the last candle closed red"
+        rng = last.h - last.l
+        if rng > 0 and (last.h - last.c) / rng > V37_WICK_MAX:
+            return "a top wick on the last candle (%.0f%% of it)" % (
+                100 * (last.h - last.c) / rng)
+        before = max(bars[-2].c - bars[-2].o, bars[-3].c - bars[-3].o)
+        if before > 0 and last.c - last.o < V37_BODY_FADE * before:
+            return "green bodies shrinking (%.4f after %.4f)" % (last.c - last.o, before)
+        for k in range(1, V37_STAIR_MINUTES + 1):
+            if bars[-k].l < bars[-k - 1].l:
+                return "not stepping up (a lower low %d min ago)" % k
+        normal = statistics.median(b.v for b in bars[-30:])
+        for k in range(1, V37_CROWD_STAYS + 1):
+            if bars[-k].v < V37_CROWD_REL * normal:
+                return "volume not staying up (%.1fx normal %d min ago)" % (
+                    bars[-k].v / normal if normal else 0.0, k)
+        return ""
+
     def confirm_bars(self, s) -> int:
         """How many candles the next buy of this stock waits for."""
         if not V37_CONFIRM_BY_BUY:
@@ -4614,6 +4671,8 @@ class V37(V36):
         minute's move, between V37_ENTRY_PCT and V37_ENTRY_MAX. A stock up 20%
         in a minute may cost 10% more to get into - "sometimes I get in more
         like 10% more, but the stock took me to a higher level"."""
+        if V37_STEADY_PAY and not self.ripping(s):
+            return V37_STEADY_PAY               # steady, not ripping: no chasing
         return min(V37_ENTRY_MAX, max(V37_ENTRY_PCT, 0.5 * self.move(s, price)))
 
     def in_the_crowd(self, s) -> bool:
@@ -4650,6 +4709,13 @@ class V37(V36):
             return
         if not self.volume_ok(s):
             return                              # flying means the volume is rising
+        why = self.not_running(s)
+        if why:                                 # it spiked, it is not running
+            if time.time() - s.v37_skip_logged >= 30:
+                s.v37_skip_logged = time.time()
+                self.log.info("[v37] SKIP %s at %.4f - not running: %s",
+                              s.symbol, price, why)
+            return
         lock = self.lock(s.symbol)
         if lock.locked():
             return

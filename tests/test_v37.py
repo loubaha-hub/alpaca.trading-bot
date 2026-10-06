@@ -878,3 +878,98 @@ def test_forget_counts_only_the_gain_after_the_grace(v37, clock, now, grace, mon
 
 def test_the_grace_is_off_until_the_owner_decides():
     assert bot.V37_GRACE_SECONDS == 0.0 and not bot.V37_GRACE_FORGET
+
+
+# ---- proposed 2026-10-06 (off until the owner decides): buy only while RUNNING -------
+
+@pytest.fixture
+def running(monkeypatch):
+    monkeypatch.setattr(bot, "V37_MOMENTUM", True)
+
+
+def candles(s, rows, quiet=1_000):
+    """30 quiet minutes, then `rows` (o, h, l, c, v), the last one just closed."""
+    t = bot.datetime(2026, 10, 6, 14, 0, tzinfo=bot.timezone.utc)
+    s.bars = [bot.Bar(t, 10.0, 10.02, 9.98, 10.0, quiet) for _ in range(30)]
+    s.bars += [bot.Bar(t, *r) for r in rows]
+
+
+STAIRS = [(10.00, 10.10, 9.99, 10.09, 5_000), (10.09, 10.20, 10.05, 10.19, 6_000),
+          (10.19, 10.32, 10.15, 10.31, 7_000)]         # green, full, rising, busy
+
+
+def test_a_staircase_with_the_crowd_is_running(v37, clock, now, running):
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    candles(s, STAIRS)
+    assert v37.not_running(s) == ""
+
+
+def test_a_wick_on_the_candle_before_is_not_running(v37, clock, now, running):
+    """The owner: "if it has a wick, the momentum is fizzling out"."""
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    candles(s, STAIRS[:2] + [(10.19, 10.40, 10.15, 10.25, 7_000)])
+    assert "wick" in v37.not_running(s)
+
+
+def test_green_bodies_getting_smaller_is_not_running(v37, clock, now, running):
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    candles(s, STAIRS[:2] + [(10.19, 10.24, 10.17, 10.23, 7_000)])   # 4c after 10c
+    assert "shrinking" in v37.not_running(s)
+
+
+def test_a_red_candle_before_is_not_running(v37, clock, now, running):
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    candles(s, STAIRS[:2] + [(10.19, 10.22, 10.10, 10.12, 7_000)])
+    assert "red" in v37.not_running(s)
+
+
+def test_one_burst_out_of_quiet_is_not_running(v37, clock, now, running):
+    """APUS 1:49pm 10-06: 134k, 124k, 47k shares a minute, then a 9% jump on
+    608k - bought at 8.05, sold at 7.89 four seconds later."""
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    candles(s, [(10.00, 10.10, 9.99, 10.09, 1_000), (10.09, 10.20, 10.05, 10.19, 1_200),
+                (10.19, 10.32, 10.15, 10.31, 9_000)])
+    assert "volume not staying up" in v37.not_running(s)
+
+
+def test_a_true_rip_skips_the_checks(v37, clock, now, running):
+    """XHG 9:39am 10-06: the minute before closed red, but 2.4M shares traded
+    in a minute after 1.9M - more than any minute of its day."""
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    candles(s, STAIRS[:2] + [(10.19, 10.22, 10.10, 10.12, 7_000)])
+    prints(v37, s, now, 10.12, 10.40, size=1_000)          # 30,000 in the last minute
+    assert v37.ripping(s)
+    assert v37.not_running(s) == ""
+
+
+def bought_unless_not_running(v37, clock, now, symbol):
+    """Up 3.5% in a minute on $300k+, over the day's high, after a red
+    candle on 50k shares - every old rule passes."""
+    s = crowd(v37, clock, symbol, 1_000_000)
+    candles(s, STAIRS[:2] + [(10.19, 10.22, 10.10, 10.12, 50_000)], quiet=40_000)
+    s.day_high = 10.05
+    prints(v37, s, now, 10.00, 10.35, size=1_000)
+    tick(v37, s, now, 10.36)
+    return s
+
+
+def test_not_running_blocks_the_buy(v37, clock, now, monkeypatch):
+    assert bought_unless_not_running(v37, clock, now, "ABCD").in_position
+    monkeypatch.setattr(bot, "V37_MOMENTUM", True)
+    assert not bought_unless_not_running(v37, clock, now, "EFGH").in_position
+
+
+def test_steady_pays_little_over_the_price(v37, clock, now, monkeypatch):
+    """The owner, 10-06: paying 2% over the price seen (APUS 8.05 vs 7.89) is
+    for a stock that is ripping, not one going up steadily."""
+    monkeypatch.setattr(bot, "V37_STEADY_PAY", 0.005)
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    candles(s, STAIRS)
+    prints(v37, s, now, 10.00, 10.40, size=10)             # +4%, a quiet minute
+    assert v37.entry_cap(s, 10.40) == 0.005
+    prints(v37, s, now, 10.40, 10.80, size=1_000)          # busier than any minute
+    assert v37.entry_cap(s, 10.80) >= bot.V37_ENTRY_PCT
+
+
+def test_running_and_steady_pay_are_off_until_the_owner_decides():
+    assert not bot.V37_MOMENTUM and not bot.V37_STEADY_PAY
