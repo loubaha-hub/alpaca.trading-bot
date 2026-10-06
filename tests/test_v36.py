@@ -443,3 +443,101 @@ def test_names_outside_the_crowd_are_not_logged(v36, clock, caplog):
     with caplog.at_level(logging.INFO):
         tick(v36, s, TRIGGER)
     assert not any("WHY-NOT ABCD" in r.getMessage() for r in caplog.records)
+
+
+# ---- 2026-10-06: the adds go right after a runner ---------------------------------
+
+def test_a_missed_add_tries_again(v36, clock, broker, monkeypatch):
+    """APUS 1:49pm 10-06: both adds missed (asks past the limit) and the misses
+    used up the add steps - it rode the rip with 56 shares instead of ~540."""
+    monkeypatch.setattr(bot, "V36_ADD_RETRY_SEC", 0.0)
+    s = bought(v36, clock)
+    first = s.v36_first
+    real_buy, calls = v36.buy, []
+
+    async def buy(symbol, shares, ref, cap):
+        calls.append(ref)
+        if len(calls) == 1:
+            return 0                                      # the ask ran past the limit
+        return await real_buy(symbol, shares, ref, cap)
+    monkeypatch.setattr(v36, "buy", buy)
+    tick(v36, s, round(first * 1.031, 2))
+    assert s.v36_adds == 0                                # a miss is not an add
+    tick(v36, s, round(first * 1.041, 2))                 # the next new high
+    assert s.v36_adds == 1 and len(calls) == 2
+
+
+def test_an_add_counts_from_the_ask_when_prints_lag(v36, clock, data, monkeypatch):
+    got = []
+
+    async def buy(symbol, shares, ref, cap):
+        got.append((ref, cap))
+        return 0
+    s = bought(v36, clock)
+    monkeypatch.setattr(v36, "buy", buy)
+    data.quotes[("ABCD", "ask")] = round(s.v36_first * 1.08, 2)   # the market ran
+    tick(v36, s, round(s.v36_first * 1.031, 2))
+    assert got and got[0][0] == data.quotes[("ABCD", "ask")]
+
+
+def test_a_ripping_add_may_pay_up_to_half_the_minute(v36, clock, monkeypatch):
+    got = []
+
+    async def buy(symbol, shares, ref, cap):
+        got.append(cap)
+        return 0
+    s = bought(v36, clock)
+    monkeypatch.setattr(v36, "buy", buy)
+    monkeypatch.setattr(v36, "ripping", lambda s: True)
+    monkeypatch.setattr(v36, "move", lambda s, p: 0.16)  # up 16% in the minute
+    tick(v36, s, round(s.v36_first * 1.031, 2))
+    assert got and got[0] == pytest.approx(0.08)         # half of it
+
+
+def test_the_add_fixes_are_on():
+    assert bot.V36_ADD_RETRY and bot.V36_ADD_FROM_ASK and bot.V36_ADD_RIP_PAY == 0.10
+
+
+# ---- 2026-10-06: the score at v36's entries, the candles for the first buys ----------
+
+def test_the_score_can_stop_a_v36_buy(v36, clock, monkeypatch):
+    monkeypatch.setattr(bot, "V36_SCORE_MIN", 15)
+    s = ripping(v36, clock)
+    tick(v36, s, TRIGGER)
+    assert not entered(v36, s)
+
+
+def test_a_light_pullback_scores_as_a_pullback(v36, clock):
+    """The red candle is v36's pattern: light (smaller body, less volume than
+    the green before it) is in its favour, not a no-buy."""
+    s = ripping(v36, clock)
+    points, parts = v36.score(s, TRIGGER, pullback=True)
+    assert points is not None and "candle 2" in parts
+    assert v36.score(s, TRIGGER)[0] is None               # v37's way: red, no buy
+
+
+def test_a_rejection_wick_is_no_v36_buy(v36, clock):
+    """APUS 1:51pm 10-06: the red candle before the buy had a 69% top wick -
+    the top of the blow-off. Bought 8.15, added 8.30, out 8.23."""
+    s = ripping(v36, clock)
+    b = s.bars[-1]
+    s.bars[-1] = bot.Bar(b.ts, b.o, b.o + 0.60, b.l, b.c, b.v)
+    points, why = v36.score(s, TRIGGER, pullback=True)
+    assert points is None and "wick" in why
+
+
+def test_after_two_buys_only_the_high_of_the_day(v36, clock, monkeypatch):
+    monkeypatch.setattr(bot, "V36_SETUP_BUYS", 2)
+    s = ripping(v36, clock)
+    s.v36_entries = 1
+    assert v36.candles_allowed(s)
+    s.v36_entries = 2
+    s.mom_high_ts = time.time() - 600                     # a new high 10 minutes ago
+    assert not v36.candles_allowed(s)
+    assert v36.hod_plus(s)[0] == pytest.approx(s.hod_closed + 0.05)
+    s.mom_high_ts = time.time() - 3 * 3600                # asleep for 3 hours
+    assert v36.candles_allowed(s)
+
+
+def test_the_new_entry_rules_are_off_until_the_owner_decides():
+    assert bot.V36_SCORE_MIN == 0 and bot.V36_SETUP_BUYS == 0
