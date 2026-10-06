@@ -5,6 +5,20 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-06
 
+### v36 replayed, 6 days (tape check off - the replay has no real tape)
+- Live v36 as it is: 153 trades, 7% won; +$1,917 at fills 0.2% worse
+  (+$1,989 of it on 10-05, SAIQ +$2,521), -$70 at 1% worse. 143 trades
+  ended on the stop (median -2.7%, -$2,583 in all); 10 on the trail, all
+  winners (+$4,500). A home-run strategy: small losses, rare big runs.
+- The add fixes: no change in the replay (+$1,886 / -$65) - its prices move
+  smoothly inside a minute, so the 1:49 APUS miss cannot happen there.
+  They fix a plain bug; judge them live.
+- The score at v36's entries made it worse: 10 -> -$125 / -$1,315; 12 ->
+  -$198 / -$691 (30 trades); the owner's first-two-buys rule with score 11
+  or 12 -> -$555 / -$232 at 0.2%. They block the runners (SAIQ) and the
+  stop-outs stay. Proposal: keep both off for v36; look at v36's EXIT next
+  (93% of its trades end on the stop).
+
 ### Real money: where it is, and the day-trading rule
 - The owner: the money for live trading is at Webull, not Alpaca. The bot
   trades only through Alpaca (orders, fills, positions, reconcile), so it
