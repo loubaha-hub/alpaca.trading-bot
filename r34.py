@@ -3837,6 +3837,17 @@ V36_SETUP_BUYS = 0              # >0: candle setups only for this many buys of a
                                 # stock a day; after that the high of the day only
 V36_HOD_PLUS = 0.05             # ...plus this over the highest closed minute
 V36_SLEEP_MIN = 120             # a stock with no new high this long: setups again
+# 2026-10-06, to test (the owner: "only what benefits v36"). In the replay, 84
+# of 153 v36 trades never reached the first add and lost $1,718 (stopped at a
+# median -4.6%); the 69 that added made +$3,635. Fewer bad starters, smaller
+# losses on the ones that fail - and decide exits on fresh prices (today's
+# v36 stops acted on prints 2.5-7s old: APUS 11:32, AVBP 12:19, DLXY 10:46).
+V36_WICK_VETO = 0.0             # >0: no buy when the last closed candle's top wick
+                                # is more than this share of it (APUS 11:35, 1:51)
+V36_MAX_STOP = 0.0              # >0: the first stop no further than this under
+                                # the trigger (the pullback's low was up to 9% away)
+V36_FRESH_EXITS = False         # stops and the trail decide only on prints under
+                                # V37_FRESH_SECONDS old (as v37 since r34.8)
 V36_FLOOR_AVG = True            # after an add, the floor rises to: True = the
                                 # position's average (breakeven), False = what the
                                 # starter paid. Replayed 09-28..10-05: average
@@ -3931,6 +3942,12 @@ class _Momentum:
             s.v37_speed_prints.append((t, price, size))
         while s.v37_speed_prints and s.v37_speed_prints[0][0] < now - 2 * V37_FAST_SECONDS:
             s.v37_speed_prints.popleft()
+
+    def fresh(self, s) -> bool:
+        """The print being decided on traded within V37_FRESH_SECONDS (a
+        print with no trade time counts as fresh - the replay has none)."""
+        return (not s.last_print_ts
+                or time.time() - s.last_print_ts <= V37_FRESH_SECONDS)
 
     def pace(self, s) -> float:
         """Shares traded in the last V37_FAST_SECONDS (by when they traded)."""
@@ -4368,6 +4385,16 @@ class V36(_Restore, _Momentum, V35):
             self.why_not(s, price, "WAIT: %s trigger %.4f" % (found[2], found[0]))
             return
         trigger, stop_ref, kind = found
+        if V36_WICK_VETO and s.bars:
+            b = s.bars[-1]
+            rng = b.h - b.l
+            wick = (b.h - max(b.o, b.c)) / rng if rng > 0 else 0.0
+            if wick > V36_WICK_VETO:
+                self.why_not(s, price, "NO: a %.0f%% top wick on the last candle - sellers "
+                             "rejected the high" % (100 * wick), urgent=True)
+                return
+        if V36_MAX_STOP:
+            stop_ref = max(stop_ref, trigger * (1 - V36_MAX_STOP))
         if not self.trend_ok(s, price) or not s.ema12 > s.ema26:
             self.why_not(s, price, "NO TREND at the trigger %.4f: vwap %.4f e9 %.4f e20 "
                          "%.4f macd %+.4f" % (trigger, self.vwap(s), s.ema9, s.ema20,
@@ -4512,6 +4539,8 @@ class V36(_Restore, _Momentum, V35):
         if not s.in_position:
             await self.maybe_enter(s, price, self.fast_speed(s), self.baseline(s))
             return
+        if V36_FRESH_EXITS and not self.fresh(s):
+            return                              # an old print: the next fresh one decides
         new_high = price >= s.peak
         s.peak = max(s.peak, price)
         s.v35_peak = max(s.v35_peak, price)
@@ -4881,12 +4910,6 @@ class V37(V36):
         first = s.v37_prints[0][1]
         now = s.last_price / first - 1 if first > 0 else 0.0
         return now > 0 and now >= then
-
-    def fresh(self, s) -> bool:
-        """The print being decided on traded within V37_FRESH_SECONDS (a
-        print with no trade time counts as fresh - the replay has none)."""
-        return (not s.last_print_ts
-                or time.time() - s.last_print_ts <= V37_FRESH_SECONDS)
 
     def fast(self, s, price) -> bool:
         """Up V37_FAST_PCT within the last V37_FAST_SECONDS, on at least

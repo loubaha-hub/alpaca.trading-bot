@@ -541,3 +541,39 @@ def test_after_two_buys_only_the_high_of_the_day(v36, clock, monkeypatch):
 
 def test_the_new_entry_rules_are_off_until_the_owner_decides():
     assert bot.V36_SCORE_MIN == 0 and bot.V36_SETUP_BUYS == 0
+
+
+# ---- 2026-10-06, to test: fewer bad starters, smaller losses, fresh exits ---------
+
+def test_a_wick_veto_stops_a_buy_after_a_rejection(v36, clock, monkeypatch):
+    """APUS 1:51pm 10-06: the candle before the buy had a 69% top wick."""
+    s = ripping(v36, clock)
+    b = s.bars[-1]
+    s.bars[-1] = bot.Bar(b.ts, b.o, b.o + 0.60, b.l, b.c, b.v)
+    monkeypatch.setattr(bot, "V36_WICK_VETO", 0.6)
+    tick(v36, s, TRIGGER)
+    assert not entered(v36, s)
+    monkeypatch.setattr(bot, "V36_WICK_VETO", 0.0)
+    tick(v36, s, TRIGGER)
+    assert entered(v36, s)
+
+
+def test_the_first_stop_can_be_capped(v36, clock, monkeypatch):
+    monkeypatch.setattr(bot, "V36_MAX_STOP", 0.03)
+    s = bought(v36, clock)
+    assert s.stop >= TRIGGER * 0.97 - 1e-9                # not the pullback's low (10.15)
+
+
+def test_fresh_exits_skip_an_old_print(v36, clock, monkeypatch):
+    monkeypatch.setattr(bot, "V36_FRESH_EXITS", True)
+    s = bought(v36, clock)
+    s.last_print_ts = time.time() - 7                     # APUS 11:32: a 7-second-old print
+    tick(v36, s, round(s.stop - 0.05, 2))
+    assert s.in_position                                  # the next fresh print decides
+    s.last_print_ts = time.time()
+    tick(v36, s, round(s.stop - 0.05, 2))
+    assert not s.in_position
+
+
+def test_the_v36_candidates_are_off_until_tested():
+    assert not bot.V36_WICK_VETO and not bot.V36_MAX_STOP and not bot.V36_FRESH_EXITS
