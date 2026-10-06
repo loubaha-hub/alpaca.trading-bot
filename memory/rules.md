@@ -28,7 +28,7 @@ Numbers marked **(?)** are starting guesses for the owner to correct. Status:
 |---|---|---|
 | Two green 1-minute candles | together +5% or more (owner: 5-10%); or one minute +2-5% | tested |
 | Volume | each candle 3x the 5 minutes before or more; rising bar to bar | tested |
-| Tape (time and sales against the bid/ask - no Level 2 needed) | most prints at the ask - 60% of shares in the last 30s or more (?); never buy into mostly selling (on 10-05 all 7 such buys lost) | to build: quotes must stream for the leaders BEFORE the buy (today only for names held) |
+| Tape (time and sales against the bid/ask - no Level 2 needed) | **the owner, 10-06: at least 60% green (at the ask), no more than 40% red (at the bid)** - "good enough" as a number; real life is less consistent. Never buy into mostly selling (on 10-05 all 7 such buys lost) | to build: quotes must stream for the leaders BEFORE the buy (today only for names held) |
 | No high wick | upper wick no more than half the candle (?) | to build |
 
 ## 4. The entry
@@ -51,6 +51,7 @@ Numbers marked **(?)** are starting guesses for the owner to correct. Status:
 ## 6. The exit
 | Rule | Number | Status |
 |---|---|---|
+| A short burst of red prints while the stock stays strong | hold through it - the price dips a tiny bit and picks up again; not an exit by itself | to build |
 | Short leash at first | out on a red 10-second candle closing under the one before (?) or a bar flickering green/red | to build (needs 10-second candles from the prints) |
 | Longer leash once it has run | from +10% (?): trail 2 typical one-minute ranges (?) | partly (v35's long leash) |
 | At a resistance / half-dollar level | hesitates there: out; bolts through: stay | to build |

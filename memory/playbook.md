@@ -74,7 +74,12 @@ is not part of it.
 
 ## Confirm with the tape
 - Time and sales: most prints green (at the ask). Red = at the bid, white = in
-  between.
+  between. Without Level 2, time and sales plus the bid/ask is "half of the
+  battle" - including how far each print is from the offer.
+- As a number: at least 60% green, no more than 40% red. The tape runs very
+  fast and is not that consistent; green outweighing red is what matters.
+- A short burst of red while the stock is still going up and strong: hold
+  through it - it dips a tiny bit and picks up again.
 
 ## Coming back in (the same stock is hot two or three times a day)
 - Ride it, or jump out, wait for it to come back and jump in again. It can
