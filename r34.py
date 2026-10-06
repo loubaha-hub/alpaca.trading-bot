@@ -4440,6 +4440,15 @@ V37_WICK_MAX = 0.25             # the minute before the buy: green, its top wick
                                 # to the top, no wick or a very short wick")...
 V37_BODY_FADE = 0.50            # ...and its body at least this share of the bigger
                                 # of the two before it (bodies not shrinking)
+# PROPOSED 2026-10-06 (the owner), off until the owner decides: the same signs
+# WEIGHED instead of pass/fail - "the world is not black and white; trading
+# is messy". Points for what favours a run, a buy at V37_SCORE_MIN or more.
+# Only a huge top wick on the last candle stops a buy outright ("almost a
+# stop"). A stock ripping skips the score.
+V37_SCORE_MIN = 0               # 0 = off; else the points needed (of 11)
+V37_SCORE_HUGE_WICK = 0.60      # the last candle's top wick over this share of it:
+                                # no buy
+V37_SCORE_ROOM = 0.05           # resistance: the prior day's high this close above
 V37_STEADY_PAY = 0.0            # >0: a buy may pay at most this share over the price
                                 # seen unless the stock is ripping (the owner: "you
                                 # can do that only if the stock is ripping"); 0 = off
@@ -4636,6 +4645,52 @@ class V37(V36):
                     bars[-k].v / normal if normal else 0.0, k)
         return ""
 
+    def score(self, s, price):
+        """V37_SCORE_MIN: how favourable the moment is, out of 11 points,
+        and the parts - or (None, why) for a huge wick on the last candle.
+          last candle  2  green, closed in its top third (1: green, a bigger
+                          wick - "two thirds up can still be favourable")
+          wicks        1  top wicks not growing 3 candles in a row ("sellers
+                          pushing it back"; one odd one is forgiven)
+          bodies       1  green bodies not shrinking noticeably 3 in a row
+                          (each under 3/4 of the one before; irregular is fine)
+          lows         1  at least 2 of the last 3 lows stepping up
+          volume       2  2x normal in each of the last 2 minutes (1: one)
+          trend        2  over VWAP (1), over the 9 EMA over the 20 (1)
+          MACD         1  the 12 EMA over the 26
+          room         1  no prior-day high within V37_SCORE_ROOM above"""
+        bars = s.bars
+        if len(bars) < 4:
+            return 11, "too few candles to judge"
+        last = bars[-1]
+        rng = last.h - last.l
+        wick = (last.h - max(last.o, last.c)) / rng if rng > 0 else 0.0
+        if wick > V37_SCORE_HUGE_WICK:
+            return None, "a huge top wick on the last candle (%.0f%% of it)" % (100 * wick)
+        parts = {}
+        parts["candle"] = (2 if wick <= 1 / 3 else 1) if last.green else 0
+        def top_wick(b):
+            r = b.h - b.l
+            return (b.h - max(b.o, b.c)) / r if r > 0 else 0.0
+        w = [top_wick(b) for b in bars[-3:]]
+        parts["wicks"] = 0 if (w[0] < w[1] < w[2] and w[2] > 1 / 3) else 1
+        bodies = [b.c - b.o for b in bars[-3:]]
+        fading = (all(x > 0 for x in bodies)
+                  and bodies[1] < 0.75 * bodies[0] and bodies[2] < 0.75 * bodies[1])
+        parts["bodies"] = 0 if fading else 1
+        steps = sum(1 for k in (1, 2, 3) if bars[-k].l >= bars[-k - 1].l)
+        parts["lows"] = 1 if steps >= 2 else 0
+        normal = statistics.median(b.v for b in bars[-30:])
+        busy = sum(1 for b in bars[-2:] if normal and b.v >= 2 * normal)
+        parts["volume"] = busy
+        vwap = self.vwap(s)
+        parts["trend"] = (1 if vwap and price > vwap else 0) + (
+            1 if s.ema9 and price > s.ema9 > s.ema20 else 0)
+        parts["macd"] = 1 if s.ema12 > s.ema26 else 0
+        parts["room"] = 0 if (s.prev_high > price
+                              and s.prev_high < price * (1 + V37_SCORE_ROOM)) else 1
+        return sum(parts.values()), " ".join("%s %d" % kv for kv in parts.items())
+
     def confirm_bars(self, s) -> int:
         """How many candles the next buy of this stock waits for."""
         if not V37_CONFIRM_BY_BUY:
@@ -4790,6 +4845,11 @@ class V37(V36):
         if not self.volume_ok(s):
             return                              # flying means the volume is rising
         why = self.not_running(s)
+        if not why and V37_SCORE_MIN and not self.ripping(s):
+            points, parts = self.score(s, price)
+            if points is None or points < V37_SCORE_MIN:
+                why = "score %s/11 under %d: %s" % (points, V37_SCORE_MIN, parts) \
+                    if points is not None else parts
         if why:                                 # it spiked, it is not running
             if time.time() - s.v37_skip_logged >= 30:
                 s.v37_skip_logged = time.time()
@@ -4806,6 +4866,7 @@ class V37(V36):
 
     async def v37_buy(self, s, price):
         spd = self.speed(s, price)              # logged for every buy, rule on or off
+        pts, parts = self.score(s, price)       # the same
         eq = await self.broker.equity(self.day_start_equity)
         cap = self.entry_cap(s, price)
         worst = price * (1 + cap)
@@ -4835,17 +4896,18 @@ class V37(V36):
         s.v36_entries += 1
         s.entry_at = time.time()
         self.dlog.record(ev="ENTER", sym=s.symbol, px=price, sh=filled,
-                         kind="rip", stop=s.stop, speed=round(spd, 3))
+                         kind="rip", stop=s.stop, speed=round(spd, 3),
+                         score=pts, parts=parts)
         self.log.info("[v37] ENTER %s %d @ %.4f (print %.4f) = $%.0f (%.1f%% of "
                       "equity) - a tenth of a position, buy %d today | crowd #%d, "
                       "$%.0fk in %d min | stop %.4f | adds at %.4f and %.4f | "
-                      "speed %.2f",
+                      "speed %.2f | score %s (%s)",
                       s.symbol, filled, s.entry, price, filled * s.entry,
                       100 * filled * s.entry / eq if eq else 0.0, s.v36_entries,
                       self.crowd_rank(s.symbol),
                       self.crowd_dollars(s.symbol) / 1000, V36_CROWD_MINUTES,
                       s.stop, s.v36_first + V37_ADD1_CENTS,
-                      s.v36_first + V37_ADD2_CENTS, spd)
+                      s.v36_first + V37_ADD2_CENTS, spd, pts, parts)
         await self.quote_the_crowd()
 
     def others_pct(self, s, eq) -> float:

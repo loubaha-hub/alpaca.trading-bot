@@ -1041,3 +1041,44 @@ def test_the_broker_reads_todays_fills_page_by_page():
     assert len(got) == 501                                # the unfilled order left out
     assert got[0][0] < got[-1][0] and got[0][2] == "buy"  # oldest first
     assert Client.asked[1] is not None                    # the second page asked for
+
+
+# ---- proposed 2026-10-06 (off): the signs weighed, not pass/fail -------------------
+
+def test_a_clean_staircase_scores_high(v37, clock, now):
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    candles(s, STAIRS)
+    s.ema9, s.ema20, s.ema12, s.ema26 = 10.2, 10.1, 10.2, 10.1
+    s.vwap_pv, s.vwap_v = 10.0, 1.0
+    points, parts = v37.score(s, 10.35)
+    assert points == 11, parts
+
+
+def test_two_thirds_up_with_a_wick_is_still_favourable(v37, clock, now):
+    """The owner: "sometimes they are not all close to the top - two thirds
+    up, some wick - you look at other factors and you can still enter"."""
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    candles(s, STAIRS[:2] + [(10.19, 10.40, 10.15, 10.31, 7_000)])   # wick 36%
+    points, parts = v37.score(s, 10.41)
+    assert points is not None and "candle 1" in parts
+
+
+def test_a_huge_wick_on_the_last_candle_is_almost_a_stop(v37, clock, now):
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    candles(s, STAIRS[:2] + [(10.19, 10.60, 10.15, 10.24, 7_000)])   # wick 80%
+    points, why = v37.score(s, 10.61)
+    assert points is None and "huge" in why
+
+
+def test_irregular_bodies_are_fine_steadily_shrinking_are_not(v37, clock, now):
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    candles(s, [(10.00, 10.21, 9.99, 10.20, 5_000), (10.20, 10.31, 10.18, 10.30, 6_000),
+                (10.30, 10.46, 10.28, 10.45, 7_000)])              # 20c, 10c, 15c
+    assert "bodies 1" in v37.score(s, 10.47)[1]
+    candles(s, [(10.00, 10.21, 9.99, 10.20, 5_000), (10.20, 10.31, 10.18, 10.30, 6_000),
+                (10.30, 10.36, 10.28, 10.35, 7_000)])              # 20c, 10c, 5c
+    assert "bodies 0" in v37.score(s, 10.37)[1]
+
+
+def test_the_score_is_off_until_the_owner_decides():
+    assert bot.V37_SCORE_MIN == 0
