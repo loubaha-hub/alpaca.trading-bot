@@ -1241,6 +1241,7 @@ class SymState:
     v36_rip_ts: object = None        # v36: the latest rip's last candle (its start time)
     v36_rip_base: float = 0.0        # v36: the average minute's volume before that rip
     v36_first: float = 0.0           # v36: what the starter paid
+    v36_why_at: float = 0.0          # v36: when its last "why not" line was logged
     v36_adds: int = 0                # v36: adds made to this position (V36_ADD1_*, V36_ADD2_*)
     v36_leash_from: float = 0.0      # v36: the short leash watches candles from here
     ten: tuple = ()                  # v36: the 10-second candle in progress
@@ -3746,6 +3747,18 @@ V36_WICK_MAX = 0.5              # the rip's last candle: upper wick at most this
 V36_TAPE_SECONDS = 30           # the tape window at the buy
 V36_TAPE_GREEN = 0.60           # at least this share of shares at the ask
 V36_TAPE_RED = 0.40             # no more than this share at the bid
+V36_TAPE_MID_ASIDE = True       # ...of the shares at the ask OR the bid: prints
+                                # between them set aside. The playbook: "green
+                                # outweighing red is what matters". 2026-10-06: at
+                                # the day's buys 26-54% of all shares were at the
+                                # ask and 27-42% between - 60% of ALL never came.
+V36_RIP_SKIPS_HOLD = True       # a stock that ripped in its last 2 closed minutes
+                                # is the crowd at once, without the hold - the hold
+                                # cost AIXI at 4:17 (2.85, ran to 4.47) and IPDN
+                                # at 7:29 on 2026-10-06
+V36_WHY_NOT = True              # a "why not" line, a minute apart, for the top 3
+                                # crowd names and the top gainers; 5s apart once the
+                                # price is at a trigger and a check says no
 V36_POSITION_PCT = 0.25         # a full position: this share of equity
 V36_STARTER = 0.10              # the first buy: this fraction of a full position
 # KEEP ADDING AS IT MOVES: once up ADD1_AT from the starter, on a new high with
@@ -3901,8 +3914,15 @@ class V36(V35):
             return True
         if self.crowd_rank(s.symbol) > V36_CROWD_TOP:
             return False
+        if V36_RIP_SKIPS_HOLD and self.ripping_now(s):
+            return True
         since = self.crowd_since.get(s.symbol)
         return since is not None and time.time() - since >= V36_CROWD_HOLD_MIN * 60
+
+    def ripping_now(self, s) -> bool:
+        """A rip among the last two closed minutes."""
+        j = self.rip(s)
+        return j is not None and j >= len(s.bars) - 2
 
     async def quote_the_crowd(self):
         """The tape needs the bid and ask BEFORE a buy, not after: until now
@@ -3980,6 +4000,8 @@ class V36(V35):
         if not V36_TAPE_GREEN:
             return True
         buy, sell, _, total, _ = self.tape_split(s, V36_TAPE_SECONDS)
+        if V36_TAPE_MID_ASIDE:
+            total = buy + sell
         return total > 0 and buy >= V36_TAPE_GREEN * total \
             and sell <= V36_TAPE_RED * total
 
@@ -4019,6 +4041,43 @@ class V36(V35):
         level = max(s.hod_closed, s.v35_peak) + margin_for(price)
         return level, b.l, "hod"
 
+    # ---- why not (V36_WHY_NOT) -------------------------------------------------
+
+    def why_not(self, s, price, why, urgent=False):
+        """One line: which check said no, with its numbers - a minute apart per
+        name, 5 seconds apart once the price is at a trigger (urgent). Only for
+        the top 3 crowd names and the top gainers."""
+        if not V36_WHY_NOT:
+            return
+        rank, grank = self.crowd_rank(s.symbol), self.gainer_rank(s.symbol)
+        if rank > 3 and grank > V36_GAINER_TOP:
+            return
+        now = time.time()
+        if now - s.v36_why_at < (5 if urgent else 60):
+            return
+        s.v36_why_at = now
+        since = self.crowd_since.get(s.symbol)
+        held = " held %.1fm" % ((now - since) / 60) if since else ""
+        self.log.info("[v36] WHY-NOT %s px %.4f | crowd #%s $%.0fk%s, gainer #%s | %s",
+                      s.symbol, price, rank if rank < 10**6 else "-",
+                      self.crowd_dollars(s.symbol) / 1000, held,
+                      grank if grank < 10**6 else "-", why)
+
+    def pattern_text(self, s) -> str:
+        """Where the two entry patterns stand, for a "why not" line."""
+        bars = s.bars
+        j = self.rip(s)
+        rip = ("rip %s %s" % (bars[j].ts.astimezone(ET).strftime("%H:%M"),
+                              "alive" if self.alive(s) else "dead")
+               if j is not None else "no rip")
+        if len(bars) < 2:
+            return rip + ", too few candles"
+        a, b = bars[-2], bars[-1]
+        base = self.vol_base(bars, len(bars) - 1)
+        colour = lambda x: "G" if x.green else ("R" if x.red else "-")
+        return "%s | last candles %s%s, vol %.1fx the 5 before (high break needs %.1fx)" % (
+            rip, colour(a), colour(b), b.v / base if base else 0.0, V36_PICKUP_MULT)
+
     async def maybe_enter(self, s, price, fast, base):
         if not entries_allowed():
             return
@@ -4027,15 +4086,22 @@ class V36(V35):
         if not self.price_ok(s, price):
             return
         if len(self.open_positions()) >= V36_MAX_POSITIONS:
+            self.why_not(s, price, "NO: %d positions open" % len(self.open_positions()))
             return
         if s.v36_entries >= V36_MAX_ENTRIES:
+            self.why_not(s, price, "NO: %d buys today" % s.v36_entries)
             return
         if (s.v36_entry_bar_ts is not None and s.bars
                 and s.bars[-1].ts <= s.v36_entry_bar_ts):
             return                              # one buy a minute: no churn
         if V36_MAX_FLOAT and FLOATS.get(s.symbol, 0) > V36_MAX_FLOAT:
+            self.why_not(s, price, "NO FLOAT: %.1fM > %.0fM" % (
+                FLOATS.get(s.symbol, 0) / 1e6, V36_MAX_FLOAT / 1e6))
             return
         if not self.in_crowd(s):
+            self.why_not(s, price, "NO CROWD: not top %d held %dm, not ripping, not a "
+                         "top gainer with $%.0fk" % (V36_CROWD_TOP, V36_CROWD_HOLD_MIN,
+                                                    V36_GAINER_MIN_DOLLARS / 1000))
             return
         await self.quote_the_crowd()
         found = None
@@ -4044,18 +4110,33 @@ class V36(V35):
             found = self.pullback_after(s, j)
         if not found:
             found = self.breaking_high(s, price)
-        if not found or price < found[0]:
+        if not found:
+            self.why_not(s, price, "NO PATTERN: " + self.pattern_text(s))
+            return
+        if price < found[0]:
+            self.why_not(s, price, "WAIT: %s trigger %.4f" % (found[2], found[0]))
             return
         trigger, stop_ref, kind = found
         if not self.trend_ok(s, price) or not s.ema12 > s.ema26:
+            self.why_not(s, price, "NO TREND at the trigger %.4f: vwap %.4f e9 %.4f e20 "
+                         "%.4f macd %+.4f" % (trigger, self.vwap(s), s.ema9, s.ema20,
+                                              s.ema12 - s.ema26), urgent=True)
             return
         if not self.tape_ok(s):
+            b, r, m, tot, q = self.tape_split(s, V36_TAPE_SECONDS)
+            self.why_not(s, price, "NO TAPE at the trigger %.4f: %ds ask %.0f%% bid %.0f%% "
+                         "between %.0f%% of %.0f sh (%.0f%% by quote)" % (
+                             trigger, V36_TAPE_SECONDS, 100 * b / tot if tot else 0,
+                             100 * r / tot if tot else 0, 100 * m / tot if tot else 0,
+                             tot, 100 * q), urgent=True)
             return
         # ROOM TO RUN: the next wall overhead - the prior day's high - at
         # least V35_ROOM_RR times what the stop risks.
         risk = trigger - min(stop_ref, trigger * (1 - MIN_STOP_PCT))
         if (V35_ROOM_RR and s.prev_high > trigger
                 and s.prev_high - trigger < V35_ROOM_RR * risk):
+            self.why_not(s, price, "NO ROOM at the trigger %.4f: prior high %.4f" % (
+                trigger, s.prev_high), urgent=True)
             return
         lock = self.lock(s.symbol)
         if lock.locked():

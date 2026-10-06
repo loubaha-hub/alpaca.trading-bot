@@ -148,12 +148,32 @@ def test_only_where_the_crowd_is(v36, clock):
 
 def test_the_crowd_must_hold_a_couple_of_minutes(v36, clock, monkeypatch):
     monkeypatch.setattr(bot, "V36_CROWD_HOLD_MIN", 2)
+    monkeypatch.setattr(bot, "V36_RIP_SKIPS_HOLD", False)
     s = ripping(v36, clock)
     tick(v36, s, TRIGGER)
     assert not entered(v36, s)                          # just arrived at the top
     v36.crowd_since["ABCD"] = time.time() - 121
     tick(v36, s, TRIGGER)
     assert entered(v36, s)
+
+
+def test_a_stock_ripping_now_is_the_crowd_without_the_hold(v36, clock, monkeypatch):
+    """AIXI 4:17am 2026-10-06: #1 by $1.8M the minute it ripped - the 2-minute
+    hold let v36 buy only from 4:19, and by then the pattern was gone."""
+    monkeypatch.setattr(bot, "V36_CROWD_HOLD_MIN", 2)
+    s = ripping(v36, clock)                               # the rip: the last 2 minutes
+    assert v36.ripping_now(s)
+    tick(v36, s, TRIGGER)
+    assert entered(v36, s)
+
+
+def test_an_older_rip_still_waits_for_the_hold(v36, clock, monkeypatch):
+    monkeypatch.setattr(bot, "V36_CROWD_HOLD_MIN", 2)
+    s = ripping(v36, clock)
+    now = clock.now.astimezone(bot.timezone.utc) + bot.timedelta(minutes=2)
+    feed_bars(v36, "ABCD", now, [(10.20, 10.30, 10.15, 10.25, 90_000)] * 2)
+    assert not v36.ripping_now(s)
+    assert not v36.in_crowd(s)
 
 
 # ---- the tape ----------------------------------------------------------------------
@@ -172,6 +192,19 @@ def test_the_tape_mostly_green_buys(v36, clock, monkeypatch):
     tape(v36, s, at_ask=70, at_bid=30)
     tick(v36, s, TRIGGER)
     assert entered(v36, s)
+
+
+def test_prints_between_the_bid_and_ask_are_set_aside(v36, clock, monkeypatch):
+    """2026-10-06: 41% at the ask, 27% at the bid, 32% between - the owner's
+    "green outweighing red": 41 of 68 = 60%, a buy."""
+    monkeypatch.setattr(bot, "V36_TAPE_GREEN", 0.60)
+    s = ripping(v36, clock)
+    tape(v36, s, at_ask=41, at_bid=27, bid=10.40, ask=10.42)
+    for _ in range(32):
+        v36.tape_add(s, 10.41, 100)                       # between
+    assert v36.tape_ok(s)
+    monkeypatch.setattr(bot, "V36_TAPE_MID_ASIDE", False)
+    assert not v36.tape_ok(s)                             # 41% of all: no
 
 
 def test_the_tape_mostly_red_does_not(v36, clock, monkeypatch):
@@ -375,3 +408,38 @@ def test_the_adds_come_at_15_and_20_cents(v36, clock, broker):
     assert s.v36_adds == 1
     tick(v36, s, round(first + 0.21, 2))
     assert s.v36_adds == 2
+
+
+# ---- why not (2026-10-06: v36 made no trades and said nothing about why) ----------
+
+def test_a_why_not_line_names_the_check_that_said_no(v36, clock, caplog, monkeypatch):
+    import logging
+    s = ripping(v36, clock, rip_volume=(60_000, 70_000))  # no rip
+    with caplog.at_level(logging.INFO):
+        tick(v36, s, TRIGGER)
+        tick(v36, s, TRIGGER)                             # the same minute: once
+    lines = [r.getMessage() for r in caplog.records if "WHY-NOT" in r.getMessage()]
+    assert len(lines) == 1
+    assert "ABCD" in lines[0] and "NO PATTERN" in lines[0] and "crowd #1" in lines[0]
+
+
+def test_at_the_trigger_the_refusal_is_logged_with_the_tape(v36, clock, caplog,
+                                                          monkeypatch):
+    import logging
+    monkeypatch.setattr(bot, "V36_TAPE_GREEN", 0.60)
+    s = ripping(v36, clock)
+    tape(v36, s, at_ask=30, at_bid=70)
+    with caplog.at_level(logging.INFO):
+        tick(v36, s, TRIGGER)
+    line = next(r.getMessage() for r in caplog.records if "WHY-NOT" in r.getMessage())
+    assert "NO TAPE" in line and "ask 30%" in line and "bid 70%" in line
+
+
+def test_names_outside_the_crowd_are_not_logged(v36, clock, caplog):
+    import logging
+    s = ripping(v36, clock, rip_volume=(60_000, 70_000))
+    for sym, vol in (("BIGA", 3_000_000), ("BIGB", 2_500_000), ("BIGC", 2_000_000)):
+        busier(v36, clock, sym, vol)
+    with caplog.at_level(logging.INFO):
+        tick(v36, s, TRIGGER)
+    assert not any("WHY-NOT ABCD" in r.getMessage() for r in caplog.records)
