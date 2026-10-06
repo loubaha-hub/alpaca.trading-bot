@@ -4434,6 +4434,7 @@ V37_STAIR_MINUTES = 2           # the last N closed minutes each with a low at o
                                 # above the one before (the price stepping up)
 V37_CROWD_STAYS = 2             # ...each trading at least V37_CROWD_REL x the
 V37_CROWD_REL = 2.0             # stock's normal minute - not one burst out of quiet
+V37_LAST_GREEN = True           # the minute before the buy closed green
 V37_WICK_MAX = 0.25             # the minute before the buy: green, its top wick at
                                 # most this share of its range ("full all the way
                                 # to the top, no wick or a very short wick")...
@@ -4616,7 +4617,7 @@ class V37(V36):
         if len(bars) < need:
             return ""
         last = bars[-1]
-        if not last.green:
+        if V37_LAST_GREEN and not last.green:
             return "the last candle closed red"
         rng = last.h - last.l
         if rng > 0 and (last.h - last.c) / rng > V37_WICK_MAX:
