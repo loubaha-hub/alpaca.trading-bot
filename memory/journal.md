@@ -5,6 +5,20 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-05
 
+### The tape at the bot's buys (10-05)
+- The owner: no Level 2 yet, but time and sales plus the bid/ask (Level 1)
+  is "half of the battle": green = at the ask, red = at the bid, white =
+  between, and how far each print is from the offer.
+- At almost every buy the bot's tape read "0% by quote": quotes stream only
+  for names it HOLDS (TAPE_QUOTES="positions"), so a name it was about to buy
+  was marked by up/down ticks, not by the bid/ask.
+- Even so, v31's 22 buys by the last minute's share at the ask: under 45%
+  (mostly selling): 7 buys, 0 won, -$287 (SAIQ, NU x2, WDCX, ITUB, NVAX x2);
+  45-59%: 7, 1 won, -$193; 60%+: 8, 2 won, -$241. One day, small numbers:
+  the tape kept out of losers more than it found winners.
+- Proposed: stream quotes for the top few names on the list so every print is
+  marked against the real bid/ask before a buy; then a tape rule (item 14).
+
 ### Float rotation (shares traded / float), 10-05
 - Regular hours: MI 413x (0.4M float), SAIQ 25x, SDEV 16x, JAGX 10x, QTEX
   1.8x, ALEC 0.9x; the bot's large caps NU, CLF, PAGS, STNE, RXRX 0.0-0.1x.

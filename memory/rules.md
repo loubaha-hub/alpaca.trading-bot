@@ -28,7 +28,7 @@ Numbers marked **(?)** are starting guesses for the owner to correct. Status:
 |---|---|---|
 | Two green 1-minute candles | together +5% or more (owner: 5-10%); or one minute +2-5% | tested |
 | Volume | each candle 3x the 5 minutes before or more; rising bar to bar | tested |
-| Tape | most prints at the ask - 60% of shares in the last 30s or more (?) | to build (the tape is read but only logged) |
+| Tape (time and sales against the bid/ask - no Level 2 needed) | most prints at the ask - 60% of shares in the last 30s or more (?); never buy into mostly selling (on 10-05 all 7 such buys lost) | to build: quotes must stream for the leaders BEFORE the buy (today only for names held) |
 | No high wick | upper wick no more than half the candle (?) | to build |
 
 ## 4. The entry
@@ -39,7 +39,8 @@ Numbers marked **(?)** are starting guesses for the owner to correct. Status:
 - Room: the next resistance (half-dollar level, the day's earlier highs)
   at least 2x the risk away. **Partly** (v35 checks yesterday's high only).
 - Level 2: no big ask in the way; a big ask being eaten fast = go; spoofed
-  asks vanish. **To build** - Webull has Level 2 (10 levels pulled for MI).
+  asks vanish. **Later** - not in the owner's data now; Webull's API has it
+  (10 levels pulled for MI). Until then: time and sales plus the bid/ask.
 - Fast reload: re-price every 0.4s. **Built, on.** On a real runner pay up to
   5-10% over the trigger. **Built, off** (FAST_BUY_SPEED_CAP).
 - Front entries: the first and second entries of each run.
