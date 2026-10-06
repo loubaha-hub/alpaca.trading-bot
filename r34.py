@@ -4445,11 +4445,12 @@ V37_BODY_FADE = 0.50            # ...and its body at least this share of the big
 # is messy". Points for what favours a run, a buy at V37_SCORE_MIN or more.
 # Only a huge top wick on the last candle stops a buy outright ("almost a
 # stop"). A stock ripping skips the score.
-V37_SCORE_MIN = 0               # 0 = off; else the points needed (of 14)
+V37_SCORE_MIN = 0               # 0 = off; else the points needed (of 15)
 V37_SCORE_HUGE_WICK = 0.60      # the last candle's top wick over this share of it:
                                 # no buy
 V37_SCORE_ROOM = 0.05           # resistance: the prior day's high this close above
-V37_SCORE_SPEED = (0.1, 0.2, 0.3)   # the owner's speed: a point at each of these
+V37_SCORE_SPEED = ((0.1, 1), (0.2, 2), (0.3, 4))   # the owner's speed: (at, points)
+                                # - 0.3 is worth 4 ("the speed is very important")
 V37_SCORE_FURIOUS = 0.0         # >0: a speed this high buys whatever the score (the
                                 # owner: "the speed is everything" - never miss the
                                 # furious ones); 0 = off
@@ -4650,12 +4651,12 @@ class V37(V36):
         return ""
 
     def score(self, s, price):
-        """V37_SCORE_MIN: how favourable the moment is, out of 14 points, and
+        """V37_SCORE_MIN: how favourable the moment is, out of 15 points, and
         the parts - or (None, why) when it is no buy at all: a red last candle
         (the owner: "zero - we are not going to enter there", until the bots
         learn bounces off solid support) or a huge top wick on it.
-          speed        3  the owner's speed - price change x volume change over
-                          the last minute - a point at 0.1, 0.2 and 0.3
+          speed        4  the owner's speed - price change x volume change over
+                          the last minute: 1 at 0.1, 2 at 0.2, 4 at 0.3
           last candle  2  green, closed in its top third (1: green, a bigger
                           wick - "two thirds up can still be favourable")
           wicks        1  top wicks not growing 3 candles in a row ("sellers
@@ -4670,7 +4671,7 @@ class V37(V36):
           room         1  no prior-day high within V37_SCORE_ROOM above"""
         bars = s.bars
         if len(bars) < 4:
-            return 14, "too few candles to judge"
+            return 15, "too few candles to judge"
         last = bars[-1]
         if not last.green:
             return None, "the last candle closed red"
@@ -4680,7 +4681,7 @@ class V37(V36):
             return None, "a huge top wick on the last candle (%.0f%% of it)" % (100 * wick)
         parts = {}
         spd = self.speed(s, price)
-        parts["speed"] = sum(1 for t in V37_SCORE_SPEED if spd >= t)
+        parts["speed"] = max((p for t, p in V37_SCORE_SPEED if spd >= t), default=0)
         parts["candle"] = 2 if wick <= 1 / 3 else 1
         def top_wick(b):
             r = b.h - b.l
@@ -4862,7 +4863,7 @@ class V37(V36):
                 and not (V37_SCORE_FURIOUS and self.speed(s, price) >= V37_SCORE_FURIOUS)):
             points, parts = self.score(s, price)
             if points is None or points < V37_SCORE_MIN:
-                why = "score %s/14 under %d: %s" % (points, V37_SCORE_MIN, parts) \
+                why = "score %s/15 under %d: %s" % (points, V37_SCORE_MIN, parts) \
                     if points is not None else parts
         if why:                                 # it spiked, it is not running
             if time.time() - s.v37_skip_logged >= 30:

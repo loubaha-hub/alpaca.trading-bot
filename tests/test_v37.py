@@ -1054,8 +1054,10 @@ def test_a_clean_staircase_scores_high(v37, clock, now):
     assert points == 11 and "speed 0" in parts, parts         # all but the speed
     windows(v37, s, now, 10.00, 10_000, 10.35, 20_000)       # +3.5% on double: 0.07
     assert "speed 0" in v37.score(s, 10.35)[1]
+    windows(v37, s, now, 10.00, 10_000, 10.15, 100_000)      # 1.5% x 10 = 0.15
+    assert "speed 1" in v37.score(s, 10.15)[1]
     windows(v37, s, now, 10.00, 10_000, 10.35, 100_000)      # 3.5% x 10 = 0.35
-    assert v37.score(s, 10.35)[0] == 14
+    assert v37.score(s, 10.35)[0] == 15                      # 0.3+ is worth 4
 
 
 def test_a_red_last_candle_is_no_buy(v37, clock, now):
