@@ -5,6 +5,20 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-06
 
+### Today replayed, 4am-4pm, v37 with today's fixes (the owner asked)
+- Recorded today: replay/data/2026-10-06 (77 symbols, Webull 1-minute).
+- Live v37 today: 114 trades, -$734 (r34.6 to r34.11 through the day).
+- Replay, fills 0.2% / 1% worse than the chart:
+  r34.6 (the version at 4am): 71 trades +$1,201 / 99 trades -$1,243;
+  r34.10 (the morning fixes): 25 trades +$428 / -$236;
+  r34.11 (score 12, live since 3:46pm): 13 trades +$431 / +$57 - the only
+  one positive at 1%. Most of it AIXI 4:17 and 4:26 (+$270, +$164), the
+  rip that cost -$256 live with 10 buys on old prices; the rest small.
+- The replay is kinder than live (r34.6: replay +$1,201 at 0.2%, live
+  about -$734): live fills cost somewhere near 0.5-1% this morning.
+- Live, first r34.11 buy: VCIG 4:03pm at score 14 (speed 0.84), +$8; a
+  minute later "SKIP VCIG - score 9/15" (no speed, wicks growing).
+
 ### v37: buy only while the stock is RUNNING - from pass/fail to a score
 - Why: all 9 v37 buys 9:02am-2:25pm came at the top of a one-minute burst
   out of quiet (already up 7-28% in 2 minutes; the bot paid up to 2% over
