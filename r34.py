@@ -125,7 +125,7 @@ RISK_CHECK_SECONDS = 5                      # the halt runs on a CLOCK, not tick
 # The file name and this string are changed together, every single time. The
 # log then answers "which code is actually running?" without anyone guessing
 # from line numbers or from behaviour that only shows up once a trade is on.
-VERSION = "v31-r34.7"
+VERSION = "v31-r34.8"
 
 # WHERE THE DAY'S HALT BASELINE COMES FROM.
 #   "last_equity" - equity at the PREVIOUS session's close, read from the broker.
@@ -4233,6 +4233,12 @@ V37_MAX_POSITIONS = 2
 V37_MAX_ENTRIES = 0             # buys per name per day; 0 = no limit (the owner,
                                 # 2026-10-06: the 10-buy limit locked v37 out of
                                 # AIXI and SDEV before their second legs)
+V37_FRESH_SECONDS = 2.0         # buy and add only on a print that traded this
+                                # recently. AIXI, 4:17am 2026-10-06: while an order
+                                # worked, prints queued; drained oldest first, each
+                                # old print of the run-up looked like a new high
+                                # and v37 bought 10 times in 100s on prices up to
+                                # 58s old (one "new high" at 3.30 filled at 3.06)
 
 
 class V37(V36):
@@ -4249,10 +4255,21 @@ class V37(V36):
 
     def note_trade(self, s, price, size):
         super().note_trade(s, price, size)
+        # Timed by when the print TRADED, not when it was read: a queue of
+        # prints drained in a burst must not look like a stock moving fast.
         now = time.time()
-        s.v37_prints.append((now, price, size))
-        while s.v37_prints and now - s.v37_prints[0][0] > V37_FAST_SECONDS:
+        t = s.last_print_ts or now
+        cut = now - V37_FAST_SECONDS
+        if t >= cut:                            # a print reported late stays out
+            s.v37_prints.append((t, price, size))
+        while s.v37_prints and s.v37_prints[0][0] < cut:
             s.v37_prints.popleft()
+
+    def fresh(self, s) -> bool:
+        """The print being decided on traded within V37_FRESH_SECONDS (a
+        print with no trade time counts as fresh - the replay has none)."""
+        return (not s.last_print_ts
+                or time.time() - s.last_print_ts <= V37_FRESH_SECONDS)
 
     def fast(self, s, price) -> bool:
         """Up V37_FAST_PCT within the last V37_FAST_SECONDS, on at least
@@ -4299,8 +4316,11 @@ class V37(V36):
             return
         if V37_MAX_ENTRIES and s.v36_entries >= V37_MAX_ENTRIES:
             return
-        if s.traded_today and price < s.day_high:
-            return                              # again only at a new high of the day
+        if not self.fresh(s):
+            return                              # an old print: the market has moved on
+        if s.traded_today and price <= s.day_high:
+            return                              # again only ABOVE the high of the day -
+                                                # touching it is not a new high
         if not self.in_the_crowd(s) or not self.fast(s, price):
             return
         lock = self.lock(s.symbol)
@@ -4429,7 +4449,7 @@ class V37(V36):
         steps = ((V37_ADD1_CENTS, V37_ADD1_TO), (V37_ADD2_CENTS, V37_ADD2_TO))
         if len(self.open_positions()) > 1:
             steps += ((V37_ADD3_CENTS, None),)     # beside another: make room, grow
-        if s.v36_adds < len(steps) and new_high:
+        if s.v36_adds < len(steps) and new_high and self.fresh(s):
             at, to_fraction = steps[s.v36_adds]
             if price >= s.v36_first + at:
                 await self.v37_add(s, price, to_fraction)

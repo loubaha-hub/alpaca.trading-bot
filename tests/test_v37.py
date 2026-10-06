@@ -173,6 +173,59 @@ def test_no_daily_limit_on_buys(v37, clock, now):
     assert s.v36_entries == 51
 
 
+def test_touching_the_high_is_not_a_new_high(v37, clock, now):
+    """AIXI, 4:17am 2026-10-06: three buys in 8 seconds, all on 2.80."""
+    s = bought(v37, clock, now)
+    tick(v37, s, now, 10.30)                              # stopped out
+    assert not s.in_position
+    prints(v37, s, now, 10.00, 10.33)                     # ripping again
+    tick(v37, s, now, s.day_high)                         # AT the high
+    assert not s.in_position
+    tick(v37, s, now, round(s.day_high + 0.01, 2))        # above it
+    assert s.in_position
+
+
+def old(s, now, seconds):
+    """The next tick's print traded `seconds` before it is read."""
+    s.last_print_ts = now[0] + 1 - seconds                # tick() adds 1 second
+
+
+def test_no_buy_on_an_old_print(v37, clock, now):
+    """AIXI, 4:18:14am 2026-10-06: a "new high" at 3.30, 40s+ old, filled at
+    3.06 - the market had moved on while the prints queued."""
+    s = ripping(v37, clock, now)
+    old(s, now, 5)
+    tick(v37, s, now, 10.36)
+    assert not s.in_position
+    old(s, now, 0.5)
+    tick(v37, s, now, 10.37)
+    assert s.in_position
+
+
+def test_no_add_on_an_old_print(v37, clock, now):
+    s = bought(v37, clock, now)
+    first = s.v36_first
+    old(s, now, 5)
+    tick(v37, s, now, round(first + 0.10, 2))
+    assert s.v36_adds == 0
+    old(s, now, 0)
+    tick(v37, s, now, round(first + 0.11, 2))
+    assert s.v36_adds == 1
+
+
+def test_speed_is_timed_by_when_the_prints_traded(v37, clock, now):
+    """Thirty prints that traded over three minutes, read in three seconds
+    (a queue drained after an order), are not a 3% move in 60 seconds."""
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    for i in range(30):
+        now[0] += 0.1
+        s.last_print_ts = now[0] - 6 * (29 - i)           # traded 6s apart
+        px = round(10.00 + 0.35 * i / 29, 4)
+        s.last_price = px
+        v37.note_trade(s, px, 1_000)
+    assert not v37.fast(s, 10.35)
+
+
 def test_no_more_than_two_at_once(v37, clock, now, monkeypatch):
     monkeypatch.setattr(bot, "V37_CROWD_TOP", 5)          # all three in the crowd
     for sym in ("AAA", "BBB", "CCC"):
