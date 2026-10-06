@@ -1252,6 +1252,7 @@ class SymState:
                                      # the day's gain is measured from it
     v37_prints: deque = field(default_factory=deque)
     v37_stop_pct: float = 0.0        # v37: the stop's distance under the average
+    v37_pace_at_buy: float = 0.0     # v37: shares in the 60 seconds before the buy
                                      # v37: (time, price, size) over V37_FAST_SECONDS
     last_exit: float = 0.0           # v33: the level that threw us out
     skipped_prints: int = 0          # odd lots etc. we refused to act on
@@ -4241,6 +4242,20 @@ V37_STOP_MAX = 0.08             # ...nor more than this; after an add, the same
                                 # distance under the new average
 V37_GIVEBACK_ARM = 0.0          # "half the gain" only once the best gain reached
                                 # this (0 = from the first cent, as before)
+# PROPOSED 2026-10-06, off until the owner decides. IPDN: volume 497k, 446k,
+# 242k at 8:11, 8:12, 8:13 - "the volume has come down three candles in a
+# row" - and v37 bought at 8:14:29; it bought twice in 8:12 on falling
+# volume. The owner: "buy when the stock is flying" - the playbook: "volume
+# rising bar by bar, the bars 3-5x the size of the bars before them".
+V37_VOL_RULE = False            # the buy needs the volume, as below
+V37_VOL_FALLING = 2             # no buy after this many closed minutes in a row
+                                # each on less volume than the one before (2 =
+                                # three candles coming down)
+V37_VOL_MULT = 1.5              # the last 60 seconds' shares above the last
+                                # closed minute's AND at least this x the average
+                                # of the 5 closed minutes before it
+V37_VOL_EXIT = 0.0              # out once the last 60 seconds' shares fall under
+                                # this share of what they were at the buy (0 = off)
 V37_MAX_POSITIONS = 2
 V37_MAX_ENTRIES = 0             # buys per name per day; 0 = no limit (the owner,
                                 # 2026-10-06: the 10-buy limit locked v37 out of
@@ -4276,6 +4291,27 @@ class V37(V36):
             s.v37_prints.append((t, price, size))
         while s.v37_prints and s.v37_prints[0][0] < cut:
             s.v37_prints.popleft()
+
+    def pace(self, s) -> float:
+        """Shares traded in the last V37_FAST_SECONDS (by when they traded)."""
+        return sum(x[2] for x in s.v37_prints)
+
+    def volume_ok(self, s) -> bool:
+        """V37_VOL_RULE: not after the volume came down V37_VOL_FALLING closed
+        minutes in a row, and the last minute's shares above the last closed
+        minute's and V37_VOL_MULT x the 5 closed minutes before it."""
+        if not V37_VOL_RULE:
+            return True
+        vols = [b.v for b in s.bars[-6:]]
+        recent = vols[-(V37_VOL_FALLING + 1):]
+        if (V37_VOL_FALLING and len(recent) == V37_VOL_FALLING + 1
+                and all(a > b for a, b in zip(recent, recent[1:]))):
+            return False
+        pace = self.pace(s)
+        if vols and pace <= vols[-1]:
+            return False
+        base = vols[:-1]
+        return not base or pace >= V37_VOL_MULT * sum(base) / len(base)
 
     def fresh(self, s) -> bool:
         """The print being decided on traded within V37_FRESH_SECONDS (a
@@ -4350,6 +4386,8 @@ class V37(V36):
                                                 # it is not a new high
         if not self.in_the_crowd(s) or not self.fast(s, price):
             return
+        if not self.volume_ok(s):
+            return                              # flying means the volume is rising
         lock = self.lock(s.symbol)
         if lock.locked():
             return
@@ -4377,6 +4415,7 @@ class V37(V36):
         s.v36_adds = 0
         s.v37_stop_pct = self.stop_pct(s, price)
         s.stop = self.stop_for(s)
+        s.v37_pace_at_buy = self.pace(s)
         s.peak = s.entry
         s.trail_stop = 0.0
         s.armed = False
@@ -4469,6 +4508,10 @@ class V37(V36):
         s.peak = max(s.peak, price)
         if price <= s.stop:
             await self.exit(s, "stop")          # no tolerance for loss
+            return
+        if (V37_VOL_EXIT and s.v37_pace_at_buy
+                and self.pace(s) < V37_VOL_EXIT * s.v37_pace_at_buy):
+            await self.exit(s, "volume-gone")   # the crowd has left
             return
         gain = s.peak - s.entry
         armed = s.peak >= s.entry * (1 + V37_GIVEBACK_ARM)

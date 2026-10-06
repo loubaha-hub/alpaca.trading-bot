@@ -441,3 +441,61 @@ def test_before_4am_there_is_no_day_high_yet():
     data = Bars([5.83])
     assert run(bot.day_high_since_open(data, "IPDN", at_et(3, 59))) == 0.0
     assert data.asked == []
+
+
+# ---- proposed 2026-10-06 (off until the owner decides): flying means volume rising --
+
+@pytest.fixture
+def volume_rule(monkeypatch):
+    monkeypatch.setattr(bot, "V37_VOL_RULE", True)
+
+
+def minutes(v37, clock, now, vols, size=10_000):
+    """Closed minutes on these share volumes at $10, then a rip whose last 60
+    seconds trade 30 x `size` shares."""
+    utc = clock.now.astimezone(bot.timezone.utc)
+    feed_bars(v37, "ABCD", utc, [(10.0, 10.05, 9.95, 10.0, v) for v in vols])
+    v37.qualified.add("ABCD")
+    s = v37.st("ABCD")
+    prints(v37, s, now, 10.00, 10.35, size=size)
+    s.day_high = 10.05
+    return s
+
+
+def test_no_buy_after_three_candles_of_falling_volume(v37, clock, now, volume_rule):
+    """IPDN 8:11-8:13am 2026-10-06: 497k, 446k, 242k - then a buy at 8:14:29."""
+    s = minutes(v37, clock, now, [100_000, 100_000, 90_000, 80_000, 70_000])
+    tick(v37, s, now, 10.36)
+    assert not s.in_position
+
+
+def test_rising_volume_buys(v37, clock, now, volume_rule):
+    s = minutes(v37, clock, now, [100_000, 100_000, 70_000, 80_000, 90_000])
+    tick(v37, s, now, 10.36)
+    assert s.in_position
+
+
+def test_no_buy_while_this_minute_trades_less_than_the_last(v37, clock, now,
+                                                            volume_rule):
+    s = minutes(v37, clock, now, [100_000, 100_000, 70_000, 80_000, 400_000])
+    tick(v37, s, now, 10.36)                              # 300k now, 400k before
+    assert not s.in_position
+
+
+def test_no_buy_without_volume_well_over_the_minutes_before(v37, clock, now,
+                                                            volume_rule):
+    s = minutes(v37, clock, now, [250_000, 250_000, 150_000, 200_000, 290_000])
+    tick(v37, s, now, 10.36)                              # 300k: not 1.5 x 212k
+    assert not s.in_position
+
+
+def test_out_when_the_volume_dries_up(v37, clock, now, volume_rule, monkeypatch):
+    monkeypatch.setattr(bot, "V37_VOL_EXIT", 0.5)
+    monkeypatch.setattr(bot, "V37_ASK_PLUS", 0.0)
+    s = minutes(v37, clock, now, [100_000, 100_000, 70_000, 80_000, 90_000])
+    tick(v37, s, now, 10.36)
+    assert s.in_position
+    now[0] += 45                                          # the rip's prints age out
+    tick(v37, s, now, 10.37, size=100)
+    assert not s.in_position
+    assert v37.closed_today[-1][5] == "volume-gone"
