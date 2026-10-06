@@ -5,6 +5,37 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-05
 
+### Day review (8:15pm): the bot's own problems, not the market's
+- Real results from the bot's equity lines (start v31 $19,124 / v34 $15,533 /
+  v35 $7,158): v31 -$721 (-3.8%), v34 -$235 (-1.5%), v35 -$97 (-1.4%).
+  Premarket v31 -$294, v34 -$123, v35 -$50; regular hours v31 -$383, v34 -$99,
+  v35 -$47; after 4pm v31 -$44, v34 -$13. All flat by 8:17pm.
+- 43 trades, 3 winners (v31 STNE +$122, SPCH +$50; v34 NVAX +$2). No earned
+  buys and no spread refusals all day - no data yet for a spread allowance.
+- OVERBUYING (fixed on the branch, commit 3400466, not live): NU was sized at
+  300 shares (25% cap) and ended at 434 (35%). A cancelled order kept filling
+  and the bot sent the size again. Same shape as AMOD 49% / QTEX 35% on 10-02.
+  The self-check saw it (CRITICAL every 5s) but does nothing about it.
+- FALLING BEHIND AT THE OPEN (not fixed): 9:33-9:35am the tick queue hit its
+  20,000 limit and threw away 41,007 prints (v31) / 43,583 (v34). v31's
+  9:35-9:48 buys (NU, WDCX, PAGS, ONDG, ITUB) came out of that backlog - all
+  lost. Suspected cause: per-name data-API fetches in the chase/volume checks
+  stalling the tick worker. Not yet measured.
+- Restarts during trading hours: 46 bot starts on 09-30, 5 between 7:13 and
+  8:00am on 10-02, 3 today. Each wipes the day's memory; old and new copies
+  run side by side for about a minute.
+- Old logs: v33 on 10-01 made 2,575 sales, median hold 12 seconds.
+- Not done from the 8:15pm routine: the premarket rule study on the 1-minute
+  replay - superseded by the afternoon's conclusion (stop patching; the
+  replay is too kind). Waiting on the owner's walkthrough of how they trade.
+
+### The owner trades this by hand at $5-10k a month
+- With 1-3 red days a month. The bots, with "the same variables", have not
+  had a green day. The owner will walk through how they trade, variable by
+  variable, with real trades. Proposed: stop patching; compare the owner's
+  real trades (Webull order history, read-only) with the bot's; rebuild
+  simple from the owner's process.
+
 ### The bot does not record every trade print
 - Checked the live code (r34.3). The "tape" reads every print and labels it
   buyer/seller, but keeps only the last 5 minutes in memory and writes a
