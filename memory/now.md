@@ -31,6 +31,29 @@ Updated 2026-10-06, 10:25am ET.
 - On the branch only: `watchman.py` (until the real-money account).
 - Release builds are made in a separate git worktree from `origin/main`.
 
+## Tomorrow (10-07), from 4am - each strategy on its own rules
+- v37 (P28T), r34.11/r34.12: scanner name ($1-$20, up 10%+) in the top 2 by
+  money in 5 min ($1M+) or the top gainer; above the real high of the day
+  on a fresh print; up 3% in a minute on $250k+; volume 2x normal and 70%
+  of the busiest of the last 5; confirmation 0/0/1/2 candles; 60s re-buy
+  wait unless 30c up; SCORE 12 of 15 (speed 1/2/4 at 0.1/0.2/0.3 with the
+  price up 3%; red last candle or a 60%+ wick = no buy; ripping skips it).
+  A tenth to start, half at +10c, full at +20c (40% alone, 25% each of two).
+  Out: stop a third of the last minute's move (3-8%); half the gain from
+  the first cent; fresh prints only. Logs speed and score on every buy,
+  SKIP lines with the reason.
+- v36 (T6HH): as it ran 10-06 afternoon + the APUS add fix (r34.12, once
+  released): crowd top 2 held 2 min / ripping / top-2 gainer $1M+; float
+  20M or less; rip then pullback (1c over the last red's open) or a high-of-
+  day break; over VWAP, 9 EMA over 20, MACD positive; tape 60/40; room; one
+  buy a minute, 6 a stock, 2 stocks. A tenth to start, half at +15c, full
+  at +20c (25%); a missed add retries from the ask, may pay half the
+  minute's move when ripping. Out: stop under the pullback/breakout low; the
+  average after an add, 10s short leash; trail after +10%. Score and
+  first-two-buys rule OFF.
+- Watch: v37's scores vs results, its couple of runs paying for the cuts;
+  v36's adds filling on a rip, and its share of stop-outs (93% in replay).
+
 ## Waiting on the owner
 0. v37 speed rule (0.1+): held off by the owner until "up 3%" has a big
    enough live sample; the branch logs the speed on every buy (not live yet).
