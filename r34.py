@@ -81,6 +81,35 @@ MAX_WATCH = 200                             # symbols on the stream
 BUY_CHASE_CAP = 0.02                        # buys capped 2% above the ask
 CHASE_ATTEMPTS = 8
 CHASE_PAUSE = 0.35
+# BUYING A RUNNER - RELOAD THE LIMIT FAST (the owner, 2026-10-05: "put a new
+# order and a new order until it gets, especially when the stock is flying").
+# The old chase left each limit working about 2 seconds before re-pricing it;
+# on a stock moving 5% a minute the ask is gone by then, and a person on hot
+# keys reloads faster than that. With FAST_BUY each limit works FAST_BUY_WAIT
+# seconds, is cancelled - the cancel CONFIRMED before the next one goes out,
+# so two orders are never live at once - and is re-priced off the new ask,
+# for up to FAST_BUY_MAX_SEC or FAST_BUY_TRIES orders. Never over the cap
+# above the trigger. About 4 broker requests an order; Alpaca allows about
+# 200 a minute per account.
+FAST_BUY = True
+FAST_BUY_WAIT = 0.4
+FAST_BUY_MAX_SEC = 6.0
+FAST_BUY_TRIES = 12
+FAST_BUY_OVER_ASK = 0.002                   # the limit: this far over the ask, as before
+# PAYING UP ON A REAL RUNNER: "sometimes I'm almost half a point above what I
+# bought" on a $5-10 stock that is flying. With FAST_BUY_SPEED_CAP set, the
+# ceiling over the trigger is this many of the stock's typical one-minute
+# ranges (ABR), kept between BUY_CHASE_CAP and FAST_BUY_CAP_MAX. 0 = off:
+# paying up is safe only on a stock with real volume behind it, and that guard
+# belongs to the playbook strategy still to be built (memory/playbook.md).
+FAST_BUY_SPEED_CAP = 0.0
+FAST_BUY_CAP_MAX = 0.10
+# THE QUOTE CHECK'S TOLERANCE. CONFIRM_ENTRY_WITH_QUOTE refuses a buy when the
+# ask is under the trigger - on 2026-10-05 by half a cent: RETO at 4:06am
+# (ask 1.99, trigger 1.9993; 9 refusals in 4 seconds, a top-2 runner a minute
+# later), BBD (4.30 vs 4.305), NVAX (11.79 vs 11.795). The ask may sit this
+# many dollars under the trigger. 0 = off, as before.
+CONFIRM_TOLERANCE = 0.0
 MIN_TRADE_DOLLARS = 100
 
 # --- risk (shared) -----------------------------------------------------------
@@ -720,6 +749,19 @@ class DecisionLog:
 # BROKER - every call runs OFF the event loop
 # ----------------------------------------------------------------------------
 
+ORDER_CLOSED = {"filled", "canceled", "cancelled", "expired", "rejected",
+                "replaced", "done_for_day"}
+
+
+def order_done(o) -> bool:
+    """The order is closed - nothing more can fill on it."""
+    if o is None:
+        return False
+    status = getattr(o, "status", "")
+    name = getattr(status, "value", None) or str(status).rsplit(".", 1)[-1]
+    return str(name).lower() in ORDER_CLOSED
+
+
 class Broker:
     """One account. Every method awaits a thread so the loop never blocks.
 
@@ -832,7 +874,8 @@ class Broker:
         except Exception:
             return None
 
-    async def send(self, symbol: str, qty: int, side, limit: float) -> int:
+    async def send(self, symbol: str, qty: int, side, limit: float,
+                   wait: float = 2.0) -> int:
         """Returns filled shares, 0 on no fill, -1/-2 when the broker refuses.
 
         NOTHING IS LEFT WORKING WHEN THIS RETURNS. The old version returned on
@@ -852,13 +895,14 @@ class Broker:
             return self.classify(e, side, symbol)
         filled = 0
         o = None
+        self.settled = True
+        polls = max(1, int(round(wait / 0.2)))
         try:
-            for _ in range(10):
-                await asyncio.sleep(0.2)
+            for _ in range(polls):
+                await asyncio.sleep(wait / polls)
                 o = await asyncio.to_thread(self.client.get_order_by_id, order.id)
                 filled = int(float(o.filled_qty or 0))
-                if filled >= qty or str(o.status) in ("OrderStatus.FILLED",
-                                                      "OrderStatus.CANCELED"):
+                if filled >= qty or order_done(o):
                     break
                 if filled > 0:
                     break                      # partial: cancel the rest below
@@ -869,10 +913,36 @@ class Broker:
                 await asyncio.to_thread(self.client.cancel_order_by_id, order.id)
             except Exception:
                 pass
+            if not order_done(o):
+                # WHAT FILLED IS KNOWN ONLY ONCE THE CANCEL IS DONE. Shares can
+                # fill between the last poll and the cancel; counted from the
+                # last poll, the chase sent them again - NU, 2026-10-05: sized
+                # at 300 shares, 394 held. Read the order until it is closed.
+                o = await self.settle(symbol, order.id, o)
+                if o is not None:
+                    filled = int(float(o.filled_qty or 0))
         avg = float(getattr(o, "filled_avg_price", 0) or 0) if filled > 0 else 0.0
         if avg > 0:
             self._fill_log.setdefault(symbol, []).append((filled, avg))
         return filled
+
+    async def settle(self, symbol, oid, last):
+        """Read a cancelled order until the broker says it is closed. Sets
+        self.settled False when it never does - its final fill is unknown, and
+        the caller must not send another order on top of it."""
+        for _ in range(10):
+            try:
+                o = await asyncio.to_thread(self.client.get_order_by_id, oid)
+                last = o
+                if order_done(o):
+                    return o
+            except Exception:
+                pass
+            await asyncio.sleep(0.1)
+        self.settled = False
+        log.warning("[%s] %s: an order was not confirmed closed after its "
+                    "cancel - no further order on top of it", self.label, symbol)
+        return last
 
     def classify(self, e, side, symbol) -> int:
         """Turn a rejection into an instruction. NEVER match on the code.
@@ -1496,12 +1566,16 @@ class Strategy:
 
     # ---- execution ----------------------------------------------------------
 
-    async def buy(self, symbol: str, shares: int, ref: float) -> int:
+    async def buy(self, symbol: str, shares: int, ref: float,
+                  cap: float = None) -> int:
         """Fills counted from the BROKER, never from the order reply.
 
         A cancel racing a fill used to report "got nothing" and the next attempt
         bought the whole clip again - a $600 slot became $3,050 that way.
+
+        cap: how far over ref the buy may pay (BUY_CHASE_CAP when not given).
         """
+        cap = BUY_CHASE_CAP if cap is None else cap
         start = await self.broker.qty(symbol)
         if start is None:
             # Without a starting count no fill can be measured, and guessing 0
@@ -1509,7 +1583,63 @@ class Strategy:
             log.error("[%s] cannot read %s position - not buying", self.name,
                       symbol)
             return 0
+        if FAST_BUY:
+            got, why = await self.buy_fast(symbol, shares, ref, cap)
+            last = start + got
+        else:
+            last = await self.buy_chase(symbol, shares, ref, cap, start)
+            why = "the chase ended"
+        await self.broker.cancel_open(symbol)     # nothing of ours left working
+        end = await self.broker.qty(symbol)
+        if end is None:
+            end = last
+        filled = max(0, int(end - start))
+        if filled < shares:
+            # EVERY MISS IS LOGGED. A buy that came back empty used to leave no
+            # line at all, so how often the bot missed a runner was unknowable.
+            log.info("[%s] %s BUY SHORT - wanted %d, got %d at a limit up to "
+                     "%.4f: %s", self.name, symbol, shares, filled,
+                     ref * (1 + cap), why)
+        return filled
+
+    async def buy_fast(self, symbol, shares, ref, cap):
+        """FAST_BUY: a limit off the ask, re-priced every FAST_BUY_WAIT seconds
+        until filled, out of time or tries, or the ask is past the ceiling.
+        Counts what the broker CONFIRMED filled on each closed order. Returns
+        (shares filled, why it stopped)."""
+        ceiling = ref * (1 + cap)
+        got = 0
+        ask = ref
+        deadline = time.monotonic() + FAST_BUY_MAX_SEC
+        past = lambda: (" - the ask %.4f is past the ceiling" % ask
+                        if ask > ceiling else "")
+        for _ in range(FAST_BUY_TRIES):
+            if got >= shares:
+                return got, "filled"
+            if time.monotonic() > deadline:
+                return got, "out of time (%.0fs)%s" % (FAST_BUY_MAX_SEC, past())
+            # Past the ceiling, the bid still sits AT the ceiling: a runner
+            # that dips for a moment fills it.
+            ask = await self.data.quote(symbol, "ask") or ref
+            limit = round(min(ask * (1 + FAST_BUY_OVER_ASK), ceiling), 2)
+            n = await self.broker.send(symbol, shares - got, OrderSide.BUY, limit,
+                                       FAST_BUY_WAIT)
+            if n == -2:
+                await self.broker.cancel_open(symbol)
+                continue                       # our own order was in the way
+            if n < 0:
+                return got, "the broker refused the order"
+            got += n
+            if not getattr(self.broker, "settled", True):
+                return got, "an order was not confirmed closed"
+        return got, ("filled" if got >= shares else
+                     "out of tries (%d)%s" % (FAST_BUY_TRIES, past()))
+
+    async def buy_chase(self, symbol, shares, ref, cap, start):
+        """The chase before FAST_BUY: up to CHASE_ATTEMPTS limits at the ask
+        + 0.2%, each working about 2 seconds. Returns the last share count."""
         last = start
+        confirmed = 0                  # filled on closed orders, per the broker
         for _ in range(CHASE_ATTEMPTS):
             now = await self.broker.qty(symbol)
             if now is None:
@@ -1518,24 +1648,25 @@ class Strategy:
                 await asyncio.sleep(CHASE_PAUSE)
                 continue
             last = now
-            remaining = int(shares - (now - start))
+            # The position can lag the order: what the closed orders say
+            # filled counts too, whichever is more.
+            remaining = int(shares - max(now - start, confirmed))
             if remaining <= 0:
                 break
             ask = await self.data.quote(symbol, "ask") or ref
-            limit = round(min(ask * 1.002, ref * (1 + BUY_CHASE_CAP)), 2)
+            limit = round(min(ask * 1.002, ref * (1 + cap)), 2)
             got = await self.broker.send(symbol, remaining, OrderSide.BUY, limit)
             if got == -2:
                 await self.broker.cancel_open(symbol)
                 continue
             if got < 0:
                 break
+            confirmed += got
+            if not getattr(self.broker, "settled", True):
+                break                          # its final fill is unknown
             if got == 0:
                 await asyncio.sleep(CHASE_PAUSE)
-        await self.broker.cancel_open(symbol)     # nothing of ours left working
-        end = await self.broker.qty(symbol)
-        if end is None:
-            end = last
-        return max(0, int(end - start))
+        return max(last, start + confirmed)
 
     async def sell(self, symbol: str, shares: int, ref: float) -> int:
         """Uncapped chase down - a stop must always get out. Clamped to what
@@ -2431,6 +2562,16 @@ class V31(Strategy):
             if earn and s.in_position:
                 s.earn_high = s.hod_closed
 
+    def buy_cap(self, s, price) -> float:
+        """How far over the trigger a buy may pay: BUY_CHASE_CAP, or with
+        FAST_BUY_SPEED_CAP set, more on a fast stock - its typical one-minute
+        range times FAST_BUY_SPEED_CAP, never over FAST_BUY_CAP_MAX. Sizing
+        uses the same number, so the position cap holds at the worst fill."""
+        if not FAST_BUY_SPEED_CAP or price <= 0:
+            return BUY_CHASE_CAP
+        return min(FAST_BUY_CAP_MAX,
+                   max(BUY_CHASE_CAP, FAST_BUY_SPEED_CAP * self.abr(s) / price))
+
     def entry_shares(self, s, price, worst, stop_ref, eq, kind) -> int:
         """1% of equity at risk to the stop, capped at 25% of equity and at
         the room left under MAX_EXPOSURE_PCT - all at the worst fill."""
@@ -2469,7 +2610,8 @@ class V31(Strategy):
         # print, a fill 1.7% higher turned a 1% risk into 1.33% and a 25%
         # starter into 25.5%. Sized from the cap, neither can be exceeded
         # whatever the fill.
-        worst = price * (1 + BUY_CHASE_CAP)
+        cap = self.buy_cap(s, price)
+        worst = price * (1 + cap)
         eq = await self.broker.equity(self.day_start_equity)
         shares = self.entry_shares(s, price, worst, stop_ref, eq, kind)
         mult = self.float_mult(s.symbol)
@@ -2485,7 +2627,7 @@ class V31(Strategy):
         # THE BREAKOUT HAS TO BE BACKED BY THE MARKET, NOT BY ONE PRINT.
         if CONFIRM_ENTRY_WITH_QUOTE:
             ask = await self.data.quote(s.symbol, "ask")
-            if ask is not None and ask < trigger:
+            if ask is not None and ask < trigger - CONFIRM_TOLERANCE:
                 self.log.info("[v31] %s TRIGGER NOT CONFIRMED - print %.4f%s reached "
                          "%.4f but the ask is %.4f, below the trigger. "
                          "No order sent.",
@@ -2498,7 +2640,7 @@ class V31(Strategy):
                 self.log.warning("[v31] %s no quote available - entering on the "
                             "print alone", s.symbol)
 
-        filled = await self.buy(s.symbol, shares, price)
+        filled = await self.buy(s.symbol, shares, price, cap)
         if filled and kind == "hod":
             s.hod_reentries += 1
         if filled:
@@ -2834,7 +2976,7 @@ class V32(V31):
             # A re-entry needs the market at its level, not one stray print.
             if not first and CONFIRM_ENTRY_WITH_QUOTE:
                 ask = await self.data.quote(s.symbol, "ask")
-                if ask is not None and ask < level:
+                if ask is not None and ask < level - CONFIRM_TOLERANCE:
                     return
         if shares <= 0:
             return

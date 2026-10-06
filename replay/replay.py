@@ -91,6 +91,7 @@ class SimBroker:
         self.fills = []          # (time, sym, side, qty, price, reason)
         self.fill_log = {}       # symbol -> [(qty, price)] since take_fill_price
         self.reason = ""
+        self.settled = True      # every simulated order closes at once
         self.max_pos_pct = (0.0, "", None)
         self.max_exposure_pct = (0.0, None)
 
@@ -128,7 +129,7 @@ class SimBroker:
     async def cancel_open(self, symbol):
         return 0
 
-    async def send(self, symbol, qty, side, limit):
+    async def send(self, symbol, qty, side, limit, wait=None):
         if qty <= 0 or symbol not in self.market.last:
             return 0
         if side == self.bot.OrderSide.BUY:
