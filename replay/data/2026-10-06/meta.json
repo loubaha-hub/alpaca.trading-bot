@@ -1,0 +1,234 @@
+{
+ "AIFA": {
+  "pre_close": 5.88
+ },
+ "AIIO": {
+  "pre_close": 1.11
+ },
+ "AIXI": {
+  "pre_close": 1.51
+ },
+ "APUS": {
+  "pre_close": 4.59
+ },
+ "ATHR": {
+  "pre_close": 3.16
+ },
+ "AUXX": {
+  "pre_close": 4.48
+ },
+ "AVAT": {
+  "pre_close": 1.88
+ },
+ "AVBP": {
+  "pre_close": 28.46
+ },
+ "BCHT": {
+  "pre_close": 1.46
+ },
+ "BESS": {
+  "pre_close": 1.86
+ },
+ "BIAF": {
+  "pre_close": 6.19
+ },
+ "BRN": {
+  "pre_close": 0.9372
+ },
+ "BRUN": {
+  "pre_close": 14.33
+ },
+ "CABO": {
+  "pre_close": 11.25
+ },
+ "CABR": {
+  "pre_close": 1.13
+ },
+ "CBIO": {
+  "pre_close": 13.94
+ },
+ "CD": {
+  "pre_close": 7.51
+ },
+ "CGEM": {
+  "pre_close": 16.04
+ },
+ "CNXU": {
+  "pre_close": 3.12
+ },
+ "CVM": {
+  "pre_close": 2.42
+ },
+ "DLXY": {
+  "pre_close": 1.965
+ },
+ "DPU": {
+  "pre_close": 1.41
+ },
+ "DUKR": {
+  "pre_close": 5.22
+ },
+ "EFOI": {
+  "pre_close": 3.05
+ },
+ "ERNA": {
+  "pre_close": 2.7
+ },
+ "FFR": {
+  "pre_close": 1.13
+ },
+ "FRGT": {
+  "pre_close": 0.245
+ },
+ "GMEX": {
+  "pre_close": 2.31
+ },
+ "GRAN": {
+  "pre_close": 1.06
+ },
+ "HTZ": {
+  "pre_close": 1.79
+ },
+ "IPDN": {
+  "pre_close": 3.1
+ },
+ "ISOU": {
+  "pre_close": 9.47
+ },
+ "ITG": {
+  "pre_close": 6.98
+ },
+ "JAGX": {
+  "pre_close": 4.73
+ },
+ "JUNS": {
+  "pre_close": 2.42
+ },
+ "KLC": {
+  "pre_close": 1.81
+ },
+ "LCFY": {
+  "pre_close": 2.34
+ },
+ "LEXX": {
+  "pre_close": 2.77
+ },
+ "LGHL": {
+  "pre_close": 3.84
+ },
+ "LVWR": {
+  "pre_close": 1.47
+ },
+ "MOBX": {
+  "pre_close": 0.6501
+ },
+ "MODD": {
+  "pre_close": 2.3
+ },
+ "MWYN": {
+  "pre_close": 1.26
+ },
+ "NEXR": {
+  "pre_close": 1.01
+ },
+ "NXAT": {
+  "pre_close": 0.8611
+ },
+ "NXTC": {
+  "pre_close": 5.05
+ },
+ "OFS": {
+  "pre_close": 3.56
+ },
+ "OLB": {
+  "pre_close": 0.1882
+ },
+ "OLOX": {
+  "pre_close": 0.88
+ },
+ "OM": {
+  "pre_close": 4.1
+ },
+ "OPTT": {
+  "pre_close": 0.9594
+ },
+ "PMI": {
+  "pre_close": 6.93
+ },
+ "PRME": {
+  "pre_close": 3.21
+ },
+ "PSQL": {
+  "pre_close": 6.19
+ },
+ "PWCM": {
+  "pre_close": 0.96
+ },
+ "QTEX": {
+  "pre_close": 1.54
+ },
+ "REBN": {
+  "pre_close": 2.0
+ },
+ "RUBI": {
+  "pre_close": 0.7
+ },
+ "RYET": {
+  "pre_close": 0.879
+ },
+ "SDEV": {
+  "pre_close": 3.94
+ },
+ "SEGG": {
+  "pre_close": 2.2
+ },
+ "SJ": {
+  "pre_close": 0.8777
+ },
+ "SMXT": {
+  "pre_close": 2.37
+ },
+ "SNWV": {
+  "pre_close": 4.7
+ },
+ "SRFM": {
+  "pre_close": 0.8906
+ },
+ "STDN": {
+  "pre_close": 13.01
+ },
+ "STEM": {
+  "pre_close": 4.25
+ },
+ "SWRD": {
+  "pre_close": 2.34
+ },
+ "TANH": {
+  "pre_close": 14.02
+ },
+ "TREO": {
+  "pre_close": 2.63
+ },
+ "TRIB": {
+  "pre_close": 5.77
+ },
+ "VCIG": {
+  "pre_close": 0.911
+ },
+ "VWAV": {
+  "pre_close": 4.35
+ },
+ "WHLR": {
+  "pre_close": 1.09
+ },
+ "WYHG": {
+  "pre_close": 3.31
+ },
+ "XHG": {
+  "pre_close": 1.9
+ },
+ "XHLD": {
+  "pre_close": 0.411
+ },
+ "_source": "Webull daily bars; pre_close = the 2026-10-05 close"
+}
