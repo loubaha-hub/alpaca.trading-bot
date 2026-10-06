@@ -19,8 +19,13 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   the grace is for. Live check, the 6 trades 9:02-11:40am: 5 fell through
   their stops within a minute (a grace would have cost ~$75 more); XHG ran
   +10% to +29% after its 4-second exit. Roughly a wash.
-- Stays off. To judge it on real prices: a shadow log (proposal) - after
-  each early "half the gain" sale, record what a grace would have done.
+- Owner decision: leave it off; keep "half the gain" from the first cent -
+  it cuts often but keeps the down moves small, and the runs pay for it.
+  "Hope in this business is not the way to go - numbers, and let the
+  probabilities work." The number that tests it live: the replay had about
+  2 trades a day of $100+ (11 of 112) making 83% of the profit - do those
+  show up live? (A shadow log of what a grace would have done was offered,
+  not asked for.)
 
 ### v37 exits stay as they are for now - the owner accepts the trade-off
 - The owner: the stops and "half the gain" cause the churn and kick v37
