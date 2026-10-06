@@ -4302,7 +4302,7 @@ V37_FAST_DOLLARS = 250_000      # ...on at least this many dollars traded in the
 # negative: never a buy. When on, it replaces "up V37_FAST_PCT" as what
 # "flying" means (the money traded still has to reach V37_FAST_DOLLARS); the
 # owner: enter between 0.1 and 2 or more. V2/V1 capped at V37_SPEED_VOL_CAP.
-V37_SPEED_MIN = 0.0             # 0 = off (the old fast rule)
+V37_SPEED_MIN = 0.10            # 0 = off (the old fast rule); no top limit
 V37_SPEED_VOL_CAP = 30.0        # the owner: volume 20x with the price barely moving
                                 # is "about to take off" - 1% x 20 = 0.20, a buy
 V37_ASK_PLUS = 0.10             # each try's limit: the ask plus this many dollars -

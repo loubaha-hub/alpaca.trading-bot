@@ -25,6 +25,7 @@ def v37(broker, data, clock, now, monkeypatch):
     monkeypatch.setattr(bot, "V37_VOL_RULE", False)
     monkeypatch.setattr(bot, "V37_STOP_SPEED", False)
     monkeypatch.setattr(bot, "V37_REBUY_WAIT", 0.0)      # tested on its own below
+    monkeypatch.setattr(bot, "V37_SPEED_MIN", 0.0)       # the speed: tested below
     strat = bot.V37(broker, data)
     strat.day_start_equity = broker.eq
     return strat
@@ -695,6 +696,14 @@ def test_the_released_settings():
     assert bot.V37_CONFIRM_BY_BUY == (0, 0, 1, 2)
 
 
+def test_flying_is_the_owners_speed_from_a_tenth_up():
+    """2026-10-06, the owner: buy only at a speed of 0.1 or more, no top
+    limit; falling (negative) is never a buy. Replayed on every recorded day:
+    69 trades instead of 112, 68% won instead of 62%, worst trade -$24
+    instead of -$99 (fills 0.2% worse)."""
+    assert bot.V37_SPEED_MIN == 0.10 and bot.V37_SPEED_VOL_CAP == 30.0
+
+
 # ---- a re-buy right after a sale (the owner, 2026-10-06) -----------------------------
 
 @pytest.fixture
@@ -797,3 +806,19 @@ def test_a_falling_price_is_never_flying(v37, clock, now, monkeypatch):
     windows(v37, s, now, 10.00, 10_000, 9.90, 200_000)     # down 1% on 20x volume
     assert v37.speed(s, 9.90) < 0
     assert not v37.flying(s, 9.90)
+
+
+def test_with_speed_on_it_buys_a_rip_on_rising_volume(v37, clock, now, monkeypatch):
+    """The whole path, not just flying(): +6% on double the volume (0.12)
+    over the day's high buys; the same rise on flat volume (0.06) does not."""
+    monkeypatch.setattr(bot, "V37_SPEED_MIN", 0.10)
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    windows(v37, s, now, 10.00, 30_000, 10.60, 30_000)
+    s.day_high = 10.30
+    tick(v37, s, now, 10.61, size=100)
+    assert not s.in_position
+    t = crowd(v37, clock, "EFGH", 1_000_000)
+    windows(v37, t, now, 10.00, 30_000, 10.60, 60_000)
+    t.day_high = 10.30
+    tick(v37, t, now, 10.61, size=100)
+    assert t.in_position
