@@ -975,6 +975,35 @@ class Broker:
             return -1 if side == OrderSide.BUY else 0
         return 0
 
+    async def fills_today(self) -> list:
+        """Every fill on this account since 4am ET, oldest first, as
+        (epoch seconds, symbol, "buy" or "sell", shares, average price) -
+        what a restart reads back. [] when the broker cannot say."""
+        start = datetime.now(ET).replace(hour=4, minute=0, second=0, microsecond=0)
+        orders, until = [], None
+        for _ in range(20):                     # 500 a page, newest first
+            try:
+                page = await asyncio.to_thread(
+                    self.client.get_orders,
+                    GetOrdersRequest(status=QueryOrderStatus.CLOSED, after=start,
+                                     until=until, limit=500))
+            except Exception as e:
+                log.error("[%s] cannot list today's orders: %s", self.label, e)
+                return []
+            orders += page or []
+            if not page or len(page) < 500:
+                break
+            until = min(o.submitted_at for o in page)
+        out = []
+        for o in orders:
+            q = float(o.filled_qty or 0)
+            if q <= 0 or not o.filled_at:
+                continue
+            side = getattr(o.side, "value", o.side)
+            out.append((o.filled_at.timestamp(), o.symbol, str(side).lower(), q,
+                        float(o.filled_avg_price or 0)))
+        return sorted(set(out))
+
     async def cancel_open(self, symbol: str) -> int:
         """Cancel our own working orders on one symbol.
 
@@ -3814,7 +3843,46 @@ def account_classes(env=None):
     return out
 
 
-class V36(V35):
+class _Restore:
+    """After a restart (a release restarts the bot): what each stock did
+    today, read back from the account's filled orders - its buys of the day
+    (the 0/0/1/2 confirmation and the v36 limit count them) and its last
+    sale. APUS 10-06: bought at 9:51 and 10:22; the 10:21 release forgot
+    both, so the 3rd and 4th buys (11:33, 11:36) waited for no candles."""
+
+    async def restore_today(self):
+        fills = await self.broker.fills_today()
+        held, seen = {}, {}
+        for t, sym, side, q, px in fills:
+            d = seen.setdefault(sym, {"buys": 0, "sold": None})
+            if side == "buy":
+                if held.get(sym, 0.0) <= 0:
+                    d["buys"] += 1              # bought while flat: a buy of the day
+                held[sym] = held.get(sym, 0.0) + q
+            else:
+                held[sym] = held.get(sym, 0.0) - q
+                if held[sym] <= 1e-6:
+                    held[sym] = 0.0
+                    d["sold"] = (t, px)
+        for sym, d in seen.items():
+            s = self.st(sym)
+            s.v36_entries = max(s.v36_entries, d["buys"])
+            if d["buys"]:
+                s.traded_today = True
+            if d["sold"] and not s.in_position:
+                await self.restore_sale(s, *d["sold"])
+        if seen:
+            self.log.info("restored from today's orders: %s", ", ".join(
+                "%s %d buy(s)%s" % (sym, d["buys"], " last sold %s at %.4f" % (
+                    datetime.fromtimestamp(d["sold"][0], ET).strftime("%H:%M:%S"),
+                    d["sold"][1]) if d["sold"] else "")
+                for sym, d in sorted(seen.items())))
+
+    async def restore_sale(self, s, t, px):
+        pass
+
+
+class V36(_Restore, V35):
     """The owner's playbook - see the V36 settings above."""
 
     name = "v36"
@@ -4492,6 +4560,17 @@ class V37(V36):
             s.v37_sold_px = sold[-1][2] if sold else s.last_price
             s.v37_sold_ts = time.time()
         super().clear(s)
+
+    async def restore_sale(self, s, t, px):
+        """The last sale: the re-buy wait counts from it, and a re-buy must
+        confirm over the day's high as it stood then."""
+        s.v37_sold_px, s.v37_sold_ts = px, t
+        try:
+            high = await day_high_since_open(
+                self.data, s.symbol, datetime.fromtimestamp(t, timezone.utc))
+        except Exception:
+            high = 0.0
+        s.v37_old_high = max(s.v37_old_high, high, px)
 
     def in_grace(self, s) -> bool:
         """Within V37_GRACE_SECONDS of the buy (0 = no grace)."""
@@ -5347,6 +5426,11 @@ class Engine:
             await strat.roll_day()
             strat.needs_reconcile = False
             await strat.reconcile("startup")
+            if hasattr(strat, "restore_today"):
+                try:
+                    await strat.restore_today()
+                except Exception as e:
+                    log.error("[%s] restore from today's orders: %s", strat.name, e)
 
         log.info("engine up: VERSION %s | %s | one data connection | "
                  "orphan mode %s | baseline " + DAY_BASELINE + " | "

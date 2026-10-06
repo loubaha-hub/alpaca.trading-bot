@@ -973,3 +973,71 @@ def test_steady_pays_little_over_the_price(v37, clock, now, monkeypatch):
 
 def test_running_and_steady_pay_are_off_until_the_owner_decides():
     assert not bot.V37_MOMENTUM and not bot.V37_STEADY_PAY
+
+
+# ---- a restart remembers the day (2026-10-06) ------------------------------------------
+
+def apus_morning(broker):
+    """APUS 10-06 before the 10:21am release: bought 9:51 and 10:22, sold both."""
+    t = lambda h, m, s: at_et(h, m).timestamp() + s
+    broker.day_fills = [(t(9, 51, 39), "APUS", "buy", 84, 6.5352),
+                        (t(9, 51, 52), "APUS", "sell", 84, 6.49),
+                        (t(10, 22, 27), "APUS", "buy", 50, 6.8086),
+                        (t(10, 22, 28), "APUS", "buy", 28, 6.81),     # same buy, 2nd order
+                        (t(10, 22, 31), "APUS", "sell", 78, 6.7374)]
+
+
+def test_a_restart_remembers_todays_buys_and_the_last_sale(v37, broker):
+    """The 10:21 release forgot both: the 3rd and 4th buys (11:33, 11:36)
+    waited for no candles. Now the 3rd waits for 1, above the old high."""
+    apus_morning(broker)
+    v37.data = Bars([6.97])                               # the high when it sold
+    run(v37.restore_today())
+    s = v37.st("APUS")
+    assert s.v36_entries == 2                             # two buys, not three orders
+    assert v37.confirm_bars(s) == 1
+    assert s.v37_old_high == 6.97
+    assert s.v37_sold_px == 6.7374
+    assert not v37.confirmed(s)                           # no green candle over 6.97 yet
+
+
+def test_adds_are_not_new_buys(v37, broker):
+    t = at_et(9, 0).timestamp()
+    broker.day_fills = [(t, "ABCD", "buy", 10, 10.0), (t + 30, "ABCD", "buy", 10, 10.1),
+                        (t + 60, "ABCD", "sell", 20, 10.3), (t + 600, "ABCD", "buy", 10, 10.5)]
+    v37.data = Bars([10.4])
+    run(v37.restore_today())
+    s = v37.st("ABCD")
+    assert s.v36_entries == 2                             # bought twice; once added
+    assert s.v37_sold_px == 10.3
+
+
+def test_nothing_from_the_broker_changes_nothing(v37, broker):
+    run(v37.restore_today())
+    assert v37.st("APUS").v36_entries == 0
+
+
+def test_the_broker_reads_todays_fills_page_by_page():
+    from types import SimpleNamespace as NS
+    t0 = at_et(9, 0)
+
+    def order(i, qty):
+        at = t0 + bot.timedelta(seconds=i)
+        return NS(symbol="ABCD", side=bot.OrderSide.BUY, filled_qty=str(qty),
+                  filled_avg_price="10.0", filled_at=at if qty else None, submitted_at=at)
+
+    pages = [[order(1000 - i, 1) for i in range(500)], [order(5, 2), order(4, 0)]]
+
+    class Client:
+        asked = []
+
+        def get_orders(self, req):
+            self.asked.append(req.until)
+            return pages[len(self.asked) - 1]
+
+    b = object.__new__(bot.Broker)
+    b.client, b.label = Client(), "test"
+    got = run(b.fills_today())
+    assert len(got) == 501                                # the unfilled order left out
+    assert got[0][0] < got[-1][0] and got[0][2] == "buy"  # oldest first
+    assert Client.asked[1] is not None                    # the second page asked for
