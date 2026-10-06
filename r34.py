@@ -4259,10 +4259,13 @@ V37_VOL_RULE = False            # the buy needs the volume, as below
 V37_VOL_REL = 3.0               # high: the last 60 seconds' shares at least this
                                 # x the stock's normal minute (the median of its
                                 # last 30 closed minutes) - the playbook's 3-5x
-V37_VOL_FADE = 0.5              # not fading: the last 60 seconds' shares at least
+V37_VOL_FADE = 0.70             # not fading: the last 60 seconds' shares at least
                                 # this share of the busiest of its last 5 closed
-                                # minutes...
-V37_VOL_PRICE = True            # ...or less volume but the price moving FASTER: the
+                                # minutes. The owner, 2026-10-06: "70%, we should not
+                                # go below that... after that the stock is getting
+                                # ready to come down".
+V37_VOL_PRICE = False           # (off - the owner's 70% is a floor) or less volume
+                                # but the price moving FASTER: the
                                 # last 60 seconds up at least as much as that busiest
                                 # minute was. The owner: less volume and a faster
                                 # price is the buyers winning the tug of war.

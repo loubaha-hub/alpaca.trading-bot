@@ -464,6 +464,7 @@ def minutes(v37, clock, now, vols, size=10_000):
 
 def test_a_runner_on_10x_8x_7x_its_normal_volume_still_buys(v37, clock, now,
                                                             volume_rule):
+    assert bot.V37_VOL_FADE == 0.70                       # the owner's floor
     """The owner, 2026-10-06: volume 10x, 8x, 7x its normal, candles green,
     price running - "I would have bought there"."""
     normal = [10_000] * 25
@@ -491,7 +492,9 @@ def test_out_when_the_volume_dries_up(v37, clock, now, volume_rule, monkeypatch)
     assert v37.closed_today[-1][5] == "volume-gone"
 
 
-def test_less_volume_but_a_faster_price_still_buys(v37, clock, now, volume_rule):
+def test_less_volume_but_a_faster_price_still_buys(v37, clock, now, volume_rule,
+                                                   monkeypatch):
+    monkeypatch.setattr(bot, "V37_VOL_PRICE", True)       # off by default
     """The owner, 2026-10-06: the last candle on less volume than the first
     two, but the price going up faster - the buyers are winning: buy."""
     normal = [10_000] * 25
@@ -544,3 +547,13 @@ def test_an_out_of_sequence_print_does_not_raise_the_high(v37, clock, now):
     s = ripping(v37, clock, now)
     v37.note_skipped(s, 10.50, ("@", "I", "Z"))           # odd lot AND out of sequence
     assert s.day_high == 10.05
+
+
+def test_under_70_percent_of_the_busiest_minute_no_buy(v37, clock, now, volume_rule):
+    """The owner, 2026-10-06: below 70% of the candles before, the stock is
+    getting ready to come down."""
+    normal = [10_000] * 25
+    s = minutes(v37, clock, now, normal + [10_000, 10_000, 100_000, 80_000, 70_000],
+                size=2_200)                               # 66k: 66% of 100k
+    tick(v37, s, now, 10.36)
+    assert not s.in_position
