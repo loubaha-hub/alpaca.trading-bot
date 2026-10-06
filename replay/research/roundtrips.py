@@ -7,7 +7,8 @@ included), whose close is back within BACK_PCT of the base - or under it.
 Episodes less than GAP_DAYS trading days apart count as one. Only bases of
 MIN_PRICE+ and run days with MIN_DOLLARS+ traded count.
 
-usage: python3 -I roundtrips.py OUT.json BARS.json [BARS.json ...]
+usage: python3 -I roundtrips.py [--run=1.0] OUT.json BARS.json [BARS.json ...]
+  --run: the run size as a fraction (0.5 = +50%, the default; 1.0 = doubled)
 """
 import json
 import sys
@@ -21,8 +22,9 @@ MIN_PRICE = 1.00
 MIN_DOLLARS = 5_000_000
 
 
-def episodes(rows, run_pct=RUN_PCT, back_pct=BACK_PCT):
+def episodes(rows, run_pct=None, back_pct=BACK_PCT):
     """[(run_day, base, peak, peak_day, back_day or None, run_day_dollars)]"""
+    run_pct = RUN_PCT if run_pct is None else run_pct
     out = []
     i = 1
     while i < len(rows):
@@ -65,7 +67,11 @@ def days_between(a, b):
 
 
 def main():
-    out_path, paths = sys.argv[1], sys.argv[2:]
+    global RUN_PCT
+    args = sys.argv[1:]
+    if args and args[0].startswith("--run="):
+        RUN_PCT = float(args.pop(0).split("=", 1)[1])
+    out_path, paths = args[0], args[1:]
     bars = {}
     for p in paths:
         bars.update(json.load(open(p)))
