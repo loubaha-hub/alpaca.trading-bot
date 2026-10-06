@@ -21,8 +21,10 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 - Claude proposed 0.1 (0.2 if it still churns). Owner decision (~11am):
   hold off; keep "up 3% in a minute" and see how v37 does with it first.
   Why: cutting the trades that much leaves a sample too small to draw
-  conclusions from - "you need an adequate sample". The speed may come back
-  "under different angles". V37_SPEED_MIN = 0.0 (off); every v37 buy now
+  conclusions from - "you need an adequate sample". Confirmed after: being
+  very selective is the human trader's edge (it cuts the losses), but first
+  learn what the 3% rule does. The speed may come back "under different
+  angles". V37_SPEED_MIN = 0.0 (off); every v37 buy now
   logs its speed ("| speed 0.12" on the ENTER line, speed= in the decision
   log) so live data builds up for judging it later.
 
