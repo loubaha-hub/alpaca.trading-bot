@@ -21,8 +21,10 @@ is not part of it.
   ones - but they retrace fast: be on your toes and get out early, even while
   it is still going up. Give up a little of the top; never ride the collapse. Typical: an unprofitable pharma
   or biotech that raised money, did a reverse split, then has news.
-- A recent reverse split (a 1-for-10 turns 50M shares into 5M; a depressed
-  stock near $1 can go to $10).
+- A reverse split (a 1-for-10 turns 50M shares into 5M; a depressed stock
+  near $1 can go to $10) - on the DAY it takes effect, one or two days at
+  most. It runs like crazy that day, then fizzles back to earth; it very
+  rarely keeps the price. Catch that run; what comes after does not matter.
 - Short interest / hard to borrow - some shorting helps: the short squeeze.
 - No shelf: the company is not selling shares.
 - Float rotation (the guru's tell): the shares traded churn through the float

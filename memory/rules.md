@@ -12,7 +12,8 @@ Numbers marked **(?)** are starting guesses for the owner to correct. Status:
 | Relative volume | 3x the stock's normal for the time of day or more (?), and rising | to build (v31 has "rising" only) |
 | Liquidity | at least $250k traded a minute (?) - "stay away from thin, period" | tested: the biggest single gain in rip_test |
 | Float rotation | shares traded today / float - ranks the list, "where everybody is" | tested: picks the runners, not a trigger |
-| News today, recent reverse split, hard to borrow, no shelf | rank the list higher, not required (?) | to build (Webull filings; Alpaca borrow flag) |
+| Reverse split | **the owner, 10-06: the day the split takes effect** (one or two days at most) - it runs like crazy that day, then fizzles; older splits count for nothing. Today: top of the list; yesterday: a smaller lift | to build (a list of splits taking effect today, each morning) |
+| News today, hard to borrow, no shelf | rank the list higher, not required (?) | to build (Webull filings; Alpaca borrow flag) |
 | Chinese stocks | allowed; their own exit (section 6) | to build (company country) |
 
 ## 2. Which stock - the one ripping NOW
