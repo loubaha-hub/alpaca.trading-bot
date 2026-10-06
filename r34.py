@@ -4450,6 +4450,9 @@ V37_SCORE_HUGE_WICK = 0.60      # the last candle's top wick over this share of 
                                 # no buy
 V37_SCORE_ROOM = 0.05           # resistance: the prior day's high this close above
 V37_SCORE_SPEED = (0.1, 0.2, 0.3)   # the owner's speed: a point at each of these
+V37_SCORE_FURIOUS = 0.0         # >0: a speed this high buys whatever the score (the
+                                # owner: "the speed is everything" - never miss the
+                                # furious ones); 0 = off
 V37_STEADY_PAY = 0.0            # >0: a buy may pay at most this share over the price
                                 # seen unless the stock is ripping (the owner: "you
                                 # can do that only if the stock is ripping"); 0 = off
@@ -4855,7 +4858,8 @@ class V37(V36):
         if not self.volume_ok(s):
             return                              # flying means the volume is rising
         why = self.not_running(s)
-        if not why and V37_SCORE_MIN and not self.ripping(s):
+        if (not why and V37_SCORE_MIN and not self.ripping(s)
+                and not (V37_SCORE_FURIOUS and self.speed(s, price) >= V37_SCORE_FURIOUS)):
             points, parts = self.score(s, price)
             if points is None or points < V37_SCORE_MIN:
                 why = "score %s/14 under %d: %s" % (points, V37_SCORE_MIN, parts) \

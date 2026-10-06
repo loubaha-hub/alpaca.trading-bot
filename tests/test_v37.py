@@ -1094,3 +1094,18 @@ def test_irregular_bodies_are_fine_steadily_shrinking_are_not(v37, clock, now):
 
 def test_the_score_is_off_until_the_owner_decides():
     assert bot.V37_SCORE_MIN == 0
+
+
+def test_a_furious_speed_buys_whatever_the_score(v37, clock, now, monkeypatch):
+    """The owner: "the speed is everything" - a furious one is never missed."""
+    monkeypatch.setattr(bot, "V37_SCORE_MIN", 14)          # nothing passes the score...
+    s = bought_unless_not_running(v37, clock, now, "ABCD")
+    assert not s.in_position
+    monkeypatch.setattr(bot, "V37_SCORE_FURIOUS", 0.3)
+    monkeypatch.setattr(bot, "V37_SPEED_MIN", 0.1)         # flying = the owner's speed
+    t = crowd(v37, clock, "EFGH", 1_000_000)
+    candles(t, STAIRS[:2] + [(10.19, 10.22, 10.10, 10.12, 50_000)], quiet=40_000)
+    t.day_high = 10.05
+    windows(v37, t, now, 10.00, 3_000, 10.36, 30_000)      # 3.6% x 10 = 0.36
+    tick(v37, t, now, 10.37, size=100)
+    assert t.in_position                                   # ...except a furious one
