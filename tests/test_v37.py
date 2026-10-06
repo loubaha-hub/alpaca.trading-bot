@@ -137,8 +137,9 @@ def test_adds_to_half_at_10_cents_and_full_at_20(v37, clock, now, broker):
     assert s.shares * first == pytest.approx(full, rel=0.05)
 
 
-def test_half_the_profit_gone_it_is_out(v37, clock, now):
-    s = bought(v37, clock, now)
+def test_half_the_profit_gone_it_is_out(v37, clock, now, monkeypatch):
+    monkeypatch.setattr(bot, "V37_ASK_PLUS", 0.0)         # fills at the price (the
+    s = bought(v37, clock, now)                           # fake fills AT the limit)
     tick(v37, s, now, round(s.entry + 0.10, 2))           # add to half
     best = s.peak
     keep = s.entry + 0.5 * (best - s.entry)
@@ -181,3 +182,39 @@ def test_the_days_top_gainer_counts_even_when_not_the_busiest(v37, clock, now):
     tick(v37, s, now, 10.36)
     assert v37.crowd_rank("ABCD") == 3 and v37.gainer_rank("ABCD") == 1
     assert s.in_position
+
+
+def test_each_try_is_the_ask_plus_10_cents(v37, clock, now, data):
+    """The owner's hot keys: "ask plus 10 cents" - filled at the best offers
+    up to there."""
+    s = ripping(v37, clock, now)
+    data.quotes[("ABCD", "ask")] = 10.38
+    tick(v37, s, now, 10.36)
+    assert v37.broker.buys("ABCD")[0][3] == pytest.approx(10.48)
+
+
+def test_a_furious_stock_may_cost_up_to_10_percent_more(v37, clock, now, data):
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    prints(v37, s, now, 8.00, 10.00)                      # +25% in the minute
+    s.day_high = 8.10
+    assert v37.entry_cap(s, 10.00) == pytest.approx(bot.V37_ENTRY_MAX)
+    data.quotes[("ABCD", "ask")] = 10.70                   # 7% over: still in reach
+    tick(v37, s, now, 10.01)
+    assert s.in_position
+    assert v37.broker.buys("ABCD")[0][3] == pytest.approx(10.80)
+
+
+def test_a_slower_stock_keeps_the_2_percent_ceiling(v37, clock, now):
+    s = ripping(v37, clock, now)                          # +3.5% in the minute
+    assert v37.entry_cap(s, 10.36) == pytest.approx(bot.V37_ENTRY_PCT)
+
+
+def test_after_an_add_the_stop_follows_the_new_average(v37, clock, now):
+    """An add filled over the price (ask + 10c) lifts the average above the
+    high; the stop 2c under the FIRST buy would let the whole position lose."""
+    s = bought(v37, clock, now)
+    tick(v37, s, now, round(s.v36_first + 0.10, 2))       # add, filled at +10c more
+    assert s.v36_adds == 1
+    assert s.stop == pytest.approx(s.entry - bot.V37_STOP_CENTS)
+    tick(v37, s, now, round(s.entry - 0.03, 2))
+    assert not s.in_position

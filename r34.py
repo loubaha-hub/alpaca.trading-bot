@@ -1623,6 +1623,10 @@ class Strategy:
                      ref * (1 + cap), why)
         return filled
 
+    def buy_limit(self, ask, ceiling) -> float:
+        """The limit for one try of the fast buy: a little over the ask."""
+        return min(ask * (1 + FAST_BUY_OVER_ASK), ceiling)
+
     async def buy_fast(self, symbol, shares, ref, cap):
         """FAST_BUY: a limit off the ask, re-priced every FAST_BUY_WAIT seconds
         until filled, out of time or tries, or the ask is past the ceiling.
@@ -1642,7 +1646,7 @@ class Strategy:
             # Past the ceiling, the bid still sits AT the ceiling: a runner
             # that dips for a moment fills it.
             ask = await self.data.quote(symbol, "ask") or ref
-            limit = round(min(ask * (1 + FAST_BUY_OVER_ASK), ceiling), 2)
+            limit = round(self.buy_limit(ask, ceiling), 2)
             n = await self.broker.send(symbol, shares - got, OrderSide.BUY, limit,
                                        FAST_BUY_WAIT)
             if n == -2:
@@ -4180,9 +4184,10 @@ class V36(V35):
 #                last few minutes), with a big crowd behind it - or the day's
 #                top gainer with real money trading (V36_GAINER_*).
 #   THE BUY      the moment it rips: up V37_FAST_PCT in the last V37_FAST_SECONDS
-#                on real money. At most V37_ENTRY_PCT over the price it saw,
-#                re-priced fast; missed, it tries again on the next print that
-#                still rips. After a sale, again only with the crowd still there,
+#                on real money. Like the owner's hot keys: each try at the ask
+#                plus 10 cents, re-priced every 0.4s, under a ceiling that grows
+#                with the speed (2% to 10% over the price seen); missed, it tries
+#                again on the next print that still rips. After a sale, again only with the crowd still there,
 #                at a new high of the day.
 #   SIZE         a tenth of a position; half at +10 cents, full at +20 cents.
 #   THE EXIT     "no tolerance for loss": V37_STOP_CENTS under the buy. "Half of
@@ -4194,7 +4199,12 @@ V37_CROWD_MIN_DOLLARS = 1_000_000   # "a really huge crowd": dollars traded in t
 V37_FAST_SECONDS = 60           # "fast" (?): up V37_FAST_PCT within this many
 V37_FAST_PCT = 0.03             # seconds...
 V37_FAST_DOLLARS = 250_000      # ...on at least this many dollars traded in them
-V37_ENTRY_PCT = 0.02            # a buy pays at most this share over the price seen;
+V37_ASK_PLUS = 0.10             # each try's limit: the ask plus this many dollars -
+                                # the owner's hot keys ("ask plus 10 cents"); it fills
+                                # at the best offers up to there, usually at the ask
+V37_ENTRY_MAX = 0.10            # the ceiling grows with the speed: half of the last
+                                # minute's move, between V37_ENTRY_PCT and this
+V37_ENTRY_PCT = 0.02            # a buy pays at least this share over the price seen;
                                 # it re-prices every 0.4s up to there (FAST_BUY), and
                                 # if the stock runs past it, the next print that still
                                 # rips tries again from there - "so that way we are in"
@@ -4240,6 +4250,21 @@ class V37(V36):
         return low > 0 and price >= low * (1 + V37_FAST_PCT) \
             and dollars >= V37_FAST_DOLLARS
 
+    def buy_limit(self, ask, ceiling) -> float:
+        return min(ask + V37_ASK_PLUS, ceiling)
+
+    def move(self, s, price) -> float:
+        """How far the price is above the low of the last V37_FAST_SECONDS."""
+        low = min((x[1] for x in s.v37_prints), default=0.0)
+        return price / low - 1 if low > 0 else 0.0
+
+    def entry_cap(self, s, price) -> float:
+        """How far over the price seen the first buy may pay: half of the last
+        minute's move, between V37_ENTRY_PCT and V37_ENTRY_MAX. A stock up 20%
+        in a minute may cost 10% more to get into - "sometimes I get in more
+        like 10% more, but the stock took me to a higher level"."""
+        return min(V37_ENTRY_MAX, max(V37_ENTRY_PCT, 0.5 * self.move(s, price)))
+
     def in_the_crowd(self, s) -> bool:
         """The #1 or #2 by activity with a big crowd - or the day's top gainer
         with real money trading."""
@@ -4273,14 +4298,15 @@ class V37(V36):
 
     async def v37_buy(self, s, price):
         eq = await self.broker.equity(self.day_start_equity)
-        worst = price * (1 + V37_ENTRY_PCT)
+        cap = self.entry_cap(s, price)
+        worst = price * (1 + cap)
         held_all = sum(x.shares * (x.last_price or price)
                        for x in self.open_positions())
         room = max(0.0, eq * MAX_EXPOSURE_PCT - held_all)
         shares = int(min(eq * V37_POSITION_PCT * V37_STARTER, room) / worst)
         if shares * price < MIN_TRADE_DOLLARS:
             return
-        filled = await self.buy(s.symbol, shares, price, V37_ENTRY_PCT)
+        filled = await self.buy(s.symbol, shares, price, cap)
         if not filled:
             return
         s.shares = filled
@@ -4328,9 +4354,14 @@ class V37(V36):
                 s.shares += filled
                 s.entry = await self.broker.avg_entry(s.symbol) or s.entry
                 s.peak = max(s.peak, price)
+                # No tolerance for loss on the whole position: an add filled
+                # over the price (ask + 10c on a fast stock) lifts the average
+                # above the high, and "half the gain" then never fires.
+                s.stop = max(s.stop, s.entry - V37_STOP_CENTS)
                 self.log.info("[v37] ADD %s to %.0f%% of a position: +%d @ %.4f -> "
-                              "%d shares, average %.4f", s.symbol,
-                              100 * to_fraction, filled, price, s.shares, s.entry)
+                              "%d shares, average %.4f, stop %.4f", s.symbol,
+                              100 * to_fraction, filled, price, s.shares, s.entry,
+                              s.stop)
 
     async def evaluate(self, s, price):
         if await self.halted():
