@@ -44,7 +44,13 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   trade. Exits: "half the gain" only after +2%/+3% is far worse at both
   costs (-$2,821 / -$4,788 at 1%), the 15s grace too - the owner's tight
   exits are right. Next lever: what each fill costs (measure live).
-- Waiting on the owner: switch v37 to score 12 (release after 8pm).
+- Owner decision (~3:40pm): switch v37 to score 12. Exits stay as they are
+  for now (small cuts; a shaken-out runner is re-bought when it scores).
+  Release r34.11 built and tested (worktree release8, 458 tests); v35
+  held a position at 3:41pm, so it waits for flat or after 8pm.
+- The owner, next: premarket is all limit orders - when a buy misses,
+  go right after it, fast, but never lose track of (or pile up) its own
+  orders. And v36 misbehaved today (screenshot coming).
 
 ### Round-trip runners, 90 days (the owner's request)
 - The owner: which stocks ran up and came back down to about where they
