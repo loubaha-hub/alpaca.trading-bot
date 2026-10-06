@@ -32,6 +32,7 @@ class FakeBroker:
         self.fill_log = {}             # symbol -> [(shares, price)], as Broker
         self.qty_fails_on = set()
         self.qty_calls = 0
+        self.settled = True            # as Broker.send: the last order closed
 
     # -- what the strategy calls ------------------------------------------------
 
@@ -46,7 +47,7 @@ class FakeBroker:
             return None
         return self.held.get(symbol, 0.0)
 
-    async def send(self, symbol, qty, side, limit):
+    async def send(self, symbol, qty, side, limit, wait=None):
         await asyncio.sleep(0)
         frac = self.fills.pop(0) if self.fills else 1.0
         if side == bot.OrderSide.BUY:
