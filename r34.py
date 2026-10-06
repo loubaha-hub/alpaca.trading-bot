@@ -1259,6 +1259,7 @@ class SymState:
     v37_high_ts: float = 0.0         # v37: when the last new high of the day traded
     v37_sold_px: float = 0.0         # v37: what the last sale of this stock got
     v37_sold_ts: float = 0.0         # v37: when it was
+    v37_peak_after: float = 0.0      # v37: the best price since the grace ended
                                      # v37: (time, price, size) over V37_FAST_SECONDS
     last_exit: float = 0.0           # v33: the level that threw us out
     skipped_prints: int = 0          # odd lots etc. we refused to act on
@@ -4344,6 +4345,14 @@ V37_STOP_MAX = 0.08             # ...nor more than this; after an add, the same
                                 # distance under the new average
 V37_GIVEBACK_ARM = 0.0          # "half the gain" only once the best gain reached
                                 # this (0 = from the first cent, as before)
+# PROPOSED 2026-10-06, off until the owner decides. All 6 v37 trades from
+# 9:02 to 11:40am were sold by "half the gain" 4-13 seconds after the buy,
+# on a gain of 1-8c - noise right after the buy. A grace: for this many
+# seconds after a buy only the stop (3-8% under) sells; the owner: "that
+# little noise up front can be cut off by your 3 and 8% below".
+V37_GRACE_SECONDS = 0.0         # 0 = off
+V37_GRACE_FORGET = False        # True: "half the gain" counts only the gain made
+                                # after the grace, not a spike inside it
 # PROPOSED 2026-10-06, off until the owner decides. IPDN: volume 497k, 446k,
 # 242k at 8:11, 8:12, 8:13 - "the volume has come down three candles in a
 # row" - and v37 bought at 8:14:29; it bought twice in 8:12 on falling
@@ -4462,6 +4471,11 @@ class V37(V36):
             s.v37_sold_px = sold[-1][2] if sold else s.last_price
             s.v37_sold_ts = time.time()
         super().clear(s)
+
+    def in_grace(self, s) -> bool:
+        """Within V37_GRACE_SECONDS of the buy (0 = no grace)."""
+        return bool(V37_GRACE_SECONDS and s.entry_at
+                    and time.time() - s.entry_at < V37_GRACE_SECONDS)
 
     def too_soon(self, s, price) -> bool:
         """Within V37_REBUY_WAIT of a sale and not yet the jump above it."""
@@ -4665,6 +4679,7 @@ class V37(V36):
         s.v37_stop_pct = self.stop_pct(s, price)
         s.stop = self.stop_for(s)
         s.v37_pace_at_buy = self.pace(s)
+        s.v37_peak_after = 0.0
         s.peak = s.entry
         s.trail_stop = 0.0
         s.armed = False
@@ -4765,8 +4780,13 @@ class V37(V36):
                 and self.pace(s) < V37_VOL_EXIT * s.v37_pace_at_buy):
             await self.exit(s, "volume-gone")   # the crowd has left
             return
-        gain = s.peak - s.entry
-        armed = s.peak >= s.entry * (1 + V37_GIVEBACK_ARM)
+        if self.in_grace(s):
+            top = 0.0                           # the first seconds: only the stop sells
+        else:
+            s.v37_peak_after = max(s.v37_peak_after or s.entry, price)
+            top = s.v37_peak_after if V37_GRACE_FORGET else s.peak
+        gain = top - s.entry
+        armed = top >= s.entry * (1 + V37_GIVEBACK_ARM)
         if gain > 0 and armed and price <= s.entry + (1 - V37_GIVEBACK) * gain:
             await self.exit(s, "giveback")      # half of the profit gone
             return

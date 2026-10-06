@@ -821,3 +821,60 @@ def test_with_speed_on_it_buys_a_rip_on_rising_volume(v37, clock, now, monkeypat
     t.day_high = 10.30
     tick(v37, t, now, 10.61, size=100)
     assert t.in_position
+
+
+# ---- proposed 2026-10-06 (off until the owner decides): a grace after the buy -------
+
+@pytest.fixture
+def grace(monkeypatch):
+    monkeypatch.setattr(bot, "V37_GRACE_SECONDS", 15.0)
+    monkeypatch.setattr(bot, "V37_STOP_SPEED", True)       # the 3-8% stop
+    monkeypatch.setattr(bot, "V37_ASK_PLUS", 0.0)          # fills at the price
+    monkeypatch.setattr(bot, "V37_ADD1_CENTS", 99.0)       # no adds: the average
+    monkeypatch.setattr(bot, "V37_ADD2_CENTS", 99.0)       # stays the buy
+
+
+def test_in_the_grace_a_wiggle_does_not_sell(v37, clock, now, grace):
+    """APUS 11:36am 10-06: bought 7.47, peak 7.48, sold 4s later by "half
+    the gain" - a cent of noise."""
+    s = bought(v37, clock, now)
+    e = s.entry
+    tick(v37, s, now, round(e + 0.04, 2))
+    tick(v37, s, now, round(e - 0.03, 2))                 # all the gain back, and more
+    assert s.in_position
+
+
+def test_in_the_grace_the_stop_still_sells(v37, clock, now, grace):
+    s = bought(v37, clock, now)
+    tick(v37, s, now, round(s.stop - 0.01, 2))
+    assert not s.in_position
+    assert v37.closed_today[-1][5] == "stop"
+
+
+def test_after_the_grace_half_the_gain_counts_again(v37, clock, now, grace):
+    s = bought(v37, clock, now)
+    e = s.entry
+    tick(v37, s, now, round(e + 0.20, 2))                 # the best: +20c, in the grace
+    now[0] = s.entry_at + 16
+    tick(v37, s, now, round(e + 0.12, 2))                 # still over half: kept
+    assert s.in_position
+    tick(v37, s, now, round(e + 0.09, 2))                 # under half of +20c: out
+    assert not s.in_position
+    assert v37.closed_today[-1][5] == "giveback"
+
+
+def test_forget_counts_only_the_gain_after_the_grace(v37, clock, now, grace, monkeypatch):
+    monkeypatch.setattr(bot, "V37_GRACE_FORGET", True)
+    s = bought(v37, clock, now)
+    e = s.entry
+    tick(v37, s, now, round(e + 0.20, 2))                 # a spike inside the grace
+    now[0] = s.entry_at + 16
+    tick(v37, s, now, round(e + 0.04, 2))                 # the gain after it: +4c
+    assert s.in_position                                  # the spike is forgotten
+    tick(v37, s, now, round(e + 0.01, 2))                 # under half of +4c: out
+    assert not s.in_position
+    assert v37.closed_today[-1][5] == "giveback"
+
+
+def test_the_grace_is_off_until_the_owner_decides():
+    assert bot.V37_GRACE_SECONDS == 0.0 and not bot.V37_GRACE_FORGET
