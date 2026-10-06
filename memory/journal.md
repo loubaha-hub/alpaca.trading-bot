@@ -5,6 +5,24 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-06
 
+### Round-trip runners, 90 days (the owner's request)
+- The owner: which stocks ran up and came back down to about where they
+  started, in the last 90 days; runs on successive days count as one, at
+  least 2 days apart; how many times, the dates, the spacing.
+- Counted: a day's high 50%+ over the day before's close; round trip = a
+  close back within 20% of that start (same day counts); base $1+, $5M+
+  traded on the run day; exchange-listed, today <= $30 and <= $3B; Webull
+  daily bars, regular hours, July 8 - October 5.
+- Result: 3,230 small caps scanned, 247 made a round trip, 330 trips; 183
+  once, 50 twice, 9 three times, 5 four times (BIYA, LGHL, MSS, TRUG, VBIO).
+  Repeat gap median 20 days (33 within 2 weeks, 24 in 2-4, 26 over 4).
+  111 trips came back the same day; median run +83%. 70 runs not back yet.
+  At +30%: 381 stocks; at +100%: 102.
+- Not counted: delisted/OTC names (many dumps end there), premarket-only
+  spikes. Page: https://claude.ai/artifact/1Qv2hYjpmxZurmTUMPYABD. Data:
+  replay/data/daily_listed_2026-07-01_10-05.json; finder and results:
+  replay/research/roundtrips.py, roundtrips_2026-10-05.json.
+
 ### v37 grace after the buy: built (off), replay says no, the replay can't see noise
 - The owner liked the idea: for N seconds after a buy only the 3-8% stop
   sells, so the noise up front can't shake it out. Built as
