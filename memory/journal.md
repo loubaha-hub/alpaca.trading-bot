@@ -23,6 +23,12 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   the APUS add fix goes in. v37 keeps all of today's improvements (score
   12). Both run tomorrow from the open. Release r34.12 built (worktree
   release9, 467 tests): r34.11 + the v36 add fix; waits on the owner's OK.
+- The owner: for v36, only what benefits it. Benefits / no harm: the APUS
+  add fix (r34.12), the restart restore (r34.11). Hurt in replay, stay off:
+  the score, the first-two-buys rule. Not yet tested for v36 (candidates):
+  fresh prices for its exits (today's v36 stops acted on prints 2.5-7s
+  old: APUS 11:32, AVBP 12:19, DLXY 10:46), a huge-wick veto on the
+  pullback candle alone, and its exit (93% of replayed trades on the stop).
 
 ### Real money: where it is, and the day-trading rule
 - The owner: the money for live trading is at Webull, not Alpaca. The bot
