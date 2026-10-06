@@ -1252,6 +1252,7 @@ class SymState:
     ref_price: float = 0.0           # the previous session's close (the scanner) -
                                      # the day's gain is measured from it
     v37_prints: deque = field(default_factory=deque)
+    v37_speed_prints: deque = field(default_factory=deque)   # v37: two windows of prints
     v37_stop_pct: float = 0.0        # v37: the stop's distance under the average
     v37_pace_at_buy: float = 0.0     # v37: shares in the 60 seconds before the buy
     v37_old_high: float = 0.0        # v37: a high a break must be confirmed over
@@ -4294,6 +4295,16 @@ V37_CROWD_MIN_DOLLARS = 1_000_000   # "a really huge crowd": dollars traded in t
 V37_FAST_SECONDS = 60           # "fast" (?): up V37_FAST_PCT within this many
 V37_FAST_PCT = 0.03             # seconds...
 V37_FAST_DOLLARS = 250_000      # ...on at least this many dollars traded in them
+# THE OWNER'S SPEED (2026-10-06): speed = (P2 - P1) / P1 x (V2 / V1) - the
+# price move times the volume's change, over rolling V37_FAST_SECONDS windows:
+# P2 now, P1 a window ago; V2 shares in the last window, V1 in the one before.
+# +10% on equal volume = 0.10; +5% on double volume = 0.10. A falling price is
+# negative: never a buy. When on, it replaces "up V37_FAST_PCT" as what
+# "flying" means (the money traded still has to reach V37_FAST_DOLLARS); the
+# owner: enter between 0.1 and 2 or more. V2/V1 capped at V37_SPEED_VOL_CAP.
+V37_SPEED_MIN = 0.0             # 0 = off (the old fast rule)
+V37_SPEED_VOL_CAP = 30.0        # the owner: volume 20x with the price barely moving
+                                # is "about to take off" - 1% x 20 = 0.20, a buy
 V37_ASK_PLUS = 0.10             # each try's limit: the ask plus this many dollars -
                                 # the owner's hot keys ("ask plus 10 cents"); it fills
                                 # at the best offers up to there, usually at the ask
@@ -4427,6 +4438,10 @@ class V37(V36):
             s.v37_prints.append((t, price, size))
         while s.v37_prints and s.v37_prints[0][0] < cut:
             s.v37_prints.popleft()
+        if t >= now - 2 * V37_FAST_SECONDS:
+            s.v37_speed_prints.append((t, price, size))
+        while s.v37_speed_prints and s.v37_speed_prints[0][0] < now - 2 * V37_FAST_SECONDS:
+            s.v37_speed_prints.popleft()
 
     def note_skipped(self, s, price, conds):
         """An odd lot still raises the high of the day - the high the owner's
@@ -4533,6 +4548,30 @@ class V37(V36):
         return low > 0 and price >= low * (1 + V37_FAST_PCT) \
             and dollars >= V37_FAST_DOLLARS
 
+    def speed(self, s, price) -> float:
+        """The owner's speed: (P2 - P1) / P1 x (V2 / V1) over rolling
+        V37_FAST_SECONDS windows. 0.0 until both windows have prints."""
+        now = time.time()
+        w = V37_FAST_SECONDS
+        recent = [x for x in s.v37_speed_prints if x[0] >= now - w]
+        before = [x for x in s.v37_speed_prints if now - 2 * w <= x[0] < now - w]
+        if not recent or not before:
+            return 0.0
+        p1 = before[-1][1]                      # the price a window ago
+        v1 = sum(x[2] for x in before)
+        v2 = sum(x[2] for x in recent)
+        if p1 <= 0 or v1 <= 0:
+            return 0.0
+        return (price - p1) / p1 * min(v2 / v1, V37_SPEED_VOL_CAP)
+
+    def flying(self, s, price) -> bool:
+        """V37_SPEED_MIN on: the owner's speed at least that, on real money.
+        Off: up V37_FAST_PCT in V37_FAST_SECONDS (fast())."""
+        if not V37_SPEED_MIN:
+            return self.fast(s, price)
+        dollars = sum(x[1] * x[2] for x in s.v37_prints)
+        return self.speed(s, price) >= V37_SPEED_MIN and dollars >= V37_FAST_DOLLARS
+
     def buy_limit(self, ask, ceiling) -> float:
         return min(ask + V37_ASK_PLUS, ceiling)
 
@@ -4592,7 +4631,7 @@ class V37(V36):
         if not self.confirmed(s):
             return                              # a re-buy, or out of a sideways stretch:
                                                 # not confirmed above the old high yet
-        if not self.in_the_crowd(s) or not self.fast(s, price):
+        if not self.in_the_crowd(s) or not self.flying(s, price):
             return
         if not self.volume_ok(s):
             return                              # flying means the volume is rising

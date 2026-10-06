@@ -747,3 +747,53 @@ def test_a_stop_never_fires_on_an_old_print(v37, clock, now):
     old(s, now, 0)
     tick(v37, s, now, round(s.stop - 0.05, 2))            # the same, fresh
     assert not s.in_position
+
+
+# ---- the owner's speed: (P2 - P1) / P1 x (V2 / V1) ----------------------------------
+
+def windows(v37, s, now, p1, v1, p2, v2):
+    """A minute of prints at p1 (v1 shares), then the last minute at p2 (v2
+    shares) - each window's prints clear of the boundary between them."""
+    T = now[0] + 200
+    for k, (price, vol) in enumerate(((p1, v1), (p2, v2))):
+        for i in range(10):
+            now[0] = T - 115 + 60 * k + 6 * i
+            s.last_price = price
+            v37.note_trade(s, price, vol / 10)
+    now[0] = T
+
+
+def test_speed_is_the_price_move_times_the_volume_change(v37, clock, now):
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    windows(v37, s, now, 10.00, 10_000, 11.00, 10_000)     # +10%, equal volume
+    assert v37.speed(s, 11.00) == pytest.approx(0.10, abs=0.002)
+    t = crowd(v37, clock, "EFGH", 1_000_000)
+    windows(v37, t, now, 10.00, 10_000, 10.50, 20_000)     # +5%, double volume
+    assert v37.speed(t, 10.50) == pytest.approx(0.10, abs=0.002)
+
+
+def test_with_speed_on_a_slow_rise_is_not_flying(v37, clock, now, monkeypatch):
+    monkeypatch.setattr(bot, "V37_SPEED_MIN", 0.10)
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    windows(v37, s, now, 10.00, 30_000, 10.30, 30_000)     # +3%, equal volume: 0.03
+    s.day_high = 10.05
+    assert v37.fast(s, 10.31)                              # flying by the old rule
+    assert not v37.flying(s, 10.31)                        # not by the owner's speed
+    windows(v37, s, now, 10.31, 30_000, 10.95, 60_000)     # +6%, double volume: 0.12
+    assert v37.flying(s, 10.95)
+
+
+def test_astronomical_volume_with_little_price_move_is_flying(v37, clock, now):
+    """The owner: the price moved a little but the volume is twenty times
+    bigger - "the stock is about to take off": 1% x 20 = 0.20."""
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    windows(v37, s, now, 10.00, 5_000, 10.10, 100_000)
+    assert v37.speed(s, 10.10) == pytest.approx(0.20, abs=0.003)
+
+
+def test_a_falling_price_is_never_flying(v37, clock, now, monkeypatch):
+    monkeypatch.setattr(bot, "V37_SPEED_MIN", 0.10)
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    windows(v37, s, now, 10.00, 10_000, 9.90, 200_000)     # down 1% on 20x volume
+    assert v37.speed(s, 9.90) < 0
+    assert not v37.flying(s, 9.90)
