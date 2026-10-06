@@ -5,6 +5,20 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-06
 
+### Real money: where it is, and the day-trading rule
+- The owner: the money for live trading is at Webull, not Alpaca. The bot
+  trades only through Alpaca (orders, fills, positions, reconcile), so it
+  cannot use that money where it sits: either move it to an Alpaca live
+  account (bank transfer or an ACATS transfer started from Alpaca), or build
+  a Webull order connection (Webull trading API, the owner's API access).
+  Not decided. ALPACA_PAPER switches the whole bot; one strategy live while
+  the others stay on paper needs a per-account switch or a second service.
+- The owner, confirmed: the $25,000 pattern-day-trader minimum is gone. The
+  SEC approved FINRA's Rule 4210 change on 2026-04-14, effective 2026-06-04;
+  unlimited day trades at any size, real-time intraday margin instead. The
+  usual $2,000 margin-account minimum still stands. Check each broker's own
+  rollout before funding.
+
 ### Today replayed, 4am-4pm, v37 with today's fixes (the owner asked)
 - Recorded today: replay/data/2026-10-06 (77 symbols, Webull 1-minute).
 - Live v37 today: 114 trades, -$734 (r34.6 to r34.11 through the day).
