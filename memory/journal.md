@@ -5,7 +5,7 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-06
 
-### v37 "flying" = the owner's speed, 0.1 and up (ready on the branch, not live)
+### v37 speed rule: tested, held off by the owner - "up 3%" stays
 - The owner's formula: speed = (P2 - P1) / P1 x (V2 / V1), rolling 60s
   windows (P1, V1 the minute before, P2, V2 the last minute). "Anything
   above 0.1 is good", no top limit; falling (negative) is never a buy;
@@ -18,9 +18,13 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   Speed does not pick winners on its own - 84 of the 106 were made before
   the morning's fixes (old prices, under the high). 0.3+ swings hardest
   both ways (next 5 min: +6.5% / -14.3% medians).
-- Claude's pick (the owner left it to Claude): 0.1, with 0.2 as the next
-  step if it still churns. V37_SPEED_MIN = 0.10 on the branch (3ad0663);
-  release waits on the owner's OK and flat accounts.
+- Claude proposed 0.1 (0.2 if it still churns). Owner decision (~11am):
+  hold off; keep "up 3% in a minute" and see how v37 does with it first.
+  Why: cutting the trades that much leaves a sample too small to draw
+  conclusions from - "you need an adequate sample". The speed may come back
+  "under different angles". V37_SPEED_MIN = 0.0 (off); every v37 buy now
+  logs its speed ("| speed 0.12" on the ENTER line, speed= in the decision
+  log) so live data builds up for judging it later.
 
 ### v37 rebuilt from watching it live with the owner (r34.7-r34.9)
 - Live 4:00-8:10am: 83 trades, 17 won, -$701 (-4.6%). AIXI 4:17: 10 buys in

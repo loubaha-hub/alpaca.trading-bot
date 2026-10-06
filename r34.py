@@ -4302,7 +4302,8 @@ V37_FAST_DOLLARS = 250_000      # ...on at least this many dollars traded in the
 # negative: never a buy. When on, it replaces "up V37_FAST_PCT" as what
 # "flying" means (the money traded still has to reach V37_FAST_DOLLARS); the
 # owner: enter between 0.1 and 2 or more. V2/V1 capped at V37_SPEED_VOL_CAP.
-V37_SPEED_MIN = 0.10            # 0 = off (the old fast rule); no top limit
+V37_SPEED_MIN = 0.0             # 0 = off (the old fast rule); the owner, 10-06:
+                                # hold off - judge "up 3%" on a big enough sample first
 V37_SPEED_VOL_CAP = 30.0        # the owner: volume 20x with the price barely moving
                                 # is "about to take off" - 1% x 20 = 0.20, a buy
 V37_ASK_PLUS = 0.10             # each try's limit: the ask plus this many dollars -
@@ -4644,6 +4645,7 @@ class V37(V36):
             await self.v37_buy(s, price)
 
     async def v37_buy(self, s, price):
+        spd = self.speed(s, price)              # logged for every buy, rule on or off
         eq = await self.broker.equity(self.day_start_equity)
         cap = self.entry_cap(s, price)
         worst = price * (1 + cap)
@@ -4672,16 +4674,17 @@ class V37(V36):
         s.v36_entries += 1
         s.entry_at = time.time()
         self.dlog.record(ev="ENTER", sym=s.symbol, px=price, sh=filled,
-                         kind="rip", stop=s.stop)
+                         kind="rip", stop=s.stop, speed=round(spd, 3))
         self.log.info("[v37] ENTER %s %d @ %.4f (print %.4f) = $%.0f (%.1f%% of "
                       "equity) - a tenth of a position, buy %d today | crowd #%d, "
-                      "$%.0fk in %d min | stop %.4f | adds at %.4f and %.4f",
+                      "$%.0fk in %d min | stop %.4f | adds at %.4f and %.4f | "
+                      "speed %.2f",
                       s.symbol, filled, s.entry, price, filled * s.entry,
                       100 * filled * s.entry / eq if eq else 0.0, s.v36_entries,
                       self.crowd_rank(s.symbol),
                       self.crowd_dollars(s.symbol) / 1000, V36_CROWD_MINUTES,
                       s.stop, s.v36_first + V37_ADD1_CENTS,
-                      s.v36_first + V37_ADD2_CENTS)
+                      s.v36_first + V37_ADD2_CENTS, spd)
         await self.quote_the_crowd()
 
     def others_pct(self, s, eq) -> float:

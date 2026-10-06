@@ -696,12 +696,11 @@ def test_the_released_settings():
     assert bot.V37_CONFIRM_BY_BUY == (0, 0, 1, 2)
 
 
-def test_flying_is_the_owners_speed_from_a_tenth_up():
-    """2026-10-06, the owner: buy only at a speed of 0.1 or more, no top
-    limit; falling (negative) is never a buy. Replayed on every recorded day:
-    69 trades instead of 112, 68% won instead of 62%, worst trade -$24
-    instead of -$99 (fills 0.2% worse)."""
-    assert bot.V37_SPEED_MIN == 0.10 and bot.V37_SPEED_VOL_CAP == 30.0
+def test_the_speed_rule_is_held_off():
+    """2026-10-06, the owner: keep "up 3% in a minute" and hold off on the
+    speed rule (0.1+: 69 trades instead of 112 in the replay) - too few
+    trades to judge from. The speed is logged on every buy meanwhile."""
+    assert bot.V37_SPEED_MIN == 0.0 and bot.V37_FAST_PCT == 0.03
 
 
 # ---- a re-buy right after a sale (the owner, 2026-10-06) -----------------------------

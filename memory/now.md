@@ -25,8 +25,8 @@ Updated 2026-10-06, 10:25am ET.
 - Release builds are made in a separate git worktree from `origin/main`.
 
 ## Waiting on the owner
-0. Release v37 speed 0.1+ (V37_SPEED_MIN = 0.10, on the branch since
-   3ad0663): when, given it restarts the bot (flat accounts or after 8pm).
+0. v37 speed rule (0.1+): held off by the owner until "up 3%" has a big
+   enough live sample; the branch logs the speed on every buy (not live yet).
 1. "Half the gain" on tiny gains (25 of today's exits under 1%): the owner is
    thinking. Replay: arming it later hurts (+$4,002 from the first cent vs
    +$2,332 from 1%, fills 0.2% worse) - the wide stop and the early exit work
