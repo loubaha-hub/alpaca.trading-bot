@@ -1253,6 +1253,8 @@ class SymState:
     v37_prints: deque = field(default_factory=deque)
     v37_stop_pct: float = 0.0        # v37: the stop's distance under the average
     v37_pace_at_buy: float = 0.0     # v37: shares in the 60 seconds before the buy
+    v37_old_high: float = 0.0        # v37: the high of the day when it last sold
+    v37_above_since: float = 0.0     # v37: when the price went (and stayed) above it
                                      # v37: (time, price, size) over V37_FAST_SECONDS
     last_exit: float = 0.0           # v33: the level that threw us out
     skipped_prints: int = 0          # odd lots etc. we refused to act on
@@ -4275,6 +4277,13 @@ V37_MAX_POSITIONS = 2
 V37_MAX_ENTRIES = 0             # buys per name per day; 0 = no limit (the owner,
                                 # 2026-10-06: the 10-buy limit locked v37 out of
                                 # AIXI and SDEV before their second legs)
+V37_CONFIRM_SECONDS = 20.0      # a re-buy waits until the price has held above the
+                                # high of the day as it was at the last sale for
+                                # this long (two 10-second candles), then buys on
+                                # a new high. The owner, 2026-10-06: "the second
+                                # buy, third buy - give it one or two more candles
+                                # and the price going up before we buy". The first
+                                # buy of the day does not wait. 0 = off.
 V37_ODD_LOT_HIGH = True         # odd lots raise the high of the day (never trigger)
 V37_FRESH_SECONDS = 2.0         # buy and add only on a print that traded this
                                 # recently. AIXI, 4:17am 2026-10-06: while an order
@@ -4316,6 +4325,29 @@ class V37(V36):
         round lot at 6.97 as "a new high" - out 6 seconds later, -$21."""
         if V37_ODD_LOT_HIGH and conds and set(conds) & NON_QUALIFYING_CONDS == {"I"}:
             s.day_high = max(s.day_high, price)
+
+    def clear(self, s):
+        if s.shares <= 0 and s.entry:           # a v37 position just closed
+            s.v37_old_high = s.day_high
+            s.v37_above_since = 0.0
+        super().clear(s)
+
+    def track_above(self, s, price):
+        """When the price went above the high at the last sale, and stayed."""
+        if not s.v37_old_high:
+            return
+        if price > s.v37_old_high:
+            if not s.v37_above_since:
+                s.v37_above_since = s.last_print_ts or time.time()
+        else:
+            s.v37_above_since = 0.0
+
+    def confirmed(self, s) -> bool:
+        """A re-buy: the price has held above the old high V37_CONFIRM_SECONDS."""
+        if not V37_CONFIRM_SECONDS or not s.v37_old_high:
+            return True
+        t = s.last_print_ts or time.time()
+        return bool(s.v37_above_since) and t - s.v37_above_since >= V37_CONFIRM_SECONDS
 
     def pace(self, s) -> float:
         """Shares traded in the last V37_FAST_SECONDS (by when they traded)."""
@@ -4416,6 +4448,8 @@ class V37(V36):
             return                              # every buy ABOVE the high of the day
                                                 # (the owner, 2026-10-06) - touching
                                                 # it is not a new high
+        if not self.confirmed(s):
+            return                              # a re-buy: not held above the old high yet
         if not self.in_the_crowd(s) or not self.fast(s, price):
             return
         if not self.volume_ok(s):
@@ -4534,6 +4568,7 @@ class V37(V36):
                 await self.exit(s, "halted")
             return
         if not s.in_position:
+            self.track_above(s, price)
             await self.maybe_enter(s, price, None, None)
             return
         new_high = price >= s.peak
