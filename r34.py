@@ -1235,6 +1235,16 @@ class SymState:
     v35_added: bool = False
     v35_starter: float = 0.0
     v35_peak: float = 0.0            # v35: the highest price seen while holding, today
+    v36_entries: int = 0             # v36: buys of this name today
+    v36_bars_at_entry: int = -1      # v36: len(bars) at the last buy - one buy a minute
+    v36_first: float = 0.0           # v36: what the starter paid
+    v36_adds: int = 0                # v36: adds made to this position (V36_ADD_STEPS)
+    v36_leash_from: float = 0.0      # v36: the short leash watches candles from here
+    ten: tuple = ()                  # v36: the 10-second candle in progress
+                                     # (bucket, open, high, low, close)
+    tens: deque = field(default_factory=lambda: deque(maxlen=6))
+                                     # v36: the last closed 10-second candles
+    ten_break: bool = False          # v36: the short leash has fired since the buy
     last_exit: float = 0.0           # v33: the level that threw us out
     skipped_prints: int = 0          # odd lots etc. we refused to act on
     adopted: bool = False
@@ -1359,7 +1369,10 @@ class Strategy:
         # to 25% while its add is designed to reach 40% - every winner with an
         # add would log a false CRITICAL every 5 seconds, burying a real one.
         cap = {"v31": V31_LEADER_CAP, "v34": V34_MAX_POSITION_PCT,
-               "v35": V35_MAX_POSITION_PCT}.get(self.name, MAX_POSITION_PCT)
+               "v35": V35_MAX_POSITION_PCT,
+               # v36 buys to 25% of equity on the way up; a runner it holds
+               # keeps growing past that, as v35's does.
+               "v36": V35_MAX_POSITION_PCT}.get(self.name, MAX_POSITION_PCT)
         total_value = 0.0
         for s in self.open_positions():
             price = s.last_price or s.entry
@@ -2562,6 +2575,10 @@ class V31(Strategy):
             if earn and s.in_position:
                 s.earn_high = s.hod_closed
 
+    def confirm_tolerance(self) -> float:
+        """How far under the trigger the ask may sit and still back a buy."""
+        return CONFIRM_TOLERANCE
+
     def buy_cap(self, s, price) -> float:
         """How far over the trigger a buy may pay: BUY_CHASE_CAP, or with
         FAST_BUY_SPEED_CAP set, more on a fast stock - its typical one-minute
@@ -2627,7 +2644,7 @@ class V31(Strategy):
         # THE BREAKOUT HAS TO BE BACKED BY THE MARKET, NOT BY ONE PRINT.
         if CONFIRM_ENTRY_WITH_QUOTE:
             ask = await self.data.quote(s.symbol, "ask")
-            if ask is not None and ask < trigger - CONFIRM_TOLERANCE:
+            if ask is not None and ask < trigger - self.confirm_tolerance():
                 self.log.info("[v31] %s TRIGGER NOT CONFIRMED - print %.4f%s reached "
                          "%.4f but the ask is %.4f, below the trigger. "
                          "No order sent.",
@@ -3647,6 +3664,414 @@ class V35(V31):
                               s.shares, s.entry)
 
 
+# ----------------------------------------------------------------------------
+# V36 - THE OWNER'S PLAYBOOK
+# ----------------------------------------------------------------------------
+# Written 2026-10-05/06 from how the owner traded by hand, February to June
+# 2026, for $5-10k a month with 60-65% of trades winning (memory/playbook.md;
+# the numbers, and which are still guesses: memory/rules.md). Built on v35 -
+# the leaders' pullback, with the owner's four filters - with the owner's own
+# choice of stock, entry, size and exit in place of v35's:
+#   WHICH STOCK  where the crowd is NOW: the biggest share of the dollars
+#                traded on the scanner's list in the last few minutes, held a
+#                couple of minutes. Not the day's top gainer - "a stock up 120%
+#                that slowed loses to one up 30% that is ripping".
+#   READY        a rip: two green minutes adding 5% or more (or one minute of
+#                5%), each on 3x the volume of the minutes before, on real
+#                money - a thin stock is left alone however fast it runs - and
+#                no long upper wick.
+#   THE BUY      after the rip, the green-red pattern (1c over the red's open,
+#                stop at the red's low), or the high of the day breaking with
+#                green candles stacking on rising volume. Above VWAP and the 9
+#                EMA, the 9 over the 20, MACD over zero. The tape at least 60%
+#                at the ask and no more than 40% at the bid. Never banned for
+#                running: "that's where the money is made".
+#   SIZE         ease in: a tenth of a full position, so a shakeout costs
+#                little - and the starter gets room: only the red's low takes it
+#                out. Then keep adding as the stock proves it is moving, to half
+#                and to a full position.
+#   THE EXIT     once added to, a short leash - out when a 10-second candle
+#                closes red under the lows of the two before it; a long leash
+#                once up 10%; after each add the floor rises to breakeven.
+#   AGAIN        back in on a new rip or a new high of the day, as long as the
+#                stock keeps running, each time small.
+V36_MAX_FLOAT = 20_000_000      # float this many shares or less (a name not in
+                                # the float list is allowed)
+V36_MIN_DOLLARS = 250_000       # each rip minute traded at least this many dollars
+V36_CROWD_MINUTES = 5           # the crowd: share of the list's dollars traded in
+                                # the last N minutes
+V36_CROWD_TOP = 2               # trade only the top N
+V36_CROWD_HOLD_MIN = 2          # ...after it has held a top spot N minutes
+V36_RIP_PCT = 0.05              # two green minutes adding this much
+V36_RIP_ONE_PCT = 0.05          # or one green minute adding this much
+V36_RIP_VOL_MULT = 3.0          # each rip minute on this many times the average
+V36_RIP_BEFORE = 5              # ...of this many minutes before it
+V36_RIP_FRESH_MIN = 15          # a rip older than this many minutes buys nothing
+V36_WICK_MAX = 0.5              # the rip's last candle: upper wick at most this
+                                # share of its range ("a high retreat")
+V36_TAPE_SECONDS = 30           # the tape window at the buy
+V36_TAPE_GREEN = 0.60           # at least this share of shares at the ask
+V36_TAPE_RED = 0.40             # no more than this share at the bid
+V36_POSITION_PCT = 0.25         # a full position: this share of equity
+V36_STARTER = 0.10              # the first buy: this fraction of a full position
+V36_ADD_STEPS = ((0.03, 0.50),  # keep adding as it moves: up this much from the
+                 (0.06, 1.00))  # starter, on a new high with the tape still green,
+                                # to this fraction of a full position
+V36_FLOOR_AVG = True            # after an add, the floor rises to: True = the
+                                # position's average (breakeven), False = what the
+                                # starter paid. Replayed 09-28..10-05: average
+                                # +$3,270, starter -$204 - a full position that
+                                # falls back to the starter's price loses ~4.5%.
+V36_MAX_POSITIONS = 2
+V36_TEN_SEC = 10                # the short leash's candles, in seconds
+V36_TEN_GRACE = 10              # seconds after an add before the short leash acts
+V36_LEASH_AT = 0.10             # up this much: the long leash instead
+V36_LEASH_ABR = 2.0             # long leash: this many ABRs under the high
+V36_MAX_ENTRIES = 6             # buys per name per day - each one small
+V36_PAY_UP_ABR = 1.0            # a buy may pay this many ABRs over the trigger...
+V36_PAY_UP_MAX = 0.05           # ...never more than this (BUY_CHASE_CAP at least)
+V36_CONFIRM_TOLERANCE = 0.01    # the ask may sit this far under the trigger
+# Which account v36 trades (the owner, 2026-10-06: "replace one of those
+# three"): "v34" - v34's account and keys (V33_API_KEY), so v31 keeps running
+# as the yardstick and v35 as before; "v31" - v31's account instead; "off".
+# Set in the environment - switching needs no code change.
+V36_REPLACES = os.environ.get("V36_REPLACES", "v34").strip().lower()
+
+
+def account_classes(replaces=None):
+    """The strategy class for each account slot, by the slot's old name."""
+    replaces = V36_REPLACES if replaces is None else replaces
+    return {"v31": V36 if replaces == "v31" else V31,
+            "v32": V32,
+            "v34": V36 if replaces == "v34" else V34,
+            "v35": V35}
+
+
+class V36(V35):
+    """The owner's playbook - see the V36 settings above."""
+
+    name = "v36"
+
+    def __init__(self, broker, data):
+        super().__init__(broker, data)
+        self.crowd = (-1, {})                  # (minute, {symbol: rank})
+        self.crowd_since = {}                  # symbol -> when it entered the top
+
+    def halt_threshold(self) -> float:
+        env = os.getenv("V36_HALT_PCT")
+        if env not in (None, ""):
+            return float(env) / 100.0
+        return Strategy.halt_threshold(self)
+
+    def confirm_tolerance(self) -> float:
+        # RETO, BBD and NVAX were refused over half a cent on 2026-10-05.
+        return max(CONFIRM_TOLERANCE, V36_CONFIRM_TOLERANCE)
+
+    def buy_cap(self, s, price) -> float:
+        """Paying up on a runner: "sometimes I'm almost half a point above
+        what I bought". Safe here because every v36 buy has a rip on real
+        money behind it (V36_MIN_DOLLARS)."""
+        if price <= 0:
+            return BUY_CHASE_CAP
+        return min(V36_PAY_UP_MAX,
+                   max(BUY_CHASE_CAP, V36_PAY_UP_ABR * self.abr(s) / price))
+
+    def float_mult(self, symbol) -> float:
+        return 1.0                             # small floats are what the owner wants
+
+    def entry_shares(self, s, price, worst, stop_ref, eq, kind) -> int:
+        """EASE IN: a tenth of a full position (V36_POSITION_PCT of equity) -
+        a shakeout costs little, and the next buy is cheap too. add_step()
+        takes it to the full position once the stock is moving."""
+        held_all = sum(x.shares * (x.last_price or price)
+                       for x in self.open_positions())
+        room = max(0.0, eq * MAX_EXPOSURE_PCT - held_all)
+        dollars = min(eq * V36_POSITION_PCT * V36_STARTER, room)
+        return int(dollars / worst)
+
+    # ---- where the crowd is ---------------------------------------------------
+
+    def crowd_rank(self, symbol) -> int:
+        """1 for the scanner-list name with the biggest share of the dollars
+        traded in the last V36_CROWD_MINUTES, 2 for the next... Recounted once
+        a minute; a name entering the top V36_CROWD_TOP is stamped, so a name
+        must HOLD there (in_crowd) - two names sharing the crowd swap the top
+        spot minute to minute."""
+        minute = int(time.time() // 60)
+        if self.crowd[0] != minute:
+            since = datetime.now(timezone.utc) - timedelta(minutes=V36_CROWD_MINUTES)
+            dv = {}
+            for sym in self.qualified:
+                st = self.state.get(sym)
+                if st and st.bars:
+                    d = sum(b.c * b.v for b in st.bars if b.ts >= since)
+                    if d > 0:
+                        dv[sym] = d
+            order = sorted(dv, key=dv.get, reverse=True)
+            ranks = {sym: i + 1 for i, sym in enumerate(order)}
+            top = {sym for sym, r in ranks.items() if r <= V36_CROWD_TOP}
+            now = time.time()
+            for sym in list(self.crowd_since):
+                if sym not in top:
+                    del self.crowd_since[sym]
+            for sym in top:
+                self.crowd_since.setdefault(sym, now)
+            self.crowd = (minute, ranks)
+        return self.crowd[1].get(symbol, 10**6)
+
+    def in_crowd(self, s) -> bool:
+        if self.crowd_rank(s.symbol) > V36_CROWD_TOP:
+            return False
+        since = self.crowd_since.get(s.symbol)
+        return since is not None and time.time() - since >= V36_CROWD_HOLD_MIN * 60
+
+    async def quote_the_crowd(self):
+        """The tape needs the bid and ask BEFORE a buy, not after: until now
+        quotes streamed only for names held, so a name about to be bought was
+        marked by up/down ticks ("0% by quote" at almost every buy, 10-05)."""
+        watch = getattr(self.data, "watch_quotes", None)
+        if watch is None or not self.crowd_since:
+            return
+        try:
+            await watch(list(self.crowd_since))
+        except Exception as e:
+            self.log.warning("[v36] quotes for the crowd: %s", e)
+
+    # ---- the rip --------------------------------------------------------------
+
+    @staticmethod
+    def wick_ok(b) -> bool:
+        rng = b.h - b.l
+        return rng <= 0 or b.h - max(b.o, b.c) <= V36_WICK_MAX * rng
+
+    @staticmethod
+    def vol_base(bars, k) -> float:
+        base = bars[max(0, k - V36_RIP_BEFORE):k]
+        return sum(x.v for x in base) / len(base) if len(base) >= 2 else 0.0
+
+    def rip_at(self, bars, j) -> bool:
+        """bars[j] ends a rip: green, no long upper wick, on real money, and
+        either the second of two greens adding V36_RIP_PCT on rising volume,
+        or one green adding V36_RIP_ONE_PCT - each on V36_RIP_VOL_MULT x the
+        minutes before."""
+        b = bars[j]
+        if not b.green or not self.wick_ok(b) or b.c * b.v < V36_MIN_DOLLARS:
+            return False
+        a = bars[j - 1] if j >= 1 else None
+        if (a is not None and a.green and b.v > a.v and a.c * a.v >= V36_MIN_DOLLARS
+                and a.o > 0 and b.c >= a.o * (1 + V36_RIP_PCT)):
+            avg = self.vol_base(bars, j - 1)
+            if avg > 0 and min(a.v, b.v) >= V36_RIP_VOL_MULT * avg:
+                return True
+        if V36_RIP_ONE_PCT and b.o > 0 and b.c >= b.o * (1 + V36_RIP_ONE_PCT):
+            avg = self.vol_base(bars, j)
+            return avg > 0 and b.v >= V36_RIP_VOL_MULT * avg
+        return False
+
+    def rip(self, s):
+        """The index in s.bars of the latest rip's last candle within the last
+        V36_RIP_FRESH_MIN closed candles, or None."""
+        n = len(s.bars)
+        for j in range(n - 1, max(-1, n - 1 - V36_RIP_FRESH_MIN), -1):
+            if self.rip_at(s.bars, j):
+                return j
+        return None
+
+    def tape_ok(self, s) -> bool:
+        """The owner: "at least sixty green, and no more than forty red".
+        V36_TAPE_GREEN = 0 turns the check off - the replay has no real tape."""
+        if not V36_TAPE_GREEN:
+            return True
+        buy, sell, _, total, _ = self.tape_split(s, V36_TAPE_SECONDS)
+        return total > 0 and buy >= V36_TAPE_GREEN * total \
+            and sell <= V36_TAPE_RED * total
+
+    # ---- the buy --------------------------------------------------------------
+
+    def pullback_after(self, s, j):
+        """The green-red pattern after the rip: the last closed candles red,
+        the green before them at or after the rip's last candle. Returns
+        (trigger 1c over the last red's open, stop at the reds' low, kind)."""
+        bars = s.bars
+        if not bars or not bars[-1].red:
+            return None
+        i = len(bars) - 1
+        while i >= 0 and bars[i].red:
+            i -= 1
+        if i < j or not bars[i].green:
+            return None
+        reds = bars[i + 1:]
+        return reds[-1].o + V31_ENTRY_TICK, min(b.l for b in reds), "setup"
+
+    def breaking_high(self, s, price):
+        """The high of the day breaking with green candles stacking on rising
+        volume: the last two closed candles green, the second on more volume,
+        both on real money. Stop at the last green's low."""
+        bars = s.bars
+        if len(bars) < 2 or not s.hod_closed:
+            return None
+        a, b = bars[-2], bars[-1]
+        if not (a.green and b.green and b.v > a.v and self.wick_ok(b)):
+            return None
+        if min(a.c * a.v, b.c * b.v) < V36_MIN_DOLLARS:
+            return None
+        level = max(s.hod_closed, s.v35_peak) + margin_for(price)
+        return level, b.l, "hod"
+
+    async def maybe_enter(self, s, price, fast, base):
+        if not entries_allowed():
+            return
+        if s.symbol not in self.qualified:      # the scanner: $1-$20, up 10%+
+            return
+        if not self.price_ok(s, price):
+            return
+        if len(self.open_positions()) >= V36_MAX_POSITIONS:
+            return
+        if s.v36_entries >= V36_MAX_ENTRIES:
+            return
+        if len(s.bars) <= s.v36_bars_at_entry:
+            return                              # one buy a minute: no churn
+        if V36_MAX_FLOAT and FLOATS.get(s.symbol, 0) > V36_MAX_FLOAT:
+            return
+        if not self.in_crowd(s):
+            return
+        await self.quote_the_crowd()
+        j = self.rip(s)
+        if j is None:
+            return
+        found = self.pullback_after(s, j) or self.breaking_high(s, price)
+        if not found or price < found[0]:
+            return
+        trigger, stop_ref, kind = found
+        if not self.trend_ok(s, price) or not s.ema12 > s.ema26:
+            return
+        if not self.tape_ok(s):
+            return
+        # ROOM TO RUN: the next wall overhead - the prior day's high - at
+        # least V35_ROOM_RR times what the stop risks.
+        risk = trigger - min(stop_ref, trigger * (1 - MIN_STOP_PCT))
+        if (V35_ROOM_RR and s.prev_high > trigger
+                and s.prev_high - trigger < V35_ROOM_RR * risk):
+            return
+        lock = self.lock(s.symbol)
+        if lock.locked():
+            return
+        async with lock:
+            if s.in_position:
+                return
+            s.v36_adds = 0
+            s.ten_break = False
+            s.setup_level = trigger
+            await self._maybe_enter_inner(s, price, fast, base, kind, trigger,
+                                          stop_ref)
+            if s.in_position:
+                s.v36_entries += 1
+                s.v36_bars_at_entry = len(s.bars)
+                s.v36_first = s.entry
+                self.log.info("[v36] %s STARTER %d shares (a tenth of a full "
+                              "position), buy %d today - adds once it is up "
+                              "%s on a new high", s.symbol, s.shares,
+                              s.v36_entries, " / ".join(
+                                  "%.0f%%" % (100 * at) for at, _ in V36_ADD_STEPS))
+
+    async def add_step(self, s, price, to_fraction):
+        """Keep adding as the stock moves: to `to_fraction` of a full position
+        (V36_POSITION_PCT of equity). The floor rises to what the starter
+        paid, and the short leash starts watching from here."""
+        async with self.lock(s.symbol):
+            if not s.in_position:
+                return
+            s.v36_adds += 1
+            eq = await self.broker.equity(self.day_start_equity)
+            cap = self.buy_cap(s, price)
+            worst = price * (1 + cap)
+            held_all = sum(x.shares * (x.last_price or price)
+                           for x in self.open_positions())
+            room = max(0.0, eq * MAX_EXPOSURE_PCT - held_all)
+            want = max(0.0, eq * V36_POSITION_PCT * to_fraction - s.shares * price)
+            shares = int(min(want, room) / worst)
+            if shares * price < MIN_TRADE_DOLLARS:
+                return
+            filled = await self.buy(s.symbol, shares, price, cap)
+            if filled:
+                s.shares += filled
+                s.entry = await self.broker.avg_entry(s.symbol) or s.entry
+                s.stop = max(s.stop, s.entry if V36_FLOOR_AVG else s.v36_first)
+                s.ten_break = False
+                s.v36_leash_from = time.time()
+                self.log.info("[v36] %s ADD to %.0f%% of a full position: +%d @ "
+                              "%.4f -> %d shares, entry %.4f, floor %.4f (what the "
+                              "starter paid)", s.symbol, 100 * to_fraction, filled,
+                              price, s.shares, s.entry, s.stop)
+
+    # ---- the exit -------------------------------------------------------------
+
+    def offer_tick(self, symbol, price, size, conds=(), ts=0.0):
+        if qualifies(conds):
+            try:
+                self.ten_add(self.st(symbol), price, ts or time.time())
+            except Exception as e:
+                self.log.error("[v36] 10s candle %s: %s", symbol, e)
+        super().offer_tick(symbol, price, size, conds, ts)
+
+    def ten_add(self, s, price, t):
+        bucket = int(t // V36_TEN_SEC)
+        if s.ten and s.ten[0] == bucket:
+            _, o, h, l, _ = s.ten
+            s.ten = (bucket, o, max(h, price), min(l, price), price)
+            return
+        if s.ten:
+            s.tens.append(s.ten)
+            self.ten_check(s)
+        s.ten = (bucket, price, price, price, price)
+
+    def ten_check(self, s):
+        """THE SHORT LEASH, once the position has been added to: a 10-second
+        candle that opened after the last add (and its grace) and closed red,
+        under the lows of the two before it. A small red patch inside a strong
+        run does not do it - "you hold up through that little bout". The
+        starter alone has only the red's low under it."""
+        if not (s.in_position and s.v36_adds and s.v36_leash_from) or len(s.tens) < 3:
+            return
+        bucket, o, _, _, c = s.tens[-1]
+        if bucket * V36_TEN_SEC < s.v36_leash_from + V36_TEN_GRACE:
+            return
+        if c < o and c < min(s.tens[-2][3], s.tens[-3][3]):
+            s.ten_break = True
+
+    async def evaluate(self, s, price):
+        if await self.halted():
+            if s.in_position:
+                await self.exit(s, "halted")
+            return
+        if not s.in_position:
+            await self.maybe_enter(s, price, self.fast_speed(s), self.baseline(s))
+            return
+        new_high = price >= s.peak
+        s.peak = max(s.peak, price)
+        s.v35_peak = max(s.v35_peak, price)
+        if s.entry and s.peak >= s.entry * (1 + V36_LEASH_AT):
+            s.armed = True
+        if s.stop and price <= s.stop:
+            await self.exit(s, "stop")
+            return
+        if s.armed:
+            dist = V36_LEASH_ABR * self.abr(s)
+            dist = min(max(dist, V31_TRAIL_MIN_PCT * s.peak),
+                       V31_TRAIL_MAX_PCT * s.peak)
+            s.trail_stop = max(s.trail_stop, s.peak - dist)
+            if price <= s.trail_stop:
+                await self.exit(s, "trail")
+                return
+        elif s.ten_break and s.v36_adds:
+            await self.exit(s, "10s")
+            return
+        if s.v36_adds < len(V36_ADD_STEPS) and s.v36_first and new_high:
+            at, to_fraction = V36_ADD_STEPS[s.v36_adds]
+            if price >= s.v36_first * (1 + at) and self.tape_ok(s):
+                await self.add_step(s, price, to_fraction)
+
+
 class Engine:
 
     def __init__(self):
@@ -3663,12 +4088,14 @@ class Engine:
         self.assets_client = TradingClient(key, secret, paper=self.paper)
 
         self.strategies = []
-        self.add_strategy(V31, key, secret)
-        self.add_strategy(V32, os.environ.get("V32_API_KEY"),
+        # v36, the owner's playbook, takes one account's slot (V36_REPLACES).
+        slots = account_classes()
+        self.add_strategy(slots["v31"], key, secret)
+        self.add_strategy(slots["v32"], os.environ.get("V32_API_KEY"),
                           os.environ.get("V32_SECRET_KEY"))
-        self.add_strategy(V34, os.environ.get("V33_API_KEY"),
+        self.add_strategy(slots["v34"], os.environ.get("V33_API_KEY"),
                           os.environ.get("V33_SECRET_KEY"))
-        self.add_strategy(V35, os.environ.get("V35_API_KEY"),
+        self.add_strategy(slots["v35"], os.environ.get("V35_API_KEY"),
                           os.environ.get("V35_SECRET_KEY"))
 
         for strat in self.strategies:
