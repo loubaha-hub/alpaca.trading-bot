@@ -27,6 +27,11 @@ Updated 2026-10-06, 10:25am ET.
 ## Waiting on the owner
 0. v37 speed rule (0.1+): held off by the owner until "up 3%" has a big
    enough live sample; the branch logs the speed on every buy (not live yet).
+0b. v37 score (V37_SCORE_MIN, off on the branch): minimum 12 is the best
+   replayed version and the only one profitable at live-like fill costs
+   (see journal 10-06). Release = the owner's call, after 8pm. Also on the
+   branch, not live: the restart restores today's buys (v36, v37); every
+   v37 buy logs speed and score.
 1. "Half the gain" on tiny gains (25 of today's exits under 1%): the owner
    keeps the exits as they are for now (10-06) - small cuts, the big runs
    pay for them; watch whether big live winners show up. A grace after the

@@ -32,6 +32,19 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 - Also built: V37_STEADY_PAY (pay at most 0.5% over unless ripping), and a
   restart reads today's buys back from the broker (APUS 11:33/11:36 had
   skipped their confirmation candles after the 10:21 release).
+- Fill cost decides (6 days): today's rules +$4,002 at fills 0.2% worse,
+  +$2,110 at 0.5%, -$48 at 1% (about live today: sales 0.4-1.9% under the
+  trigger). The median trade is +0.15%; 102 of 112 make under 2%; ~10 big
+  runs carry it.
+- Score at 15 points (speed 1/2/4, price-move guard 3%): minimum 7-10
+  barely filters (most buys score 9+). Minimum 12: 72 trades, 75% won,
+  +$3,132, worst day +0.6% at 0.2%; +$308, worst day -1.9%, worst trade
+  -$135 at 1% (today's rules -$48, -3.1%, -$246) - the only version
+  profitable at live-like costs. 13 about the same; furious override +1
+  trade. Exits: "half the gain" only after +2%/+3% is far worse at both
+  costs (-$2,821 / -$4,788 at 1%), the 15s grace too - the owner's tight
+  exits are right. Next lever: what each fill costs (measure live).
+- Waiting on the owner: switch v37 to score 12 (release after 8pm).
 
 ### Round-trip runners, 90 days (the owner's request)
 - The owner: which stocks ran up and came back down to about where they
