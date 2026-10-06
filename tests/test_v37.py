@@ -63,7 +63,7 @@ def test_buys_a_starter_the_moment_it_rips(v37, clock, now, broker):
     tick(v37, s, now, 10.36)
     assert s.in_position
     assert s.shares * s.entry == pytest.approx(
-        broker.eq * bot.V37_POSITION_PCT * bot.V37_STARTER, rel=0.05)
+        broker.eq * bot.V37_SOLO_PCT * bot.V37_STARTER, rel=0.05)
 
 
 def test_never_more_than_2_percent_over_the_price_seen(v37, clock, now, data):
@@ -128,7 +128,7 @@ def test_no_tolerance_for_loss(v37, clock, now):
 def test_adds_to_half_at_10_cents_and_full_at_20(v37, clock, now, broker):
     s = bought(v37, clock, now)
     first = s.v36_first
-    full = broker.eq * bot.V37_POSITION_PCT
+    full = broker.eq * bot.V37_SOLO_PCT
     tick(v37, s, now, round(first + 0.10, 2))
     assert s.v36_adds == 1
     assert s.shares * first == pytest.approx(0.5 * full, rel=0.05)
@@ -218,3 +218,40 @@ def test_after_an_add_the_stop_follows_the_new_average(v37, clock, now):
     assert s.stop == pytest.approx(s.entry - bot.V37_STOP_CENTS)
     tick(v37, s, now, round(s.entry - 0.03, 2))
     assert not s.in_position
+
+
+# ---- size: 40% alone, 25% each for two --------------------------------------------
+
+def test_alone_a_full_position_is_40_percent(v37, clock, now, broker):
+    s = bought(v37, clock, now)
+    tick(v37, s, now, round(s.v36_first + 0.10, 2))
+    tick(v37, s, now, round(s.v36_first + 0.20, 2))
+    assert s.shares * s.v36_first == pytest.approx(0.40 * broker.eq, rel=0.05)
+
+
+def test_beside_another_a_new_one_is_sized_for_25(v37, clock, now, broker, monkeypatch):
+    monkeypatch.setattr(bot, "V37_CROWD_TOP", 5)
+    a = bought(v37, clock, now)
+    b = ripping(v37, clock, now, symbol="BBBB")
+    v37.crowd = (-1, {})
+    tick(v37, b, now, 10.36)
+    assert b.in_position
+    assert b.shares * b.entry == pytest.approx(0.25 * 0.10 * broker.eq, rel=0.1)
+
+
+def test_when_the_second_proves_itself_the_first_is_trimmed_to_25(v37, clock, now,
+                                                                   broker, monkeypatch):
+    monkeypatch.setattr(bot, "V37_CROWD_TOP", 5)
+    monkeypatch.setattr(bot, "V37_ASK_PLUS", 0.0)
+    a = bought(v37, clock, now)
+    tick(v37, a, now, round(a.v36_first + 0.10, 2))
+    tick(v37, a, now, round(a.v36_first + 0.20, 2))
+    assert a.shares * a.last_price == pytest.approx(0.40 * broker.eq, rel=0.06)
+    b = ripping(v37, clock, now, symbol="BBBB")
+    v37.crowd = (-1, {})
+    tick(v37, b, now, 10.36)
+    assert a.shares * a.last_price > 0.35 * broker.eq        # not trimmed yet
+    tick(v37, b, now, round(b.v36_first + 0.10, 2))           # B proves itself
+    assert b.v36_adds == 1
+    assert a.shares * a.last_price == pytest.approx(0.25 * broker.eq, rel=0.06)
+    assert v37.closed_today[-1][5] == "make-room"
