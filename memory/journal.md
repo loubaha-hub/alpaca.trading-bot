@@ -23,6 +23,11 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   112 stocks, 130 trips; 95 once, 16 twice, OMH 3 times; median run
   +158%; repeat gap median ~16 days. The page opens on doubled, with
   +50% as a switch.
+- How often, 90 days (stocks by number of round trips, +30% / +50% /
+  doubled): 1: 266/183/95; 2: 74/50/16; 3: 27/9/1; 4: 7/5/0; 5: 5/0/0;
+  6: 2/0/0; none 7+. Most repetitive (+30%): LGHL, SKYQ 6; BIYA, ELPW,
+  LBGJ, TRUG, VBIO 5. BIYA, LGHL, TRUG, VBIO lead at every size and
+  each doubled at least once - a possible repeat-runner watch list.
 - Not counted: delisted/OTC names (the owner: ignore them), premarket-only
   spikes. Page: https://claude.ai/artifact/1Qv2hYjpmxZurmTUMPYABD. Data:
   replay/data/daily_listed_2026-07-01_10-05.json; finder and results:
