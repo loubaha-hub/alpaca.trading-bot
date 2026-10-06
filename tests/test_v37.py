@@ -1051,7 +1051,19 @@ def test_a_clean_staircase_scores_high(v37, clock, now):
     s.ema9, s.ema20, s.ema12, s.ema26 = 10.2, 10.1, 10.2, 10.1
     s.vwap_pv, s.vwap_v = 10.0, 1.0
     points, parts = v37.score(s, 10.35)
-    assert points == 11, parts
+    assert points == 11 and "speed 0" in parts, parts         # all but the speed
+    windows(v37, s, now, 10.00, 10_000, 10.35, 20_000)       # +3.5% on double: 0.07
+    assert "speed 0" in v37.score(s, 10.35)[1]
+    windows(v37, s, now, 10.00, 10_000, 10.35, 100_000)      # 3.5% x 10 = 0.35
+    assert v37.score(s, 10.35)[0] == 14
+
+
+def test_a_red_last_candle_is_no_buy(v37, clock, now):
+    """The owner: red is zero - "we are not going to enter there"."""
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    candles(s, STAIRS[:2] + [(10.19, 10.22, 10.10, 10.12, 7_000)])
+    points, why = v37.score(s, 10.25)
+    assert points is None and "red" in why
 
 
 def test_two_thirds_up_with_a_wick_is_still_favourable(v37, clock, now):

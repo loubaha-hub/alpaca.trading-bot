@@ -4445,10 +4445,11 @@ V37_BODY_FADE = 0.50            # ...and its body at least this share of the big
 # is messy". Points for what favours a run, a buy at V37_SCORE_MIN or more.
 # Only a huge top wick on the last candle stops a buy outright ("almost a
 # stop"). A stock ripping skips the score.
-V37_SCORE_MIN = 0               # 0 = off; else the points needed (of 11)
+V37_SCORE_MIN = 0               # 0 = off; else the points needed (of 14)
 V37_SCORE_HUGE_WICK = 0.60      # the last candle's top wick over this share of it:
                                 # no buy
 V37_SCORE_ROOM = 0.05           # resistance: the prior day's high this close above
+V37_SCORE_SPEED = (0.1, 0.2, 0.3)   # the owner's speed: a point at each of these
 V37_STEADY_PAY = 0.0            # >0: a buy may pay at most this share over the price
                                 # seen unless the stock is ripping (the owner: "you
                                 # can do that only if the stock is ripping"); 0 = off
@@ -4646,8 +4647,12 @@ class V37(V36):
         return ""
 
     def score(self, s, price):
-        """V37_SCORE_MIN: how favourable the moment is, out of 11 points,
-        and the parts - or (None, why) for a huge wick on the last candle.
+        """V37_SCORE_MIN: how favourable the moment is, out of 14 points, and
+        the parts - or (None, why) when it is no buy at all: a red last candle
+        (the owner: "zero - we are not going to enter there", until the bots
+        learn bounces off solid support) or a huge top wick on it.
+          speed        3  the owner's speed - price change x volume change over
+                          the last minute - a point at 0.1, 0.2 and 0.3
           last candle  2  green, closed in its top third (1: green, a bigger
                           wick - "two thirds up can still be favourable")
           wicks        1  top wicks not growing 3 candles in a row ("sellers
@@ -4655,20 +4660,25 @@ class V37(V36):
           bodies       1  green bodies not shrinking noticeably 3 in a row
                           (each under 3/4 of the one before; irregular is fine)
           lows         1  at least 2 of the last 3 lows stepping up
-          volume       2  2x normal in each of the last 2 minutes (1: one)
+          volume       2  2x normal in at least 2 of the last 3 minutes - high
+                          and staying high, one dip forgiven (1: in one)
           trend        2  over VWAP (1), over the 9 EMA over the 20 (1)
           MACD         1  the 12 EMA over the 26
           room         1  no prior-day high within V37_SCORE_ROOM above"""
         bars = s.bars
         if len(bars) < 4:
-            return 11, "too few candles to judge"
+            return 14, "too few candles to judge"
         last = bars[-1]
+        if not last.green:
+            return None, "the last candle closed red"
         rng = last.h - last.l
-        wick = (last.h - max(last.o, last.c)) / rng if rng > 0 else 0.0
+        wick = (last.h - last.c) / rng if rng > 0 else 0.0
         if wick > V37_SCORE_HUGE_WICK:
             return None, "a huge top wick on the last candle (%.0f%% of it)" % (100 * wick)
         parts = {}
-        parts["candle"] = (2 if wick <= 1 / 3 else 1) if last.green else 0
+        spd = self.speed(s, price)
+        parts["speed"] = sum(1 for t in V37_SCORE_SPEED if spd >= t)
+        parts["candle"] = 2 if wick <= 1 / 3 else 1
         def top_wick(b):
             r = b.h - b.l
             return (b.h - max(b.o, b.c)) / r if r > 0 else 0.0
@@ -4681,8 +4691,8 @@ class V37(V36):
         steps = sum(1 for k in (1, 2, 3) if bars[-k].l >= bars[-k - 1].l)
         parts["lows"] = 1 if steps >= 2 else 0
         normal = statistics.median(b.v for b in bars[-30:])
-        busy = sum(1 for b in bars[-2:] if normal and b.v >= 2 * normal)
-        parts["volume"] = busy
+        busy = sum(1 for b in bars[-3:] if normal and b.v >= 2 * normal)
+        parts["volume"] = min(2, busy)
         vwap = self.vwap(s)
         parts["trend"] = (1 if vwap and price > vwap else 0) + (
             1 if s.ema9 and price > s.ema9 > s.ema20 else 0)
@@ -4848,7 +4858,7 @@ class V37(V36):
         if not why and V37_SCORE_MIN and not self.ripping(s):
             points, parts = self.score(s, price)
             if points is None or points < V37_SCORE_MIN:
-                why = "score %s/11 under %d: %s" % (points, V37_SCORE_MIN, parts) \
+                why = "score %s/14 under %d: %s" % (points, V37_SCORE_MIN, parts) \
                     if points is not None else parts
         if why:                                 # it spiked, it is not running
             if time.time() - s.v37_skip_logged >= 30:
