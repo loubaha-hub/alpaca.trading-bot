@@ -5,6 +5,19 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-06
 
+### v36 retest: what helps it (7 days incl. 10-06, tape check off)
+- Where v36 loses (replay): 84 of 153 trades never reached the first add,
+  -$1,718, stopped at a median -4.6% (the pullback's low, up to 9% away);
+  the 69 that added made +$3,635 (scratches at the average -0.5%, 9 trail
+  winners +$4,492) - the add/floor works, the failed starters cost.
+- Fills 0.2% / 1% worse: tomorrow's v36 (r34.12) +$1,540 / -$985;
+  first stop capped at 3%: +$2,186 / -$279 (worst trade -$39 vs -$102);
+  at 4%: +$2,000 / -$462; wick veto 60%: +$1,618 / -$781; 50%: worse
+  (+$1,137 / -$1,055); 60% + 3% cap: +$2,272 / -$78 (best; 10-06 alone
+  -$347 -> -$160); fresh exits: identical (the replay has no lag) - no harm.
+- The cap holds across 3% and 4%; the wick veto only at 60% (fragile).
+  Proposal: cap 3% + fresh exits for v36, wick veto 60% optional.
+
 ### v36 replayed, 6 days (tape check off - the replay has no real tape)
 - Live v36 as it is: 153 trades, 7% won; +$1,917 at fills 0.2% worse
   (+$1,989 of it on 10-05, SAIQ +$2,521), -$70 at 1% worse. 143 trades
