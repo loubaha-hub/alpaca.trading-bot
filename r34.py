@@ -4256,7 +4256,11 @@ V37_VOL_REL = 3.0               # high: the last 60 seconds' shares at least thi
                                 # last 30 closed minutes) - the playbook's 3-5x
 V37_VOL_FADE = 0.5              # not fading: the last 60 seconds' shares at least
                                 # this share of the busiest of its last 5 closed
-                                # minutes
+                                # minutes...
+V37_VOL_PRICE = True            # ...or less volume but the price moving FASTER: the
+                                # last 60 seconds up at least as much as that busiest
+                                # minute was. The owner: less volume and a faster
+                                # price is the buyers winning the tug of war.
 V37_VOL_EXIT = 0.0              # out once the last 60 seconds' shares fall under
                                 # this share of what they were at the buy (0 = off)
 V37_MAX_POSITIONS = 2
@@ -4313,7 +4317,15 @@ class V37(V36):
         normal = statistics.median(vols)
         if pace < V37_VOL_REL * normal:
             return False
-        return pace >= V37_VOL_FADE * max(vols[-5:])
+        if pace >= V37_VOL_FADE * max(vols[-5:]):
+            return True
+        if not V37_VOL_PRICE or not s.v37_prints:
+            return False
+        busiest = max(s.bars[-5:], key=lambda b: b.v)
+        then = busiest.c / busiest.o - 1 if busiest.o > 0 else 0.0
+        first = s.v37_prints[0][1]
+        now = s.last_price / first - 1 if first > 0 else 0.0
+        return now > 0 and now >= then
 
     def fresh(self, s) -> bool:
         """The print being decided on traded within V37_FRESH_SECONDS (a

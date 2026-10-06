@@ -473,15 +473,6 @@ def test_a_runner_on_10x_8x_7x_its_normal_volume_still_buys(v37, clock, now,
     assert s.in_position
 
 
-def test_no_buy_when_the_volume_has_fallen_off(v37, clock, now, volume_rule):
-    """IPDN 8:13am 2026-10-06: 242k after a 497k minute, the stock flat."""
-    normal = [10_000] * 25
-    s = minutes(v37, clock, now, normal + [10_000, 10_000, 100_000, 80_000, 60_000],
-                size=1_500)                               # 45k now: under half of 100k
-    tick(v37, s, now, 10.36)
-    assert not s.in_position
-
-
 def test_no_buy_on_volume_that_is_normal_for_the_stock(v37, clock, now, volume_rule):
     s = minutes(v37, clock, now, [100_000] * 30, size=5_000)   # 150k: 1.5x normal
     tick(v37, s, now, 10.36)
@@ -498,3 +489,39 @@ def test_out_when_the_volume_dries_up(v37, clock, now, volume_rule, monkeypatch)
     tick(v37, s, now, 10.37, size=100)
     assert not s.in_position
     assert v37.closed_today[-1][5] == "volume-gone"
+
+
+def test_less_volume_but_a_faster_price_still_buys(v37, clock, now, volume_rule):
+    """The owner, 2026-10-06: the last candle on less volume than the first
+    two, but the price going up faster - the buyers are winning: buy."""
+    normal = [10_000] * 25
+    utc = clock.now.astimezone(bot.timezone.utc)
+    feed_bars(v37, "ABCD", utc, [(10.0, 10.05, 9.95, 10.0, v) for v in normal]
+              + [(10.0, 10.05, 9.95, 10.0, 10_000), (10.0, 10.05, 9.95, 10.0, 10_000),
+                 (9.70, 9.85, 9.70, 9.80, 100_000),       # +1% on 100k
+                 (9.80, 9.95, 9.80, 9.90, 80_000),
+                 (9.90, 10.00, 9.90, 9.99, 70_000)])
+    v37.qualified.add("ABCD")
+    s = v37.st("ABCD")
+    prints(v37, s, now, 10.00, 10.35, size=1_500)         # 45k: under half of 100k,
+    s.day_high = 10.05                                    # but +3.5% in a minute
+    tick(v37, s, now, 10.36)
+    assert s.in_position
+
+
+def test_less_volume_and_a_price_that_stalls_does_not_buy(v37, clock, now,
+                                                          volume_rule):
+    """IPDN 8:13am 2026-10-06: 242k after 497k, a red candle - no buy."""
+    normal = [10_000] * 25
+    utc = clock.now.astimezone(bot.timezone.utc)
+    feed_bars(v37, "ABCD", utc, [(10.0, 10.05, 9.95, 10.0, v) for v in normal]
+              + [(10.0, 10.05, 9.95, 10.0, 10_000), (10.0, 10.05, 9.95, 10.0, 10_000),
+                 (9.00, 10.00, 9.00, 9.95, 100_000),      # +10.6% on 100k
+                 (9.95, 10.00, 9.90, 9.98, 80_000),
+                 (9.98, 10.00, 9.95, 9.99, 70_000)])
+    v37.qualified.add("ABCD")
+    s = v37.st("ABCD")
+    prints(v37, s, now, 10.00, 10.35, size=1_500)         # 45k, +3.5%: slower
+    s.day_high = 10.05
+    tick(v37, s, now, 10.36)
+    assert not s.in_position
