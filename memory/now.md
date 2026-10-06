@@ -50,6 +50,9 @@ Updated 2026-10-06, 10:25am ET.
   high now is.
 - v31/v34/v35 audit (10-06): their price queue overflowed at the open
   (20,000 waiting, 41,007 dropped on 10-05 at 9:33) - not fixed for them.
+- Multi-day runners (the owner, 10-06: biotech on news, up to 1000%): no
+  buys over $20 (PRICE_MAX); V31_FOLLOW_ABOVE_MAX (off) would let a name
+  already on the day's list be followed above it - the owner's call.
 - Later: the 3-month runs list (Massive data), fill-quality measurement,
   sell into strength, Level 2 via Webull, news, Chinese-stock early exit,
   half-dollar levels.
