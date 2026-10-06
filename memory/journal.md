@@ -18,6 +18,11 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   or 12 -> -$555 / -$232 at 0.2%. They block the runners (SAIQ) and the
   stop-outs stay. Proposal: keep both off for v36; look at v36's EXIT next
   (93% of its trades end on the stop).
+- Owner decision (~4:45pm): v36 stays simple, as it ran this afternoon -
+  the score and the first-two-buys rule stay OFF (built, branch only); only
+  the APUS add fix goes in. v37 keeps all of today's improvements (score
+  12). Both run tomorrow from the open. Release r34.12 built (worktree
+  release9, 467 tests): r34.11 + the v36 add fix; waits on the owner's OK.
 
 ### Real money: where it is, and the day-trading rule
 - The owner: the money for live trading is at Webull, not Alpaca. The bot

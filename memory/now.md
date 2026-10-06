@@ -34,6 +34,8 @@ Updated 2026-10-06, 10:25am ET.
 ## Waiting on the owner
 0. v37 speed rule (0.1+): held off by the owner until "up 3%" has a big
    enough live sample; the branch logs the speed on every buy (not live yet).
+0a. Release r34.12 (r34.11 + v36's add fix; v36 score and first-two-buys
+   rule stay off): built, waits on the owner's OK - after 8pm or when flat.
 0b. Watch v37 on score 12 live: trades, win rate, the score and speed of
    each buy (ENTER lines); compare with the replay (75% won at 0.2%).
 1. "Half the gain" on tiny gains (25 of today's exits under 1%): the owner
