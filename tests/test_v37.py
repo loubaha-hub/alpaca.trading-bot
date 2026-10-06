@@ -607,11 +607,11 @@ def test_extraordinary_volume_does_not_wait(v37, clock, now, monkeypatch):
     assert s.in_position
 
 
-def test_a_break_after_15_minutes_sideways_waits(v37, clock, now):
+def test_a_break_after_5_minutes_sideways_waits(v37, clock, now):
     """IPDN 8:21-8:35am 2026-10-06: under 6.97 for 15 minutes, then through
     it on volume it had already traded twice - "I would not have traded that"."""
     s = crowd(v37, clock, "ABCD", 1_000_000)
-    s.v37_high_ts = now[0] - 1_000                        # the last high: 16+ min ago
+    s.v37_high_ts = now[0] - 400                          # the last high: 6+ min ago
     prints(v37, s, now, 10.00, 10.35)
     s.day_high = max(s.day_high, 10.05)
     assert s.v37_old_high == 10.05                        # the sideways ceiling
@@ -625,3 +625,25 @@ def test_a_break_after_15_minutes_sideways_waits(v37, clock, now):
 def test_a_fresh_run_does_not_wait(v37, clock, now):
     s = bought(v37, clock, now)                           # the first buy, mid-run
     assert s.in_position
+
+
+def test_4_minutes_sideways_is_still_a_fresh_run(v37, clock, now):
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    s.v37_high_ts = now[0] - 240
+    prints(v37, s, now, 10.00, 10.35)
+    s.day_high = max(s.day_high, 10.05)
+    tick(v37, s, now, 10.36)
+    assert s.in_position
+
+
+def test_a_red_candle_over_the_old_high_does_not_confirm(v37, clock, now,
+                                                         monkeypatch):
+    """"The price still going up": the confirming candle closes green."""
+    monkeypatch.setattr(v37, "fast", lambda s, p: True)
+    s = bought(v37, clock, now)
+    tick(v37, s, now, 10.30)
+    old = s.v37_old_high
+    utc = clock.now.astimezone(bot.timezone.utc)
+    feed_bars(v37, "ABCD", utc, [(old + 0.10, old + 0.12, old + 0.01, old + 0.03, 50_000)])
+    tick(v37, s, now, round(s.day_high + 0.01, 2))
+    assert not s.in_position

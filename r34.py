@@ -4283,11 +4283,13 @@ V37_MAX_ENTRIES = 0             # buys per name per day; 0 = no limit (the owner
 # before confirmation"). A break must be confirmed when it is a RE-BUY (the
 # old high: the high of the day at the last sale) or comes after
 # V37_SIDEWAYS_SECONDS without a new high (the old high: that ceiling):
-# the last V37_CONFIRM_BARS closed 1-minute candles all closed above the old
-# high, then a buy on a new high. A fresh run, or EXTRAORDINARY volume (the
+# the last V37_CONFIRM_BARS closed 1-minute candles all closed GREEN above the
+# old high ("the price still going up"), then a buy on a new high. The
+# owner, a minute later: 15 minutes is too long - "after five minutes going
+# sideways... I would have waited for one more candle and entered". A fresh run, or EXTRAORDINARY volume (the
 # last 60 seconds more than any minute of the last 30), buys at once.
 V37_CONFIRM_BARS = 1            # 0 = off
-V37_SIDEWAYS_SECONDS = 900
+V37_SIDEWAYS_SECONDS = 300
 V37_EXTRAORDINARY = True
 V37_ODD_LOT_HIGH = True         # odd lots raise the high of the day (never trigger)
 V37_FRESH_SECONDS = 2.0         # buy and add only on a print that traded this
@@ -4365,7 +4367,7 @@ class V37(V36):
             return True
         recent = s.bars[-V37_CONFIRM_BARS:]
         return (len(recent) == V37_CONFIRM_BARS
-                and all(b.c > s.v37_old_high for b in recent))
+                and all(b.green and b.c > s.v37_old_high for b in recent))
 
     def pace(self, s) -> float:
         """Shares traded in the last V37_FAST_SECONDS (by when they traded)."""
