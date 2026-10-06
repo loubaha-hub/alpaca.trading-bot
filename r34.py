@@ -3899,7 +3899,7 @@ class _Restore:
             if d["sold"] and not s.in_position:
                 await self.restore_sale(s, *d["sold"])
         if seen:
-            self.log.info("restored from today's orders: %s", ", ".join(
+            self.log.info("[%s] restored from today's orders: %s", self.name, ", ".join(
                 "%s %d buy(s)%s" % (sym, d["buys"], " last sold %s at %.4f" % (
                     datetime.fromtimestamp(d["sold"][0], ET).strftime("%H:%M:%S"),
                     d["sold"][1]) if d["sold"] else "")
