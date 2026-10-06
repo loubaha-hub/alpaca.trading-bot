@@ -161,6 +161,18 @@ def test_again_only_at_a_new_high_of_the_day(v37, clock, now):
     assert s.in_position
 
 
+def test_no_daily_limit_on_buys(v37, clock, now):
+    """The owner, 2026-10-06: no limit on buys per stock per day - 10 a day
+    locked v37 out of AIXI's and SDEV's second legs."""
+    s = bought(v37, clock, now)
+    s.v36_entries = 50
+    tick(v37, s, now, 10.30)                              # stopped out
+    assert not s.in_position
+    tick(v37, s, now, round(s.day_high + 0.01, 2))        # through the high
+    assert s.in_position
+    assert s.v36_entries == 51
+
+
 def test_no_more_than_two_at_once(v37, clock, now, monkeypatch):
     monkeypatch.setattr(bot, "V37_CROWD_TOP", 5)          # all three in the crowd
     for sym in ("AAA", "BBB", "CCC"):

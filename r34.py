@@ -125,7 +125,7 @@ RISK_CHECK_SECONDS = 5                      # the halt runs on a CLOCK, not tick
 # The file name and this string are changed together, every single time. The
 # log then answers "which code is actually running?" without anyone guessing
 # from line numbers or from behaviour that only shows up once a trade is on.
-VERSION = "v31-r34.6"
+VERSION = "v31-r34.7"
 
 # WHERE THE DAY'S HALT BASELINE COMES FROM.
 #   "last_equity" - equity at the PREVIOUS session's close, read from the broker.
@@ -4230,7 +4230,9 @@ V37_ADD2_TO = 1.00
 V37_STOP_CENTS = 0.02           # no tolerance for loss: this far under the buy, out
 V37_GIVEBACK = 0.50             # this share of the best gain given back: out
 V37_MAX_POSITIONS = 2
-V37_MAX_ENTRIES = 10            # buys per name per day - each one small (?)
+V37_MAX_ENTRIES = 0             # buys per name per day; 0 = no limit (the owner,
+                                # 2026-10-06: the 10-buy limit locked v37 out of
+                                # AIXI and SDEV before their second legs)
 
 
 class V37(V36):
@@ -4295,7 +4297,7 @@ class V37(V36):
             return
         if len(self.open_positions()) >= V37_MAX_POSITIONS:
             return
-        if s.v36_entries >= V37_MAX_ENTRIES:
+        if V37_MAX_ENTRIES and s.v36_entries >= V37_MAX_ENTRIES:
             return
         if s.traded_today and price < s.day_high:
             return                              # again only at a new high of the day
