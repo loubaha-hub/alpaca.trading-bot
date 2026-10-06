@@ -1236,9 +1236,12 @@ class SymState:
     v35_starter: float = 0.0
     v35_peak: float = 0.0            # v35: the highest price seen while holding, today
     v36_entries: int = 0             # v36: buys of this name today
-    v36_bars_at_entry: int = -1      # v36: len(bars) at the last buy - one buy a minute
+    v36_entry_bar_ts: object = None  # v36: the last closed candle at the last buy -
+                                     # one buy a minute (by time: bars are capped at 400)
+    v36_rip_ts: object = None        # v36: the latest rip's last candle (its start time)
+    v36_rip_base: float = 0.0        # v36: the average minute's volume before that rip
     v36_first: float = 0.0           # v36: what the starter paid
-    v36_adds: int = 0                # v36: adds made to this position (V36_ADD_STEPS)
+    v36_adds: int = 0                # v36: adds made to this position (V36_ADD1_*, V36_ADD2_*)
     v36_leash_from: float = 0.0      # v36: the short leash watches candles from here
     ten: tuple = ()                  # v36: the 10-second candle in progress
                                      # (bucket, open, high, low, close)
@@ -3680,7 +3683,8 @@ class V35(V31):
 #   READY        a rip: two green minutes adding 5% or more (or one minute of
 #                5%), each on 3x the volume of the minutes before, on real
 #                money - a thin stock is left alone however fast it runs - and
-#                no long upper wick.
+#                no long upper wick. The run stays alive as long as its volume
+#                does - no clock.
 #   THE BUY      after the rip, the green-red pattern (1c over the red's open,
 #                stop at the red's low), or the high of the day breaking with
 #                green candles stacking on rising volume. Above VWAP and the 9
@@ -3689,8 +3693,8 @@ class V35(V31):
 #                running: "that's where the money is made".
 #   SIZE         ease in: a tenth of a full position, so a shakeout costs
 #                little - and the starter gets room: only the red's low takes it
-#                out. Then keep adding as the stock proves it is moving, to half
-#                and to a full position.
+#                out. Then keep adding as the stock proves it is moving: to half
+#                at +15 cents, to a full position at +20 cents.
 #   THE EXIT     once added to, a short leash - out when a 10-second candle
 #                closes red under the lows of the two before it; a long leash
 #                once up 10%; after each add the floor rises to breakeven.
@@ -3707,7 +3711,12 @@ V36_RIP_PCT = 0.05              # two green minutes adding this much
 V36_RIP_ONE_PCT = 0.05          # or one green minute adding this much
 V36_RIP_VOL_MULT = 3.0          # each rip minute on this many times the average
 V36_RIP_BEFORE = 5              # ...of this many minutes before it
-V36_RIP_FRESH_MIN = 15          # a rip older than this many minutes buys nothing
+V36_ALIVE_BARS = 3              # THE RUN IS ALIVE WHILE THE VOLUME IS: the last N
+V36_ALIVE_MULT = 2.0            # minutes trade at this many times the volume before
+                                # the rip. A run lasts 2 minutes or 40 - "what
+                                # dictates that is the volume" (the owner, 10-06).
+V36_PICKUP_MULT = 2.0           # the high of the day breaking: its candle on this
+                                # many times the volume of the 5 minutes before
 V36_WICK_MAX = 0.5              # the rip's last candle: upper wick at most this
                                 # share of its range ("a high retreat")
 V36_TAPE_SECONDS = 30           # the tape window at the buy
@@ -3715,9 +3724,21 @@ V36_TAPE_GREEN = 0.60           # at least this share of shares at the ask
 V36_TAPE_RED = 0.40             # no more than this share at the bid
 V36_POSITION_PCT = 0.25         # a full position: this share of equity
 V36_STARTER = 0.10              # the first buy: this fraction of a full position
-V36_ADD_STEPS = ((0.03, 0.50),  # keep adding as it moves: up this much from the
-                 (0.06, 1.00))  # starter, on a new high with the tape still green,
-                                # to this fraction of a full position
+# KEEP ADDING AS IT MOVES: once up ADD1_AT from the starter, on a new high with
+# the tape still green, to ADD1_TO of a full position; at ADD2_AT, to ADD2_TO.
+# V36_ADD_CENTS: the AT numbers are dollars (0.15 = 15 cents) instead of a
+# share of the price - the owner, 10-06: "3% on a $10 stock is 30 cents
+# before you start adding; by then the run has probably fizzled out".
+# Replayed 09-28..10-05 (fills 0.5% worse; total / the five days without SAIQ):
+#   +3% to half, +6% to full          +$1,717 / -$1,185
+#   +15c to 25%, +20c to 75%          +$1,844 /   +$129
+#   +15c to half, +20c to full        +$2,949 /   +$538   <- the owner's, kept
+#   +1.5% to half, +2% to full          +$787 / -$1,561
+V36_ADD_CENTS = True
+V36_ADD1_AT = 0.15
+V36_ADD1_TO = 0.50
+V36_ADD2_AT = 0.20
+V36_ADD2_TO = 1.00
 V36_FLOOR_AVG = True            # after an add, the floor rises to: True = the
                                 # position's average (breakeven), False = what the
                                 # starter paid. Replayed 09-28..10-05: average
@@ -3850,33 +3871,51 @@ class V36(V35):
         base = bars[max(0, k - V36_RIP_BEFORE):k]
         return sum(x.v for x in base) / len(base) if len(base) >= 2 else 0.0
 
-    def rip_at(self, bars, j) -> bool:
+    def rip_kind(self, bars, j) -> int:
         """bars[j] ends a rip: green, no long upper wick, on real money, and
-        either the second of two greens adding V36_RIP_PCT on rising volume,
-        or one green adding V36_RIP_ONE_PCT - each on V36_RIP_VOL_MULT x the
-        minutes before."""
+        either the second of two greens adding V36_RIP_PCT on rising volume
+        (2), or one green adding V36_RIP_ONE_PCT (1) - each on
+        V36_RIP_VOL_MULT x the minutes before. 0: no rip."""
         b = bars[j]
         if not b.green or not self.wick_ok(b) or b.c * b.v < V36_MIN_DOLLARS:
-            return False
+            return 0
         a = bars[j - 1] if j >= 1 else None
         if (a is not None and a.green and b.v > a.v and a.c * a.v >= V36_MIN_DOLLARS
                 and a.o > 0 and b.c >= a.o * (1 + V36_RIP_PCT)):
             avg = self.vol_base(bars, j - 1)
             if avg > 0 and min(a.v, b.v) >= V36_RIP_VOL_MULT * avg:
-                return True
+                return 2
         if V36_RIP_ONE_PCT and b.o > 0 and b.c >= b.o * (1 + V36_RIP_ONE_PCT):
             avg = self.vol_base(bars, j)
-            return avg > 0 and b.v >= V36_RIP_VOL_MULT * avg
-        return False
+            if avg > 0 and b.v >= V36_RIP_VOL_MULT * avg:
+                return 1
+        return 0
+
+    def offer_bar(self, raw):
+        super().offer_bar(raw)
+        s = self.st(raw.symbol)
+        j = len(s.bars) - 1
+        kind = self.rip_kind(s.bars, j)
+        if kind:
+            s.v36_rip_ts = s.bars[j].ts
+            s.v36_rip_base = self.vol_base(s.bars, j - 1 if kind == 2 else j)
 
     def rip(self, s):
-        """The index in s.bars of the latest rip's last candle within the last
-        V36_RIP_FRESH_MIN closed candles, or None."""
-        n = len(s.bars)
-        for j in range(n - 1, max(-1, n - 1 - V36_RIP_FRESH_MIN), -1):
-            if self.rip_at(s.bars, j):
+        """The index in s.bars of today's latest rip's last candle, or None."""
+        if s.v36_rip_ts is None:
+            return None
+        for j in range(len(s.bars) - 1, -1, -1):
+            if s.bars[j].ts == s.v36_rip_ts:
                 return j
         return None
+
+    def alive(self, s) -> bool:
+        """The run is alive while the volume is: the last V36_ALIVE_BARS
+        minutes at V36_ALIVE_MULT x the volume before the rip. No clock."""
+        recent = s.bars[-V36_ALIVE_BARS:]
+        if not recent or s.v36_rip_base <= 0:
+            return False
+        return sum(b.v for b in recent) / len(recent) >= V36_ALIVE_MULT * s.v36_rip_base
 
     def tape_ok(self, s) -> bool:
         """The owner: "at least sixty green, and no more than forty red".
@@ -3906,8 +3945,9 @@ class V36(V35):
 
     def breaking_high(self, s, price):
         """The high of the day breaking with green candles stacking on rising
-        volume: the last two closed candles green, the second on more volume,
-        both on real money. Stop at the last green's low."""
+        volume: the last two closed candles green, the second on more volume
+        and on V36_PICKUP_MULT x the minutes before, both on real money. Needs
+        no earlier rip - the pick-up is its own. Stop at the last green's low."""
         bars = s.bars
         if len(bars) < 2 or not s.hod_closed:
             return None
@@ -3916,6 +3956,9 @@ class V36(V35):
             return None
         if min(a.c * a.v, b.c * b.v) < V36_MIN_DOLLARS:
             return None
+        base = self.vol_base(bars, len(bars) - 1)
+        if base <= 0 or b.v < V36_PICKUP_MULT * base:
+            return None                         # the volume has to pick up
         level = max(s.hod_closed, s.v35_peak) + margin_for(price)
         return level, b.l, "hod"
 
@@ -3930,17 +3973,20 @@ class V36(V35):
             return
         if s.v36_entries >= V36_MAX_ENTRIES:
             return
-        if len(s.bars) <= s.v36_bars_at_entry:
+        if (s.v36_entry_bar_ts is not None and s.bars
+                and s.bars[-1].ts <= s.v36_entry_bar_ts):
             return                              # one buy a minute: no churn
         if V36_MAX_FLOAT and FLOATS.get(s.symbol, 0) > V36_MAX_FLOAT:
             return
         if not self.in_crowd(s):
             return
         await self.quote_the_crowd()
+        found = None
         j = self.rip(s)
-        if j is None:
-            return
-        found = self.pullback_after(s, j) or self.breaking_high(s, price)
+        if j is not None and self.alive(s):
+            found = self.pullback_after(s, j)
+        if not found:
+            found = self.breaking_high(s, price)
         if not found or price < found[0]:
             return
         trigger, stop_ref, kind = found
@@ -3967,13 +4013,21 @@ class V36(V35):
                                           stop_ref)
             if s.in_position:
                 s.v36_entries += 1
-                s.v36_bars_at_entry = len(s.bars)
+                s.v36_entry_bar_ts = s.bars[-1].ts if s.bars else None
                 s.v36_first = s.entry
                 self.log.info("[v36] %s STARTER %d shares (a tenth of a full "
-                              "position), buy %d today - adds once it is up "
-                              "%s on a new high", s.symbol, s.shares,
-                              s.v36_entries, " / ".join(
-                                  "%.0f%%" % (100 * at) for at, _ in V36_ADD_STEPS))
+                              "position), buy %d today - adds at %.4f and %.4f "
+                              "on a new high", s.symbol, s.shares, s.v36_entries,
+                              self.add_level(s, 0), self.add_level(s, 1))
+
+    @staticmethod
+    def add_steps():
+        return ((V36_ADD1_AT, V36_ADD1_TO), (V36_ADD2_AT, V36_ADD2_TO))
+
+    def add_level(self, s, step) -> float:
+        """The price at which add `step` (0 or 1) comes, from the starter's."""
+        at = self.add_steps()[step][0]
+        return s.v36_first + at if V36_ADD_CENTS else s.v36_first * (1 + at)
 
     async def add_step(self, s, price, to_fraction):
         """Keep adding as the stock moves: to `to_fraction` of a full position
@@ -4067,10 +4121,10 @@ class V36(V35):
         elif s.ten_break and s.v36_adds:
             await self.exit(s, "10s")
             return
-        if s.v36_adds < len(V36_ADD_STEPS) and s.v36_first and new_high:
-            at, to_fraction = V36_ADD_STEPS[s.v36_adds]
-            if price >= s.v36_first * (1 + at) and self.tape_ok(s):
-                await self.add_step(s, price, to_fraction)
+        steps = self.add_steps()
+        if s.v36_adds < len(steps) and s.v36_first and new_high:
+            if price >= self.add_level(s, s.v36_adds) and self.tape_ok(s):
+                await self.add_step(s, price, steps[s.v36_adds][1])
 
 
 class Engine:
