@@ -582,7 +582,10 @@ def test_a_re_buy_waits_for_a_candle_to_close_above_the_old_high(v37, clock, now
     assert old == s.day_high
     tick(v37, s, now, round(old + 0.02, 2))               # through it: not yet
     assert not s.in_position
-    candle(v37, clock, round(old + 0.03, 2))              # a candle closes above it
+    candle(v37, clock, round(old + 0.03, 2))              # one candle closes above it
+    tick(v37, s, now, round(s.day_high + 0.01, 2))
+    assert not s.in_position                              # one is not enough
+    candle(v37, clock, round(s.day_high + 0.02, 2))       # the second
     tick(v37, s, now, round(s.day_high + 0.01, 2))        # and a new high: buy
     assert s.in_position
 
@@ -617,7 +620,8 @@ def test_a_break_after_5_minutes_sideways_waits(v37, clock, now):
     assert s.v37_old_high == 10.05                        # the sideways ceiling
     tick(v37, s, now, 10.36)
     assert not s.in_position
-    candle(v37, clock, 10.37)                             # confirmed
+    candle(v37, clock, 10.37)                             # one candle
+    candle(v37, clock, 10.40)                             # two: confirmed
     tick(v37, s, now, round(s.day_high + 0.01, 2))
     assert s.in_position
 

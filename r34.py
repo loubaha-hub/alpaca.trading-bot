@@ -4288,7 +4288,9 @@ V37_MAX_ENTRIES = 0             # buys per name per day; 0 = no limit (the owner
 # owner, a minute later: 15 minutes is too long - "after five minutes going
 # sideways... I would have waited for one more candle and entered". A fresh run, or EXTRAORDINARY volume (the
 # last 60 seconds more than any minute of the last 30), buys at once.
-V37_CONFIRM_BARS = 1            # 0 = off
+V37_CONFIRM_BARS = 2            # the owner, 2026-10-06: "I will give it two
+                                # confirmations... after the second, third, fourth
+                                # run you have to be careful". 0 = off
 V37_SIDEWAYS_SECONDS = 300
 V37_EXTRAORDINARY = True
 V37_ODD_LOT_HIGH = True         # odd lots raise the high of the day (never trigger)
