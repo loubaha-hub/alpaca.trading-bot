@@ -1256,6 +1256,8 @@ class SymState:
     v37_pace_at_buy: float = 0.0     # v37: shares in the 60 seconds before the buy
     v37_old_high: float = 0.0        # v37: a high a break must be confirmed over
     v37_high_ts: float = 0.0         # v37: when the last new high of the day traded
+    v37_sold_px: float = 0.0         # v37: what the last sale of this stock got
+    v37_sold_ts: float = 0.0         # v37: when it was
                                      # v37: (time, price, size) over V37_FAST_SECONDS
     last_exit: float = 0.0           # v33: the level that threw us out
     skipped_prints: int = 0          # odd lots etc. we refused to act on
@@ -4376,6 +4378,19 @@ V37_CONFIRM_BY_BUY = (0, 0, 1, 2)   # candles to wait before the 1st, 2nd, 3rd,
                                 # third can wait one minute"; after that, two.
 V37_SIDEWAYS_SECONDS = 300
 V37_EXTRAORDINARY = True
+# A RE-BUY RIGHT AFTER A SALE (the owner, 2026-10-06: 65 of the day's trades
+# were bought back within 15 seconds of selling): not within V37_REBUY_WAIT
+# seconds of the sale unless the price is already V37_REBUY_JUMP above what
+# the sale got - for a cheap stock V37_REBUY_JUMP_PCT of the price, whichever
+# is smaller ("on a one-dollar stock thirty cents is a lot"). 0 = off.
+V37_REBUY_WAIT = 60.0
+V37_REBUY_JUMP = 0.30
+V37_REBUY_JUMP_PCT = 0.10
+V37_FRESH_EXITS = True          # sells, stops and adds decide only on prints under
+                                # V37_FRESH_SECONDS old. 2026-10-06: 76 sales were
+                                # decided on older prices (up to 59s), 13 of them
+                                # "stops" that sold ABOVE the buy; XHG 9:40 under
+                                # r34.9 on a print 6.9s old.
 V37_ODD_LOT_HIGH = True         # odd lots raise the high of the day (never trigger)
 V37_FRESH_SECONDS = 2.0         # buy and add only on a print that traded this
                                 # recently. AIXI, 4:17am 2026-10-06: while an order
@@ -4427,7 +4442,19 @@ class V37(V36):
     def clear(self, s):
         if s.shares <= 0 and s.entry:           # a v37 position just closed: a
             s.v37_old_high = s.day_high         # re-buy must confirm over this
+            sold = [c for c in self.closed_today if c[0] == s.symbol]
+            s.v37_sold_px = sold[-1][2] if sold else s.last_price
+            s.v37_sold_ts = time.time()
         super().clear(s)
+
+    def too_soon(self, s, price) -> bool:
+        """Within V37_REBUY_WAIT of a sale and not yet the jump above it."""
+        if not V37_REBUY_WAIT or not s.v37_sold_ts:
+            return False
+        if time.time() - s.v37_sold_ts >= V37_REBUY_WAIT:
+            return False
+        jump = min(V37_REBUY_JUMP, V37_REBUY_JUMP_PCT * s.v37_sold_px)
+        return price < s.v37_sold_px + jump
 
     def note_high(self, s, price, t):
         """A print above the high of the day. After V37_SIDEWAYS_SECONDS
@@ -4556,6 +4583,8 @@ class V37(V36):
             return
         if not self.fresh(s):
             return                              # an old print: the market has moved on
+        if self.too_soon(s, price):
+            return                              # just sold it: wait, or a real jump
         if price <= s.day_high:
             return                              # every buy ABOVE the high of the day
                                                 # (the owner, 2026-10-06) - touching
@@ -4683,6 +4712,8 @@ class V37(V36):
         if not s.in_position:
             await self.maybe_enter(s, price, None, None)
             return
+        if V37_FRESH_EXITS and not self.fresh(s):
+            return                              # an old print: the next fresh one decides
         new_high = price >= s.peak
         s.peak = max(s.peak, price)
         if price <= s.stop:
