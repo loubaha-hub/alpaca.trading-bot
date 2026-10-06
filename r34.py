@@ -125,7 +125,7 @@ RISK_CHECK_SECONDS = 5                      # the halt runs on a CLOCK, not tick
 # The file name and this string are changed together, every single time. The
 # log then answers "which code is actually running?" without anyone guessing
 # from line numbers or from behaviour that only shows up once a trade is on.
-VERSION = "v31-r34.8"
+VERSION = "v31-r34.9"
 
 # WHERE THE DAY'S HALT BASELINE COMES FROM.
 #   "last_equity" - equity at the PREVIOUS session's close, read from the broker.
@@ -1251,6 +1251,10 @@ class SymState:
     ref_price: float = 0.0           # the previous session's close (the scanner) -
                                      # the day's gain is measured from it
     v37_prints: deque = field(default_factory=deque)
+    v37_stop_pct: float = 0.0        # v37: the stop's distance under the average
+    v37_pace_at_buy: float = 0.0     # v37: shares in the 60 seconds before the buy
+    v37_old_high: float = 0.0        # v37: a high a break must be confirmed over
+    v37_high_ts: float = 0.0         # v37: when the last new high of the day traded
                                      # v37: (time, price, size) over V37_FAST_SECONDS
     last_exit: float = 0.0           # v33: the level that threw us out
     skipped_prints: int = 0          # odd lots etc. we refused to act on
@@ -1441,6 +1445,7 @@ class Strategy:
                     # but this print sets no price and triggers no rule.
                     s.last_tick_at = time.time()
                     s.skipped_prints += 1
+                    self.note_skipped(s, price, conds)
                     continue
                 s.last_price = price
                 s.last_conds = conds
@@ -1459,6 +1464,10 @@ class Strategy:
                 log.error("[%s] tick %s: %s", self.name, symbol, e)
 
     def note_trade(self, s: SymState, price, size):
+        pass
+
+    def note_skipped(self, s: SymState, price, conds):
+        """A print that may not set the price or trigger anything."""
         pass
 
     # ---- day roll -----------------------------------------------------------
@@ -4229,10 +4238,64 @@ V37_ADD2_CENTS = 0.20
 V37_ADD2_TO = 1.00
 V37_STOP_CENTS = 0.02           # no tolerance for loss: this far under the buy, out
 V37_GIVEBACK = 0.50             # this share of the best gain given back: out
+# PROPOSED 2026-10-06, off until the owner decides. Live, 8:11-8:12am: IPDN
+# bought 7 times at real new highs while it rose 10% in under 2 minutes, each
+# shaken out by the 2c stop within 1-3 seconds (-$35) - on a $6 stock moving
+# 10c a second, 2c is noise.
+V37_STOP_SPEED = True           # the stop sized to the stock's speed instead:
+V37_STOP_SHARE = 1 / 3          # this share of the last minute's move under the
+V37_STOP_MIN = 0.03             # buy, never less than this...
+V37_STOP_MAX = 0.08             # ...nor more than this; after an add, the same
+                                # distance under the new average
+V37_GIVEBACK_ARM = 0.0          # "half the gain" only once the best gain reached
+                                # this (0 = from the first cent, as before)
+# PROPOSED 2026-10-06, off until the owner decides. IPDN: volume 497k, 446k,
+# 242k at 8:11, 8:12, 8:13 - "the volume has come down three candles in a
+# row" - and v37 bought at 8:14:29; it bought twice in 8:12 on falling
+# volume. The owner: "buy when the stock is flying" - the playbook: "volume
+# rising bar by bar, the bars 3-5x the size of the bars before them".
+# The owner, a minute later: not "three candles coming down" - a runner on
+# 10x, 8x, 7x its normal volume, green candles, price running, is a buy. The
+# volume matters in context: high for THIS stock, and not fallen off a cliff.
+V37_VOL_RULE = True             # the buy needs the volume, as below
+V37_VOL_REL = 2.0               # high: the last 60 seconds' shares at least this
+                                # x the stock's normal minute (the median of its
+                                # last 30 closed minutes) - the playbook's 3-5x
+V37_VOL_FADE = 0.70             # not fading: the last 60 seconds' shares at least
+                                # this share of the busiest of its last 5 closed
+                                # minutes. The owner, 2026-10-06: "70%, we should not
+                                # go below that... after that the stock is getting
+                                # ready to come down".
+V37_VOL_PRICE = False           # (off - the owner's 70% is a floor) or less volume
+                                # but the price moving FASTER: the
+                                # last 60 seconds up at least as much as that busiest
+                                # minute was. The owner: less volume and a faster
+                                # price is the buyers winning the tug of war.
+V37_VOL_EXIT = 0.0              # out once the last 60 seconds' shares fall under
+                                # this share of what they were at the buy (0 = off)
 V37_MAX_POSITIONS = 2
 V37_MAX_ENTRIES = 0             # buys per name per day; 0 = no limit (the owner,
                                 # 2026-10-06: the 10-buy limit locked v37 out of
                                 # AIXI and SDEV before their second legs)
+# CONFIRMATION (the owner, 2026-10-06, IPDN 8:35: through the 6.97 high on
+# volume it had already traded at 8:14 and 8:20, after 15 minutes going
+# sideways - "I would be on my toes, watching the second and third minutes
+# before confirmation"). A break must be confirmed when it is a RE-BUY (the
+# old high: the high of the day at the last sale) or comes after
+# V37_SIDEWAYS_SECONDS without a new high (the old high: that ceiling):
+# the last V37_CONFIRM_BARS closed 1-minute candles all closed GREEN above the
+# old high ("the price still going up"), then a buy on a new high. The
+# owner, a minute later: 15 minutes is too long - "after five minutes going
+# sideways... I would have waited for one more candle and entered". A fresh run, or EXTRAORDINARY volume (the
+# last 60 seconds more than any minute of the last 30), buys at once.
+V37_CONFIRM_BY_BUY = (0, 0, 1, 2)   # candles to wait before the 1st, 2nd, 3rd,
+                                # 4th (and every later) buy of a stock today. The
+                                # owner, 2026-10-06: "the first one and the second
+                                # one, no way - that's where the money is... the
+                                # third can wait one minute"; after that, two.
+V37_SIDEWAYS_SECONDS = 300
+V37_EXTRAORDINARY = True
+V37_ODD_LOT_HIGH = True         # odd lots raise the high of the day (never trigger)
 V37_FRESH_SECONDS = 2.0         # buy and add only on a print that traded this
                                 # recently. AIXI, 4:17am 2026-10-06: while an order
                                 # worked, prints queued; drained oldest first, each
@@ -4259,11 +4322,91 @@ class V37(V36):
         # prints drained in a burst must not look like a stock moving fast.
         now = time.time()
         t = s.last_print_ts or now
+        if not s.v37_high_ts:
+            s.v37_high_ts = t                   # watching starts the clock
+        if price > s.day_high:
+            self.note_high(s, price, t)
         cut = now - V37_FAST_SECONDS
         if t >= cut:                            # a print reported late stays out
             s.v37_prints.append((t, price, size))
         while s.v37_prints and s.v37_prints[0][0] < cut:
             s.v37_prints.popleft()
+
+    def note_skipped(self, s, price, conds):
+        """An odd lot still raises the high of the day - the high the owner's
+        chart shows - though it can never trigger a buy. IPDN 8:35am
+        2026-10-06: the chart's highs were 6.97 and 7.10, set by odd lots
+        (most IPDN prints were 1-70 shares); v37 never saw them and bought a
+        round lot at 6.97 as "a new high" - out 6 seconds later, -$21."""
+        if V37_ODD_LOT_HIGH and conds and set(conds) & NON_QUALIFYING_CONDS == {"I"}:
+            if price > s.day_high:
+                self.note_high(s, price, time.time())
+            s.day_high = max(s.day_high, price)
+
+    def clear(self, s):
+        if s.shares <= 0 and s.entry:           # a v37 position just closed: a
+            s.v37_old_high = s.day_high         # re-buy must confirm over this
+        super().clear(s)
+
+    def note_high(self, s, price, t):
+        """A print above the high of the day. After V37_SIDEWAYS_SECONDS
+        without one, the old ceiling is a level to confirm over."""
+        if (s.day_high > 0 and s.v37_high_ts and not s.in_position
+                and t - s.v37_high_ts >= V37_SIDEWAYS_SECONDS):
+            s.v37_old_high = s.day_high
+        s.v37_high_ts = t
+
+    def extraordinary(self, s) -> bool:
+        """The last 60 seconds traded more than any closed minute of the last 30."""
+        vols = [b.v for b in s.bars[-30:]]
+        return bool(vols) and self.pace(s) > max(vols)
+
+    def confirm_bars(self, s) -> int:
+        """How many candles the next buy of this stock waits for."""
+        if not V37_CONFIRM_BY_BUY:
+            return 0
+        return V37_CONFIRM_BY_BUY[min(s.v36_entries, len(V37_CONFIRM_BY_BUY) - 1)]
+
+    def confirmed(self, s) -> bool:
+        """confirm_bars() closed 1-minute candles closed green above the old
+        high (a re-buy, or a break out of a sideways stretch) - or
+        extraordinary volume. No old high, or no candles due: no wait."""
+        need = self.confirm_bars(s)
+        if not need or not s.v37_old_high:
+            return True
+        if V37_EXTRAORDINARY and self.extraordinary(s):
+            return True
+        recent = s.bars[-need:]
+        return (len(recent) == need
+                and all(b.green and b.c > s.v37_old_high for b in recent))
+
+    def pace(self, s) -> float:
+        """Shares traded in the last V37_FAST_SECONDS (by when they traded)."""
+        return sum(x[2] for x in s.v37_prints)
+
+    def volume_ok(self, s) -> bool:
+        """V37_VOL_RULE: the last 60 seconds' shares HIGH for this stock
+        (V37_VOL_REL x the median of its last 30 closed minutes) and NOT
+        FADING (V37_VOL_FADE x the busiest of its last 5). A name with no
+        closed minutes yet has nothing to compare: it passes."""
+        if not V37_VOL_RULE:
+            return True
+        vols = [b.v for b in s.bars[-30:]]
+        if not vols:
+            return True
+        pace = self.pace(s)
+        normal = statistics.median(vols)
+        if pace < V37_VOL_REL * normal:
+            return False
+        if pace >= V37_VOL_FADE * max(vols[-5:]):
+            return True
+        if not V37_VOL_PRICE or not s.v37_prints:
+            return False
+        busiest = max(s.bars[-5:], key=lambda b: b.v)
+        then = busiest.c / busiest.o - 1 if busiest.o > 0 else 0.0
+        first = s.v37_prints[0][1]
+        now = s.last_price / first - 1 if first > 0 else 0.0
+        return now > 0 and now >= then
 
     def fresh(self, s) -> bool:
         """The print being decided on traded within V37_FRESH_SECONDS (a
@@ -4289,6 +4432,20 @@ class V37(V36):
         """How far the price is above the low of the last V37_FAST_SECONDS."""
         low = min((x[1] for x in s.v37_prints), default=0.0)
         return price / low - 1 if low > 0 else 0.0
+
+    def stop_pct(self, s, price) -> float:
+        """V37_STOP_SPEED: the stop's distance under the buy - a share of the
+        last minute's move, within V37_STOP_MIN..V37_STOP_MAX. 0 = the old
+        V37_STOP_CENTS."""
+        if not V37_STOP_SPEED:
+            return 0.0
+        return min(V37_STOP_MAX, max(V37_STOP_MIN, V37_STOP_SHARE * self.move(s, price)))
+
+    def stop_for(self, s) -> float:
+        """The stop under the average now held."""
+        if s.v37_stop_pct:
+            return s.entry * (1 - s.v37_stop_pct)
+        return s.entry - V37_STOP_CENTS
 
     def entry_cap(self, s, price) -> float:
         """How far over the price seen the first buy may pay: half of the last
@@ -4318,11 +4475,17 @@ class V37(V36):
             return
         if not self.fresh(s):
             return                              # an old print: the market has moved on
-        if s.traded_today and price <= s.day_high:
-            return                              # again only ABOVE the high of the day -
-                                                # touching it is not a new high
+        if price <= s.day_high:
+            return                              # every buy ABOVE the high of the day
+                                                # (the owner, 2026-10-06) - touching
+                                                # it is not a new high
+        if not self.confirmed(s):
+            return                              # a re-buy, or out of a sideways stretch:
+                                                # not confirmed above the old high yet
         if not self.in_the_crowd(s) or not self.fast(s, price):
             return
+        if not self.volume_ok(s):
+            return                              # flying means the volume is rising
         lock = self.lock(s.symbol)
         if lock.locked():
             return
@@ -4348,7 +4511,9 @@ class V37(V36):
         s.entry = await self.broker.avg_entry(s.symbol) or price
         s.v36_first = s.entry
         s.v36_adds = 0
-        s.stop = s.entry - V37_STOP_CENTS
+        s.v37_stop_pct = self.stop_pct(s, price)
+        s.stop = self.stop_for(s)
+        s.v37_pace_at_buy = self.pace(s)
         s.peak = s.entry
         s.trail_stop = 0.0
         s.armed = False
@@ -4423,7 +4588,7 @@ class V37(V36):
                 # No tolerance for loss on the whole position: an add filled
                 # over the price (ask + 10c on a fast stock) lifts the average
                 # above the high, and "half the gain" then never fires.
-                s.stop = max(s.stop, s.entry - V37_STOP_CENTS)
+                s.stop = max(s.stop, self.stop_for(s))
                 self.log.info("[v37] ADD %s to %.0f%% of a position: +%d @ %.4f -> "
                               "%d shares, average %.4f, stop %.4f", s.symbol,
                               100 * to_fraction, filled, price, s.shares, s.entry,
@@ -4442,8 +4607,13 @@ class V37(V36):
         if price <= s.stop:
             await self.exit(s, "stop")          # no tolerance for loss
             return
+        if (V37_VOL_EXIT and s.v37_pace_at_buy
+                and self.pace(s) < V37_VOL_EXIT * s.v37_pace_at_buy):
+            await self.exit(s, "volume-gone")   # the crowd has left
+            return
         gain = s.peak - s.entry
-        if gain > 0 and price <= s.entry + (1 - V37_GIVEBACK) * gain:
+        armed = s.peak >= s.entry * (1 + V37_GIVEBACK_ARM)
+        if gain > 0 and armed and price <= s.entry + (1 - V37_GIVEBACK) * gain:
             await self.exit(s, "giveback")      # half of the profit gone
             return
         steps = ((V37_ADD1_CENTS, V37_ADD1_TO), (V37_ADD2_CENTS, V37_ADD2_TO))
@@ -4453,6 +4623,28 @@ class V37(V36):
             at, to_fraction = steps[s.v36_adds]
             if price >= s.v36_first + at:
                 await self.v37_add(s, price, to_fraction)
+
+
+async def day_high_since_open(data, symbol, now=None) -> float:
+    """The highest one-minute bar since 4:00am ET today, premarket included -
+    0.0 before 4am or if no bars come back. IPDN, 8:10am 2026-10-06: a
+    restart left the bot knowing only the prints since the restart, so 5.64
+    looked like a high on a day already up to 5.83, and v37 bought three
+    times under it. If the newest bars are refused (SIP's last 15 minutes
+    need a paid plan) it asks again without them."""
+    now = now or datetime.now(timezone.utc)
+    start = now.astimezone(ET).replace(hour=4, minute=0, second=0, microsecond=0)
+    if now <= start:
+        return 0.0
+    for end in (now, now - timedelta(minutes=16)):
+        if end <= start:
+            break
+        try:
+            rows = await data.bars_between(symbol, start, end)
+        except Exception:
+            continue
+        return max((r[3] for r in rows), default=0.0)
+    return 0.0
 
 
 class Engine:
@@ -4495,6 +4687,8 @@ class Engine:
         self.last_probe = 0.0
         self.prev_highs: dict[str, float] = {}
         self.prev_closes: dict[str, float] = {}
+        self.day_highs: dict[str, float] = {}   # from today's bars, once a day
+        self.day_highs_date = None
 
     def add_strategy(self, cls, key, secret):
         if not key or not secret:
@@ -4611,17 +4805,40 @@ class Engine:
                     picks = await self.scan()
                     if picks:
                         symbols = list(picks)[:MAX_WATCH]
+                        # The real high of the day BEFORE a name can be
+                        # traded - a restart must not forget the morning.
+                        await self.seed_day_highs(symbols)
                         for strat in self.strategies:
                             strat.qualified.update(symbols)
                             for sym in symbols:
                                 st = strat.st(sym)
-                                st.day_high = max(st.day_high, picks[sym])
+                                st.day_high = max(st.day_high, picks[sym],
+                                                  self.day_highs.get(sym, 0.0))
                                 st.prev_high = self.prev_highs.get(sym, st.prev_high)
                                 st.ref_price = self.prev_closes.get(sym, st.ref_price)
                         await self.data.subscribe(symbols)
             except Exception as e:
                 log.error("scanner: %s", e)
             await asyncio.sleep(SCAN_SECONDS)
+
+    async def seed_day_highs(self, symbols):
+        """Each name's high since 4am, read from today's bars the first time
+        it is seen today (eight at a time)."""
+        today = datetime.now(ET).date()
+        if self.day_highs_date != today:
+            self.day_highs, self.day_highs_date = {}, today
+        new = [s for s in symbols if s not in self.day_highs]
+        for i in range(0, len(new), 8):
+            batch = new[i:i + 8]
+            highs = await asyncio.gather(
+                *(day_high_since_open(self.data, s) for s in batch),
+                return_exceptions=True)
+            for sym, h in zip(batch, highs):
+                self.day_highs[sym] = h if isinstance(h, float) else 0.0
+        if new:
+            log.info("day highs from today's bars: %d name(s) seeded, e.g. %s",
+                     len(new), ", ".join("%s %.4f" % (s, self.day_highs[s])
+                                         for s in new[:5]))
 
     async def reconcile_loop(self):
         while True:

@@ -19,7 +19,11 @@ def now(monkeypatch):
 
 
 @pytest.fixture
-def v37(broker, data, clock, now):
+def v37(broker, data, clock, now, monkeypatch):
+    # The tests below each test one rule; the volume rule and the stop sized
+    # to the speed are tested with their own fixtures (volume_rule, leash).
+    monkeypatch.setattr(bot, "V37_VOL_RULE", False)
+    monkeypatch.setattr(bot, "V37_STOP_SPEED", False)
     strat = bot.V37(broker, data)
     strat.day_start_equity = broker.eq
     return strat
@@ -150,7 +154,8 @@ def test_half_the_profit_gone_it_is_out(v37, clock, now, monkeypatch):
     assert v37.closed_today[-1][5] == "giveback"
 
 
-def test_again_only_at_a_new_high_of_the_day(v37, clock, now):
+def test_again_only_at_a_new_high_of_the_day(v37, clock, now, monkeypatch):
+    monkeypatch.setattr(bot, "V37_CONFIRM_BY_BUY", ())      # confirmation: tested below
     s = bought(v37, clock, now)
     tick(v37, s, now, 10.30)                              # stopped out
     assert not s.in_position
@@ -161,7 +166,8 @@ def test_again_only_at_a_new_high_of_the_day(v37, clock, now):
     assert s.in_position
 
 
-def test_no_daily_limit_on_buys(v37, clock, now):
+def test_no_daily_limit_on_buys(v37, clock, now, monkeypatch):
+    monkeypatch.setattr(bot, "V37_CONFIRM_BY_BUY", ())      # confirmation: tested below
     """The owner, 2026-10-06: no limit on buys per stock per day - 10 a day
     locked v37 out of AIXI's and SDEV's second legs."""
     s = bought(v37, clock, now)
@@ -173,7 +179,8 @@ def test_no_daily_limit_on_buys(v37, clock, now):
     assert s.v36_entries == 51
 
 
-def test_touching_the_high_is_not_a_new_high(v37, clock, now):
+def test_touching_the_high_is_not_a_new_high(v37, clock, now, monkeypatch):
+    monkeypatch.setattr(bot, "V37_CONFIRM_BY_BUY", ())      # confirmation: tested below
     """AIXI, 4:17am 2026-10-06: three buys in 8 seconds, all on 2.80."""
     s = bought(v37, clock, now)
     tick(v37, s, now, 10.30)                              # stopped out
@@ -334,3 +341,354 @@ def test_if_the_second_keeps_running_both_end_at_25(v37, clock, now, broker,
     assert pct(a, broker) == pytest.approx(0.25, abs=0.015)
     assert pct(b, broker) == pytest.approx(0.25, abs=0.015)
     assert v37.closed_today[-1][5] == "make-room"
+
+
+# ---- proposed 2026-10-06 (off until the owner decides): the leash sized to the speed --
+
+@pytest.fixture
+def leash(monkeypatch):
+    monkeypatch.setattr(bot, "V37_STOP_SPEED", True)
+    monkeypatch.setattr(bot, "V37_GIVEBACK_ARM", 0.03)
+    monkeypatch.setattr(bot, "V37_ASK_PLUS", 0.0)          # fills at the price
+
+
+def test_a_two_cent_wiggle_no_longer_shakes_it_out(v37, clock, now, leash):
+    """IPDN, 8:11am 2026-10-06: seven buys at real new highs, each out within
+    1-3 seconds on the 2c stop while the stock rose 10%."""
+    s = bought(v37, clock, now)
+    assert s.stop == pytest.approx(s.entry * (1 - bot.V37_STOP_MIN))
+    tick(v37, s, now, round(s.entry - 0.05, 2))
+    assert s.in_position
+    tick(v37, s, now, round(s.stop - 0.01, 2))
+    assert not s.in_position
+    assert v37.closed_today[-1][5] == "stop"
+
+
+def test_a_furious_stock_gets_a_longer_leash_up_to_8_percent(v37, clock, now, leash):
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    prints(v37, s, now, 10.00, 11.40)                     # +14% in under a minute
+    s.day_high = 10.05
+    tick(v37, s, now, 11.45)
+    assert s.in_position
+    assert s.v37_stop_pct == pytest.approx(bot.V37_STOP_SHARE * (11.45 / 10.00 - 1))
+    prints(v37, s, now, 10.00, 13.40)                     # +34%: capped
+    assert v37.stop_pct(s, 13.45) == bot.V37_STOP_MAX
+
+
+def test_half_the_gain_only_once_up_3_percent(v37, clock, now, leash, monkeypatch):
+    monkeypatch.setattr(bot, "V37_ADD1_CENTS", 99.0)      # no adds: the average
+    monkeypatch.setattr(bot, "V37_ADD2_CENTS", 99.0)      # stays the buy
+    s = bought(v37, clock, now)
+    e = s.entry
+    tick(v37, s, now, round(e * 1.02, 2))                 # +2%: not armed
+    tick(v37, s, now, round(e * 1.005, 2))                # gave back three quarters
+    assert s.in_position
+    tick(v37, s, now, round(e * 1.04, 2))                 # +4%: armed
+    tick(v37, s, now, round(e * 1.019, 2))                # more than half back
+    assert not s.in_position
+    assert v37.closed_today[-1][5] == "giveback"
+
+
+def test_after_an_add_the_stop_keeps_its_distance_under_the_average(v37, clock, now,
+                                                                     leash):
+    s = bought(v37, clock, now)
+    pct = s.v37_stop_pct
+    tick(v37, s, now, round(s.v36_first + 0.10, 2))       # add to half
+    assert s.v36_adds == 1
+    assert s.stop == pytest.approx(max(s.v36_first * (1 - pct), s.entry * (1 - pct)))
+
+
+# ---- every buy above the real high of the day, even after a restart ----------------
+
+def test_even_the_first_buy_needs_a_new_high_of_the_day(v37, clock, now):
+    """IPDN, 8:11am 2026-10-06: after a restart, three buys (5.64, 5.69,
+    5.83) on a day already up to 5.83."""
+    s = ripping(v37, clock, now)
+    s.day_high = 10.50                                    # the morning's high
+    tick(v37, s, now, 10.36)                              # ripping, but under it
+    assert not s.in_position
+    tick(v37, s, now, 10.50)                              # at it
+    assert not s.in_position
+    tick(v37, s, now, 10.51)                              # through it
+    assert s.in_position
+
+
+class Bars:
+    """MarketData.bars_between, as day_high_since_open uses it."""
+
+    def __init__(self, highs, refuse_recent=False):
+        self.highs, self.refuse_recent, self.asked = highs, refuse_recent, []
+
+    async def bars_between(self, symbol, start, end):
+        self.asked.append((start, end))
+        if self.refuse_recent and len(self.asked) == 1:
+            raise Exception("subscription does not permit querying recent SIP data")
+        return [(start, 1.0, 100.0, h) for h in self.highs]
+
+
+def at_et(hour, minute):
+    return bot.datetime(2026, 10, 6, hour, minute, tzinfo=bot.ET).astimezone(
+        bot.timezone.utc)
+
+
+def test_the_day_high_comes_from_the_bars_since_4am():
+    data = Bars([5.20, 5.83, 5.64])
+    assert run(bot.day_high_since_open(data, "IPDN", at_et(8, 10))) == 5.83
+    start, end = data.asked[0]
+    assert start.astimezone(bot.ET).hour == 4 and start.astimezone(bot.ET).minute == 0
+
+
+def test_refused_recent_bars_it_asks_again_without_them():
+    data = Bars([5.83], refuse_recent=True)
+    assert run(bot.day_high_since_open(data, "IPDN", at_et(8, 10))) == 5.83
+    assert data.asked[1][1] == at_et(8, 10) - bot.timedelta(minutes=16)
+
+
+def test_before_4am_there_is_no_day_high_yet():
+    data = Bars([5.83])
+    assert run(bot.day_high_since_open(data, "IPDN", at_et(3, 59))) == 0.0
+    assert data.asked == []
+
+
+# ---- proposed 2026-10-06 (off until the owner decides): flying means volume rising --
+
+@pytest.fixture
+def volume_rule(monkeypatch):
+    monkeypatch.setattr(bot, "V37_VOL_RULE", True)
+
+
+def minutes(v37, clock, now, vols, size=10_000):
+    """Closed minutes on these share volumes at $10, then a rip whose last 60
+    seconds trade 30 x `size` shares."""
+    utc = clock.now.astimezone(bot.timezone.utc)
+    feed_bars(v37, "ABCD", utc, [(10.0, 10.05, 9.95, 10.0, v) for v in vols])
+    v37.qualified.add("ABCD")
+    s = v37.st("ABCD")
+    prints(v37, s, now, 10.00, 10.35, size=size)
+    s.day_high = 10.05
+    return s
+
+
+def test_a_runner_on_10x_8x_7x_its_normal_volume_still_buys(v37, clock, now,
+                                                            volume_rule):
+    assert bot.V37_VOL_FADE == 0.70                       # the owner's floor
+    """The owner, 2026-10-06: volume 10x, 8x, 7x its normal, candles green,
+    price running - "I would have bought there"."""
+    normal = [10_000] * 25
+    s = minutes(v37, clock, now, normal + [10_000, 10_000, 100_000, 80_000, 70_000],
+                size=2_400)                               # 72k now: 7x normal
+    tick(v37, s, now, 10.36)
+    assert s.in_position
+
+
+def test_no_buy_on_volume_that_is_normal_for_the_stock(v37, clock, now, volume_rule):
+    s = minutes(v37, clock, now, [100_000] * 30, size=5_000)   # 150k: 1.5x normal
+    tick(v37, s, now, 10.36)
+    assert not s.in_position
+
+
+def test_out_when_the_volume_dries_up(v37, clock, now, volume_rule, monkeypatch):
+    monkeypatch.setattr(bot, "V37_VOL_EXIT", 0.5)
+    monkeypatch.setattr(bot, "V37_ASK_PLUS", 0.0)
+    s = minutes(v37, clock, now, [100_000, 100_000, 70_000, 80_000, 90_000])
+    tick(v37, s, now, 10.36)
+    assert s.in_position
+    now[0] += 45                                          # the rip's prints age out
+    tick(v37, s, now, 10.37, size=100)
+    assert not s.in_position
+    assert v37.closed_today[-1][5] == "volume-gone"
+
+
+def test_less_volume_but_a_faster_price_still_buys(v37, clock, now, volume_rule,
+                                                   monkeypatch):
+    monkeypatch.setattr(bot, "V37_VOL_PRICE", True)       # off by default
+    """The owner, 2026-10-06: the last candle on less volume than the first
+    two, but the price going up faster - the buyers are winning: buy."""
+    normal = [10_000] * 25
+    utc = clock.now.astimezone(bot.timezone.utc)
+    feed_bars(v37, "ABCD", utc, [(10.0, 10.05, 9.95, 10.0, v) for v in normal]
+              + [(10.0, 10.05, 9.95, 10.0, 10_000), (10.0, 10.05, 9.95, 10.0, 10_000),
+                 (9.70, 9.85, 9.70, 9.80, 100_000),       # +1% on 100k
+                 (9.80, 9.95, 9.80, 9.90, 80_000),
+                 (9.90, 10.00, 9.90, 9.99, 70_000)])
+    v37.qualified.add("ABCD")
+    s = v37.st("ABCD")
+    prints(v37, s, now, 10.00, 10.35, size=1_500)         # 45k: under half of 100k,
+    s.day_high = 10.05                                    # but +3.5% in a minute
+    tick(v37, s, now, 10.36)
+    assert s.in_position
+
+
+def test_less_volume_and_a_price_that_stalls_does_not_buy(v37, clock, now,
+                                                          volume_rule):
+    """IPDN 8:13am 2026-10-06: 242k after 497k, a red candle - no buy."""
+    normal = [10_000] * 25
+    utc = clock.now.astimezone(bot.timezone.utc)
+    feed_bars(v37, "ABCD", utc, [(10.0, 10.05, 9.95, 10.0, v) for v in normal]
+              + [(10.0, 10.05, 9.95, 10.0, 10_000), (10.0, 10.05, 9.95, 10.0, 10_000),
+                 (9.00, 10.00, 9.00, 9.95, 100_000),      # +10.6% on 100k
+                 (9.95, 10.00, 9.90, 9.98, 80_000),
+                 (9.98, 10.00, 9.95, 9.99, 70_000)])
+    v37.qualified.add("ABCD")
+    s = v37.st("ABCD")
+    prints(v37, s, now, 10.00, 10.35, size=1_500)         # 45k, +3.5%: slower
+    s.day_high = 10.05
+    tick(v37, s, now, 10.36)
+    assert not s.in_position
+
+
+def test_an_odd_lot_raises_the_high_but_never_buys(v37, clock, now):
+    """IPDN 8:35am 2026-10-06: the chart's high 7.10 was an odd lot; v37 bought
+    a round lot at 6.97 as "a new high"."""
+    s = ripping(v37, clock, now)
+    v37.note_skipped(s, 10.50, ("@", "I"))                # 12 shares at 10.50
+    assert s.day_high == 10.50
+    assert not s.in_position                              # it bought nothing
+    tick(v37, s, now, 10.40)                              # a round lot under it
+    assert not s.in_position
+    tick(v37, s, now, 10.51)                              # above it
+    assert s.in_position
+
+
+def test_an_out_of_sequence_print_does_not_raise_the_high(v37, clock, now):
+    s = ripping(v37, clock, now)
+    v37.note_skipped(s, 10.50, ("@", "I", "Z"))           # odd lot AND out of sequence
+    assert s.day_high == 10.05
+
+
+def test_under_70_percent_of_the_busiest_minute_no_buy(v37, clock, now, volume_rule):
+    """The owner, 2026-10-06: below 70% of the candles before, the stock is
+    getting ready to come down."""
+    normal = [10_000] * 25
+    s = minutes(v37, clock, now, normal + [10_000, 10_000, 100_000, 80_000, 70_000],
+                size=2_200)                               # 66k: 66% of 100k
+    tick(v37, s, now, 10.36)
+    assert not s.in_position
+
+
+# ---- confirmation: a re-buy, or a break out of a sideways stretch --------------------
+
+def candle(v37, clock, close, high=None, volume=50_000):
+    """One more closed 1-minute candle."""
+    utc = clock.now.astimezone(bot.timezone.utc)
+    feed_bars(v37, "ABCD", utc, [(close - 0.02, high or close + 0.01, close - 0.03,
+                                  close, volume)])
+
+
+def test_a_re_buy_waits_for_a_candle_to_close_above_the_old_high(v37, clock, now,
+                                                                 monkeypatch):
+    """The owner, 2026-10-06: "the second buy, third buy - give it one or two
+    more candles and the price going up before we buy"."""
+    monkeypatch.setattr(v37, "fast", lambda s, p: True)
+    s = bought(v37, clock, now)
+    s.v36_entries = 3                                     # the next buy: the 4th
+    tick(v37, s, now, 10.30)                              # sold
+    old = s.v37_old_high
+    assert old == s.day_high
+    tick(v37, s, now, round(old + 0.02, 2))               # through it: not yet
+    assert not s.in_position
+    candle(v37, clock, round(old + 0.03, 2))              # one candle closes above it
+    tick(v37, s, now, round(s.day_high + 0.01, 2))
+    assert not s.in_position                              # one is not enough
+    candle(v37, clock, round(s.day_high + 0.02, 2))       # the second
+    tick(v37, s, now, round(s.day_high + 0.01, 2))        # and a new high: buy
+    assert s.in_position
+
+
+def test_a_candle_closing_back_under_the_old_high_does_not_confirm(v37, clock, now,
+                                                                   monkeypatch):
+    monkeypatch.setattr(v37, "fast", lambda s, p: True)
+    s = bought(v37, clock, now)
+    s.v36_entries = 3                                     # the next buy: the 4th
+    tick(v37, s, now, 10.30)
+    old = s.v37_old_high
+    candle(v37, clock, round(old - 0.02, 2), high=round(old + 0.05, 2))   # a wick over
+    tick(v37, s, now, round(s.day_high + 0.01, 2))
+    assert not s.in_position
+
+
+def test_extraordinary_volume_does_not_wait(v37, clock, now, monkeypatch):
+    monkeypatch.setattr(v37, "fast", lambda s, p: True)
+    s = bought(v37, clock, now)
+    s.v36_entries = 3                                     # the next buy: the 4th
+    tick(v37, s, now, 10.30)
+    prints(v37, s, now, 10.20, 10.34, size=10_000)        # 300k: more than any minute
+    tick(v37, s, now, round(s.day_high + 0.01, 2))
+    assert s.in_position
+
+
+def test_a_break_after_5_minutes_sideways_waits(v37, clock, now):
+    """IPDN 8:21-8:35am 2026-10-06: under 6.97 for 15 minutes, then through
+    it on volume it had already traded twice - "I would not have traded that"."""
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    s.v36_entries = 3                                     # a later run
+    s.v37_high_ts = now[0] - 400                          # the last high: 6+ min ago
+    prints(v37, s, now, 10.00, 10.35)
+    s.day_high = max(s.day_high, 10.05)
+    assert s.v37_old_high == 10.05                        # the sideways ceiling
+    tick(v37, s, now, 10.36)
+    assert not s.in_position
+    candle(v37, clock, 10.37)                             # one candle
+    candle(v37, clock, 10.40)                             # two: confirmed
+    tick(v37, s, now, round(s.day_high + 0.01, 2))
+    assert s.in_position
+
+
+def test_a_fresh_run_does_not_wait(v37, clock, now):
+    s = bought(v37, clock, now)                           # the first buy, mid-run
+    assert s.in_position
+
+
+def test_4_minutes_sideways_is_still_a_fresh_run(v37, clock, now):
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    s.v37_high_ts = now[0] - 240
+    prints(v37, s, now, 10.00, 10.35)
+    s.day_high = max(s.day_high, 10.05)
+    tick(v37, s, now, 10.36)
+    assert s.in_position
+
+
+def test_a_red_candle_over_the_old_high_does_not_confirm(v37, clock, now,
+                                                         monkeypatch):
+    """"The price still going up": the confirming candle closes green."""
+    monkeypatch.setattr(v37, "fast", lambda s, p: True)
+    s = bought(v37, clock, now)
+    s.v36_entries = 3                                     # the next buy: the 4th
+    tick(v37, s, now, 10.30)
+    old = s.v37_old_high
+    utc = clock.now.astimezone(bot.timezone.utc)
+    feed_bars(v37, "ABCD", utc, [(old + 0.10, old + 0.12, old + 0.01, old + 0.03, 50_000)])
+    tick(v37, s, now, round(s.day_high + 0.01, 2))
+    assert not s.in_position
+
+
+def test_the_second_buy_of_the_day_does_not_wait(v37, clock, now, monkeypatch):
+    """The owner, 2026-10-06: "the first one and the second one, no way -
+    that's where the money is"."""
+    monkeypatch.setattr(v37, "fast", lambda s, p: True)
+    s = bought(v37, clock, now)                           # the 1st
+    tick(v37, s, now, 10.30)                              # sold
+    tick(v37, s, now, round(s.v37_old_high + 0.02, 2))    # the 2nd: at once
+    assert s.in_position
+
+
+def test_the_third_buy_waits_one_candle(v37, clock, now, monkeypatch):
+    monkeypatch.setattr(v37, "fast", lambda s, p: True)
+    s = bought(v37, clock, now)
+    s.v36_entries = 2                                     # the next buy: the 3rd
+    tick(v37, s, now, 10.30)
+    old = s.v37_old_high
+    tick(v37, s, now, round(old + 0.02, 2))
+    assert not s.in_position
+    candle(v37, clock, round(old + 0.03, 2))              # one candle is enough
+    tick(v37, s, now, round(s.day_high + 0.01, 2))
+    assert s.in_position
+
+
+def test_the_released_settings():
+    """2026-10-06, replayed on every recorded day before release: the owner's
+    rules - volume 2x normal with a 70% floor, the stop sized to the speed,
+    confirmation 0-0-1-2 - 63% won with fills 0.2% worse, every day up."""
+    assert bot.V37_VOL_RULE and bot.V37_VOL_REL == 2.0 and bot.V37_VOL_FADE == 0.70
+    assert bot.V37_STOP_SPEED and not bot.V37_GIVEBACK_ARM
+    assert bot.V37_CONFIRM_BY_BUY == (0, 0, 1, 2)
