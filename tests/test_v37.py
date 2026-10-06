@@ -25,6 +25,8 @@ def v37(broker, data, clock, now, monkeypatch):
     monkeypatch.setattr(bot, "V37_VOL_RULE", False)
     monkeypatch.setattr(bot, "V37_STOP_SPEED", False)
     monkeypatch.setattr(bot, "V37_REBUY_WAIT", 0.0)      # tested on its own below
+    monkeypatch.setattr(bot, "V37_SPEED_MIN", 0.0)       # the speed: tested below
+    monkeypatch.setattr(bot, "V37_SCORE_MIN", 0)         # the score: tested below
     strat = bot.V37(broker, data)
     strat.day_start_equity = broker.eq
     return strat
@@ -695,6 +697,13 @@ def test_the_released_settings():
     assert bot.V37_CONFIRM_BY_BUY == (0, 0, 1, 2)
 
 
+def test_the_speed_rule_is_held_off():
+    """2026-10-06, the owner: keep "up 3% in a minute" and hold off on the
+    speed rule (0.1+: 69 trades instead of 112 in the replay) - too few
+    trades to judge from. The speed is logged on every buy meanwhile."""
+    assert bot.V37_SPEED_MIN == 0.0 and bot.V37_FAST_PCT == 0.03
+
+
 # ---- a re-buy right after a sale (the owner, 2026-10-06) -----------------------------
 
 @pytest.fixture
@@ -747,3 +756,375 @@ def test_a_stop_never_fires_on_an_old_print(v37, clock, now):
     old(s, now, 0)
     tick(v37, s, now, round(s.stop - 0.05, 2))            # the same, fresh
     assert not s.in_position
+
+
+# ---- the owner's speed: (P2 - P1) / P1 x (V2 / V1) ----------------------------------
+
+def windows(v37, s, now, p1, v1, p2, v2):
+    """A minute of prints at p1 (v1 shares), then the last minute at p2 (v2
+    shares) - each window's prints clear of the boundary between them."""
+    T = now[0] + 200
+    for k, (price, vol) in enumerate(((p1, v1), (p2, v2))):
+        for i in range(10):
+            now[0] = T - 115 + 60 * k + 6 * i
+            s.last_price = price
+            v37.note_trade(s, price, vol / 10)
+    now[0] = T
+
+
+def test_speed_is_the_price_move_times_the_volume_change(v37, clock, now):
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    windows(v37, s, now, 10.00, 10_000, 11.00, 10_000)     # +10%, equal volume
+    assert v37.speed(s, 11.00) == pytest.approx(0.10, abs=0.002)
+    t = crowd(v37, clock, "EFGH", 1_000_000)
+    windows(v37, t, now, 10.00, 10_000, 10.50, 20_000)     # +5%, double volume
+    assert v37.speed(t, 10.50) == pytest.approx(0.10, abs=0.002)
+
+
+def test_with_speed_on_a_slow_rise_is_not_flying(v37, clock, now, monkeypatch):
+    monkeypatch.setattr(bot, "V37_SPEED_MIN", 0.10)
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    windows(v37, s, now, 10.00, 30_000, 10.30, 30_000)     # +3%, equal volume: 0.03
+    s.day_high = 10.05
+    assert v37.fast(s, 10.31)                              # flying by the old rule
+    assert not v37.flying(s, 10.31)                        # not by the owner's speed
+    windows(v37, s, now, 10.31, 30_000, 10.95, 60_000)     # +6%, double volume: 0.12
+    assert v37.flying(s, 10.95)
+
+
+def test_astronomical_volume_with_little_price_move_is_flying(v37, clock, now):
+    """The owner: the price moved a little but the volume is twenty times
+    bigger - "the stock is about to take off": 1% x 20 = 0.20."""
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    windows(v37, s, now, 10.00, 5_000, 10.10, 100_000)
+    assert v37.speed(s, 10.10) == pytest.approx(0.20, abs=0.003)
+
+
+def test_a_falling_price_is_never_flying(v37, clock, now, monkeypatch):
+    monkeypatch.setattr(bot, "V37_SPEED_MIN", 0.10)
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    windows(v37, s, now, 10.00, 10_000, 9.90, 200_000)     # down 1% on 20x volume
+    assert v37.speed(s, 9.90) < 0
+    assert not v37.flying(s, 9.90)
+
+
+def test_with_speed_on_it_buys_a_rip_on_rising_volume(v37, clock, now, monkeypatch):
+    """The whole path, not just flying(): +6% on double the volume (0.12)
+    over the day's high buys; the same rise on flat volume (0.06) does not."""
+    monkeypatch.setattr(bot, "V37_SPEED_MIN", 0.10)
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    windows(v37, s, now, 10.00, 30_000, 10.60, 30_000)
+    s.day_high = 10.30
+    tick(v37, s, now, 10.61, size=100)
+    assert not s.in_position
+    t = crowd(v37, clock, "EFGH", 1_000_000)
+    windows(v37, t, now, 10.00, 30_000, 10.60, 60_000)
+    t.day_high = 10.30
+    tick(v37, t, now, 10.61, size=100)
+    assert t.in_position
+
+
+# ---- proposed 2026-10-06 (off until the owner decides): a grace after the buy -------
+
+@pytest.fixture
+def grace(monkeypatch):
+    monkeypatch.setattr(bot, "V37_GRACE_SECONDS", 15.0)
+    monkeypatch.setattr(bot, "V37_STOP_SPEED", True)       # the 3-8% stop
+    monkeypatch.setattr(bot, "V37_ASK_PLUS", 0.0)          # fills at the price
+    monkeypatch.setattr(bot, "V37_ADD1_CENTS", 99.0)       # no adds: the average
+    monkeypatch.setattr(bot, "V37_ADD2_CENTS", 99.0)       # stays the buy
+
+
+def test_in_the_grace_a_wiggle_does_not_sell(v37, clock, now, grace):
+    """APUS 11:36am 10-06: bought 7.47, peak 7.48, sold 4s later by "half
+    the gain" - a cent of noise."""
+    s = bought(v37, clock, now)
+    e = s.entry
+    tick(v37, s, now, round(e + 0.04, 2))
+    tick(v37, s, now, round(e - 0.03, 2))                 # all the gain back, and more
+    assert s.in_position
+
+
+def test_in_the_grace_the_stop_still_sells(v37, clock, now, grace):
+    s = bought(v37, clock, now)
+    tick(v37, s, now, round(s.stop - 0.01, 2))
+    assert not s.in_position
+    assert v37.closed_today[-1][5] == "stop"
+
+
+def test_after_the_grace_half_the_gain_counts_again(v37, clock, now, grace):
+    s = bought(v37, clock, now)
+    e = s.entry
+    tick(v37, s, now, round(e + 0.20, 2))                 # the best: +20c, in the grace
+    now[0] = s.entry_at + 16
+    tick(v37, s, now, round(e + 0.12, 2))                 # still over half: kept
+    assert s.in_position
+    tick(v37, s, now, round(e + 0.09, 2))                 # under half of +20c: out
+    assert not s.in_position
+    assert v37.closed_today[-1][5] == "giveback"
+
+
+def test_forget_counts_only_the_gain_after_the_grace(v37, clock, now, grace, monkeypatch):
+    monkeypatch.setattr(bot, "V37_GRACE_FORGET", True)
+    s = bought(v37, clock, now)
+    e = s.entry
+    tick(v37, s, now, round(e + 0.20, 2))                 # a spike inside the grace
+    now[0] = s.entry_at + 16
+    tick(v37, s, now, round(e + 0.04, 2))                 # the gain after it: +4c
+    assert s.in_position                                  # the spike is forgotten
+    tick(v37, s, now, round(e + 0.01, 2))                 # under half of +4c: out
+    assert not s.in_position
+    assert v37.closed_today[-1][5] == "giveback"
+
+
+def test_the_grace_is_off_until_the_owner_decides():
+    assert bot.V37_GRACE_SECONDS == 0.0 and not bot.V37_GRACE_FORGET
+
+
+# ---- proposed 2026-10-06 (off until the owner decides): buy only while RUNNING -------
+
+@pytest.fixture
+def running(monkeypatch):
+    monkeypatch.setattr(bot, "V37_MOMENTUM", True)
+
+
+def candles(s, rows, quiet=1_000):
+    """30 quiet minutes, then `rows` (o, h, l, c, v), the last one just closed."""
+    t = bot.datetime(2026, 10, 6, 14, 0, tzinfo=bot.timezone.utc)
+    s.bars = [bot.Bar(t, 10.0, 10.02, 9.98, 10.0, quiet) for _ in range(30)]
+    s.bars += [bot.Bar(t, *r) for r in rows]
+
+
+STAIRS = [(10.00, 10.10, 9.99, 10.09, 5_000), (10.09, 10.20, 10.05, 10.19, 6_000),
+          (10.19, 10.32, 10.15, 10.31, 7_000)]         # green, full, rising, busy
+
+
+def test_a_staircase_with_the_crowd_is_running(v37, clock, now, running):
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    candles(s, STAIRS)
+    assert v37.not_running(s) == ""
+
+
+def test_a_wick_on_the_candle_before_is_not_running(v37, clock, now, running):
+    """The owner: "if it has a wick, the momentum is fizzling out"."""
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    candles(s, STAIRS[:2] + [(10.19, 10.40, 10.15, 10.25, 7_000)])
+    assert "wick" in v37.not_running(s)
+
+
+def test_green_bodies_getting_smaller_is_not_running(v37, clock, now, running):
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    candles(s, STAIRS[:2] + [(10.19, 10.24, 10.17, 10.23, 7_000)])   # 4c after 10c
+    assert "shrinking" in v37.not_running(s)
+
+
+def test_a_red_candle_before_is_not_running(v37, clock, now, running):
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    candles(s, STAIRS[:2] + [(10.19, 10.22, 10.10, 10.12, 7_000)])
+    assert "red" in v37.not_running(s)
+
+
+def test_one_burst_out_of_quiet_is_not_running(v37, clock, now, running):
+    """APUS 1:49pm 10-06: 134k, 124k, 47k shares a minute, then a 9% jump on
+    608k - bought at 8.05, sold at 7.89 four seconds later."""
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    candles(s, [(10.00, 10.10, 9.99, 10.09, 1_000), (10.09, 10.20, 10.05, 10.19, 1_200),
+                (10.19, 10.32, 10.15, 10.31, 9_000)])
+    assert "volume not staying up" in v37.not_running(s)
+
+
+def test_a_true_rip_skips_the_checks(v37, clock, now, running):
+    """XHG 9:39am 10-06: the minute before closed red, but 2.4M shares traded
+    in a minute after 1.9M - more than any minute of its day."""
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    candles(s, STAIRS[:2] + [(10.19, 10.22, 10.10, 10.12, 7_000)])
+    prints(v37, s, now, 10.12, 10.40, size=1_000)          # 30,000 in the last minute
+    assert v37.ripping(s)
+    assert v37.not_running(s) == ""
+
+
+def bought_unless_not_running(v37, clock, now, symbol):
+    """Up 3.5% in a minute on $300k+, over the day's high, after a red
+    candle on 50k shares - every old rule passes."""
+    s = crowd(v37, clock, symbol, 1_000_000)
+    candles(s, STAIRS[:2] + [(10.19, 10.22, 10.10, 10.12, 50_000)], quiet=40_000)
+    s.day_high = 10.05
+    prints(v37, s, now, 10.00, 10.35, size=1_000)
+    tick(v37, s, now, 10.36)
+    return s
+
+
+def test_not_running_blocks_the_buy(v37, clock, now, monkeypatch):
+    assert bought_unless_not_running(v37, clock, now, "ABCD").in_position
+    monkeypatch.setattr(bot, "V37_MOMENTUM", True)
+    assert not bought_unless_not_running(v37, clock, now, "EFGH").in_position
+
+
+def test_steady_pays_little_over_the_price(v37, clock, now, monkeypatch):
+    """The owner, 10-06: paying 2% over the price seen (APUS 8.05 vs 7.89) is
+    for a stock that is ripping, not one going up steadily."""
+    monkeypatch.setattr(bot, "V37_STEADY_PAY", 0.005)
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    candles(s, STAIRS)
+    prints(v37, s, now, 10.00, 10.40, size=10)             # +4%, a quiet minute
+    assert v37.entry_cap(s, 10.40) == 0.005
+    prints(v37, s, now, 10.40, 10.80, size=1_000)          # busier than any minute
+    assert v37.entry_cap(s, 10.80) >= bot.V37_ENTRY_PCT
+
+
+def test_running_and_steady_pay_are_off_until_the_owner_decides():
+    assert not bot.V37_MOMENTUM and not bot.V37_STEADY_PAY
+
+
+# ---- a restart remembers the day (2026-10-06) ------------------------------------------
+
+def apus_morning(broker):
+    """APUS 10-06 before the 10:21am release: bought 9:51 and 10:22, sold both."""
+    t = lambda h, m, s: at_et(h, m).timestamp() + s
+    broker.day_fills = [(t(9, 51, 39), "APUS", "buy", 84, 6.5352),
+                        (t(9, 51, 52), "APUS", "sell", 84, 6.49),
+                        (t(10, 22, 27), "APUS", "buy", 50, 6.8086),
+                        (t(10, 22, 28), "APUS", "buy", 28, 6.81),     # same buy, 2nd order
+                        (t(10, 22, 31), "APUS", "sell", 78, 6.7374)]
+
+
+def test_a_restart_remembers_todays_buys_and_the_last_sale(v37, broker):
+    """The 10:21 release forgot both: the 3rd and 4th buys (11:33, 11:36)
+    waited for no candles. Now the 3rd waits for 1, above the old high."""
+    apus_morning(broker)
+    v37.data = Bars([6.97])                               # the high when it sold
+    run(v37.restore_today())
+    s = v37.st("APUS")
+    assert s.v36_entries == 2                             # two buys, not three orders
+    assert v37.confirm_bars(s) == 1
+    assert s.v37_old_high == 6.97
+    assert s.v37_sold_px == 6.7374
+    assert not v37.confirmed(s)                           # no green candle over 6.97 yet
+
+
+def test_adds_are_not_new_buys(v37, broker):
+    t = at_et(9, 0).timestamp()
+    broker.day_fills = [(t, "ABCD", "buy", 10, 10.0), (t + 30, "ABCD", "buy", 10, 10.1),
+                        (t + 60, "ABCD", "sell", 20, 10.3), (t + 600, "ABCD", "buy", 10, 10.5)]
+    v37.data = Bars([10.4])
+    run(v37.restore_today())
+    s = v37.st("ABCD")
+    assert s.v36_entries == 2                             # bought twice; once added
+    assert s.v37_sold_px == 10.3
+
+
+def test_nothing_from_the_broker_changes_nothing(v37, broker):
+    run(v37.restore_today())
+    assert v37.st("APUS").v36_entries == 0
+
+
+def test_the_broker_reads_todays_fills_page_by_page():
+    from types import SimpleNamespace as NS
+    t0 = at_et(9, 0)
+
+    def order(i, qty):
+        at = t0 + bot.timedelta(seconds=i)
+        return NS(symbol="ABCD", side=bot.OrderSide.BUY, filled_qty=str(qty),
+                  filled_avg_price="10.0", filled_at=at if qty else None, submitted_at=at)
+
+    pages = [[order(1000 - i, 1) for i in range(500)], [order(5, 2), order(4, 0)]]
+
+    class Client:
+        asked = []
+
+        def get_orders(self, req):
+            self.asked.append(req.until)
+            return pages[len(self.asked) - 1]
+
+    b = object.__new__(bot.Broker)
+    b.client, b.label = Client(), "test"
+    got = run(b.fills_today())
+    assert len(got) == 501                                # the unfilled order left out
+    assert got[0][0] < got[-1][0] and got[0][2] == "buy"  # oldest first
+    assert Client.asked[1] is not None                    # the second page asked for
+
+
+# ---- proposed 2026-10-06 (off): the signs weighed, not pass/fail -------------------
+
+def test_a_clean_staircase_scores_high(v37, clock, now):
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    candles(s, STAIRS)
+    s.ema9, s.ema20, s.ema12, s.ema26 = 10.2, 10.1, 10.2, 10.1
+    s.vwap_pv, s.vwap_v = 10.0, 1.0
+    points, parts = v37.score(s, 10.35)
+    assert points == 11 and "speed 0" in parts, parts         # all but the speed
+    windows(v37, s, now, 10.00, 10_000, 10.35, 20_000)       # +3.5% on double: 0.07
+    assert "speed 0" in v37.score(s, 10.35)[1]
+    windows(v37, s, now, 10.00, 10_000, 10.35, 40_000)       # 3.5% x 4 = 0.14
+    assert "speed 1" in v37.score(s, 10.35)[1]
+    windows(v37, s, now, 10.00, 10_000, 10.35, 100_000)      # 3.5% x 10 = 0.35
+    assert v37.score(s, 10.35)[0] == 15                      # 0.3+ is worth 4
+
+
+def test_a_red_last_candle_is_no_buy(v37, clock, now):
+    """The owner: red is zero - "we are not going to enter there"."""
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    candles(s, STAIRS[:2] + [(10.19, 10.22, 10.10, 10.12, 7_000)])
+    points, why = v37.score(s, 10.25)
+    assert points is None and "red" in why
+
+
+def test_two_thirds_up_with_a_wick_is_still_favourable(v37, clock, now):
+    """The owner: "sometimes they are not all close to the top - two thirds
+    up, some wick - you look at other factors and you can still enter"."""
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    candles(s, STAIRS[:2] + [(10.19, 10.40, 10.15, 10.31, 7_000)])   # wick 36%
+    points, parts = v37.score(s, 10.41)
+    assert points is not None and "candle 1" in parts
+
+
+def test_a_huge_wick_on_the_last_candle_is_almost_a_stop(v37, clock, now):
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    candles(s, STAIRS[:2] + [(10.19, 10.60, 10.15, 10.24, 7_000)])   # wick 80%
+    points, why = v37.score(s, 10.61)
+    assert points is None and "huge" in why
+
+
+def test_irregular_bodies_are_fine_steadily_shrinking_are_not(v37, clock, now):
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    candles(s, [(10.00, 10.21, 9.99, 10.20, 5_000), (10.20, 10.31, 10.18, 10.30, 6_000),
+                (10.30, 10.46, 10.28, 10.45, 7_000)])              # 20c, 10c, 15c
+    assert "bodies 1" in v37.score(s, 10.47)[1]
+    candles(s, [(10.00, 10.21, 9.99, 10.20, 5_000), (10.20, 10.31, 10.18, 10.30, 6_000),
+                (10.30, 10.36, 10.28, 10.35, 7_000)])              # 20c, 10c, 5c
+    assert "bodies 0" in v37.score(s, 10.37)[1]
+
+
+def test_the_released_score_is_12_of_15():
+    """The owner, 10-06: "switch it to score 12". Replayed on 6 days: 72
+    trades instead of 112, 75% won, +$308 at fills 1% worse (-$48 before)."""
+    assert bot.V37_SCORE_MIN == 12
+    assert bot.V37_SCORE_SPEED == ((0.1, 1), (0.2, 2), (0.3, 4))
+    assert bot.V37_SPEED_MOVE_MIN == 0.03 and not bot.V37_SCORE_FURIOUS
+
+
+def test_a_furious_speed_buys_whatever_the_score(v37, clock, now, monkeypatch):
+    """The owner: "the speed is everything" - a furious one is never missed."""
+    monkeypatch.setattr(bot, "V37_SCORE_MIN", 14)          # nothing passes the score...
+    s = bought_unless_not_running(v37, clock, now, "ABCD")
+    assert not s.in_position
+    monkeypatch.setattr(bot, "V37_SCORE_FURIOUS", 0.3)
+    monkeypatch.setattr(bot, "V37_SPEED_MIN", 0.1)         # flying = the owner's speed
+    t = crowd(v37, clock, "EFGH", 1_000_000)
+    candles(t, STAIRS[:2] + [(10.19, 10.22, 10.10, 10.12, 50_000)], quiet=40_000)
+    t.day_high = 10.05
+    windows(v37, t, now, 10.00, 3_000, 10.36, 30_000)      # 3.6% x 10 = 0.36
+    tick(v37, t, now, 10.37, size=100)
+    assert t.in_position                                   # ...except a furious one
+
+
+def test_huge_volume_on_a_flat_price_is_not_speed(v37, clock, now):
+    """The owner: the price barely moves but the volume is off the chart -
+    a huge sell met by buying, not a run. 1% x 30 = 0.3 by the formula, but
+    the price is not up 3%: no speed points, no furious override."""
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    candles(s, STAIRS)
+    windows(v37, s, now, 10.00, 3_000, 10.10, 90_000)
+    assert v37.speed(s, 10.10) == pytest.approx(0.30, abs=0.01)
+    assert v37.real_speed(s, 10.10) == 0.0
+    assert "speed 0" in v37.score(s, 10.10)[1]

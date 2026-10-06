@@ -33,12 +33,17 @@ class FakeBroker:
         self.qty_fails_on = set()
         self.qty_calls = 0
         self.settled = True            # as Broker.send: the last order closed
+        self.day_fills = []            # as Broker.fills_today: (t, sym, side, qty, px)
 
     # -- what the strategy calls ------------------------------------------------
 
     async def equity(self, fallback=0.0):
         await asyncio.sleep(0)
         return self.eq
+
+    async def fills_today(self):
+        await asyncio.sleep(0)
+        return sorted(self.day_fills)
 
     async def qty(self, symbol):
         await asyncio.sleep(0)

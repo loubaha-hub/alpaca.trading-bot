@@ -125,7 +125,7 @@ RISK_CHECK_SECONDS = 5                      # the halt runs on a CLOCK, not tick
 # The file name and this string are changed together, every single time. The
 # log then answers "which code is actually running?" without anyone guessing
 # from line numbers or from behaviour that only shows up once a trade is on.
-VERSION = "v31-r34.10"
+VERSION = "v31-r34.11"
 
 # WHERE THE DAY'S HALT BASELINE COMES FROM.
 #   "last_equity" - equity at the PREVIOUS session's close, read from the broker.
@@ -975,6 +975,35 @@ class Broker:
             return -1 if side == OrderSide.BUY else 0
         return 0
 
+    async def fills_today(self) -> list:
+        """Every fill on this account since 4am ET, oldest first, as
+        (epoch seconds, symbol, "buy" or "sell", shares, average price) -
+        what a restart reads back. [] when the broker cannot say."""
+        start = datetime.now(ET).replace(hour=4, minute=0, second=0, microsecond=0)
+        orders, until = [], None
+        for _ in range(20):                     # 500 a page, newest first
+            try:
+                page = await asyncio.to_thread(
+                    self.client.get_orders,
+                    GetOrdersRequest(status=QueryOrderStatus.CLOSED, after=start,
+                                     until=until, limit=500))
+            except Exception as e:
+                log.error("[%s] cannot list today's orders: %s", self.label, e)
+                return []
+            orders += page or []
+            if not page or len(page) < 500:
+                break
+            until = min(o.submitted_at for o in page)
+        out = []
+        for o in orders:
+            q = float(o.filled_qty or 0)
+            if q <= 0 or not o.filled_at:
+                continue
+            side = getattr(o.side, "value", o.side)
+            out.append((o.filled_at.timestamp(), o.symbol, str(side).lower(), q,
+                        float(o.filled_avg_price or 0)))
+        return sorted(set(out))
+
     async def cancel_open(self, symbol: str) -> int:
         """Cancel our own working orders on one symbol.
 
@@ -1252,12 +1281,15 @@ class SymState:
     ref_price: float = 0.0           # the previous session's close (the scanner) -
                                      # the day's gain is measured from it
     v37_prints: deque = field(default_factory=deque)
+    v37_speed_prints: deque = field(default_factory=deque)   # v37: two windows of prints
     v37_stop_pct: float = 0.0        # v37: the stop's distance under the average
     v37_pace_at_buy: float = 0.0     # v37: shares in the 60 seconds before the buy
     v37_old_high: float = 0.0        # v37: a high a break must be confirmed over
     v37_high_ts: float = 0.0         # v37: when the last new high of the day traded
     v37_sold_px: float = 0.0         # v37: what the last sale of this stock got
     v37_sold_ts: float = 0.0         # v37: when it was
+    v37_peak_after: float = 0.0      # v37: the best price since the grace ended
+    v37_skip_logged: float = 0.0     # v37: when a "not running" skip was last logged
                                      # v37: (time, price, size) over V37_FAST_SECONDS
     last_exit: float = 0.0           # v33: the level that threw us out
     skipped_prints: int = 0          # odd lots etc. we refused to act on
@@ -3811,7 +3843,46 @@ def account_classes(env=None):
     return out
 
 
-class V36(V35):
+class _Restore:
+    """After a restart (a release restarts the bot): what each stock did
+    today, read back from the account's filled orders - its buys of the day
+    (the 0/0/1/2 confirmation and the v36 limit count them) and its last
+    sale. APUS 10-06: bought at 9:51 and 10:22; the 10:21 release forgot
+    both, so the 3rd and 4th buys (11:33, 11:36) waited for no candles."""
+
+    async def restore_today(self):
+        fills = await self.broker.fills_today()
+        held, seen = {}, {}
+        for t, sym, side, q, px in fills:
+            d = seen.setdefault(sym, {"buys": 0, "sold": None})
+            if side == "buy":
+                if held.get(sym, 0.0) <= 0:
+                    d["buys"] += 1              # bought while flat: a buy of the day
+                held[sym] = held.get(sym, 0.0) + q
+            else:
+                held[sym] = held.get(sym, 0.0) - q
+                if held[sym] <= 1e-6:
+                    held[sym] = 0.0
+                    d["sold"] = (t, px)
+        for sym, d in seen.items():
+            s = self.st(sym)
+            s.v36_entries = max(s.v36_entries, d["buys"])
+            if d["buys"]:
+                s.traded_today = True
+            if d["sold"] and not s.in_position:
+                await self.restore_sale(s, *d["sold"])
+        if seen:
+            self.log.info("restored from today's orders: %s", ", ".join(
+                "%s %d buy(s)%s" % (sym, d["buys"], " last sold %s at %.4f" % (
+                    datetime.fromtimestamp(d["sold"][0], ET).strftime("%H:%M:%S"),
+                    d["sold"][1]) if d["sold"] else "")
+                for sym, d in sorted(seen.items())))
+
+    async def restore_sale(self, s, t, px):
+        pass
+
+
+class V36(_Restore, V35):
     """The owner's playbook - see the V36 settings above."""
 
     name = "v36"
@@ -4294,6 +4365,17 @@ V37_CROWD_MIN_DOLLARS = 1_000_000   # "a really huge crowd": dollars traded in t
 V37_FAST_SECONDS = 60           # "fast" (?): up V37_FAST_PCT within this many
 V37_FAST_PCT = 0.03             # seconds...
 V37_FAST_DOLLARS = 250_000      # ...on at least this many dollars traded in them
+# THE OWNER'S SPEED (2026-10-06): speed = (P2 - P1) / P1 x (V2 / V1) - the
+# price move times the volume's change, over rolling V37_FAST_SECONDS windows:
+# P2 now, P1 a window ago; V2 shares in the last window, V1 in the one before.
+# +10% on equal volume = 0.10; +5% on double volume = 0.10. A falling price is
+# negative: never a buy. When on, it replaces "up V37_FAST_PCT" as what
+# "flying" means (the money traded still has to reach V37_FAST_DOLLARS); the
+# owner: enter between 0.1 and 2 or more. V2/V1 capped at V37_SPEED_VOL_CAP.
+V37_SPEED_MIN = 0.0             # 0 = off (the old fast rule); the owner, 10-06:
+                                # hold off - judge "up 3%" on a big enough sample first
+V37_SPEED_VOL_CAP = 30.0        # the owner: volume 20x with the price barely moving
+                                # is "about to take off" - 1% x 20 = 0.20, a buy
 V37_ASK_PLUS = 0.10             # each try's limit: the ask plus this many dollars -
                                 # the owner's hot keys ("ask plus 10 cents"); it fills
                                 # at the best offers up to there, usually at the ask
@@ -4332,6 +4414,56 @@ V37_STOP_MAX = 0.08             # ...nor more than this; after an add, the same
                                 # distance under the new average
 V37_GIVEBACK_ARM = 0.0          # "half the gain" only once the best gain reached
                                 # this (0 = from the first cent, as before)
+# PROPOSED 2026-10-06, off until the owner decides. All 6 v37 trades from
+# 9:02 to 11:40am were sold by "half the gain" 4-13 seconds after the buy,
+# on a gain of 1-8c - noise right after the buy. A grace: for this many
+# seconds after a buy only the stop (3-8% under) sells; the owner: "that
+# little noise up front can be cut off by your 3 and 8% below".
+V37_GRACE_SECONDS = 0.0         # 0 = off
+V37_GRACE_FORGET = False        # True: "half the gain" counts only the gain made
+                                # after the grace, not a spike inside it
+# PROPOSED 2026-10-06 (the owner), off until the owner decides: buy only while
+# the stock is RUNNING. The 9 v37 buys from 9:02am to 2:25pm 10-06 all came at
+# the top of a one-minute burst out of quiet (already up 7-28% in 2 minutes)
+# and all lost. The owner: price up, volume up, and none of the bearish signs
+# - a wick on the candle before ("the momentum is fizzling out"), green bodies
+# getting smaller one after another. A stock truly ripping (the last 60s
+# busier than any minute of its day so far) skips these checks.
+V37_MOMENTUM = False            # the checks below; False = as before
+V37_STAIR_MINUTES = 2           # the last N closed minutes each with a low at or
+                                # above the one before (the price stepping up)
+V37_CROWD_STAYS = 2             # ...each trading at least V37_CROWD_REL x the
+V37_CROWD_REL = 2.0             # stock's normal minute - not one burst out of quiet
+V37_LAST_GREEN = True           # the minute before the buy closed green
+V37_WICK_MAX = 0.25             # the minute before the buy: green, its top wick at
+                                # most this share of its range ("full all the way
+                                # to the top, no wick or a very short wick")...
+V37_BODY_FADE = 0.50            # ...and its body at least this share of the bigger
+                                # of the two before it (bodies not shrinking)
+# PROPOSED 2026-10-06 (the owner), off until the owner decides: the same signs
+# WEIGHED instead of pass/fail - "the world is not black and white; trading
+# is messy". Points for what favours a run, a buy at V37_SCORE_MIN or more.
+# Only a huge top wick on the last candle stops a buy outright ("almost a
+# stop"). A stock ripping skips the score.
+V37_SCORE_MIN = 12              # 0 = off; else the points needed (of 15) - the
+                                # owner, 10-06: 12 (replay: 75% won, the only
+                                # version profitable at live-like fill costs)
+V37_SCORE_HUGE_WICK = 0.60      # the last candle's top wick over this share of it:
+                                # no buy
+V37_SCORE_ROOM = 0.05           # resistance: the prior day's high this close above
+V37_SCORE_SPEED = ((0.1, 1), (0.2, 2), (0.3, 4))   # the owner's speed: (at, points)
+                                # - 0.3 is worth 4 ("the speed is very important")
+V37_SPEED_MOVE_MIN = 0.03       # the speed counts (its points, the furious override,
+                                # speed as the trigger) only when the PRICE itself is
+                                # up this much in the last minute - the owner: huge
+                                # volume on a flat price is selling met by buying,
+                                # not a run ("I would wait for a confirmation")
+V37_SCORE_FURIOUS = 0.0         # >0: a speed this high buys whatever the score (the
+                                # owner: "the speed is everything" - never miss the
+                                # furious ones); 0 = off
+V37_STEADY_PAY = 0.0            # >0: a buy may pay at most this share over the price
+                                # seen unless the stock is ripping (the owner: "you
+                                # can do that only if the stock is ripping"); 0 = off
 # PROPOSED 2026-10-06, off until the owner decides. IPDN: volume 497k, 446k,
 # 242k at 8:11, 8:12, 8:13 - "the volume has come down three candles in a
 # row" - and v37 bought at 8:14:29; it bought twice in 8:12 on falling
@@ -4427,6 +4559,10 @@ class V37(V36):
             s.v37_prints.append((t, price, size))
         while s.v37_prints and s.v37_prints[0][0] < cut:
             s.v37_prints.popleft()
+        if t >= now - 2 * V37_FAST_SECONDS:
+            s.v37_speed_prints.append((t, price, size))
+        while s.v37_speed_prints and s.v37_speed_prints[0][0] < now - 2 * V37_FAST_SECONDS:
+            s.v37_speed_prints.popleft()
 
     def note_skipped(self, s, price, conds):
         """An odd lot still raises the high of the day - the high the owner's
@@ -4446,6 +4582,22 @@ class V37(V36):
             s.v37_sold_px = sold[-1][2] if sold else s.last_price
             s.v37_sold_ts = time.time()
         super().clear(s)
+
+    async def restore_sale(self, s, t, px):
+        """The last sale: the re-buy wait counts from it, and a re-buy must
+        confirm over the day's high as it stood then."""
+        s.v37_sold_px, s.v37_sold_ts = px, t
+        try:
+            high = await day_high_since_open(
+                self.data, s.symbol, datetime.fromtimestamp(t, timezone.utc))
+        except Exception:
+            high = 0.0
+        s.v37_old_high = max(s.v37_old_high, high, px)
+
+    def in_grace(self, s) -> bool:
+        """Within V37_GRACE_SECONDS of the buy (0 = no grace)."""
+        return bool(V37_GRACE_SECONDS and s.entry_at
+                    and time.time() - s.entry_at < V37_GRACE_SECONDS)
 
     def too_soon(self, s, price) -> bool:
         """Within V37_REBUY_WAIT of a sale and not yet the jump above it."""
@@ -4468,6 +4620,97 @@ class V37(V36):
         """The last 60 seconds traded more than any closed minute of the last 30."""
         vols = [b.v for b in s.bars[-30:]]
         return bool(vols) and self.pace(s) > max(vols)
+
+    def ripping(self, s) -> bool:
+        """The last 60 seconds traded more than any closed minute of the day
+        so far - a true rip (XHG 9:39am 10-06: 2.4M shares after 1.9M)."""
+        vols = [b.v for b in s.bars]
+        return bool(vols) and self.pace(s) > max(vols)
+
+    def not_running(self, s) -> str:
+        """V37_MOMENTUM: why the stock is NOT running right now - "" when it
+        is, when it is ripping, or when there are too few closed minutes to
+        judge. Checked on the minutes before the buy."""
+        if not V37_MOMENTUM or self.ripping(s):
+            return ""
+        bars = s.bars
+        need = max(V37_STAIR_MINUTES + 1, V37_CROWD_STAYS, 3)
+        if len(bars) < need:
+            return ""
+        last = bars[-1]
+        if V37_LAST_GREEN and not last.green:
+            return "the last candle closed red"
+        rng = last.h - last.l
+        if rng > 0 and (last.h - last.c) / rng > V37_WICK_MAX:
+            return "a top wick on the last candle (%.0f%% of it)" % (
+                100 * (last.h - last.c) / rng)
+        before = max(bars[-2].c - bars[-2].o, bars[-3].c - bars[-3].o)
+        if before > 0 and last.c - last.o < V37_BODY_FADE * before:
+            return "green bodies shrinking (%.4f after %.4f)" % (last.c - last.o, before)
+        for k in range(1, V37_STAIR_MINUTES + 1):
+            if bars[-k].l < bars[-k - 1].l:
+                return "not stepping up (a lower low %d min ago)" % k
+        normal = statistics.median(b.v for b in bars[-30:])
+        for k in range(1, V37_CROWD_STAYS + 1):
+            if bars[-k].v < V37_CROWD_REL * normal:
+                return "volume not staying up (%.1fx normal %d min ago)" % (
+                    bars[-k].v / normal if normal else 0.0, k)
+        return ""
+
+    def score(self, s, price):
+        """V37_SCORE_MIN: how favourable the moment is, out of 15 points, and
+        the parts - or (None, why) when it is no buy at all: a red last candle
+        (the owner: "zero - we are not going to enter there", until the bots
+        learn bounces off solid support) or a huge top wick on it.
+          speed        4  the owner's speed - price change x volume change over
+                          the last minute: 1 at 0.1, 2 at 0.2, 4 at 0.3
+          last candle  2  green, closed in its top third (1: green, a bigger
+                          wick - "two thirds up can still be favourable")
+          wicks        1  top wicks not growing 3 candles in a row ("sellers
+                          pushing it back"; one odd one is forgiven)
+          bodies       1  green bodies not shrinking noticeably 3 in a row
+                          (each under 3/4 of the one before; irregular is fine)
+          lows         1  at least 2 of the last 3 lows stepping up
+          volume       2  2x normal in at least 2 of the last 3 minutes - high
+                          and staying high, one dip forgiven (1: in one)
+          trend        2  over VWAP (1), over the 9 EMA over the 20 (1)
+          MACD         1  the 12 EMA over the 26
+          room         1  no prior-day high within V37_SCORE_ROOM above"""
+        bars = s.bars
+        if len(bars) < 4:
+            return 15, "too few candles to judge"
+        last = bars[-1]
+        if not last.green:
+            return None, "the last candle closed red"
+        rng = last.h - last.l
+        wick = (last.h - last.c) / rng if rng > 0 else 0.0
+        if wick > V37_SCORE_HUGE_WICK:
+            return None, "a huge top wick on the last candle (%.0f%% of it)" % (100 * wick)
+        parts = {}
+        spd = self.real_speed(s, price)         # 0 if the price did not really move
+        parts["speed"] = max((p for t, p in V37_SCORE_SPEED if spd >= t), default=0)
+        parts["candle"] = 2 if wick <= 1 / 3 else 1
+        def top_wick(b):
+            r = b.h - b.l
+            return (b.h - max(b.o, b.c)) / r if r > 0 else 0.0
+        w = [top_wick(b) for b in bars[-3:]]
+        parts["wicks"] = 0 if (w[0] < w[1] < w[2] and w[2] > 1 / 3) else 1
+        bodies = [b.c - b.o for b in bars[-3:]]
+        fading = (all(x > 0 for x in bodies)
+                  and bodies[1] < 0.75 * bodies[0] and bodies[2] < 0.75 * bodies[1])
+        parts["bodies"] = 0 if fading else 1
+        steps = sum(1 for k in (1, 2, 3) if bars[-k].l >= bars[-k - 1].l)
+        parts["lows"] = 1 if steps >= 2 else 0
+        normal = statistics.median(b.v for b in bars[-30:])
+        busy = sum(1 for b in bars[-3:] if normal and b.v >= 2 * normal)
+        parts["volume"] = min(2, busy)
+        vwap = self.vwap(s)
+        parts["trend"] = (1 if vwap and price > vwap else 0) + (
+            1 if s.ema9 and price > s.ema9 > s.ema20 else 0)
+        parts["macd"] = 1 if s.ema12 > s.ema26 else 0
+        parts["room"] = 0 if (s.prev_high > price
+                              and s.prev_high < price * (1 + V37_SCORE_ROOM)) else 1
+        return sum(parts.values()), " ".join("%s %d" % kv for kv in parts.items())
 
     def confirm_bars(self, s) -> int:
         """How many candles the next buy of this stock waits for."""
@@ -4533,6 +4776,44 @@ class V37(V36):
         return low > 0 and price >= low * (1 + V37_FAST_PCT) \
             and dollars >= V37_FAST_DOLLARS
 
+    def speed(self, s, price) -> float:
+        """The owner's speed: (P2 - P1) / P1 x (V2 / V1) over rolling
+        V37_FAST_SECONDS windows. 0.0 until both windows have prints."""
+        move, ratio = self.speed_parts(s, price)
+        return move * min(ratio, V37_SPEED_VOL_CAP)
+
+    def speed_parts(self, s, price):
+        """(P2 - P1) / P1 and V2 / V1 - the price part and the volume part
+        of the speed. (0, 0) until both windows have prints."""
+        now = time.time()
+        w = V37_FAST_SECONDS
+        recent = [x for x in s.v37_speed_prints if x[0] >= now - w]
+        before = [x for x in s.v37_speed_prints if now - 2 * w <= x[0] < now - w]
+        if not recent or not before:
+            return 0.0, 0.0
+        p1 = before[-1][1]                      # the price a window ago
+        v1 = sum(x[2] for x in before)
+        v2 = sum(x[2] for x in recent)
+        if p1 <= 0 or v1 <= 0:
+            return 0.0, 0.0
+        return (price - p1) / p1, v2 / v1
+
+    def real_speed(self, s, price) -> float:
+        """The owner's speed, but 0 unless the price part of it - up from a
+        minute ago - is at least V37_SPEED_MOVE_MIN."""
+        move, ratio = self.speed_parts(s, price)
+        if move < V37_SPEED_MOVE_MIN:
+            return 0.0
+        return move * min(ratio, V37_SPEED_VOL_CAP)
+
+    def flying(self, s, price) -> bool:
+        """V37_SPEED_MIN on: the owner's speed at least that, on real money.
+        Off: up V37_FAST_PCT in V37_FAST_SECONDS (fast())."""
+        if not V37_SPEED_MIN:
+            return self.fast(s, price)
+        dollars = sum(x[1] * x[2] for x in s.v37_prints)
+        return self.real_speed(s, price) >= V37_SPEED_MIN and dollars >= V37_FAST_DOLLARS
+
     def buy_limit(self, ask, ceiling) -> float:
         return min(ask + V37_ASK_PLUS, ceiling)
 
@@ -4560,6 +4841,8 @@ class V37(V36):
         minute's move, between V37_ENTRY_PCT and V37_ENTRY_MAX. A stock up 20%
         in a minute may cost 10% more to get into - "sometimes I get in more
         like 10% more, but the stock took me to a higher level"."""
+        if V37_STEADY_PAY and not self.ripping(s):
+            return V37_STEADY_PAY               # steady, not ripping: no chasing
         return min(V37_ENTRY_MAX, max(V37_ENTRY_PCT, 0.5 * self.move(s, price)))
 
     def in_the_crowd(self, s) -> bool:
@@ -4592,10 +4875,24 @@ class V37(V36):
         if not self.confirmed(s):
             return                              # a re-buy, or out of a sideways stretch:
                                                 # not confirmed above the old high yet
-        if not self.in_the_crowd(s) or not self.fast(s, price):
+        if not self.in_the_crowd(s) or not self.flying(s, price):
             return
         if not self.volume_ok(s):
             return                              # flying means the volume is rising
+        why = self.not_running(s)
+        if (not why and V37_SCORE_MIN and not self.ripping(s)
+                and not (V37_SCORE_FURIOUS
+                         and self.real_speed(s, price) >= V37_SCORE_FURIOUS)):
+            points, parts = self.score(s, price)
+            if points is None or points < V37_SCORE_MIN:
+                why = "score %s/15 under %d: %s" % (points, V37_SCORE_MIN, parts) \
+                    if points is not None else parts
+        if why:                                 # it spiked, it is not running
+            if time.time() - s.v37_skip_logged >= 30:
+                s.v37_skip_logged = time.time()
+                self.log.info("[v37] SKIP %s at %.4f - not running: %s",
+                              s.symbol, price, why)
+            return
         lock = self.lock(s.symbol)
         if lock.locked():
             return
@@ -4605,6 +4902,8 @@ class V37(V36):
             await self.v37_buy(s, price)
 
     async def v37_buy(self, s, price):
+        spd = self.speed(s, price)              # logged for every buy, rule on or off
+        pts, parts = self.score(s, price)       # the same
         eq = await self.broker.equity(self.day_start_equity)
         cap = self.entry_cap(s, price)
         worst = price * (1 + cap)
@@ -4624,6 +4923,7 @@ class V37(V36):
         s.v37_stop_pct = self.stop_pct(s, price)
         s.stop = self.stop_for(s)
         s.v37_pace_at_buy = self.pace(s)
+        s.v37_peak_after = 0.0
         s.peak = s.entry
         s.trail_stop = 0.0
         s.armed = False
@@ -4633,16 +4933,18 @@ class V37(V36):
         s.v36_entries += 1
         s.entry_at = time.time()
         self.dlog.record(ev="ENTER", sym=s.symbol, px=price, sh=filled,
-                         kind="rip", stop=s.stop)
+                         kind="rip", stop=s.stop, speed=round(spd, 3),
+                         score=pts, parts=parts)
         self.log.info("[v37] ENTER %s %d @ %.4f (print %.4f) = $%.0f (%.1f%% of "
                       "equity) - a tenth of a position, buy %d today | crowd #%d, "
-                      "$%.0fk in %d min | stop %.4f | adds at %.4f and %.4f",
+                      "$%.0fk in %d min | stop %.4f | adds at %.4f and %.4f | "
+                      "speed %.2f | score %s (%s)",
                       s.symbol, filled, s.entry, price, filled * s.entry,
                       100 * filled * s.entry / eq if eq else 0.0, s.v36_entries,
                       self.crowd_rank(s.symbol),
                       self.crowd_dollars(s.symbol) / 1000, V36_CROWD_MINUTES,
                       s.stop, s.v36_first + V37_ADD1_CENTS,
-                      s.v36_first + V37_ADD2_CENTS)
+                      s.v36_first + V37_ADD2_CENTS, spd, pts, parts)
         await self.quote_the_crowd()
 
     def others_pct(self, s, eq) -> float:
@@ -4723,8 +5025,13 @@ class V37(V36):
                 and self.pace(s) < V37_VOL_EXIT * s.v37_pace_at_buy):
             await self.exit(s, "volume-gone")   # the crowd has left
             return
-        gain = s.peak - s.entry
-        armed = s.peak >= s.entry * (1 + V37_GIVEBACK_ARM)
+        if self.in_grace(s):
+            top = 0.0                           # the first seconds: only the stop sells
+        else:
+            s.v37_peak_after = max(s.v37_peak_after or s.entry, price)
+            top = s.v37_peak_after if V37_GRACE_FORGET else s.peak
+        gain = top - s.entry
+        armed = top >= s.entry * (1 + V37_GIVEBACK_ARM)
         if gain > 0 and armed and price <= s.entry + (1 - V37_GIVEBACK) * gain:
             await self.exit(s, "giveback")      # half of the profit gone
             return
@@ -5219,6 +5526,11 @@ class Engine:
             await strat.roll_day()
             strat.needs_reconcile = False
             await strat.reconcile("startup")
+            if hasattr(strat, "restore_today"):
+                try:
+                    await strat.restore_today()
+                except Exception as e:
+                    log.error("[%s] restore from today's orders: %s", strat.name, e)
 
         log.info("engine up: VERSION %s | %s | one data connection | "
                  "orphan mode %s | baseline " + DAY_BASELINE + " | "
