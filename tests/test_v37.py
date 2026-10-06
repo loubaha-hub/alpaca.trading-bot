@@ -229,29 +229,43 @@ def test_alone_a_full_position_is_40_percent(v37, clock, now, broker):
     assert s.shares * s.v36_first == pytest.approx(0.40 * broker.eq, rel=0.05)
 
 
-def test_beside_another_a_new_one_is_sized_for_25(v37, clock, now, broker, monkeypatch):
-    monkeypatch.setattr(bot, "V37_CROWD_TOP", 5)
-    a = bought(v37, clock, now)
-    b = ripping(v37, clock, now, symbol="BBBB")
-    v37.crowd = (-1, {})
-    tick(v37, b, now, 10.36)
-    assert b.in_position
-    assert b.shares * b.entry == pytest.approx(0.25 * 0.10 * broker.eq, rel=0.1)
-
-
-def test_when_the_second_proves_itself_the_first_is_trimmed_to_25(v37, clock, now,
-                                                                   broker, monkeypatch):
+def two(v37, clock, now, monkeypatch):
+    """A at a full 40%, then B ripping beside it."""
     monkeypatch.setattr(bot, "V37_CROWD_TOP", 5)
     monkeypatch.setattr(bot, "V37_ASK_PLUS", 0.0)
     a = bought(v37, clock, now)
     tick(v37, a, now, round(a.v36_first + 0.10, 2))
     tick(v37, a, now, round(a.v36_first + 0.20, 2))
-    assert a.shares * a.last_price == pytest.approx(0.40 * broker.eq, rel=0.06)
     b = ripping(v37, clock, now, symbol="BBBB")
     v37.crowd = (-1, {})
     tick(v37, b, now, 10.36)
-    assert a.shares * a.last_price > 0.35 * broker.eq        # not trimmed yet
-    tick(v37, b, now, round(b.v36_first + 0.10, 2))           # B proves itself
-    assert b.v36_adds == 1
-    assert a.shares * a.last_price == pytest.approx(0.25 * broker.eq, rel=0.06)
+    assert b.in_position
+    return a, b
+
+
+def pct(s, broker):
+    return s.shares * s.last_price / broker.eq
+
+
+def test_beside_a_40_percent_one_the_second_gets_what_is_left(v37, clock, now,
+                                                            broker, monkeypatch):
+    """The owner: 1%, then 5%, then 10% - 40 and 10 is 50."""
+    a, b = two(v37, clock, now, monkeypatch)
+    assert pct(a, broker) == pytest.approx(0.40, rel=0.06)
+    assert pct(b, broker) == pytest.approx(0.01, rel=0.2)
+    tick(v37, b, now, round(b.v36_first + 0.10, 2))
+    assert pct(b, broker) == pytest.approx(0.05, rel=0.15)
+    tick(v37, b, now, round(b.v36_first + 0.20, 2))
+    assert pct(a, broker) + pct(b, broker) == pytest.approx(0.50, abs=0.02)
+
+
+def test_if_the_second_keeps_running_both_end_at_25(v37, clock, now, broker,
+                                                   monkeypatch):
+    a, b = two(v37, clock, now, monkeypatch)
+    tick(v37, b, now, round(b.v36_first + 0.10, 2))
+    tick(v37, b, now, round(b.v36_first + 0.20, 2))
+    assert pct(a, broker) > 0.35                          # not trimmed yet
+    tick(v37, b, now, round(b.v36_first + 0.30, 2))       # it keeps running
+    assert pct(a, broker) == pytest.approx(0.25, abs=0.015)
+    assert pct(b, broker) == pytest.approx(0.25, abs=0.015)
     assert v37.closed_today[-1][5] == "make-room"

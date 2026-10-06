@@ -4190,7 +4190,9 @@ class V36(V35):
 #                again on the next print that still rips. After a sale, again only with the crowd still there,
 #                at a new high of the day.
 #   SIZE         a tenth of a position; half at +10 cents, full at +20 cents.
-#                Full is 40% of the account alone, 25% each beside another.
+#                Full is 40% of the account alone; a second one gets what is
+#                left under 50%, and if it keeps running the first is trimmed
+#                so both hold 25%.
 #   THE EXIT     "no tolerance for loss": V37_STOP_CENTS under the buy. "Half of
 #                the profit gone, exit": half of the best gain given back.
 # Numbers marked (?) are first guesses for the owner to correct.
@@ -4212,9 +4214,14 @@ V37_ENTRY_PCT = 0.02            # a buy pays at least this share over the price 
 V37_SOLO_PCT = 0.40             # a full position when it is the only one (the
                                 # owner, 10-06: "one position can go all the way to
                                 # 40"); the worst replayed trade lost 2.5% of it
-V37_PAIR_PCT = 0.25             # each of two: 50% of the account at most. When a
-                                # second stock proves itself (its first add), a
-                                # first one over 25% is trimmed to 25% to make room
+V37_PAIR_PCT = 0.25             # each of two in the end...
+V37_PAIR_TOTAL = 0.50           # ...and two together never over this. The owner,
+                                # 10-06: beside a first one at 40%, a second one's
+                                # full position is what is left (10%: 1%, 5%, 10%);
+                                # if it keeps running (+V37_ADD3_CENTS on a new
+                                # high), the first is trimmed to 25% and the second
+                                # grows to 25%.
+V37_ADD3_CENTS = 0.30           # "keeps running" for a second position (?)
 V37_STARTER = 0.10              # the first buy: this fraction of a full position
 V37_ADD1_CENTS = 0.10           # up this much from the first buy, on a new high:
 V37_ADD1_TO = 0.50              # to this fraction of a full position
@@ -4309,7 +4316,7 @@ class V37(V36):
         held_all = sum(x.shares * (x.last_price or price)
                        for x in self.open_positions())
         room = max(0.0, eq * MAX_EXPOSURE_PCT - held_all)
-        shares = int(min(eq * self.v37_full(s) * V37_STARTER, room) / worst)
+        shares = int(min(eq * self.v37_full(s, eq) * V37_STARTER, room) / worst)
         if shares * price < MIN_TRADE_DOLLARS:
             return
         filled = await self.buy(s.symbol, shares, price, cap)
@@ -4341,15 +4348,21 @@ class V37(V36):
                       s.v36_first + V37_ADD2_CENTS)
         await self.quote_the_crowd()
 
-    def v37_full(self, s) -> float:
-        """A full position for `s`: V37_SOLO_PCT alone, V37_PAIR_PCT beside
-        another open position."""
-        others = [x for x in self.open_positions() if x is not s]
-        return V37_PAIR_PCT if others else V37_SOLO_PCT
+    def others_pct(self, s, eq) -> float:
+        return sum(x.shares * (x.last_price or x.entry)
+                   for x in self.open_positions() if x is not s) / eq if eq else 0.0
+
+    def v37_full(self, s, eq=None) -> float:
+        """A full position for `s`: V37_SOLO_PCT alone; beside another, what
+        is left under V37_PAIR_TOTAL, never over V37_PAIR_PCT."""
+        if not [x for x in self.open_positions() if x is not s]:
+            return V37_SOLO_PCT
+        eq = eq or self.day_start_equity
+        return max(0.0, min(V37_PAIR_PCT, V37_PAIR_TOTAL - self.others_pct(s, eq)))
 
     async def make_room(self, s, eq):
-        """A second stock has proved itself: any other position over
-        V37_PAIR_PCT of the account is trimmed down to it."""
+        """A second stock keeps running (+V37_ADD3_CENTS): any other position
+        over V37_PAIR_PCT of the account is trimmed down to it."""
         for x in self.open_positions():
             if x is s or not x.last_price:
                 continue
@@ -4369,13 +4382,14 @@ class V37(V36):
                 return
             s.v36_adds += 1
             eq = await self.broker.equity(self.day_start_equity)
-            if len(self.open_positions()) > 1:
+            if to_fraction is None:                 # the third step, beside another
                 await self.make_room(s, eq)
+                to_fraction = 1.0
             worst = price * (1 + BUY_CHASE_CAP)
             held_all = sum(x.shares * (x.last_price or price)
                            for x in self.open_positions())
             room = max(0.0, eq * MAX_EXPOSURE_PCT - held_all)
-            want = max(0.0, eq * self.v37_full(s) * to_fraction - s.shares * price)
+            want = max(0.0, eq * self.v37_full(s, eq) * to_fraction - s.shares * price)
             shares = int(min(want, room) / worst)
             if shares * price < MIN_TRADE_DOLLARS:
                 return
@@ -4411,6 +4425,8 @@ class V37(V36):
             await self.exit(s, "giveback")      # half of the profit gone
             return
         steps = ((V37_ADD1_CENTS, V37_ADD1_TO), (V37_ADD2_CENTS, V37_ADD2_TO))
+        if len(self.open_positions()) > 1:
+            steps += ((V37_ADD3_CENTS, None),)     # beside another: make room, grow
         if s.v36_adds < len(steps) and new_high:
             at, to_fraction = steps[s.v36_adds]
             if price >= s.v36_first + at:
