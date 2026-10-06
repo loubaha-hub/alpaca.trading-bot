@@ -151,7 +151,7 @@ def test_half_the_profit_gone_it_is_out(v37, clock, now, monkeypatch):
 
 
 def test_again_only_at_a_new_high_of_the_day(v37, clock, now, monkeypatch):
-    monkeypatch.setattr(bot, "V37_CONFIRM_BARS", 0)         # confirmation: tested below
+    monkeypatch.setattr(bot, "V37_CONFIRM_BY_BUY", ())      # confirmation: tested below
     s = bought(v37, clock, now)
     tick(v37, s, now, 10.30)                              # stopped out
     assert not s.in_position
@@ -163,7 +163,7 @@ def test_again_only_at_a_new_high_of_the_day(v37, clock, now, monkeypatch):
 
 
 def test_no_daily_limit_on_buys(v37, clock, now, monkeypatch):
-    monkeypatch.setattr(bot, "V37_CONFIRM_BARS", 0)         # confirmation: tested below
+    monkeypatch.setattr(bot, "V37_CONFIRM_BY_BUY", ())      # confirmation: tested below
     """The owner, 2026-10-06: no limit on buys per stock per day - 10 a day
     locked v37 out of AIXI's and SDEV's second legs."""
     s = bought(v37, clock, now)
@@ -176,7 +176,7 @@ def test_no_daily_limit_on_buys(v37, clock, now, monkeypatch):
 
 
 def test_touching_the_high_is_not_a_new_high(v37, clock, now, monkeypatch):
-    monkeypatch.setattr(bot, "V37_CONFIRM_BARS", 0)         # confirmation: tested below
+    monkeypatch.setattr(bot, "V37_CONFIRM_BY_BUY", ())      # confirmation: tested below
     """AIXI, 4:17am 2026-10-06: three buys in 8 seconds, all on 2.80."""
     s = bought(v37, clock, now)
     tick(v37, s, now, 10.30)                              # stopped out
@@ -577,6 +577,7 @@ def test_a_re_buy_waits_for_a_candle_to_close_above_the_old_high(v37, clock, now
     more candles and the price going up before we buy"."""
     monkeypatch.setattr(v37, "fast", lambda s, p: True)
     s = bought(v37, clock, now)
+    s.v36_entries = 3                                     # the next buy: the 4th
     tick(v37, s, now, 10.30)                              # sold
     old = s.v37_old_high
     assert old == s.day_high
@@ -594,6 +595,7 @@ def test_a_candle_closing_back_under_the_old_high_does_not_confirm(v37, clock, n
                                                                    monkeypatch):
     monkeypatch.setattr(v37, "fast", lambda s, p: True)
     s = bought(v37, clock, now)
+    s.v36_entries = 3                                     # the next buy: the 4th
     tick(v37, s, now, 10.30)
     old = s.v37_old_high
     candle(v37, clock, round(old - 0.02, 2), high=round(old + 0.05, 2))   # a wick over
@@ -604,6 +606,7 @@ def test_a_candle_closing_back_under_the_old_high_does_not_confirm(v37, clock, n
 def test_extraordinary_volume_does_not_wait(v37, clock, now, monkeypatch):
     monkeypatch.setattr(v37, "fast", lambda s, p: True)
     s = bought(v37, clock, now)
+    s.v36_entries = 3                                     # the next buy: the 4th
     tick(v37, s, now, 10.30)
     prints(v37, s, now, 10.20, 10.34, size=10_000)        # 300k: more than any minute
     tick(v37, s, now, round(s.day_high + 0.01, 2))
@@ -614,6 +617,7 @@ def test_a_break_after_5_minutes_sideways_waits(v37, clock, now):
     """IPDN 8:21-8:35am 2026-10-06: under 6.97 for 15 minutes, then through
     it on volume it had already traded twice - "I would not have traded that"."""
     s = crowd(v37, clock, "ABCD", 1_000_000)
+    s.v36_entries = 3                                     # a later run
     s.v37_high_ts = now[0] - 400                          # the last high: 6+ min ago
     prints(v37, s, now, 10.00, 10.35)
     s.day_high = max(s.day_high, 10.05)
@@ -645,9 +649,33 @@ def test_a_red_candle_over_the_old_high_does_not_confirm(v37, clock, now,
     """"The price still going up": the confirming candle closes green."""
     monkeypatch.setattr(v37, "fast", lambda s, p: True)
     s = bought(v37, clock, now)
+    s.v36_entries = 3                                     # the next buy: the 4th
     tick(v37, s, now, 10.30)
     old = s.v37_old_high
     utc = clock.now.astimezone(bot.timezone.utc)
     feed_bars(v37, "ABCD", utc, [(old + 0.10, old + 0.12, old + 0.01, old + 0.03, 50_000)])
     tick(v37, s, now, round(s.day_high + 0.01, 2))
     assert not s.in_position
+
+
+def test_the_second_buy_of_the_day_does_not_wait(v37, clock, now, monkeypatch):
+    """The owner, 2026-10-06: "the first one and the second one, no way -
+    that's where the money is"."""
+    monkeypatch.setattr(v37, "fast", lambda s, p: True)
+    s = bought(v37, clock, now)                           # the 1st
+    tick(v37, s, now, 10.30)                              # sold
+    tick(v37, s, now, round(s.v37_old_high + 0.02, 2))    # the 2nd: at once
+    assert s.in_position
+
+
+def test_the_third_buy_waits_one_candle(v37, clock, now, monkeypatch):
+    monkeypatch.setattr(v37, "fast", lambda s, p: True)
+    s = bought(v37, clock, now)
+    s.v36_entries = 2                                     # the next buy: the 3rd
+    tick(v37, s, now, 10.30)
+    old = s.v37_old_high
+    tick(v37, s, now, round(old + 0.02, 2))
+    assert not s.in_position
+    candle(v37, clock, round(old + 0.03, 2))              # one candle is enough
+    tick(v37, s, now, round(s.day_high + 0.01, 2))
+    assert s.in_position

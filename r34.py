@@ -4288,9 +4288,11 @@ V37_MAX_ENTRIES = 0             # buys per name per day; 0 = no limit (the owner
 # owner, a minute later: 15 minutes is too long - "after five minutes going
 # sideways... I would have waited for one more candle and entered". A fresh run, or EXTRAORDINARY volume (the
 # last 60 seconds more than any minute of the last 30), buys at once.
-V37_CONFIRM_BARS = 2            # the owner, 2026-10-06: "I will give it two
-                                # confirmations... after the second, third, fourth
-                                # run you have to be careful". 0 = off
+V37_CONFIRM_BY_BUY = (0, 0, 1, 2)   # candles to wait before the 1st, 2nd, 3rd,
+                                # 4th (and every later) buy of a stock today. The
+                                # owner, 2026-10-06: "the first one and the second
+                                # one, no way - that's where the money is... the
+                                # third can wait one minute"; after that, two.
 V37_SIDEWAYS_SECONDS = 300
 V37_EXTRAORDINARY = True
 V37_ODD_LOT_HIGH = True         # odd lots raise the high of the day (never trigger)
@@ -4359,16 +4361,23 @@ class V37(V36):
         vols = [b.v for b in s.bars[-30:]]
         return bool(vols) and self.pace(s) > max(vols)
 
+    def confirm_bars(self, s) -> int:
+        """How many candles the next buy of this stock waits for."""
+        if not V37_CONFIRM_BY_BUY:
+            return 0
+        return V37_CONFIRM_BY_BUY[min(s.v36_entries, len(V37_CONFIRM_BY_BUY) - 1)]
+
     def confirmed(self, s) -> bool:
-        """V37_CONFIRM_BARS closed 1-minute candles closed above the old high
-        (a re-buy, or a break out of a sideways stretch) - or extraordinary
-        volume. No old high: nothing to confirm."""
-        if not V37_CONFIRM_BARS or not s.v37_old_high:
+        """confirm_bars() closed 1-minute candles closed green above the old
+        high (a re-buy, or a break out of a sideways stretch) - or
+        extraordinary volume. No old high, or no candles due: no wait."""
+        need = self.confirm_bars(s)
+        if not need or not s.v37_old_high:
             return True
         if V37_EXTRAORDINARY and self.extraordinary(s):
             return True
-        recent = s.bars[-V37_CONFIRM_BARS:]
-        return (len(recent) == V37_CONFIRM_BARS
+        recent = s.bars[-need:]
+        return (len(recent) == need
                 and all(b.green and b.c > s.v37_old_high for b in recent))
 
     def pace(self, s) -> float:
