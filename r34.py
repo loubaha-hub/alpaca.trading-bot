@@ -125,7 +125,7 @@ RISK_CHECK_SECONDS = 5                      # the halt runs on a CLOCK, not tick
 # The file name and this string are changed together, every single time. The
 # log then answers "which code is actually running?" without anyone guessing
 # from line numbers or from behaviour that only shows up once a trade is on.
-VERSION = "v31-r34.3"
+VERSION = "v31-r34.4"
 
 # WHERE THE DAY'S HALT BASELINE COMES FROM.
 #   "last_equity" - equity at the PREVIOUS session's close, read from the broker.
@@ -1833,7 +1833,8 @@ class V31(Strategy):
         self.last_rebalance = 0.0
         self.last_speeds: dict[str, float] = {}
         self.leader_cache = (None, {})
-        if V31_FLOAT_SIZING:
+        # v36 does not cut size on small floats (it wants them): no line.
+        if V31_FLOAT_SIZING and type(self).float_mult is V31.float_mult:
             if FLOATS:
                 self.log.info("[v31] float sizing: %d names from %s; under %.0fM "
                          "shares buy %.0f%% size, names not listed %.0f%%",
