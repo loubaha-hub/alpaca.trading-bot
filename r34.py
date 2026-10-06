@@ -1443,6 +1443,7 @@ class Strategy:
                     # but this print sets no price and triggers no rule.
                     s.last_tick_at = time.time()
                     s.skipped_prints += 1
+                    self.note_skipped(s, price, conds)
                     continue
                 s.last_price = price
                 s.last_conds = conds
@@ -1461,6 +1462,10 @@ class Strategy:
                 log.error("[%s] tick %s: %s", self.name, symbol, e)
 
     def note_trade(self, s: SymState, price, size):
+        pass
+
+    def note_skipped(self, s: SymState, price, conds):
+        """A print that may not set the price or trigger anything."""
         pass
 
     # ---- day roll -----------------------------------------------------------
@@ -4267,6 +4272,7 @@ V37_MAX_POSITIONS = 2
 V37_MAX_ENTRIES = 0             # buys per name per day; 0 = no limit (the owner,
                                 # 2026-10-06: the 10-buy limit locked v37 out of
                                 # AIXI and SDEV before their second legs)
+V37_ODD_LOT_HIGH = True         # odd lots raise the high of the day (never trigger)
 V37_FRESH_SECONDS = 2.0         # buy and add only on a print that traded this
                                 # recently. AIXI, 4:17am 2026-10-06: while an order
                                 # worked, prints queued; drained oldest first, each
@@ -4298,6 +4304,15 @@ class V37(V36):
             s.v37_prints.append((t, price, size))
         while s.v37_prints and s.v37_prints[0][0] < cut:
             s.v37_prints.popleft()
+
+    def note_skipped(self, s, price, conds):
+        """An odd lot still raises the high of the day - the high the owner's
+        chart shows - though it can never trigger a buy. IPDN 8:35am
+        2026-10-06: the chart's highs were 6.97 and 7.10, set by odd lots
+        (most IPDN prints were 1-70 shares); v37 never saw them and bought a
+        round lot at 6.97 as "a new high" - out 6 seconds later, -$21."""
+        if V37_ODD_LOT_HIGH and conds and set(conds) & NON_QUALIFYING_CONDS == {"I"}:
+            s.day_high = max(s.day_high, price)
 
     def pace(self, s) -> float:
         """Shares traded in the last V37_FAST_SECONDS (by when they traded)."""

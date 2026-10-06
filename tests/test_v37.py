@@ -525,3 +525,22 @@ def test_less_volume_and_a_price_that_stalls_does_not_buy(v37, clock, now,
     s.day_high = 10.05
     tick(v37, s, now, 10.36)
     assert not s.in_position
+
+
+def test_an_odd_lot_raises_the_high_but_never_buys(v37, clock, now):
+    """IPDN 8:35am 2026-10-06: the chart's high 7.10 was an odd lot; v37 bought
+    a round lot at 6.97 as "a new high"."""
+    s = ripping(v37, clock, now)
+    v37.note_skipped(s, 10.50, ("@", "I"))                # 12 shares at 10.50
+    assert s.day_high == 10.50
+    assert not s.in_position                              # it bought nothing
+    tick(v37, s, now, 10.40)                              # a round lot under it
+    assert not s.in_position
+    tick(v37, s, now, 10.51)                              # above it
+    assert s.in_position
+
+
+def test_an_out_of_sequence_print_does_not_raise_the_high(v37, clock, now):
+    s = ripping(v37, clock, now)
+    v37.note_skipped(s, 10.50, ("@", "I", "Z"))           # odd lot AND out of sequence
+    assert s.day_high == 10.05
