@@ -167,3 +167,17 @@ def test_no_more_than_two_at_once(v37, clock, now, monkeypatch):
         v37.crowd = (-1, {})                              # recount the crowd now
         tick(v37, s, now, 10.36)
     assert len(v37.open_positions()) == 2
+
+
+def test_the_days_top_gainer_counts_even_when_not_the_busiest(v37, clock, now):
+    """The owner, 10-06: most picks are the day's top gainer with news."""
+    s = ripping(v37, clock, now)
+    crowd(v37, clock, "BIGA", 5_000_000)
+    crowd(v37, clock, "BIGB", 4_000_000)
+    s.ref_price = 5.00                                    # ABCD: +107% on the day
+    for sym in ("BIGA", "BIGB"):
+        st = v37.st(sym)
+        st.ref_price, st.last_price = 9.50, 10.00        # +5%
+    tick(v37, s, now, 10.36)
+    assert v37.crowd_rank("ABCD") == 3 and v37.gainer_rank("ABCD") == 1
+    assert s.in_position

@@ -1248,6 +1248,8 @@ class SymState:
     tens: deque = field(default_factory=lambda: deque(maxlen=6))
                                      # v36: the last closed 10-second candles
     ten_break: bool = False          # v36: the short leash has fired since the buy
+    ref_price: float = 0.0           # the previous session's close (the scanner) -
+                                     # the day's gain is measured from it
     v37_prints: deque = field(default_factory=deque)
                                      # v37: (time, price, size) over V37_FAST_SECONDS
     last_exit: float = 0.0           # v33: the level that threw us out
@@ -3710,6 +3712,12 @@ V36_CROWD_MINUTES = 5           # the crowd: share of the list's dollars traded 
                                 # the last N minutes
 V36_CROWD_TOP = 2               # trade only the top N
 V36_CROWD_HOLD_MIN = 2          # ...after it has held a top spot N minutes
+V36_GAINER_TOP = 2              # OR one of the day's top N gainers (from the
+V36_GAINER_MIN_DOLLARS = 1_000_000  # previous close) with at least this many dollars
+                                # traded in the crowd window. The owner, 10-06:
+                                # 60-70% of the stocks they pick are the day's top
+                                # gainer with news; sometimes the crowd moves to a
+                                # lower one picking up speed. Either will do.
 V36_RIP_PCT = 0.05              # two green minutes adding this much
 V36_RIP_ONE_PCT = 0.05          # or one green minute adding this much
 V36_RIP_VOL_MULT = 3.0          # each rip minute on this many times the average
@@ -3784,6 +3792,7 @@ class V36(V35):
         super().__init__(broker, data)
         self.crowd = (-1, {})                  # (minute, {symbol: rank})
         self.crowd_dv = {}                     # symbol -> dollars in the crowd window
+        self.gainers = (-1, {})                # (minute, {symbol: rank by day gain})
         self.crowd_since = {}                  # symbol -> when it entered the top
 
     def halt_threshold(self) -> float:
@@ -3854,7 +3863,29 @@ class V36(V35):
         self.crowd_rank(symbol)
         return self.crowd_dv.get(symbol, 0.0)
 
+    def gainer_rank(self, symbol) -> int:
+        """1 for the scanner-list name up the most on the day (from the
+        previous close), 2 for the next... Recounted once a minute."""
+        minute = int(time.time() // 60)
+        if self.gainers[0] != minute:
+            up = {}
+            for sym in self.qualified:
+                st = self.state.get(sym)
+                if st and st.ref_price > 0 and st.last_price > 0:
+                    up[sym] = st.last_price / st.ref_price - 1
+            order = sorted(up, key=up.get, reverse=True)
+            self.gainers = (minute, {sym: i + 1 for i, sym in enumerate(order)})
+        return self.gainers[1].get(symbol, 10**6)
+
+    def top_gainer(self, s) -> bool:
+        return (V36_GAINER_TOP and self.gainer_rank(s.symbol) <= V36_GAINER_TOP
+                and self.crowd_dollars(s.symbol) >= V36_GAINER_MIN_DOLLARS)
+
     def in_crowd(self, s) -> bool:
+        """Where the crowd is (held V36_CROWD_HOLD_MIN), or the day's top
+        gainer with real money trading - either will do."""
+        if self.top_gainer(s):
+            return True
         if self.crowd_rank(s.symbol) > V36_CROWD_TOP:
             return False
         since = self.crowd_since.get(s.symbol)
@@ -4146,7 +4177,8 @@ class V36(V35):
 # The owner, 2026-10-06: "a strategy that is simplest of all". No candles, no
 # indicators, no tape check:
 #   WHICH STOCK  the #1 or #2 by activity right now (dollars traded in the
-#                last few minutes), with a big crowd behind it.
+#                last few minutes), with a big crowd behind it - or the day's
+#                top gainer with real money trading (V36_GAINER_*).
 #   THE BUY      the moment it rips: up V37_FAST_PCT in the last V37_FAST_SECONDS
 #                on real money. At most V37_ENTRY_PCT over the price it saw,
 #                re-priced fast; missed, it tries again on the next print that
@@ -4209,6 +4241,10 @@ class V37(V36):
             and dollars >= V37_FAST_DOLLARS
 
     def in_the_crowd(self, s) -> bool:
+        """The #1 or #2 by activity with a big crowd - or the day's top gainer
+        with real money trading."""
+        if self.top_gainer(s):
+            return True
         return (self.crowd_rank(s.symbol) <= V37_CROWD_TOP
                 and self.crowd_dollars(s.symbol) >= V37_CROWD_MIN_DOLLARS)
 
@@ -4359,6 +4395,7 @@ class Engine:
         self.last_auth_warn = 0.0
         self.last_probe = 0.0
         self.prev_highs: dict[str, float] = {}
+        self.prev_closes: dict[str, float] = {}
 
     def add_strategy(self, cls, key, secret):
         if not key or not secret:
@@ -4441,6 +4478,7 @@ class Engine:
                     # today trades, daily_bar IS the prior session.
                     prev = snap.previous_daily_bar if age == 0 else bar
                     self.prev_highs[sym] = float(getattr(prev, "high", 0) or 0)
+                    self.prev_closes[sym] = float(getattr(prev, "close", 0) or 0)
                 except Exception:
                     continue
         self.log_probe(probe)
@@ -4480,6 +4518,7 @@ class Engine:
                                 st = strat.st(sym)
                                 st.day_high = max(st.day_high, picks[sym])
                                 st.prev_high = self.prev_highs.get(sym, st.prev_high)
+                                st.ref_price = self.prev_closes.get(sym, st.ref_price)
                         await self.data.subscribe(symbols)
             except Exception as e:
                 log.error("scanner: %s", e)
