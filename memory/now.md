@@ -1,13 +1,18 @@
 # Where things stand
 
-Updated 2026-10-06, 9:20am ET.
+Updated 2026-10-06, 10:25am ET.
 
 ## Code
 - Working branch: `claude/zealous-ramanujan-br3gay`. New work goes here;
   nothing goes to `main` without the owner's OK.
-- Live on `main` (Render): VERSION v31-r34.9 (released 9:02am ET 10-06 at
-  the owner's request, all three accounts flat). Accounts: T6HH runs v36,
-  P28T ("V30-100k") runs v37, AUES runs v35.
+- Live on `main` (Render): VERSION v31-r34.10 (released 10:21am ET 10-06 at
+  the owner's request, all three accounts flat; r34.9 was 9:02am).
+  Accounts: T6HH runs v36, P28T ("V30-100k") runs v37, AUES runs v35.
+- r34.10 adds, for v37: no re-buy within 60s of a sale unless 30c up (10%
+  of the sale price on a cheap stock, whichever is smaller); sells, stops
+  and adds only on prints under 2s old. For v36: the 60/40 tape over ask vs
+  bid shares (between-prints set aside); no crowd hold for a stock ripping
+  in its last 2 minutes; a WHY-NOT log line for the top crowd names.
 - v37 since r34.9 (all from watching IPDN/AIXI with the owner, 10-06): every
   buy above the REAL high of the day (seeded from today's bars at start; odd
   lots raise it, never trigger); buys/adds only on prints under 2s old;
@@ -20,18 +25,21 @@ Updated 2026-10-06, 9:20am ET.
 - Release builds are made in a separate git worktree from `origin/main`.
 
 ## Waiting on the owner
-1. v36 fixes (proposed 10-06, details in the journal): the tape as green vs
-   red (between-prints set aside), no 2-minute crowd hold for a stock already
-   ripping, a "why not" log line once a minute. Build on the branch, release
-   after the close?
+1. "Half the gain" on tiny gains (25 of today's exits under 1%): the owner is
+   thinking. Replay: arming it later hurts (+$4,002 from the first cent vs
+   +$2,332 from 1%, fills 0.2% worse) - the wide stop and the early exit work
+   as a pair. Untested option: a 15-20s grace after a buy, the stop only.
 2. The scored checklist (proposal): must-haves plus weighted signals, the
    weights set from the owner marking real moments "I'd take it / I wouldn't".
 3. Environment settings for Massive (Polygon) data for the 3-month runs
    list (network + key, typed by the owner into Render/Claude settings).
 
 ## Next steps
-- 9:31am ET 10-06 check-in: v37's first trades under r34.9 at the open -
-  each buy against the real high and the volume on the chart.
+- The trade review page (private artifact, owner's marks saved in its db
+  collection `verdicts`): https://claude.ai/artifact/TiBC6Qtoca1SHZU27AhVWG -
+  fill it each day; read the owner's marks back with ArtifactData.
+- Small fix: set v37's stop BEFORE the buy goes out (a partial fill raised
+  "SELF-CHECK VIOLATION ... stop=0.0" for an instant: RUBI 5:58, JAGX 10:15).
 - Mid-day releases restart the bot and wipe v36/v35 state (candles, EMAs,
   crowd timing): avoid them; or restore that state on start-up as the day
   high now is.
