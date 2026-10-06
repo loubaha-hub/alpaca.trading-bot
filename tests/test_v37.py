@@ -1054,8 +1054,8 @@ def test_a_clean_staircase_scores_high(v37, clock, now):
     assert points == 11 and "speed 0" in parts, parts         # all but the speed
     windows(v37, s, now, 10.00, 10_000, 10.35, 20_000)       # +3.5% on double: 0.07
     assert "speed 0" in v37.score(s, 10.35)[1]
-    windows(v37, s, now, 10.00, 10_000, 10.15, 100_000)      # 1.5% x 10 = 0.15
-    assert "speed 1" in v37.score(s, 10.15)[1]
+    windows(v37, s, now, 10.00, 10_000, 10.35, 40_000)       # 3.5% x 4 = 0.14
+    assert "speed 1" in v37.score(s, 10.35)[1]
     windows(v37, s, now, 10.00, 10_000, 10.35, 100_000)      # 3.5% x 10 = 0.35
     assert v37.score(s, 10.35)[0] == 15                      # 0.3+ is worth 4
 
@@ -1111,3 +1111,15 @@ def test_a_furious_speed_buys_whatever_the_score(v37, clock, now, monkeypatch):
     windows(v37, t, now, 10.00, 3_000, 10.36, 30_000)      # 3.6% x 10 = 0.36
     tick(v37, t, now, 10.37, size=100)
     assert t.in_position                                   # ...except a furious one
+
+
+def test_huge_volume_on_a_flat_price_is_not_speed(v37, clock, now):
+    """The owner: the price barely moves but the volume is off the chart -
+    a huge sell met by buying, not a run. 1% x 30 = 0.3 by the formula, but
+    the price is not up 3%: no speed points, no furious override."""
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    candles(s, STAIRS)
+    windows(v37, s, now, 10.00, 3_000, 10.10, 90_000)
+    assert v37.speed(s, 10.10) == pytest.approx(0.30, abs=0.01)
+    assert v37.real_speed(s, 10.10) == 0.0
+    assert "speed 0" in v37.score(s, 10.10)[1]

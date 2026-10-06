@@ -4451,6 +4451,11 @@ V37_SCORE_HUGE_WICK = 0.60      # the last candle's top wick over this share of 
 V37_SCORE_ROOM = 0.05           # resistance: the prior day's high this close above
 V37_SCORE_SPEED = ((0.1, 1), (0.2, 2), (0.3, 4))   # the owner's speed: (at, points)
                                 # - 0.3 is worth 4 ("the speed is very important")
+V37_SPEED_MOVE_MIN = 0.03       # the speed counts (its points, the furious override,
+                                # speed as the trigger) only when the PRICE itself is
+                                # up this much in the last minute - the owner: huge
+                                # volume on a flat price is selling met by buying,
+                                # not a run ("I would wait for a confirmation")
 V37_SCORE_FURIOUS = 0.0         # >0: a speed this high buys whatever the score (the
                                 # owner: "the speed is everything" - never miss the
                                 # furious ones); 0 = off
@@ -4680,7 +4685,7 @@ class V37(V36):
         if wick > V37_SCORE_HUGE_WICK:
             return None, "a huge top wick on the last candle (%.0f%% of it)" % (100 * wick)
         parts = {}
-        spd = self.speed(s, price)
+        spd = self.real_speed(s, price)         # 0 if the price did not really move
         parts["speed"] = max((p for t, p in V37_SCORE_SPEED if spd >= t), default=0)
         parts["candle"] = 2 if wick <= 1 / 3 else 1
         def top_wick(b):
@@ -4772,18 +4777,32 @@ class V37(V36):
     def speed(self, s, price) -> float:
         """The owner's speed: (P2 - P1) / P1 x (V2 / V1) over rolling
         V37_FAST_SECONDS windows. 0.0 until both windows have prints."""
+        move, ratio = self.speed_parts(s, price)
+        return move * min(ratio, V37_SPEED_VOL_CAP)
+
+    def speed_parts(self, s, price):
+        """(P2 - P1) / P1 and V2 / V1 - the price part and the volume part
+        of the speed. (0, 0) until both windows have prints."""
         now = time.time()
         w = V37_FAST_SECONDS
         recent = [x for x in s.v37_speed_prints if x[0] >= now - w]
         before = [x for x in s.v37_speed_prints if now - 2 * w <= x[0] < now - w]
         if not recent or not before:
-            return 0.0
+            return 0.0, 0.0
         p1 = before[-1][1]                      # the price a window ago
         v1 = sum(x[2] for x in before)
         v2 = sum(x[2] for x in recent)
         if p1 <= 0 or v1 <= 0:
+            return 0.0, 0.0
+        return (price - p1) / p1, v2 / v1
+
+    def real_speed(self, s, price) -> float:
+        """The owner's speed, but 0 unless the price part of it - up from a
+        minute ago - is at least V37_SPEED_MOVE_MIN."""
+        move, ratio = self.speed_parts(s, price)
+        if move < V37_SPEED_MOVE_MIN:
             return 0.0
-        return (price - p1) / p1 * min(v2 / v1, V37_SPEED_VOL_CAP)
+        return move * min(ratio, V37_SPEED_VOL_CAP)
 
     def flying(self, s, price) -> bool:
         """V37_SPEED_MIN on: the owner's speed at least that, on real money.
@@ -4791,7 +4810,7 @@ class V37(V36):
         if not V37_SPEED_MIN:
             return self.fast(s, price)
         dollars = sum(x[1] * x[2] for x in s.v37_prints)
-        return self.speed(s, price) >= V37_SPEED_MIN and dollars >= V37_FAST_DOLLARS
+        return self.real_speed(s, price) >= V37_SPEED_MIN and dollars >= V37_FAST_DOLLARS
 
     def buy_limit(self, ask, ceiling) -> float:
         return min(ask + V37_ASK_PLUS, ceiling)
@@ -4860,7 +4879,8 @@ class V37(V36):
             return                              # flying means the volume is rising
         why = self.not_running(s)
         if (not why and V37_SCORE_MIN and not self.ripping(s)
-                and not (V37_SCORE_FURIOUS and self.speed(s, price) >= V37_SCORE_FURIOUS)):
+                and not (V37_SCORE_FURIOUS
+                         and self.real_speed(s, price) >= V37_SCORE_FURIOUS)):
             points, parts = self.score(s, price)
             if points is None or points < V37_SCORE_MIN:
                 why = "score %s/15 under %d: %s" % (points, V37_SCORE_MIN, parts) \
