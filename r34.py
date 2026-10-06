@@ -1253,8 +1253,8 @@ class SymState:
     v37_prints: deque = field(default_factory=deque)
     v37_stop_pct: float = 0.0        # v37: the stop's distance under the average
     v37_pace_at_buy: float = 0.0     # v37: shares in the 60 seconds before the buy
-    v37_old_high: float = 0.0        # v37: the high of the day when it last sold
-    v37_above_since: float = 0.0     # v37: when the price went (and stayed) above it
+    v37_old_high: float = 0.0        # v37: a high a break must be confirmed over
+    v37_high_ts: float = 0.0         # v37: when the last new high of the day traded
                                      # v37: (time, price, size) over V37_FAST_SECONDS
     last_exit: float = 0.0           # v33: the level that threw us out
     skipped_prints: int = 0          # odd lots etc. we refused to act on
@@ -4277,13 +4277,18 @@ V37_MAX_POSITIONS = 2
 V37_MAX_ENTRIES = 0             # buys per name per day; 0 = no limit (the owner,
                                 # 2026-10-06: the 10-buy limit locked v37 out of
                                 # AIXI and SDEV before their second legs)
-V37_CONFIRM_SECONDS = 20.0      # a re-buy waits until the price has held above the
-                                # high of the day as it was at the last sale for
-                                # this long (two 10-second candles), then buys on
-                                # a new high. The owner, 2026-10-06: "the second
-                                # buy, third buy - give it one or two more candles
-                                # and the price going up before we buy". The first
-                                # buy of the day does not wait. 0 = off.
+# CONFIRMATION (the owner, 2026-10-06, IPDN 8:35: through the 6.97 high on
+# volume it had already traded at 8:14 and 8:20, after 15 minutes going
+# sideways - "I would be on my toes, watching the second and third minutes
+# before confirmation"). A break must be confirmed when it is a RE-BUY (the
+# old high: the high of the day at the last sale) or comes after
+# V37_SIDEWAYS_SECONDS without a new high (the old high: that ceiling):
+# the last V37_CONFIRM_BARS closed 1-minute candles all closed above the old
+# high, then a buy on a new high. A fresh run, or EXTRAORDINARY volume (the
+# last 60 seconds more than any minute of the last 30), buys at once.
+V37_CONFIRM_BARS = 1            # 0 = off
+V37_SIDEWAYS_SECONDS = 900
+V37_EXTRAORDINARY = True
 V37_ODD_LOT_HIGH = True         # odd lots raise the high of the day (never trigger)
 V37_FRESH_SECONDS = 2.0         # buy and add only on a print that traded this
                                 # recently. AIXI, 4:17am 2026-10-06: while an order
@@ -4311,6 +4316,10 @@ class V37(V36):
         # prints drained in a burst must not look like a stock moving fast.
         now = time.time()
         t = s.last_print_ts or now
+        if not s.v37_high_ts:
+            s.v37_high_ts = t                   # watching starts the clock
+        if price > s.day_high:
+            self.note_high(s, price, t)
         cut = now - V37_FAST_SECONDS
         if t >= cut:                            # a print reported late stays out
             s.v37_prints.append((t, price, size))
@@ -4324,30 +4333,39 @@ class V37(V36):
         (most IPDN prints were 1-70 shares); v37 never saw them and bought a
         round lot at 6.97 as "a new high" - out 6 seconds later, -$21."""
         if V37_ODD_LOT_HIGH and conds and set(conds) & NON_QUALIFYING_CONDS == {"I"}:
+            if price > s.day_high:
+                self.note_high(s, price, time.time())
             s.day_high = max(s.day_high, price)
 
     def clear(self, s):
-        if s.shares <= 0 and s.entry:           # a v37 position just closed
-            s.v37_old_high = s.day_high
-            s.v37_above_since = 0.0
+        if s.shares <= 0 and s.entry:           # a v37 position just closed: a
+            s.v37_old_high = s.day_high         # re-buy must confirm over this
         super().clear(s)
 
-    def track_above(self, s, price):
-        """When the price went above the high at the last sale, and stayed."""
-        if not s.v37_old_high:
-            return
-        if price > s.v37_old_high:
-            if not s.v37_above_since:
-                s.v37_above_since = s.last_print_ts or time.time()
-        else:
-            s.v37_above_since = 0.0
+    def note_high(self, s, price, t):
+        """A print above the high of the day. After V37_SIDEWAYS_SECONDS
+        without one, the old ceiling is a level to confirm over."""
+        if (s.day_high > 0 and s.v37_high_ts and not s.in_position
+                and t - s.v37_high_ts >= V37_SIDEWAYS_SECONDS):
+            s.v37_old_high = s.day_high
+        s.v37_high_ts = t
+
+    def extraordinary(self, s) -> bool:
+        """The last 60 seconds traded more than any closed minute of the last 30."""
+        vols = [b.v for b in s.bars[-30:]]
+        return bool(vols) and self.pace(s) > max(vols)
 
     def confirmed(self, s) -> bool:
-        """A re-buy: the price has held above the old high V37_CONFIRM_SECONDS."""
-        if not V37_CONFIRM_SECONDS or not s.v37_old_high:
+        """V37_CONFIRM_BARS closed 1-minute candles closed above the old high
+        (a re-buy, or a break out of a sideways stretch) - or extraordinary
+        volume. No old high: nothing to confirm."""
+        if not V37_CONFIRM_BARS or not s.v37_old_high:
             return True
-        t = s.last_print_ts or time.time()
-        return bool(s.v37_above_since) and t - s.v37_above_since >= V37_CONFIRM_SECONDS
+        if V37_EXTRAORDINARY and self.extraordinary(s):
+            return True
+        recent = s.bars[-V37_CONFIRM_BARS:]
+        return (len(recent) == V37_CONFIRM_BARS
+                and all(b.c > s.v37_old_high for b in recent))
 
     def pace(self, s) -> float:
         """Shares traded in the last V37_FAST_SECONDS (by when they traded)."""
@@ -4449,7 +4467,8 @@ class V37(V36):
                                                 # (the owner, 2026-10-06) - touching
                                                 # it is not a new high
         if not self.confirmed(s):
-            return                              # a re-buy: not held above the old high yet
+            return                              # a re-buy, or out of a sideways stretch:
+                                                # not confirmed above the old high yet
         if not self.in_the_crowd(s) or not self.fast(s, price):
             return
         if not self.volume_ok(s):
@@ -4568,7 +4587,6 @@ class V37(V36):
                 await self.exit(s, "halted")
             return
         if not s.in_position:
-            self.track_above(s, price)
             await self.maybe_enter(s, price, None, None)
             return
         new_high = price >= s.peak
