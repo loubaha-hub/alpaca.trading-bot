@@ -74,10 +74,30 @@ is not part of it.
 - Time and sales: most prints green (at the ask). Red = at the bid, white = in
   between.
 
+## Coming back in (the same stock is hot two or three times a day)
+- Ride it, or jump out, wait for it to come back and jump in again. It can
+  cool off for minutes or hours - sometimes until the market opens - then come
+  back roaring. Not a timer: a trigger.
+- The trigger: price back at the high of the day, the bars growing, green bars
+  lining up one after another on increasing volume - get ready to jump in.
+- Coming back to the high slowly on small, skittish volume: be careful. Wait
+  for a confirmation - above a resistance line, or a time of day when stocks
+  start running (around the top of the hour, the open).
+- Banning a stock for running (the no-chase rule) was "a huge, huge mistake.
+  That's where the money is made."
+
 ## Levels
 - Resistance levels, and the natural half-dollar levels (1, 1.50, 2, 2.50 ...).
 - Approaching one: get ready to get out. If it bolts straight through, stay.
 - Usually waits for it to go past the level before entering.
+- Trading clusters around the half-dollar levels; the stock runs in the span
+  between them and slows as it nears one. Inside a span, if Level 2 shows no
+  sell orders in the way (say $2.22 to $2.39), one or two orders can take it
+  from $2.20 to $2.40 to $2.50, through every line.
+- Approaching a resistance level and the stock hesitates: jump out. Sometimes
+  it bolts through anyway and the run is missed - then get back in. When
+  demand is strong it goes through the levels one by one, nonstop: that is
+  where most of the money is made.
 
 ## Size
 - About 1,000 shares on $5-10 stocks; roughly $4,000-7,000 a position, one to
@@ -86,6 +106,10 @@ is not part of it.
 ## Exit
 - Out very quickly when it starts coming down. The 10-second chart is what
   says "out". Many trades are scalps.
+- A short leash to start; as the stock builds gains, a longer one, so a
+  runner can be ridden.
+- Any red bar, or a bar flickering between green and red: prepare to jump
+  out.
 - When it starts to retrace, out completely - or reduce the position if the
   stock is not wild and is drifting down.
 - Hot keys: one key in, one key out.
