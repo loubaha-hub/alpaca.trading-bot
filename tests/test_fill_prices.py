@@ -81,21 +81,29 @@ def test_v35_reads_the_real_result_when_deciding_to_buy_back(broker, data, clock
 # ---- the broker remembers what each order really got ----------------------------------
 
 class Client:
-    """Alpaca's TradingClient, as far as Broker.send uses it."""
+    """Alpaca's TradingClient, as far as Broker.send uses it. Each order gets
+    the next (filled_qty, filled_avg_price) and keeps it; a partly filled
+    order reads as working until it is cancelled."""
 
     def __init__(self, fills):
         self.fills = list(fills)                  # (filled_qty, filled_avg_price)
+        self.orders = {}
 
     def submit_order(self, req):
-        return SimpleNamespace(id=len(self.fills))
+        oid = len(self.orders) + 1
+        self.orders[oid] = [*self.fills.pop(0), int(req.qty), False]
+        return SimpleNamespace(id=oid)
 
     def get_order_by_id(self, oid):
-        qty, avg = self.fills[0]
+        qty, avg, want, cancelled = self.orders[oid]
+        status = ("OrderStatus.FILLED" if qty >= want else
+                  "OrderStatus.CANCELED" if cancelled else
+                  "OrderStatus.PARTIALLY_FILLED")
         return SimpleNamespace(filled_qty=str(qty), filled_avg_price=avg,
-                               status="OrderStatus.FILLED")
+                               status=status)
 
     def cancel_order_by_id(self, oid):
-        self.fills.pop(0)
+        self.orders[oid][3] = True
 
 
 def test_broker_send_remembers_each_fills_real_price():

@@ -84,6 +84,84 @@ def test_buy_leaves_no_order_working_that_could_overfill(monkeypatch, data, no_s
     assert client.held <= 1000
 
 
+class LateFillClient:
+    """Alpaca as it behaves around a cancel. A cancel is only a request: the
+    order sits in pending_cancel and can still fill before it is final. Here
+    a resting order never fills on its own, but once cancelled it gets
+    `late` of its size filled before the cancel lands - in the market's time,
+    whether anyone is polling that order or not. And the position count
+    trails the fills by one read, as a busy broker's does."""
+
+    def __init__(self, late=0.6):
+        self.late = late
+        self.orders = {}
+        self.held = 0
+        self.reported = 0
+
+    def _tick(self):
+        for o in self.orders.values():
+            if o["state"] == "pending_cancel":
+                more = int(o["qty"] * self.late)
+                o["filled"] += more
+                self.held += more
+                o["state"] = "canceled"
+
+    def submit_order(self, req):
+        self._tick()
+        oid = len(self.orders) + 1
+        self.orders[oid] = {"qty": int(req.qty), "filled": 0, "state": "new"}
+        return SimpleNamespace(id=oid)
+
+    def get_order_by_id(self, oid):
+        self._tick()
+        o = self.orders[oid]
+        return SimpleNamespace(filled_qty=str(o["filled"]),
+                               filled_avg_price="10.00" if o["filled"] else None,
+                               status=SimpleNamespace(value=o["state"]))
+
+    def cancel_order_by_id(self, oid):
+        self._tick()
+        if self.orders[oid]["state"] == "new":
+            self.orders[oid]["state"] = "pending_cancel"
+
+    def get_orders(self, req):
+        self._tick()
+        return [SimpleNamespace(id=k) for k, o in self.orders.items()
+                if o["state"] in ("new", "pending_cancel")]
+
+    def get_open_position(self, symbol):
+        self._tick()
+        shown, self.reported = self.reported, self.held
+        if not shown:
+            raise Exception("position does not exist")
+        return SimpleNamespace(qty=shown, avg_entry_price=10.0)
+
+
+def test_send_counts_the_fill_that_beat_the_cancel(no_sleep):
+    """r34.3: send() asked for the cancel and returned what it had seen before
+    it - 0 - while the order went on to fill 600."""
+    client = LateFillClient()
+    b = bot.Broker("key", "secret", True, "v31")
+    b.client = client
+    assert run(b.send("NU", 1000, bot.OrderSide.BUY, 10.0)) == 600
+    assert b.take_fill_price("NU") == pytest.approx(10.0)
+
+
+def test_buy_never_holds_more_than_it_asked_when_a_cancel_fills(monkeypatch, data,
+                                                                no_sleep):
+    """2026-10-05 9:35am: v31 sized NU at 300 shares (the 25% cap) and ended
+    up holding 394, then 434 - 35% of the account. send() took a cancelled
+    order for dead, the position count had not caught up with its late fill,
+    and buy() sent the whole size again. Same shape as AMOD at 49% on 10-02."""
+    client = LateFillClient()
+    monkeypatch.setattr(bot, "TradingClient", lambda *a, **k: client)
+    strat = bot.V31(bot.Broker("key", "secret", True, "v31"), data)
+
+    got = run(strat.buy("NU", 1000, 10.0))
+    assert client.held <= 1000
+    assert got == client.held
+
+
 def test_buy_survives_one_failed_position_read(v31, broker):
     """r23: a failed share-count read counted as 'nothing filled' and the
     FULL size was re-sent on top of a 400-share partial - 1,400 held."""

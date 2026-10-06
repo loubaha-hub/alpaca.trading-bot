@@ -717,6 +717,18 @@ class DecisionLog:
 # BROKER - every call runs OFF the event loop
 # ----------------------------------------------------------------------------
 
+# An order in one of these is done: nothing more of it can fill.
+FINAL_ORDER_STATES = {"filled", "canceled", "expired", "rejected", "replaced",
+                      "done_for_day"}
+
+
+def order_state(o) -> str:
+    """'filled', 'pending_cancel'... from an order, whatever form alpaca-py
+    gives its status in (enum, 'OrderStatus.FILLED' or plain text)."""
+    st = getattr(o, "status", "")
+    return str(getattr(st, "value", st)).split(".")[-1].lower()
+
+
 class Broker:
     """One account. Every method awaits a thread so the loop never blocks.
 
@@ -733,6 +745,7 @@ class Broker:
         self._eq_at = 0.0
         self.baseline_source = DAY_BASELINE
         self._fill_log: dict[str, list] = {}   # symbol -> [(shares, avg price)]
+        self.unsettled: set = set()   # symbols with an order not yet confirmed done
 
     def take_fill_price(self, symbol: str) -> float:
         """The average price of everything that filled on this symbol since
@@ -854,22 +867,49 @@ class Broker:
                 await asyncio.sleep(0.2)
                 o = await asyncio.to_thread(self.client.get_order_by_id, order.id)
                 filled = int(float(o.filled_qty or 0))
-                if filled >= qty or str(o.status) in ("OrderStatus.FILLED",
-                                                      "OrderStatus.CANCELED"):
+                if filled >= qty or order_state(o) in FINAL_ORDER_STATES:
                     break
                 if filled > 0:
                     break                      # partial: cancel the rest below
         except Exception as e:
             log.error("[%s] cannot poll order on %s: %s", self.label, symbol, e)
-        if filled < qty:
+        if filled < qty and (o is None or order_state(o) not in FINAL_ORDER_STATES):
             try:
                 await asyncio.to_thread(self.client.cancel_order_by_id, order.id)
             except Exception:
                 pass
+            # A CANCEL IS A REQUEST, NOT A FACT. Until Alpaca calls the order
+            # done it can still fill, and it did: on 2026-10-05 v31 sized NU at
+            # 300 shares and held 434 (35% of the account), because this
+            # returned the 0 it had seen before the cancel while the order
+            # went on filling, and buy() sent the size again. Wait for the
+            # final word and count what the order really got.
+            done = await self.settle(order.id)
+            if done is not None:
+                o = done
+                filled = int(float(o.filled_qty or 0))
+            else:
+                self.unsettled.add(symbol)
+                log.error("[%s] %s order %s is still not done after its cancel - "
+                          "no more orders on %s until it is", self.label, side,
+                          order.id, symbol)
         avg = float(getattr(o, "filled_avg_price", 0) or 0) if filled > 0 else 0.0
         if avg > 0:
             self._fill_log.setdefault(symbol, []).append((filled, avg))
         return filled
+
+    async def settle(self, order_id, tries=15):
+        """The order once Alpaca says it is done (filled, canceled...), or
+        None if it still is not after `tries` looks 0.2s apart."""
+        for _ in range(tries):
+            try:
+                o = await asyncio.to_thread(self.client.get_order_by_id, order_id)
+                if order_state(o) in FINAL_ORDER_STATES:
+                    return o
+            except Exception as e:
+                log.error("[%s] cannot poll order %s: %s", self.label, order_id, e)
+            await asyncio.sleep(0.2)
+        return None
 
     def classify(self, e, side, symbol) -> int:
         """Turn a rejection into an instruction. NEVER match on the code.
@@ -1499,6 +1539,12 @@ class Strategy:
         A cancel racing a fill used to report "got nothing" and the next attempt
         bought the whole clip again - a $600 slot became $3,050 that way.
         """
+        unsettled = getattr(self.broker, "unsettled", set())
+        if symbol in unsettled:
+            # An earlier order here was never confirmed done - it may still
+            # fill. Clear it before counting a fresh start.
+            await self.broker.cancel_open(symbol)
+            unsettled.discard(symbol)
         start = await self.broker.qty(symbol)
         if start is None:
             # Without a starting count no fill can be measured, and guessing 0
@@ -1507,6 +1553,7 @@ class Strategy:
                       symbol)
             return 0
         last = start
+        ours = 0         # what our own orders say they got, each counted once done
         for _ in range(CHASE_ATTEMPTS):
             now = await self.broker.qty(symbol)
             if now is None:
@@ -1515,9 +1562,14 @@ class Strategy:
                 await asyncio.sleep(CHASE_PAUSE)
                 continue
             last = now
-            remaining = int(shares - (now - start))
+            # The larger of the two counts: the position can trail a fill the
+            # order already reported (NU, 2026-10-05), and the orders cannot
+            # see shares bought some other way.
+            remaining = int(shares - max(now - start, ours))
             if remaining <= 0:
                 break
+            if symbol in unsettled:
+                break    # an order of ours may still be filling - no more now
             ask = await self.data.quote(symbol, "ask") or ref
             limit = round(min(ask * 1.002, ref * (1 + BUY_CHASE_CAP)), 2)
             got = await self.broker.send(symbol, remaining, OrderSide.BUY, limit)
@@ -1526,13 +1578,16 @@ class Strategy:
                 continue
             if got < 0:
                 break
+            ours += got
             if got == 0:
                 await asyncio.sleep(CHASE_PAUSE)
         await self.broker.cancel_open(symbol)     # nothing of ours left working
         end = await self.broker.qty(symbol)
         if end is None:
             end = last
-        return max(0, int(end - start))
+        # Same rule as above: a count that trails the fills would leave shares
+        # the strategy does not know it holds.
+        return max(0, int(max(end - start, ours)))
 
     async def sell(self, symbol: str, shares: int, ref: float) -> int:
         """Uncapped chase down - a stop must always get out. Clamped to what
