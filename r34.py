@@ -1248,6 +1248,8 @@ class SymState:
     tens: deque = field(default_factory=lambda: deque(maxlen=6))
                                      # v36: the last closed 10-second candles
     ten_break: bool = False          # v36: the short leash has fired since the buy
+    v37_prints: deque = field(default_factory=deque)
+                                     # v37: (time, price, size) over V37_FAST_SECONDS
     last_exit: float = 0.0           # v33: the level that threw us out
     skipped_prints: int = 0          # odd lots etc. we refused to act on
     adopted: bool = False
@@ -1375,7 +1377,8 @@ class Strategy:
                "v35": V35_MAX_POSITION_PCT,
                # v36 buys to 25% of equity on the way up; a runner it holds
                # keeps growing past that, as v35's does.
-               "v36": V35_MAX_POSITION_PCT}.get(self.name, MAX_POSITION_PCT)
+               "v36": V35_MAX_POSITION_PCT,
+               "v37": V35_MAX_POSITION_PCT}.get(self.name, MAX_POSITION_PCT)
         total_value = 0.0
         for s in self.open_positions():
             price = s.last_price or s.entry
@@ -3753,20 +3756,23 @@ V36_MAX_ENTRIES = 6             # buys per name per day - each one small
 V36_PAY_UP_ABR = 1.0            # a buy may pay this many ABRs over the trigger...
 V36_PAY_UP_MAX = 0.05           # ...never more than this (BUY_CHASE_CAP at least)
 V36_CONFIRM_TOLERANCE = 0.01    # the ask may sit this far under the trigger
-# Which account v36 trades (the owner, 2026-10-06: "replace one of those
-# three"): "v34" - v34's account and keys (V33_API_KEY), so v31 keeps running
-# as the yardstick and v35 as before; "v31" - v31's account instead; "off".
-# Set in the environment - switching needs no code change.
-V36_REPLACES = os.environ.get("V36_REPLACES", "v34").strip().lower()
+# WHICH STRATEGY TRADES EACH ACCOUNT (the owner, 2026-10-06): v31's keys
+# (T6HH, "v27-30k") run v36; v34's keys (V33_*, P28T, "V30-100k") run v37;
+# v35's keys (AUES) run v35. Each can be changed in the environment with no
+# code change: SLOT_V31 / SLOT_V34 / SLOT_V35 = v31, v34, v35, v36, v37 or off.
+SLOT_DEFAULTS = {"v31": "v36", "v34": "v37", "v35": "v35"}
 
 
-def account_classes(replaces=None):
-    """The strategy class for each account slot, by the slot's old name."""
-    replaces = V36_REPLACES if replaces is None else replaces
-    return {"v31": V36 if replaces == "v31" else V31,
-            "v32": V32,
-            "v34": V36 if replaces == "v34" else V34,
-            "v35": V35}
+def account_classes(env=None):
+    """The strategy class for each account slot (None = off), by the slot's
+    old name."""
+    env = os.environ if env is None else env
+    names = {"v31": V31, "v34": V34, "v35": V35, "v36": V36, "v37": V37}
+    out = {"v32": V32}
+    for slot, default in SLOT_DEFAULTS.items():
+        chosen = (env.get("SLOT_" + slot.upper()) or default).strip().lower()
+        out[slot] = names.get(chosen)
+    return out
 
 
 class V36(V35):
@@ -3777,6 +3783,7 @@ class V36(V35):
     def __init__(self, broker, data):
         super().__init__(broker, data)
         self.crowd = (-1, {})                  # (minute, {symbol: rank})
+        self.crowd_dv = {}                     # symbol -> dollars in the crowd window
         self.crowd_since = {}                  # symbol -> when it entered the top
 
     def halt_threshold(self) -> float:
@@ -3839,7 +3846,13 @@ class V36(V35):
             for sym in top:
                 self.crowd_since.setdefault(sym, now)
             self.crowd = (minute, ranks)
+            self.crowd_dv = dv
         return self.crowd[1].get(symbol, 10**6)
+
+    def crowd_dollars(self, symbol) -> float:
+        """Dollars traded in the last V36_CROWD_MINUTES (as crowd_rank counted)."""
+        self.crowd_rank(symbol)
+        return self.crowd_dv.get(symbol, 0.0)
 
     def in_crowd(self, s) -> bool:
         if self.crowd_rank(s.symbol) > V36_CROWD_TOP:
@@ -4127,6 +4140,186 @@ class V36(V35):
                 await self.add_step(s, price, steps[s.v36_adds][1])
 
 
+# ----------------------------------------------------------------------------
+# V37 - THE SIMPLEST: WHERE THE CROWD IS, WHEN IT RIPS
+# ----------------------------------------------------------------------------
+# The owner, 2026-10-06: "a strategy that is simplest of all". No candles, no
+# indicators, no tape check:
+#   WHICH STOCK  the #1 or #2 by activity right now (dollars traded in the
+#                last few minutes), with a big crowd behind it.
+#   THE BUY      the moment it rips: up V37_FAST_PCT in the last V37_FAST_SECONDS
+#                on real money. At most V37_ENTRY_PCT over the price it saw,
+#                re-priced fast; missed, it tries again on the next print that
+#                still rips. After a sale, again only with the crowd still there,
+#                at a new high of the day.
+#   SIZE         a tenth of a position; half at +10 cents, full at +20 cents.
+#   THE EXIT     "no tolerance for loss": V37_STOP_CENTS under the buy. "Half of
+#                the profit gone, exit": half of the best gain given back.
+# Numbers marked (?) are first guesses for the owner to correct.
+V37_CROWD_TOP = 2               # the #1 or #2 by activity
+V37_CROWD_MIN_DOLLARS = 1_000_000   # "a really huge crowd": dollars traded in the
+                                # last V36_CROWD_MINUTES at least this (?)
+V37_FAST_SECONDS = 60           # "fast" (?): up V37_FAST_PCT within this many
+V37_FAST_PCT = 0.03             # seconds...
+V37_FAST_DOLLARS = 250_000      # ...on at least this many dollars traded in them
+V37_ENTRY_PCT = 0.02            # a buy pays at most this share over the price seen;
+                                # it re-prices every 0.4s up to there (FAST_BUY), and
+                                # if the stock runs past it, the next print that still
+                                # rips tries again from there - "so that way we are in"
+V37_POSITION_PCT = 0.25         # a full position: this share of equity
+V37_STARTER = 0.10              # the first buy: this fraction of a full position
+V37_ADD1_CENTS = 0.10           # up this much from the first buy, on a new high:
+V37_ADD1_TO = 0.50              # to this fraction of a full position
+V37_ADD2_CENTS = 0.20
+V37_ADD2_TO = 1.00
+V37_STOP_CENTS = 0.02           # no tolerance for loss: this far under the buy, out
+V37_GIVEBACK = 0.50             # this share of the best gain given back: out
+V37_MAX_POSITIONS = 2
+V37_MAX_ENTRIES = 10            # buys per name per day - each one small (?)
+
+
+class V37(V36):
+    """The simplest strategy - see the V37 settings above. Borrows v36's
+    crowd count and v31's order machinery; nothing else."""
+
+    name = "v37"
+
+    def halt_threshold(self) -> float:
+        env = os.getenv("V37_HALT_PCT")
+        if env not in (None, ""):
+            return float(env) / 100.0
+        return Strategy.halt_threshold(self)
+
+    def note_trade(self, s, price, size):
+        super().note_trade(s, price, size)
+        now = time.time()
+        s.v37_prints.append((now, price, size))
+        while s.v37_prints and now - s.v37_prints[0][0] > V37_FAST_SECONDS:
+            s.v37_prints.popleft()
+
+    def fast(self, s, price) -> bool:
+        """Up V37_FAST_PCT within the last V37_FAST_SECONDS, on at least
+        V37_FAST_DOLLARS traded in them."""
+        p = s.v37_prints
+        if len(p) < 2:
+            return False
+        low = min(x[1] for x in p)
+        dollars = sum(x[1] * x[2] for x in p)
+        return low > 0 and price >= low * (1 + V37_FAST_PCT) \
+            and dollars >= V37_FAST_DOLLARS
+
+    def in_the_crowd(self, s) -> bool:
+        return (self.crowd_rank(s.symbol) <= V37_CROWD_TOP
+                and self.crowd_dollars(s.symbol) >= V37_CROWD_MIN_DOLLARS)
+
+    async def maybe_enter(self, s, price, fast, base):
+        if not entries_allowed():
+            return
+        if s.symbol not in self.qualified:      # the scanner: $1-$20, up 10%+
+            return
+        if not self.price_ok(s, price):
+            return
+        if len(self.open_positions()) >= V37_MAX_POSITIONS:
+            return
+        if s.v36_entries >= V37_MAX_ENTRIES:
+            return
+        if s.traded_today and price < s.day_high:
+            return                              # again only at a new high of the day
+        if not self.in_the_crowd(s) or not self.fast(s, price):
+            return
+        lock = self.lock(s.symbol)
+        if lock.locked():
+            return
+        async with lock:
+            if s.in_position:
+                return
+            await self.v37_buy(s, price)
+
+    async def v37_buy(self, s, price):
+        eq = await self.broker.equity(self.day_start_equity)
+        worst = price * (1 + V37_ENTRY_PCT)
+        held_all = sum(x.shares * (x.last_price or price)
+                       for x in self.open_positions())
+        room = max(0.0, eq * MAX_EXPOSURE_PCT - held_all)
+        shares = int(min(eq * V37_POSITION_PCT * V37_STARTER, room) / worst)
+        if shares * price < MIN_TRADE_DOLLARS:
+            return
+        filled = await self.buy(s.symbol, shares, price, V37_ENTRY_PCT)
+        if not filled:
+            return
+        s.shares = filled
+        s.entry = await self.broker.avg_entry(s.symbol) or price
+        s.v36_first = s.entry
+        s.v36_adds = 0
+        s.stop = s.entry - V37_STOP_CENTS
+        s.peak = s.entry
+        s.trail_stop = 0.0
+        s.armed = False
+        s.adopted = False
+        s.entry_kind = "rip"
+        s.traded_today = True
+        s.v36_entries += 1
+        s.entry_at = time.time()
+        self.dlog.record(ev="ENTER", sym=s.symbol, px=price, sh=filled,
+                         kind="rip", stop=s.stop)
+        self.log.info("[v37] ENTER %s %d @ %.4f (print %.4f) = $%.0f (%.1f%% of "
+                      "equity) - a tenth of a position, buy %d today | crowd #%d, "
+                      "$%.0fk in %d min | stop %.4f | adds at %.4f and %.4f",
+                      s.symbol, filled, s.entry, price, filled * s.entry,
+                      100 * filled * s.entry / eq if eq else 0.0, s.v36_entries,
+                      self.crowd_rank(s.symbol),
+                      self.crowd_dollars(s.symbol) / 1000, V36_CROWD_MINUTES,
+                      s.stop, s.v36_first + V37_ADD1_CENTS,
+                      s.v36_first + V37_ADD2_CENTS)
+        await self.quote_the_crowd()
+
+    async def v37_add(self, s, price, to_fraction):
+        async with self.lock(s.symbol):
+            if not s.in_position:
+                return
+            s.v36_adds += 1
+            eq = await self.broker.equity(self.day_start_equity)
+            worst = price * (1 + BUY_CHASE_CAP)
+            held_all = sum(x.shares * (x.last_price or price)
+                           for x in self.open_positions())
+            room = max(0.0, eq * MAX_EXPOSURE_PCT - held_all)
+            want = max(0.0, eq * V37_POSITION_PCT * to_fraction - s.shares * price)
+            shares = int(min(want, room) / worst)
+            if shares * price < MIN_TRADE_DOLLARS:
+                return
+            filled = await self.buy(s.symbol, shares, price)
+            if filled:
+                s.shares += filled
+                s.entry = await self.broker.avg_entry(s.symbol) or s.entry
+                s.peak = max(s.peak, price)
+                self.log.info("[v37] ADD %s to %.0f%% of a position: +%d @ %.4f -> "
+                              "%d shares, average %.4f", s.symbol,
+                              100 * to_fraction, filled, price, s.shares, s.entry)
+
+    async def evaluate(self, s, price):
+        if await self.halted():
+            if s.in_position:
+                await self.exit(s, "halted")
+            return
+        if not s.in_position:
+            await self.maybe_enter(s, price, None, None)
+            return
+        new_high = price >= s.peak
+        s.peak = max(s.peak, price)
+        if price <= s.stop:
+            await self.exit(s, "stop")          # no tolerance for loss
+            return
+        gain = s.peak - s.entry
+        if gain > 0 and price <= s.entry + (1 - V37_GIVEBACK) * gain:
+            await self.exit(s, "giveback")      # half of the profit gone
+            return
+        steps = ((V37_ADD1_CENTS, V37_ADD1_TO), (V37_ADD2_CENTS, V37_ADD2_TO))
+        if s.v36_adds < len(steps) and new_high:
+            at, to_fraction = steps[s.v36_adds]
+            if price >= s.v36_first + at:
+                await self.v37_add(s, price, to_fraction)
+
+
 class Engine:
 
     def __init__(self):
@@ -4143,15 +4336,20 @@ class Engine:
         self.assets_client = TradingClient(key, secret, paper=self.paper)
 
         self.strategies = []
-        # v36, the owner's playbook, takes one account's slot (V36_REPLACES).
+        # Which strategy each account runs: SLOT_DEFAULTS, or SLOT_V31 /
+        # SLOT_V34 / SLOT_V35 in the environment.
         slots = account_classes()
-        self.add_strategy(slots["v31"], key, secret)
-        self.add_strategy(slots["v32"], os.environ.get("V32_API_KEY"),
-                          os.environ.get("V32_SECRET_KEY"))
-        self.add_strategy(slots["v34"], os.environ.get("V33_API_KEY"),
-                          os.environ.get("V33_SECRET_KEY"))
-        self.add_strategy(slots["v35"], os.environ.get("V35_API_KEY"),
-                          os.environ.get("V35_SECRET_KEY"))
+        for slot, k, s_ in (("v31", key, secret),
+                            ("v32", os.environ.get("V32_API_KEY"),
+                             os.environ.get("V32_SECRET_KEY")),
+                            ("v34", os.environ.get("V33_API_KEY"),
+                             os.environ.get("V33_SECRET_KEY")),
+                            ("v35", os.environ.get("V35_API_KEY"),
+                             os.environ.get("V35_SECRET_KEY"))):
+            if slots[slot] is None:
+                log.warning("account slot %s is OFF (SLOT_%s=off)", slot, slot.upper())
+                continue
+            self.add_strategy(slots[slot], k, s_)
 
         for strat in self.strategies:
             self.data.trade_sinks.append(strat.offer_tick)

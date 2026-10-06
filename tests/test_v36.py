@@ -286,16 +286,16 @@ def test_no_more_than_the_days_entries(v36, clock, monkeypatch):
 
 # ---- which account -----------------------------------------------------------------
 
-def test_v36_takes_v34s_account_and_v31_stays_the_yardstick():
-    slots = bot.account_classes("v34")
-    assert slots["v31"] is bot.V31 and slots["v34"] is bot.V36
+def test_the_accounts_run_v36_v37_v35():
+    """The owner, 10-06: v36 over v31's account, v37 over "V30-100k" (v34's)."""
+    slots = bot.account_classes({})
+    assert slots["v31"] is bot.V36 and slots["v34"] is bot.V37
     assert slots["v35"] is bot.V35
 
 
-def test_v36_can_take_v31s_account_instead_or_stay_off():
-    assert bot.account_classes("v31")["v31"] is bot.V36
-    off = bot.account_classes("off")
-    assert bot.V36 not in off.values()
+def test_each_account_can_be_switched_or_turned_off():
+    slots = bot.account_classes({"SLOT_V31": "v31", "SLOT_V34": "off"})
+    assert slots["v31"] is bot.V31 and slots["v34"] is None
 
 
 # ---- the run lives as long as its volume (the owner, 10-06: no clock) --------------
