@@ -16,7 +16,12 @@ is not part of it.
 - Price $1-$20.
 - Float under about 20 million shares - big floats are stodgy and do not rip.
 - Relative volume at least 2-3x normal (often 5x or more), and rising.
-- News - very important; very few trades without it.
+- News - very important, but not required: 10-20% of the runners move with
+  no news ("somebody knows something"). Do not exclude them.
+- Up at least 10% on the day.
+- The key element: where the crowd is - where the traders are buying and
+  selling. Usually the leader of the day, but the crowd migrates to a new
+  stock, and that's where the action is.
 - Chinese companies are fine - the owner made MORE money on them than on US
   ones - but they retrace fast: be on your toes and get out early, even while
   it is still going up. Give up a little of the top; never ride the collapse. Typical: an unprofitable pharma

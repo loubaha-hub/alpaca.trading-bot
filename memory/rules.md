@@ -13,13 +13,26 @@ Numbers marked **(?)** are starting guesses for the owner to correct. Status:
 | Liquidity | at least $250k traded a minute (?) - "stay away from thin, period" | tested: the biggest single gain in rip_test |
 | Float rotation | shares traded today / float - ranks the list, "where everybody is" | tested: picks the runners, not a trigger |
 | Reverse split | **the owner, 10-06: the day the split takes effect** (one or two days at most) - it runs like crazy that day, then fizzles; older splits count for nothing. Today: top of the list; yesterday: a smaller lift | to build (a list of splits taking effect today, each morning) |
-| News today, hard to borrow, no shelf | rank the list higher, not required (?) | to build (Webull filings; Alpaca borrow flag) |
+| News today | **the owner, 10-06: very important but NOT required** - 10-20% of runners have none ("somebody knows something"). A boost on the list | to build (Webull filings; a news feed) |
+| Up on the day | at least 10% | built (the scanner's GAIN_FROM_OPEN) |
+| Hard to borrow, no shelf | rank the list higher, not required (?) | to build (Alpaca borrow flag; filings) |
 | Chinese stocks | allowed; their own exit (section 6) | to build (company country) |
 
-## 2. Which stock - the one ripping NOW
+## 2. Which stock - the one ripping NOW, where the crowd is
+- The owner, 10-06: "the key element is where the crowd is" - people buying
+  and selling. Usually the leader of the day, not always: the crowd migrates
+  to a new stock, "and that's where we need to be".
+- The crowd, measured: each stock's share of all the dollars traded on the
+  list in the last 5 minutes (?). A new stock whose share jumps while the old
+  leader's falls = the crowd moving. Proposed: watch the top 2; a stock must
+  hold the top spot 2 minutes (?) to count as the new leader (on 10-05 the top
+  spot flipped back and forth when two stocks shared the crowd).
+- 10-05 premarket, by that measure: SAIQ/SDEV 4:05-6:45, VEEA 5:06 and
+  6:52-7:31, ALEC 7:26-7:51 (at $2.52; it reached $3.20 by 7:51 - the bot
+  bought it at 2.51 at 7:24 and was out in 14 seconds), APUS 8:02, MI 8:15 at
+  $3.40 (the old rule had banned it at 8:09; high later $10.42), AMOD 9:01.
 - Rank by the last 5 minutes (?): price move and volume against the stock's
-  normal. Watch the top 2. Not the day's top gainer - a slowed leader loses to
-  a new runner.
+  normal. Not the day's top gainer - a slowed leader loses to a new runner.
 - Status: tested roughly - MI showed at 8:12am on 10-05, 3 minutes after the
   old rule banned it.
 
