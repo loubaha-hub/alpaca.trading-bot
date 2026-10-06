@@ -462,30 +462,29 @@ def minutes(v37, clock, now, vols, size=10_000):
     return s
 
 
-def test_no_buy_after_three_candles_of_falling_volume(v37, clock, now, volume_rule):
-    """IPDN 8:11-8:13am 2026-10-06: 497k, 446k, 242k - then a buy at 8:14:29."""
-    s = minutes(v37, clock, now, [100_000, 100_000, 90_000, 80_000, 70_000])
-    tick(v37, s, now, 10.36)
-    assert not s.in_position
-
-
-def test_rising_volume_buys(v37, clock, now, volume_rule):
-    s = minutes(v37, clock, now, [100_000, 100_000, 70_000, 80_000, 90_000])
+def test_a_runner_on_10x_8x_7x_its_normal_volume_still_buys(v37, clock, now,
+                                                            volume_rule):
+    """The owner, 2026-10-06: volume 10x, 8x, 7x its normal, candles green,
+    price running - "I would have bought there"."""
+    normal = [10_000] * 25
+    s = minutes(v37, clock, now, normal + [10_000, 10_000, 100_000, 80_000, 70_000],
+                size=2_400)                               # 72k now: 7x normal
     tick(v37, s, now, 10.36)
     assert s.in_position
 
 
-def test_no_buy_while_this_minute_trades_less_than_the_last(v37, clock, now,
-                                                            volume_rule):
-    s = minutes(v37, clock, now, [100_000, 100_000, 70_000, 80_000, 400_000])
-    tick(v37, s, now, 10.36)                              # 300k now, 400k before
+def test_no_buy_when_the_volume_has_fallen_off(v37, clock, now, volume_rule):
+    """IPDN 8:13am 2026-10-06: 242k after a 497k minute, the stock flat."""
+    normal = [10_000] * 25
+    s = minutes(v37, clock, now, normal + [10_000, 10_000, 100_000, 80_000, 60_000],
+                size=1_500)                               # 45k now: under half of 100k
+    tick(v37, s, now, 10.36)
     assert not s.in_position
 
 
-def test_no_buy_without_volume_well_over_the_minutes_before(v37, clock, now,
-                                                            volume_rule):
-    s = minutes(v37, clock, now, [250_000, 250_000, 150_000, 200_000, 290_000])
-    tick(v37, s, now, 10.36)                              # 300k: not 1.5 x 212k
+def test_no_buy_on_volume_that_is_normal_for_the_stock(v37, clock, now, volume_rule):
+    s = minutes(v37, clock, now, [100_000] * 30, size=5_000)   # 150k: 1.5x normal
+    tick(v37, s, now, 10.36)
     assert not s.in_position
 
 

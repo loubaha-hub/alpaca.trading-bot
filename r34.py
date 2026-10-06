@@ -4247,13 +4247,16 @@ V37_GIVEBACK_ARM = 0.0          # "half the gain" only once the best gain reache
 # row" - and v37 bought at 8:14:29; it bought twice in 8:12 on falling
 # volume. The owner: "buy when the stock is flying" - the playbook: "volume
 # rising bar by bar, the bars 3-5x the size of the bars before them".
+# The owner, a minute later: not "three candles coming down" - a runner on
+# 10x, 8x, 7x its normal volume, green candles, price running, is a buy. The
+# volume matters in context: high for THIS stock, and not fallen off a cliff.
 V37_VOL_RULE = False            # the buy needs the volume, as below
-V37_VOL_FALLING = 2             # no buy after this many closed minutes in a row
-                                # each on less volume than the one before (2 =
-                                # three candles coming down)
-V37_VOL_MULT = 1.5              # the last 60 seconds' shares above the last
-                                # closed minute's AND at least this x the average
-                                # of the 5 closed minutes before it
+V37_VOL_REL = 3.0               # high: the last 60 seconds' shares at least this
+                                # x the stock's normal minute (the median of its
+                                # last 30 closed minutes) - the playbook's 3-5x
+V37_VOL_FADE = 0.5              # not fading: the last 60 seconds' shares at least
+                                # this share of the busiest of its last 5 closed
+                                # minutes
 V37_VOL_EXIT = 0.0              # out once the last 60 seconds' shares fall under
                                 # this share of what they were at the buy (0 = off)
 V37_MAX_POSITIONS = 2
@@ -4297,21 +4300,20 @@ class V37(V36):
         return sum(x[2] for x in s.v37_prints)
 
     def volume_ok(self, s) -> bool:
-        """V37_VOL_RULE: not after the volume came down V37_VOL_FALLING closed
-        minutes in a row, and the last minute's shares above the last closed
-        minute's and V37_VOL_MULT x the 5 closed minutes before it."""
+        """V37_VOL_RULE: the last 60 seconds' shares HIGH for this stock
+        (V37_VOL_REL x the median of its last 30 closed minutes) and NOT
+        FADING (V37_VOL_FADE x the busiest of its last 5). A name with no
+        closed minutes yet has nothing to compare: it passes."""
         if not V37_VOL_RULE:
             return True
-        vols = [b.v for b in s.bars[-6:]]
-        recent = vols[-(V37_VOL_FALLING + 1):]
-        if (V37_VOL_FALLING and len(recent) == V37_VOL_FALLING + 1
-                and all(a > b for a, b in zip(recent, recent[1:]))):
-            return False
+        vols = [b.v for b in s.bars[-30:]]
+        if not vols:
+            return True
         pace = self.pace(s)
-        if vols and pace <= vols[-1]:
+        normal = statistics.median(vols)
+        if pace < V37_VOL_REL * normal:
             return False
-        base = vols[:-1]
-        return not base or pace >= V37_VOL_MULT * sum(base) / len(base)
+        return pace >= V37_VOL_FADE * max(vols[-5:])
 
     def fresh(self, s) -> bool:
         """The print being decided on traded within V37_FRESH_SECONDS (a
