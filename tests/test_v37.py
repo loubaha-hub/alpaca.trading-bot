@@ -334,3 +334,110 @@ def test_if_the_second_keeps_running_both_end_at_25(v37, clock, now, broker,
     assert pct(a, broker) == pytest.approx(0.25, abs=0.015)
     assert pct(b, broker) == pytest.approx(0.25, abs=0.015)
     assert v37.closed_today[-1][5] == "make-room"
+
+
+# ---- proposed 2026-10-06 (off until the owner decides): the leash sized to the speed --
+
+@pytest.fixture
+def leash(monkeypatch):
+    monkeypatch.setattr(bot, "V37_STOP_SPEED", True)
+    monkeypatch.setattr(bot, "V37_GIVEBACK_ARM", 0.03)
+    monkeypatch.setattr(bot, "V37_ASK_PLUS", 0.0)          # fills at the price
+
+
+def test_a_two_cent_wiggle_no_longer_shakes_it_out(v37, clock, now, leash):
+    """IPDN, 8:11am 2026-10-06: seven buys at real new highs, each out within
+    1-3 seconds on the 2c stop while the stock rose 10%."""
+    s = bought(v37, clock, now)
+    assert s.stop == pytest.approx(s.entry * (1 - bot.V37_STOP_MIN))
+    tick(v37, s, now, round(s.entry - 0.05, 2))
+    assert s.in_position
+    tick(v37, s, now, round(s.stop - 0.01, 2))
+    assert not s.in_position
+    assert v37.closed_today[-1][5] == "stop"
+
+
+def test_a_furious_stock_gets_a_longer_leash_up_to_8_percent(v37, clock, now, leash):
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    prints(v37, s, now, 10.00, 11.40)                     # +14% in under a minute
+    s.day_high = 10.05
+    tick(v37, s, now, 11.45)
+    assert s.in_position
+    assert s.v37_stop_pct == pytest.approx(bot.V37_STOP_SHARE * (11.45 / 10.00 - 1))
+    prints(v37, s, now, 10.00, 13.40)                     # +34%: capped
+    assert v37.stop_pct(s, 13.45) == bot.V37_STOP_MAX
+
+
+def test_half_the_gain_only_once_up_3_percent(v37, clock, now, leash, monkeypatch):
+    monkeypatch.setattr(bot, "V37_ADD1_CENTS", 99.0)      # no adds: the average
+    monkeypatch.setattr(bot, "V37_ADD2_CENTS", 99.0)      # stays the buy
+    s = bought(v37, clock, now)
+    e = s.entry
+    tick(v37, s, now, round(e * 1.02, 2))                 # +2%: not armed
+    tick(v37, s, now, round(e * 1.005, 2))                # gave back three quarters
+    assert s.in_position
+    tick(v37, s, now, round(e * 1.04, 2))                 # +4%: armed
+    tick(v37, s, now, round(e * 1.019, 2))                # more than half back
+    assert not s.in_position
+    assert v37.closed_today[-1][5] == "giveback"
+
+
+def test_after_an_add_the_stop_keeps_its_distance_under_the_average(v37, clock, now,
+                                                                     leash):
+    s = bought(v37, clock, now)
+    pct = s.v37_stop_pct
+    tick(v37, s, now, round(s.v36_first + 0.10, 2))       # add to half
+    assert s.v36_adds == 1
+    assert s.stop == pytest.approx(max(s.v36_first * (1 - pct), s.entry * (1 - pct)))
+
+
+# ---- every buy above the real high of the day, even after a restart ----------------
+
+def test_even_the_first_buy_needs_a_new_high_of_the_day(v37, clock, now):
+    """IPDN, 8:11am 2026-10-06: after a restart, three buys (5.64, 5.69,
+    5.83) on a day already up to 5.83."""
+    s = ripping(v37, clock, now)
+    s.day_high = 10.50                                    # the morning's high
+    tick(v37, s, now, 10.36)                              # ripping, but under it
+    assert not s.in_position
+    tick(v37, s, now, 10.50)                              # at it
+    assert not s.in_position
+    tick(v37, s, now, 10.51)                              # through it
+    assert s.in_position
+
+
+class Bars:
+    """MarketData.bars_between, as day_high_since_open uses it."""
+
+    def __init__(self, highs, refuse_recent=False):
+        self.highs, self.refuse_recent, self.asked = highs, refuse_recent, []
+
+    async def bars_between(self, symbol, start, end):
+        self.asked.append((start, end))
+        if self.refuse_recent and len(self.asked) == 1:
+            raise Exception("subscription does not permit querying recent SIP data")
+        return [(start, 1.0, 100.0, h) for h in self.highs]
+
+
+def at_et(hour, minute):
+    return bot.datetime(2026, 10, 6, hour, minute, tzinfo=bot.ET).astimezone(
+        bot.timezone.utc)
+
+
+def test_the_day_high_comes_from_the_bars_since_4am():
+    data = Bars([5.20, 5.83, 5.64])
+    assert run(bot.day_high_since_open(data, "IPDN", at_et(8, 10))) == 5.83
+    start, end = data.asked[0]
+    assert start.astimezone(bot.ET).hour == 4 and start.astimezone(bot.ET).minute == 0
+
+
+def test_refused_recent_bars_it_asks_again_without_them():
+    data = Bars([5.83], refuse_recent=True)
+    assert run(bot.day_high_since_open(data, "IPDN", at_et(8, 10))) == 5.83
+    assert data.asked[1][1] == at_et(8, 10) - bot.timedelta(minutes=16)
+
+
+def test_before_4am_there_is_no_day_high_yet():
+    data = Bars([5.83])
+    assert run(bot.day_high_since_open(data, "IPDN", at_et(3, 59))) == 0.0
+    assert data.asked == []
