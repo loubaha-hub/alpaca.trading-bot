@@ -5,6 +5,23 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-06
 
+### v37 grace after the buy: built (off), replay says no, the replay can't see noise
+- The owner liked the idea: for N seconds after a buy only the 3-8% stop
+  sells, so the noise up front can't shake it out. Built as
+  V37_GRACE_SECONDS / V37_GRACE_FORGET (off), commit de24d2f.
+- Replay, 6 days, fills 0.2% worse: no grace +$4,002 (62% won); 10s
+  +$3,915; 15s +$3,632; 20s +$2,984; 30s +$1,539 (one red day); 15s
+  forgetting the spike inside the grace +$3,096, worst trade -$321. Trade
+  by trade, 15s made 0 trades better and 35 worse (-$346): the winners
+  were already held; losers moved from ~1% cuts to the stop.
+- But the replay draws each minute as straight lines (open-low-high-close)
+  - no back-and-forth in the first seconds - so it cannot show the noise
+  the grace is for. Live check, the 6 trades 9:02-11:40am: 5 fell through
+  their stops within a minute (a grace would have cost ~$75 more); XHG ran
+  +10% to +29% after its 4-second exit. Roughly a wash.
+- Stays off. To judge it on real prices: a shadow log (proposal) - after
+  each early "half the gain" sale, record what a grace would have done.
+
 ### v37 exits stay as they are for now - the owner accepts the trade-off
 - The owner: the stops and "half the gain" cause the churn and kick v37
   out of stocks that keep going, but the downside must be controlled.

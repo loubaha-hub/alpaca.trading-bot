@@ -29,7 +29,9 @@ Updated 2026-10-06, 10:25am ET.
    enough live sample; the branch logs the speed on every buy (not live yet).
 1. "Half the gain" on tiny gains (25 of today's exits under 1%): the owner
    keeps the exits as they are for now (10-06) - small cuts, the big runs
-   pay for them; watch whether big live winners show up. Replay: arming it later hurts (+$4,002 from the first cent vs
+   pay for them; watch whether big live winners show up. A grace after the
+   buy (only the stop sells for N seconds) is built, off: the replay says it
+   hurts at every length, but cannot see the noise it is for (see journal). Replay: arming it later hurts (+$4,002 from the first cent vs
    +$2,332 from 1%, fills 0.2% worse) - the wide stop and the early exit work
    as a pair. Untested option: a 15-20s grace after a buy, the stop only.
 2. The scored checklist (proposal): must-haves plus weighted signals, the
