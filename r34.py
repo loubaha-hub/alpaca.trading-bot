@@ -4445,7 +4445,9 @@ V37_BODY_FADE = 0.50            # ...and its body at least this share of the big
 # is messy". Points for what favours a run, a buy at V37_SCORE_MIN or more.
 # Only a huge top wick on the last candle stops a buy outright ("almost a
 # stop"). A stock ripping skips the score.
-V37_SCORE_MIN = 0               # 0 = off; else the points needed (of 15)
+V37_SCORE_MIN = 12              # 0 = off; else the points needed (of 15) - the
+                                # owner, 10-06: 12 (replay: 75% won, the only
+                                # version profitable at live-like fill costs)
 V37_SCORE_HUGE_WICK = 0.60      # the last candle's top wick over this share of it:
                                 # no buy
 V37_SCORE_ROOM = 0.05           # resistance: the prior day's high this close above

@@ -26,6 +26,7 @@ def v37(broker, data, clock, now, monkeypatch):
     monkeypatch.setattr(bot, "V37_STOP_SPEED", False)
     monkeypatch.setattr(bot, "V37_REBUY_WAIT", 0.0)      # tested on its own below
     monkeypatch.setattr(bot, "V37_SPEED_MIN", 0.0)       # the speed: tested below
+    monkeypatch.setattr(bot, "V37_SCORE_MIN", 0)         # the score: tested below
     strat = bot.V37(broker, data)
     strat.day_start_equity = broker.eq
     return strat
@@ -1094,8 +1095,12 @@ def test_irregular_bodies_are_fine_steadily_shrinking_are_not(v37, clock, now):
     assert "bodies 0" in v37.score(s, 10.37)[1]
 
 
-def test_the_score_is_off_until_the_owner_decides():
-    assert bot.V37_SCORE_MIN == 0
+def test_the_released_score_is_12_of_15():
+    """The owner, 10-06: "switch it to score 12". Replayed on 6 days: 72
+    trades instead of 112, 75% won, +$308 at fills 1% worse (-$48 before)."""
+    assert bot.V37_SCORE_MIN == 12
+    assert bot.V37_SCORE_SPEED == ((0.1, 1), (0.2, 2), (0.3, 4))
+    assert bot.V37_SPEED_MOVE_MIN == 0.03 and not bot.V37_SCORE_FURIOUS
 
 
 def test_a_furious_speed_buys_whatever_the_score(v37, clock, now, monkeypatch):
