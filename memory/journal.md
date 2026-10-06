@@ -5,6 +5,34 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-06
 
+### v37: buy only while the stock is RUNNING - from pass/fail to a score
+- Why: all 9 v37 buys 9:02am-2:25pm came at the top of a one-minute burst
+  out of quiet (already up 7-28% in 2 minutes; the bot paid up to 2% over
+  the print) and lost. The owner: "I would not have taken any of those."
+- The owner's signs: price up, volume up (the confirmation), the candle
+  before green and full to the top (two thirds up can still do), wicks not
+  growing candle after candle, green bodies not shrinking noticeably (a
+  little, irregularly, is fine), lows stepping up, over VWAP, 9 EMA over 20,
+  MACD positive, no resistance in the way; a huge wick on the last candle
+  is almost a stop; a red last candle is no buy (until the bots learn
+  bounces off solid support like the 200 EMA); pay well over the price only
+  when ripping. "The world is not black and white - trading is messy."
+  And: "the speed is everything", backed by volume - the biggest weight.
+- Strict pass/fail (V37_MOMENTUM) replayed 6 days, fills 0.2% worse: 71
+  trades instead of 112, 72% won instead of 62%, but +$2,211 instead of
+  +$4,002 - it skipped 26 losers (-$251) and 31 winners (+$2,243, SAIQ
+  +$1,079 among them). Each check alone also cost: red -$118, wick -$388,
+  lows -$437, bodies -$734 (SAIQ), volume 2 minutes -$1,529 (72% won).
+- So a score (V37_SCORE_MIN, of 14): speed 3 (a point at 0.1, 0.2, 0.3),
+  last candle 2, volume 2 (2 of the last 3 minutes at 2x), trend 2, wicks
+  1, bodies 1, lows 1, MACD 1, room 1; red or a huge wick = no buy; a stock
+  ripping (busiest minute of its day) skips it; V37_SCORE_FURIOUS tests
+  "speed 0.3+ buys whatever the score". All off on the branch; every v37
+  buy now logs its speed and score.
+- Also built: V37_STEADY_PAY (pay at most 0.5% over unless ripping), and a
+  restart reads today's buys back from the broker (APUS 11:33/11:36 had
+  skipped their confirmation candles after the 10:21 release).
+
 ### Round-trip runners, 90 days (the owner's request)
 - The owner: which stocks ran up and came back down to about where they
   started, in the last 90 days; runs on successive days count as one, at
