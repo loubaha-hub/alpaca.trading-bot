@@ -74,6 +74,13 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   within 15 minutes (most buys were made under the pre-fix code).
 - What to watch: does a big live winner show up to pay for the cuts? If
   live winners stay small while stocks run after the sale, revisit exits.
+- Live after the fixes, 9:02am-2:25pm 10-06: 9 v37 trades, all small
+  losers, -$52 in all (day -$485 on the owner's dashboard, nearly all
+  before the fixes). Every one sold by "half the gain" 4-13s after the
+  buy. The fills cost more than the moves: buys up to 2% over the price
+  seen (APUS 1:49pm 8.05 vs 7.89), sales ~1-2% under it. The owner: it
+  no longer buys lawlessly; holding steady like this, one big runner can
+  carry it.
 
 ### v37 speed rule: tested, held off by the owner - "up 3%" stays
 - The owner's formula: speed = (P2 - P1) / P1 x (V2 / V1), rolling 60s
