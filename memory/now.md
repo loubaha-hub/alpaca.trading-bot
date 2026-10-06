@@ -5,9 +5,16 @@ Updated 2026-10-06, 10:25am ET.
 ## Code
 - Working branch: `claude/zealous-ramanujan-br3gay`. New work goes here;
   nothing goes to `main` without the owner's OK.
-- Live on `main` (Render): VERSION v31-r34.10 (released 10:21am ET 10-06 at
-  the owner's request, all three accounts flat; r34.9 was 9:02am).
+- Live on `main` (Render): VERSION v31-r34.11 (released 3:46pm ET 10-06 at
+  the owner's OK, all three accounts flat; r34.10 was 10:21am).
   Accounts: T6HH runs v36, P28T ("V30-100k") runs v37, AUES runs v35.
+- r34.11: v37 buys only at a score of 12 of 15 (speed 1/2/4 at 0.1/0.2/0.3
+  with the price itself up 3%; candle, volume, trend, wicks, bodies, lows,
+  MACD, room; red last candle or a huge wick = no buy; ripping skips it);
+  each v37 buy logs its speed and score; at start-up v36 and v37 read
+  today's fills back (buys per stock, v37's last sale) - worked at the
+  3:46pm restart (v37: APUS 6 buys, IPDN 36, ...). Small fix pending: the
+  "restored" log line lacks the [v36]/[v37] tag.
 - r34.10 adds, for v37: no re-buy within 60s of a sale unless 30c up (10%
   of the sale price on a cheap stock, whichever is smaller); sells, stops
   and adds only on prints under 2s old. For v36: the 60/40 tape over ask vs
@@ -27,11 +34,8 @@ Updated 2026-10-06, 10:25am ET.
 ## Waiting on the owner
 0. v37 speed rule (0.1+): held off by the owner until "up 3%" has a big
    enough live sample; the branch logs the speed on every buy (not live yet).
-0b. v37 score (V37_SCORE_MIN, off on the branch): minimum 12 is the best
-   replayed version and the only one profitable at live-like fill costs
-   (see journal 10-06). Release = the owner's call, after 8pm. Also on the
-   branch, not live: the restart restores today's buys (v36, v37); every
-   v37 buy logs speed and score.
+0b. Watch v37 on score 12 live: trades, win rate, the score and speed of
+   each buy (ENTER lines); compare with the replay (75% won at 0.2%).
 1. "Half the gain" on tiny gains (25 of today's exits under 1%): the owner
    keeps the exits as they are for now (10-06) - small cuts, the big runs
    pay for them; watch whether big live winners show up. A grace after the

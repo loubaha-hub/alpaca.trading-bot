@@ -46,8 +46,9 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   exits are right. Next lever: what each fill costs (measure live).
 - Owner decision (~3:40pm): switch v37 to score 12. Exits stay as they are
   for now (small cuts; a shaken-out runner is re-bought when it scores).
-  Release r34.11 built and tested (worktree release8, 458 tests); v35
-  held a position at 3:41pm, so it waits for flat or after 8pm.
+  Released r34.11 at 3:46pm ET with the owner's OK ("release r34.11 on
+  that timing"), all three accounts flat at 3:45pm. Live 3:46:27; the
+  restore read today's fills (v37: APUS 6 buys, IPDN 36, JAGX 14...).
 - The owner, next: premarket is all limit orders - when a buy misses,
   go right after it, fast, but never lose track of (or pile up) its own
   orders. And v36 misbehaved today (screenshot coming).
