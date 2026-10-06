@@ -18,7 +18,7 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   Repeat gap median 20 days (33 within 2 weeks, 24 in 2-4, 26 over 4).
   111 trips came back the same day; median run +83%. 70 runs not back yet.
   At +30%: 381 stocks; at +100%: 102.
-- Not counted: delisted/OTC names (many dumps end there), premarket-only
+- Not counted: delisted/OTC names (the owner: ignore them), premarket-only
   spikes. Page: https://claude.ai/artifact/1Qv2hYjpmxZurmTUMPYABD. Data:
   replay/data/daily_listed_2026-07-01_10-05.json; finder and results:
   replay/research/roundtrips.py, roundtrips_2026-10-05.json.
