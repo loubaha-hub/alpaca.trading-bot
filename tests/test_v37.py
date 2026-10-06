@@ -24,6 +24,7 @@ def v37(broker, data, clock, now, monkeypatch):
     # to the speed are tested with their own fixtures (volume_rule, leash).
     monkeypatch.setattr(bot, "V37_VOL_RULE", False)
     monkeypatch.setattr(bot, "V37_STOP_SPEED", False)
+    monkeypatch.setattr(bot, "V37_REBUY_WAIT", 0.0)      # tested on its own below
     strat = bot.V37(broker, data)
     strat.day_start_equity = broker.eq
     return strat
@@ -692,3 +693,57 @@ def test_the_released_settings():
     assert bot.V37_VOL_RULE and bot.V37_VOL_REL == 2.0 and bot.V37_VOL_FADE == 0.70
     assert bot.V37_STOP_SPEED and not bot.V37_GIVEBACK_ARM
     assert bot.V37_CONFIRM_BY_BUY == (0, 0, 1, 2)
+
+
+# ---- a re-buy right after a sale (the owner, 2026-10-06) -----------------------------
+
+@pytest.fixture
+def rebuy_wait(monkeypatch):
+    monkeypatch.setattr(bot, "V37_REBUY_WAIT", 60.0)
+    monkeypatch.setattr(bot, "V37_CONFIRM_BY_BUY", ())
+    monkeypatch.setattr(bot, "V37_ASK_PLUS", 0.0)
+
+
+def test_no_re_buy_within_a_minute_of_the_sale(v37, clock, now, rebuy_wait, monkeypatch):
+    """65 of 2026-10-06's trades were bought back within 15 seconds of selling."""
+    monkeypatch.setattr(v37, "fast", lambda s, p: True)
+    s = bought(v37, clock, now)
+    tick(v37, s, now, 10.30)                              # sold
+    sold = s.v37_sold_px
+    tick(v37, s, now, round(s.day_high + 0.01, 2))        # a new high, seconds later
+    assert not s.in_position
+    now[0] += 61
+    tick(v37, s, now, round(s.day_high + 0.01, 2))        # a minute on: the rules as usual
+    assert s.in_position
+    assert sold > 0
+
+
+def test_a_30_cent_jump_buys_back_at_once(v37, clock, now, rebuy_wait, monkeypatch):
+    monkeypatch.setattr(v37, "fast", lambda s, p: True)
+    s = bought(v37, clock, now)
+    tick(v37, s, now, 10.30)
+    tick(v37, s, now, round(s.v37_sold_px + 0.29, 2))     # not yet 30c
+    assert not s.in_position
+    tick(v37, s, now, round(s.v37_sold_px + 0.31, 2))     # "really cruising"
+    assert s.in_position
+
+
+def test_on_a_cheap_stock_the_jump_is_10_percent(v37, clock, now, rebuy_wait):
+    s = bought(v37, clock, now)
+    s.v37_sold_ts, s.v37_sold_px = now[0], 1.00
+    assert v37.too_soon(s, 1.09)                          # 9c on a $1 stock: wait
+    assert not v37.too_soon(s, 1.11)                      # 11c: 10% - buy
+    s.v37_sold_px = 6.00
+    assert v37.too_soon(s, 6.29) and not v37.too_soon(s, 6.31)   # $6: 30c
+
+
+def test_a_stop_never_fires_on_an_old_print(v37, clock, now):
+    """2026-10-06: 13 "stops" sold above the buy - each fired on a print
+    tens of seconds old while the market was higher."""
+    s = bought(v37, clock, now)
+    old(s, now, 6)
+    tick(v37, s, now, round(s.stop - 0.05, 2))            # under the stop, 6s old
+    assert s.in_position
+    old(s, now, 0)
+    tick(v37, s, now, round(s.stop - 0.05, 2))            # the same, fresh
+    assert not s.in_position
