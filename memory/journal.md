@@ -26,6 +26,13 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   2 trades a day of $100+ (11 of 112) making 83% of the profit - do those
   show up live? (A shadow log of what a grace would have done was offered,
   not asked for.)
+- The owner's projection (to check against live results): winners of $200+
+  - one run is often $400-500; even cut in half it pays for the many small
+  cuts. Since the fixes v37 is "a lot more stable" (9:02-11:40am: 6 trades,
+  -$25, against -$700 before). Replay: 4 trades of $200+ in 6 days (SAIQ
+  +$1,079, LABT +$848, APUS +$230, NXL +$203) made $2,360, about 6x all 42
+  losers (-$405). A full v37 position is 40% of the account (~$6,000), so
+  $400-500 is about +8% at full size, after both adds.
 
 ### v37 exits stay as they are for now - the owner accepts the trade-off
 - The owner: the stops and "half the gain" cause the churn and kick v37
