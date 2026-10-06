@@ -125,7 +125,7 @@ RISK_CHECK_SECONDS = 5                      # the halt runs on a CLOCK, not tick
 # The file name and this string are changed together, every single time. The
 # log then answers "which code is actually running?" without anyone guessing
 # from line numbers or from behaviour that only shows up once a trade is on.
-VERSION = "v31-r34.5"
+VERSION = "v31-r34.6"
 
 # WHERE THE DAY'S HALT BASELINE COMES FROM.
 #   "last_equity" - equity at the PREVIOUS session's close, read from the broker.
@@ -1380,7 +1380,7 @@ class Strategy:
                # v36 buys to 25% of equity on the way up; a runner it holds
                # keeps growing past that, as v35's does.
                "v36": V35_MAX_POSITION_PCT,
-               "v37": V35_MAX_POSITION_PCT}.get(self.name, MAX_POSITION_PCT)
+               "v37": 0.60}.get(self.name, MAX_POSITION_PCT)   # 40%, grown by a run
         total_value = 0.0
         for s in self.open_positions():
             price = s.last_price or s.entry
@@ -1623,6 +1623,10 @@ class Strategy:
                      ref * (1 + cap), why)
         return filled
 
+    def buy_limit(self, ask, ceiling) -> float:
+        """The limit for one try of the fast buy: a little over the ask."""
+        return min(ask * (1 + FAST_BUY_OVER_ASK), ceiling)
+
     async def buy_fast(self, symbol, shares, ref, cap):
         """FAST_BUY: a limit off the ask, re-priced every FAST_BUY_WAIT seconds
         until filled, out of time or tries, or the ask is past the ceiling.
@@ -1642,7 +1646,7 @@ class Strategy:
             # Past the ceiling, the bid still sits AT the ceiling: a runner
             # that dips for a moment fills it.
             ask = await self.data.quote(symbol, "ask") or ref
-            limit = round(min(ask * (1 + FAST_BUY_OVER_ASK), ceiling), 2)
+            limit = round(self.buy_limit(ask, ceiling), 2)
             n = await self.broker.send(symbol, shares - got, OrderSide.BUY, limit,
                                        FAST_BUY_WAIT)
             if n == -2:
@@ -4180,11 +4184,15 @@ class V36(V35):
 #                last few minutes), with a big crowd behind it - or the day's
 #                top gainer with real money trading (V36_GAINER_*).
 #   THE BUY      the moment it rips: up V37_FAST_PCT in the last V37_FAST_SECONDS
-#                on real money. At most V37_ENTRY_PCT over the price it saw,
-#                re-priced fast; missed, it tries again on the next print that
-#                still rips. After a sale, again only with the crowd still there,
+#                on real money. Like the owner's hot keys: each try at the ask
+#                plus 10 cents, re-priced every 0.4s, under a ceiling that grows
+#                with the speed (2% to 10% over the price seen); missed, it tries
+#                again on the next print that still rips. After a sale, again only with the crowd still there,
 #                at a new high of the day.
 #   SIZE         a tenth of a position; half at +10 cents, full at +20 cents.
+#                Full is 40% of the account alone; a second one gets what is
+#                left under 50%, and if it keeps running the first is trimmed
+#                so both hold 25%.
 #   THE EXIT     "no tolerance for loss": V37_STOP_CENTS under the buy. "Half of
 #                the profit gone, exit": half of the best gain given back.
 # Numbers marked (?) are first guesses for the owner to correct.
@@ -4194,11 +4202,26 @@ V37_CROWD_MIN_DOLLARS = 1_000_000   # "a really huge crowd": dollars traded in t
 V37_FAST_SECONDS = 60           # "fast" (?): up V37_FAST_PCT within this many
 V37_FAST_PCT = 0.03             # seconds...
 V37_FAST_DOLLARS = 250_000      # ...on at least this many dollars traded in them
-V37_ENTRY_PCT = 0.02            # a buy pays at most this share over the price seen;
+V37_ASK_PLUS = 0.10             # each try's limit: the ask plus this many dollars -
+                                # the owner's hot keys ("ask plus 10 cents"); it fills
+                                # at the best offers up to there, usually at the ask
+V37_ENTRY_MAX = 0.10            # the ceiling grows with the speed: half of the last
+                                # minute's move, between V37_ENTRY_PCT and this
+V37_ENTRY_PCT = 0.02            # a buy pays at least this share over the price seen;
                                 # it re-prices every 0.4s up to there (FAST_BUY), and
                                 # if the stock runs past it, the next print that still
                                 # rips tries again from there - "so that way we are in"
-V37_POSITION_PCT = 0.25         # a full position: this share of equity
+V37_SOLO_PCT = 0.40             # a full position when it is the only one (the
+                                # owner, 10-06: "one position can go all the way to
+                                # 40"); the worst replayed trade lost 2.5% of it
+V37_PAIR_PCT = 0.25             # each of two in the end...
+V37_PAIR_TOTAL = 0.50           # ...and two together never over this. The owner,
+                                # 10-06: beside a first one at 40%, a second one's
+                                # full position is what is left (10%: 1%, 5%, 10%);
+                                # if it keeps running (+V37_ADD3_CENTS on a new
+                                # high), the first is trimmed to 25% and the second
+                                # grows to 25%.
+V37_ADD3_CENTS = 0.30           # "keeps running" for a second position (?)
 V37_STARTER = 0.10              # the first buy: this fraction of a full position
 V37_ADD1_CENTS = 0.10           # up this much from the first buy, on a new high:
 V37_ADD1_TO = 0.50              # to this fraction of a full position
@@ -4240,6 +4263,21 @@ class V37(V36):
         return low > 0 and price >= low * (1 + V37_FAST_PCT) \
             and dollars >= V37_FAST_DOLLARS
 
+    def buy_limit(self, ask, ceiling) -> float:
+        return min(ask + V37_ASK_PLUS, ceiling)
+
+    def move(self, s, price) -> float:
+        """How far the price is above the low of the last V37_FAST_SECONDS."""
+        low = min((x[1] for x in s.v37_prints), default=0.0)
+        return price / low - 1 if low > 0 else 0.0
+
+    def entry_cap(self, s, price) -> float:
+        """How far over the price seen the first buy may pay: half of the last
+        minute's move, between V37_ENTRY_PCT and V37_ENTRY_MAX. A stock up 20%
+        in a minute may cost 10% more to get into - "sometimes I get in more
+        like 10% more, but the stock took me to a higher level"."""
+        return min(V37_ENTRY_MAX, max(V37_ENTRY_PCT, 0.5 * self.move(s, price)))
+
     def in_the_crowd(self, s) -> bool:
         """The #1 or #2 by activity with a big crowd - or the day's top gainer
         with real money trading."""
@@ -4273,14 +4311,15 @@ class V37(V36):
 
     async def v37_buy(self, s, price):
         eq = await self.broker.equity(self.day_start_equity)
-        worst = price * (1 + V37_ENTRY_PCT)
+        cap = self.entry_cap(s, price)
+        worst = price * (1 + cap)
         held_all = sum(x.shares * (x.last_price or price)
                        for x in self.open_positions())
         room = max(0.0, eq * MAX_EXPOSURE_PCT - held_all)
-        shares = int(min(eq * V37_POSITION_PCT * V37_STARTER, room) / worst)
+        shares = int(min(eq * self.v37_full(s, eq) * V37_STARTER, room) / worst)
         if shares * price < MIN_TRADE_DOLLARS:
             return
-        filled = await self.buy(s.symbol, shares, price, V37_ENTRY_PCT)
+        filled = await self.buy(s.symbol, shares, price, cap)
         if not filled:
             return
         s.shares = filled
@@ -4309,17 +4348,48 @@ class V37(V36):
                       s.v36_first + V37_ADD2_CENTS)
         await self.quote_the_crowd()
 
+    def others_pct(self, s, eq) -> float:
+        return sum(x.shares * (x.last_price or x.entry)
+                   for x in self.open_positions() if x is not s) / eq if eq else 0.0
+
+    def v37_full(self, s, eq=None) -> float:
+        """A full position for `s`: V37_SOLO_PCT alone; beside another, what
+        is left under V37_PAIR_TOTAL, never over V37_PAIR_PCT."""
+        if not [x for x in self.open_positions() if x is not s]:
+            return V37_SOLO_PCT
+        eq = eq or self.day_start_equity
+        return max(0.0, min(V37_PAIR_PCT, V37_PAIR_TOTAL - self.others_pct(s, eq)))
+
+    async def make_room(self, s, eq):
+        """A second stock keeps running (+V37_ADD3_CENTS): any other position
+        over V37_PAIR_PCT of the account is trimmed down to it."""
+        for x in self.open_positions():
+            if x is s or not x.last_price:
+                continue
+            over = x.shares * x.last_price - eq * V37_PAIR_PCT
+            n = int(over / x.last_price)
+            if over > 0.02 * eq * V37_PAIR_PCT and n > 0:
+                async with self.lock(x.symbol):
+                    if x.in_position:
+                        self.log.info("[v37] %s TRIM to %.0f%% of the account - "
+                                      "room for %s", x.symbol, 100 * V37_PAIR_PCT,
+                                      s.symbol)
+                        await self.reduce(x, min(n, int(x.shares)), "make-room")
+
     async def v37_add(self, s, price, to_fraction):
         async with self.lock(s.symbol):
             if not s.in_position:
                 return
             s.v36_adds += 1
             eq = await self.broker.equity(self.day_start_equity)
+            if to_fraction is None:                 # the third step, beside another
+                await self.make_room(s, eq)
+                to_fraction = 1.0
             worst = price * (1 + BUY_CHASE_CAP)
             held_all = sum(x.shares * (x.last_price or price)
                            for x in self.open_positions())
             room = max(0.0, eq * MAX_EXPOSURE_PCT - held_all)
-            want = max(0.0, eq * V37_POSITION_PCT * to_fraction - s.shares * price)
+            want = max(0.0, eq * self.v37_full(s, eq) * to_fraction - s.shares * price)
             shares = int(min(want, room) / worst)
             if shares * price < MIN_TRADE_DOLLARS:
                 return
@@ -4328,9 +4398,14 @@ class V37(V36):
                 s.shares += filled
                 s.entry = await self.broker.avg_entry(s.symbol) or s.entry
                 s.peak = max(s.peak, price)
+                # No tolerance for loss on the whole position: an add filled
+                # over the price (ask + 10c on a fast stock) lifts the average
+                # above the high, and "half the gain" then never fires.
+                s.stop = max(s.stop, s.entry - V37_STOP_CENTS)
                 self.log.info("[v37] ADD %s to %.0f%% of a position: +%d @ %.4f -> "
-                              "%d shares, average %.4f", s.symbol,
-                              100 * to_fraction, filled, price, s.shares, s.entry)
+                              "%d shares, average %.4f, stop %.4f", s.symbol,
+                              100 * to_fraction, filled, price, s.shares, s.entry,
+                              s.stop)
 
     async def evaluate(self, s, price):
         if await self.halted():
@@ -4350,6 +4425,8 @@ class V37(V36):
             await self.exit(s, "giveback")      # half of the profit gone
             return
         steps = ((V37_ADD1_CENTS, V37_ADD1_TO), (V37_ADD2_CENTS, V37_ADD2_TO))
+        if len(self.open_positions()) > 1:
+            steps += ((V37_ADD3_CENTS, None),)     # beside another: make room, grow
         if s.v36_adds < len(steps) and new_high:
             at, to_fraction = steps[s.v36_adds]
             if price >= s.v36_first + at:

@@ -63,7 +63,7 @@ def test_buys_a_starter_the_moment_it_rips(v37, clock, now, broker):
     tick(v37, s, now, 10.36)
     assert s.in_position
     assert s.shares * s.entry == pytest.approx(
-        broker.eq * bot.V37_POSITION_PCT * bot.V37_STARTER, rel=0.05)
+        broker.eq * bot.V37_SOLO_PCT * bot.V37_STARTER, rel=0.05)
 
 
 def test_never_more_than_2_percent_over_the_price_seen(v37, clock, now, data):
@@ -128,7 +128,7 @@ def test_no_tolerance_for_loss(v37, clock, now):
 def test_adds_to_half_at_10_cents_and_full_at_20(v37, clock, now, broker):
     s = bought(v37, clock, now)
     first = s.v36_first
-    full = broker.eq * bot.V37_POSITION_PCT
+    full = broker.eq * bot.V37_SOLO_PCT
     tick(v37, s, now, round(first + 0.10, 2))
     assert s.v36_adds == 1
     assert s.shares * first == pytest.approx(0.5 * full, rel=0.05)
@@ -137,8 +137,9 @@ def test_adds_to_half_at_10_cents_and_full_at_20(v37, clock, now, broker):
     assert s.shares * first == pytest.approx(full, rel=0.05)
 
 
-def test_half_the_profit_gone_it_is_out(v37, clock, now):
-    s = bought(v37, clock, now)
+def test_half_the_profit_gone_it_is_out(v37, clock, now, monkeypatch):
+    monkeypatch.setattr(bot, "V37_ASK_PLUS", 0.0)         # fills at the price (the
+    s = bought(v37, clock, now)                           # fake fills AT the limit)
     tick(v37, s, now, round(s.entry + 0.10, 2))           # add to half
     best = s.peak
     keep = s.entry + 0.5 * (best - s.entry)
@@ -181,3 +182,90 @@ def test_the_days_top_gainer_counts_even_when_not_the_busiest(v37, clock, now):
     tick(v37, s, now, 10.36)
     assert v37.crowd_rank("ABCD") == 3 and v37.gainer_rank("ABCD") == 1
     assert s.in_position
+
+
+def test_each_try_is_the_ask_plus_10_cents(v37, clock, now, data):
+    """The owner's hot keys: "ask plus 10 cents" - filled at the best offers
+    up to there."""
+    s = ripping(v37, clock, now)
+    data.quotes[("ABCD", "ask")] = 10.38
+    tick(v37, s, now, 10.36)
+    assert v37.broker.buys("ABCD")[0][3] == pytest.approx(10.48)
+
+
+def test_a_furious_stock_may_cost_up_to_10_percent_more(v37, clock, now, data):
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    prints(v37, s, now, 8.00, 10.00)                      # +25% in the minute
+    s.day_high = 8.10
+    assert v37.entry_cap(s, 10.00) == pytest.approx(bot.V37_ENTRY_MAX)
+    data.quotes[("ABCD", "ask")] = 10.70                   # 7% over: still in reach
+    tick(v37, s, now, 10.01)
+    assert s.in_position
+    assert v37.broker.buys("ABCD")[0][3] == pytest.approx(10.80)
+
+
+def test_a_slower_stock_keeps_the_2_percent_ceiling(v37, clock, now):
+    s = ripping(v37, clock, now)                          # +3.5% in the minute
+    assert v37.entry_cap(s, 10.36) == pytest.approx(bot.V37_ENTRY_PCT)
+
+
+def test_after_an_add_the_stop_follows_the_new_average(v37, clock, now):
+    """An add filled over the price (ask + 10c) lifts the average above the
+    high; the stop 2c under the FIRST buy would let the whole position lose."""
+    s = bought(v37, clock, now)
+    tick(v37, s, now, round(s.v36_first + 0.10, 2))       # add, filled at +10c more
+    assert s.v36_adds == 1
+    assert s.stop == pytest.approx(s.entry - bot.V37_STOP_CENTS)
+    tick(v37, s, now, round(s.entry - 0.03, 2))
+    assert not s.in_position
+
+
+# ---- size: 40% alone, 25% each for two --------------------------------------------
+
+def test_alone_a_full_position_is_40_percent(v37, clock, now, broker):
+    s = bought(v37, clock, now)
+    tick(v37, s, now, round(s.v36_first + 0.10, 2))
+    tick(v37, s, now, round(s.v36_first + 0.20, 2))
+    assert s.shares * s.v36_first == pytest.approx(0.40 * broker.eq, rel=0.05)
+
+
+def two(v37, clock, now, monkeypatch):
+    """A at a full 40%, then B ripping beside it."""
+    monkeypatch.setattr(bot, "V37_CROWD_TOP", 5)
+    monkeypatch.setattr(bot, "V37_ASK_PLUS", 0.0)
+    a = bought(v37, clock, now)
+    tick(v37, a, now, round(a.v36_first + 0.10, 2))
+    tick(v37, a, now, round(a.v36_first + 0.20, 2))
+    b = ripping(v37, clock, now, symbol="BBBB")
+    v37.crowd = (-1, {})
+    tick(v37, b, now, 10.36)
+    assert b.in_position
+    return a, b
+
+
+def pct(s, broker):
+    return s.shares * s.last_price / broker.eq
+
+
+def test_beside_a_40_percent_one_the_second_gets_what_is_left(v37, clock, now,
+                                                            broker, monkeypatch):
+    """The owner: 1%, then 5%, then 10% - 40 and 10 is 50."""
+    a, b = two(v37, clock, now, monkeypatch)
+    assert pct(a, broker) == pytest.approx(0.40, rel=0.06)
+    assert pct(b, broker) == pytest.approx(0.01, rel=0.2)
+    tick(v37, b, now, round(b.v36_first + 0.10, 2))
+    assert pct(b, broker) == pytest.approx(0.05, rel=0.15)
+    tick(v37, b, now, round(b.v36_first + 0.20, 2))
+    assert pct(a, broker) + pct(b, broker) == pytest.approx(0.50, abs=0.02)
+
+
+def test_if_the_second_keeps_running_both_end_at_25(v37, clock, now, broker,
+                                                   monkeypatch):
+    a, b = two(v37, clock, now, monkeypatch)
+    tick(v37, b, now, round(b.v36_first + 0.10, 2))
+    tick(v37, b, now, round(b.v36_first + 0.20, 2))
+    assert pct(a, broker) > 0.35                          # not trimmed yet
+    tick(v37, b, now, round(b.v36_first + 0.30, 2))       # it keeps running
+    assert pct(a, broker) == pytest.approx(0.25, abs=0.015)
+    assert pct(b, broker) == pytest.approx(0.25, abs=0.015)
+    assert v37.closed_today[-1][5] == "make-room"
