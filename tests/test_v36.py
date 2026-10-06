@@ -286,13 +286,92 @@ def test_no_more_than_the_days_entries(v36, clock, monkeypatch):
 
 # ---- which account -----------------------------------------------------------------
 
-def test_v36_takes_v34s_account_and_v31_stays_the_yardstick():
-    slots = bot.account_classes("v34")
-    assert slots["v31"] is bot.V31 and slots["v34"] is bot.V36
+def test_the_accounts_run_v36_v37_v35():
+    """The owner, 10-06: v36 over v31's account, v37 over "V30-100k" (v34's)."""
+    slots = bot.account_classes({})
+    assert slots["v31"] is bot.V36 and slots["v34"] is bot.V37
     assert slots["v35"] is bot.V35
 
 
-def test_v36_can_take_v31s_account_instead_or_stay_off():
-    assert bot.account_classes("v31")["v31"] is bot.V36
-    off = bot.account_classes("off")
-    assert bot.V36 not in off.values()
+def test_each_account_can_be_switched_or_turned_off():
+    slots = bot.account_classes({"SLOT_V31": "v31", "SLOT_V34": "off"})
+    assert slots["v31"] is bot.V31 and slots["v34"] is None
+
+
+# ---- the run lives as long as its volume (the owner, 10-06: no clock) --------------
+
+def later(strat, clock, s, rows):
+    """More closed candles after the setup, the clock moved to their end."""
+    from datetime import timedelta
+    clock.now = clock.now + timedelta(minutes=len(rows))
+    feed_bars(strat, s.symbol, clock.now.astimezone(bot.timezone.utc), rows)
+
+
+def test_a_run_still_trading_heavily_40_minutes_on_is_still_bought(v36, clock):
+    """A 15-minute window would have refused this pullback."""
+    s = ripping(v36, clock, pullback=False)
+    climb = [(10.40 + 0.01 * i, 10.45 + 0.01 * i, 10.38 + 0.01 * i, 10.43 + 0.01 * i,
+              100_000) for i in range(40)]                         # 2.5x the base
+    later(v36, clock, s, climb + [(10.83, 10.84, 10.70, 10.72, 90_000)])   # a red
+    assert v36.alive(s)
+    tick(v36, s, 10.84)
+    assert entered(v36, s)
+
+
+def test_when_the_volume_dies_the_run_is_over(v36, clock):
+    s = ripping(v36, clock, pullback=False)
+    quiet = [(10.40, 10.42, 10.38, 10.41, 30_000)] * 10           # under the base
+    later(v36, clock, s, quiet + [(10.41, 10.42, 10.35, 10.36, 30_000)])
+    assert not v36.alive(s)
+    tick(v36, s, 10.42)
+    assert not entered(v36, s)
+
+
+def test_the_high_of_the_day_break_needs_the_volume_to_pick_up(v36, clock):
+    s = ripping(v36, clock, pullback=False)
+    flat = [(10.40, 10.42, 10.38, 10.41, 120_000)] * 6
+    later(v36, clock, s, flat + [(10.41, 10.47, 10.40, 10.46, 125_000),
+                                 (10.46, 10.52, 10.45, 10.51, 130_000)])   # 1.1x
+    tick(v36, s, 10.60)
+    assert not entered(v36, s)
+
+
+# ---- every re-entry starts small again ---------------------------------------------
+
+def test_a_re_entry_starts_small_and_adds_again(v36, clock, broker):
+    s = bought(v36, clock)
+    tick(v36, s, round(s.v36_first * 1.031, 2))
+    assert s.v36_adds == 1
+    run(v36.exit(s, "test"))
+    later(v36, clock, s, [(10.80, 11.30, 10.79, 11.25, 300_000),
+                          (11.25, 11.90, 11.24, 11.85, 400_000)])   # a new rip, a new high
+    tick(v36, s, round(s.hod_closed + bot.margin_for(11.9) + 0.01, 2))
+    assert entered(v36, s)
+    assert s.v36_entries == 2 and s.v36_adds == 0
+    assert s.shares * s.entry == pytest.approx(
+        broker.eq * bot.V36_POSITION_PCT * bot.V36_STARTER, rel=0.1)
+
+
+def test_one_buy_a_minute_still_holds_after_400_candles(v36, clock):
+    """Candles are capped at 400 a name; counting them stopped all re-entries
+    from about 10:40am. The check is by time."""
+    s = ripping(v36, clock, pullback=False)
+    later(v36, clock, s, [(10.40, 10.42, 10.38, 10.41, 60_000)] * 420)
+    assert len(s.bars) == 400
+    s.v36_entry_bar_ts = s.bars[-2].ts                    # bought a minute ago
+    assert s.bars[-1].ts > s.v36_entry_bar_ts             # so a new buy may come
+
+
+def test_the_adds_come_at_15_and_20_cents(v36, clock, broker):
+    """The owner, 10-06: 3% of a $10 stock is 30 cents before the first add -
+    the run may be over by then."""
+    s = bought(v36, clock)
+    first = s.v36_first
+    assert v36.add_level(s, 0) == pytest.approx(first + 0.15)
+    assert v36.add_level(s, 1) == pytest.approx(first + 0.20)
+    tick(v36, s, round(first + 0.14, 2))
+    assert s.v36_adds == 0
+    tick(v36, s, round(first + 0.16, 2))
+    assert s.v36_adds == 1
+    tick(v36, s, round(first + 0.21, 2))
+    assert s.v36_adds == 2

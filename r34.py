@@ -125,7 +125,7 @@ RISK_CHECK_SECONDS = 5                      # the halt runs on a CLOCK, not tick
 # The file name and this string are changed together, every single time. The
 # log then answers "which code is actually running?" without anyone guessing
 # from line numbers or from behaviour that only shows up once a trade is on.
-VERSION = "v31-r34.4"
+VERSION = "v31-r34.5"
 
 # WHERE THE DAY'S HALT BASELINE COMES FROM.
 #   "last_equity" - equity at the PREVIOUS session's close, read from the broker.
@@ -1236,15 +1236,22 @@ class SymState:
     v35_starter: float = 0.0
     v35_peak: float = 0.0            # v35: the highest price seen while holding, today
     v36_entries: int = 0             # v36: buys of this name today
-    v36_bars_at_entry: int = -1      # v36: len(bars) at the last buy - one buy a minute
+    v36_entry_bar_ts: object = None  # v36: the last closed candle at the last buy -
+                                     # one buy a minute (by time: bars are capped at 400)
+    v36_rip_ts: object = None        # v36: the latest rip's last candle (its start time)
+    v36_rip_base: float = 0.0        # v36: the average minute's volume before that rip
     v36_first: float = 0.0           # v36: what the starter paid
-    v36_adds: int = 0                # v36: adds made to this position (V36_ADD_STEPS)
+    v36_adds: int = 0                # v36: adds made to this position (V36_ADD1_*, V36_ADD2_*)
     v36_leash_from: float = 0.0      # v36: the short leash watches candles from here
     ten: tuple = ()                  # v36: the 10-second candle in progress
                                      # (bucket, open, high, low, close)
     tens: deque = field(default_factory=lambda: deque(maxlen=6))
                                      # v36: the last closed 10-second candles
     ten_break: bool = False          # v36: the short leash has fired since the buy
+    ref_price: float = 0.0           # the previous session's close (the scanner) -
+                                     # the day's gain is measured from it
+    v37_prints: deque = field(default_factory=deque)
+                                     # v37: (time, price, size) over V37_FAST_SECONDS
     last_exit: float = 0.0           # v33: the level that threw us out
     skipped_prints: int = 0          # odd lots etc. we refused to act on
     adopted: bool = False
@@ -1372,7 +1379,8 @@ class Strategy:
                "v35": V35_MAX_POSITION_PCT,
                # v36 buys to 25% of equity on the way up; a runner it holds
                # keeps growing past that, as v35's does.
-               "v36": V35_MAX_POSITION_PCT}.get(self.name, MAX_POSITION_PCT)
+               "v36": V35_MAX_POSITION_PCT,
+               "v37": V35_MAX_POSITION_PCT}.get(self.name, MAX_POSITION_PCT)
         total_value = 0.0
         for s in self.open_positions():
             price = s.last_price or s.entry
@@ -3680,7 +3688,8 @@ class V35(V31):
 #   READY        a rip: two green minutes adding 5% or more (or one minute of
 #                5%), each on 3x the volume of the minutes before, on real
 #                money - a thin stock is left alone however fast it runs - and
-#                no long upper wick.
+#                no long upper wick. The run stays alive as long as its volume
+#                does - no clock.
 #   THE BUY      after the rip, the green-red pattern (1c over the red's open,
 #                stop at the red's low), or the high of the day breaking with
 #                green candles stacking on rising volume. Above VWAP and the 9
@@ -3689,8 +3698,8 @@ class V35(V31):
 #                running: "that's where the money is made".
 #   SIZE         ease in: a tenth of a full position, so a shakeout costs
 #                little - and the starter gets room: only the red's low takes it
-#                out. Then keep adding as the stock proves it is moving, to half
-#                and to a full position.
+#                out. Then keep adding as the stock proves it is moving: to half
+#                at +15 cents, to a full position at +20 cents.
 #   THE EXIT     once added to, a short leash - out when a 10-second candle
 #                closes red under the lows of the two before it; a long leash
 #                once up 10%; after each add the floor rises to breakeven.
@@ -3703,11 +3712,22 @@ V36_CROWD_MINUTES = 5           # the crowd: share of the list's dollars traded 
                                 # the last N minutes
 V36_CROWD_TOP = 2               # trade only the top N
 V36_CROWD_HOLD_MIN = 2          # ...after it has held a top spot N minutes
+V36_GAINER_TOP = 2              # OR one of the day's top N gainers (from the
+V36_GAINER_MIN_DOLLARS = 1_000_000  # previous close) with at least this many dollars
+                                # traded in the crowd window. The owner, 10-06:
+                                # 60-70% of the stocks they pick are the day's top
+                                # gainer with news; sometimes the crowd moves to a
+                                # lower one picking up speed. Either will do.
 V36_RIP_PCT = 0.05              # two green minutes adding this much
 V36_RIP_ONE_PCT = 0.05          # or one green minute adding this much
 V36_RIP_VOL_MULT = 3.0          # each rip minute on this many times the average
 V36_RIP_BEFORE = 5              # ...of this many minutes before it
-V36_RIP_FRESH_MIN = 15          # a rip older than this many minutes buys nothing
+V36_ALIVE_BARS = 3              # THE RUN IS ALIVE WHILE THE VOLUME IS: the last N
+V36_ALIVE_MULT = 2.0            # minutes trade at this many times the volume before
+                                # the rip. A run lasts 2 minutes or 40 - "what
+                                # dictates that is the volume" (the owner, 10-06).
+V36_PICKUP_MULT = 2.0           # the high of the day breaking: its candle on this
+                                # many times the volume of the 5 minutes before
 V36_WICK_MAX = 0.5              # the rip's last candle: upper wick at most this
                                 # share of its range ("a high retreat")
 V36_TAPE_SECONDS = 30           # the tape window at the buy
@@ -3715,9 +3735,21 @@ V36_TAPE_GREEN = 0.60           # at least this share of shares at the ask
 V36_TAPE_RED = 0.40             # no more than this share at the bid
 V36_POSITION_PCT = 0.25         # a full position: this share of equity
 V36_STARTER = 0.10              # the first buy: this fraction of a full position
-V36_ADD_STEPS = ((0.03, 0.50),  # keep adding as it moves: up this much from the
-                 (0.06, 1.00))  # starter, on a new high with the tape still green,
-                                # to this fraction of a full position
+# KEEP ADDING AS IT MOVES: once up ADD1_AT from the starter, on a new high with
+# the tape still green, to ADD1_TO of a full position; at ADD2_AT, to ADD2_TO.
+# V36_ADD_CENTS: the AT numbers are dollars (0.15 = 15 cents) instead of a
+# share of the price - the owner, 10-06: "3% on a $10 stock is 30 cents
+# before you start adding; by then the run has probably fizzled out".
+# Replayed 09-28..10-05 (fills 0.5% worse; total / the five days without SAIQ):
+#   +3% to half, +6% to full          +$1,717 / -$1,185
+#   +15c to 25%, +20c to 75%          +$1,844 /   +$129
+#   +15c to half, +20c to full        +$2,949 /   +$538   <- the owner's, kept
+#   +1.5% to half, +2% to full          +$787 / -$1,561
+V36_ADD_CENTS = True
+V36_ADD1_AT = 0.15
+V36_ADD1_TO = 0.50
+V36_ADD2_AT = 0.20
+V36_ADD2_TO = 1.00
 V36_FLOOR_AVG = True            # after an add, the floor rises to: True = the
                                 # position's average (breakeven), False = what the
                                 # starter paid. Replayed 09-28..10-05: average
@@ -3732,20 +3764,23 @@ V36_MAX_ENTRIES = 6             # buys per name per day - each one small
 V36_PAY_UP_ABR = 1.0            # a buy may pay this many ABRs over the trigger...
 V36_PAY_UP_MAX = 0.05           # ...never more than this (BUY_CHASE_CAP at least)
 V36_CONFIRM_TOLERANCE = 0.01    # the ask may sit this far under the trigger
-# Which account v36 trades (the owner, 2026-10-06: "replace one of those
-# three"): "v34" - v34's account and keys (V33_API_KEY), so v31 keeps running
-# as the yardstick and v35 as before; "v31" - v31's account instead; "off".
-# Set in the environment - switching needs no code change.
-V36_REPLACES = os.environ.get("V36_REPLACES", "v34").strip().lower()
+# WHICH STRATEGY TRADES EACH ACCOUNT (the owner, 2026-10-06): v31's keys
+# (T6HH, "v27-30k") run v36; v34's keys (V33_*, P28T, "V30-100k") run v37;
+# v35's keys (AUES) run v35. Each can be changed in the environment with no
+# code change: SLOT_V31 / SLOT_V34 / SLOT_V35 = v31, v34, v35, v36, v37 or off.
+SLOT_DEFAULTS = {"v31": "v36", "v34": "v37", "v35": "v35"}
 
 
-def account_classes(replaces=None):
-    """The strategy class for each account slot, by the slot's old name."""
-    replaces = V36_REPLACES if replaces is None else replaces
-    return {"v31": V36 if replaces == "v31" else V31,
-            "v32": V32,
-            "v34": V36 if replaces == "v34" else V34,
-            "v35": V35}
+def account_classes(env=None):
+    """The strategy class for each account slot (None = off), by the slot's
+    old name."""
+    env = os.environ if env is None else env
+    names = {"v31": V31, "v34": V34, "v35": V35, "v36": V36, "v37": V37}
+    out = {"v32": V32}
+    for slot, default in SLOT_DEFAULTS.items():
+        chosen = (env.get("SLOT_" + slot.upper()) or default).strip().lower()
+        out[slot] = names.get(chosen)
+    return out
 
 
 class V36(V35):
@@ -3756,6 +3791,8 @@ class V36(V35):
     def __init__(self, broker, data):
         super().__init__(broker, data)
         self.crowd = (-1, {})                  # (minute, {symbol: rank})
+        self.crowd_dv = {}                     # symbol -> dollars in the crowd window
+        self.gainers = (-1, {})                # (minute, {symbol: rank by day gain})
         self.crowd_since = {}                  # symbol -> when it entered the top
 
     def halt_threshold(self) -> float:
@@ -3818,9 +3855,37 @@ class V36(V35):
             for sym in top:
                 self.crowd_since.setdefault(sym, now)
             self.crowd = (minute, ranks)
+            self.crowd_dv = dv
         return self.crowd[1].get(symbol, 10**6)
 
+    def crowd_dollars(self, symbol) -> float:
+        """Dollars traded in the last V36_CROWD_MINUTES (as crowd_rank counted)."""
+        self.crowd_rank(symbol)
+        return self.crowd_dv.get(symbol, 0.0)
+
+    def gainer_rank(self, symbol) -> int:
+        """1 for the scanner-list name up the most on the day (from the
+        previous close), 2 for the next... Recounted once a minute."""
+        minute = int(time.time() // 60)
+        if self.gainers[0] != minute:
+            up = {}
+            for sym in self.qualified:
+                st = self.state.get(sym)
+                if st and st.ref_price > 0 and st.last_price > 0:
+                    up[sym] = st.last_price / st.ref_price - 1
+            order = sorted(up, key=up.get, reverse=True)
+            self.gainers = (minute, {sym: i + 1 for i, sym in enumerate(order)})
+        return self.gainers[1].get(symbol, 10**6)
+
+    def top_gainer(self, s) -> bool:
+        return (V36_GAINER_TOP and self.gainer_rank(s.symbol) <= V36_GAINER_TOP
+                and self.crowd_dollars(s.symbol) >= V36_GAINER_MIN_DOLLARS)
+
     def in_crowd(self, s) -> bool:
+        """Where the crowd is (held V36_CROWD_HOLD_MIN), or the day's top
+        gainer with real money trading - either will do."""
+        if self.top_gainer(s):
+            return True
         if self.crowd_rank(s.symbol) > V36_CROWD_TOP:
             return False
         since = self.crowd_since.get(s.symbol)
@@ -3850,33 +3915,51 @@ class V36(V35):
         base = bars[max(0, k - V36_RIP_BEFORE):k]
         return sum(x.v for x in base) / len(base) if len(base) >= 2 else 0.0
 
-    def rip_at(self, bars, j) -> bool:
+    def rip_kind(self, bars, j) -> int:
         """bars[j] ends a rip: green, no long upper wick, on real money, and
-        either the second of two greens adding V36_RIP_PCT on rising volume,
-        or one green adding V36_RIP_ONE_PCT - each on V36_RIP_VOL_MULT x the
-        minutes before."""
+        either the second of two greens adding V36_RIP_PCT on rising volume
+        (2), or one green adding V36_RIP_ONE_PCT (1) - each on
+        V36_RIP_VOL_MULT x the minutes before. 0: no rip."""
         b = bars[j]
         if not b.green or not self.wick_ok(b) or b.c * b.v < V36_MIN_DOLLARS:
-            return False
+            return 0
         a = bars[j - 1] if j >= 1 else None
         if (a is not None and a.green and b.v > a.v and a.c * a.v >= V36_MIN_DOLLARS
                 and a.o > 0 and b.c >= a.o * (1 + V36_RIP_PCT)):
             avg = self.vol_base(bars, j - 1)
             if avg > 0 and min(a.v, b.v) >= V36_RIP_VOL_MULT * avg:
-                return True
+                return 2
         if V36_RIP_ONE_PCT and b.o > 0 and b.c >= b.o * (1 + V36_RIP_ONE_PCT):
             avg = self.vol_base(bars, j)
-            return avg > 0 and b.v >= V36_RIP_VOL_MULT * avg
-        return False
+            if avg > 0 and b.v >= V36_RIP_VOL_MULT * avg:
+                return 1
+        return 0
+
+    def offer_bar(self, raw):
+        super().offer_bar(raw)
+        s = self.st(raw.symbol)
+        j = len(s.bars) - 1
+        kind = self.rip_kind(s.bars, j)
+        if kind:
+            s.v36_rip_ts = s.bars[j].ts
+            s.v36_rip_base = self.vol_base(s.bars, j - 1 if kind == 2 else j)
 
     def rip(self, s):
-        """The index in s.bars of the latest rip's last candle within the last
-        V36_RIP_FRESH_MIN closed candles, or None."""
-        n = len(s.bars)
-        for j in range(n - 1, max(-1, n - 1 - V36_RIP_FRESH_MIN), -1):
-            if self.rip_at(s.bars, j):
+        """The index in s.bars of today's latest rip's last candle, or None."""
+        if s.v36_rip_ts is None:
+            return None
+        for j in range(len(s.bars) - 1, -1, -1):
+            if s.bars[j].ts == s.v36_rip_ts:
                 return j
         return None
+
+    def alive(self, s) -> bool:
+        """The run is alive while the volume is: the last V36_ALIVE_BARS
+        minutes at V36_ALIVE_MULT x the volume before the rip. No clock."""
+        recent = s.bars[-V36_ALIVE_BARS:]
+        if not recent or s.v36_rip_base <= 0:
+            return False
+        return sum(b.v for b in recent) / len(recent) >= V36_ALIVE_MULT * s.v36_rip_base
 
     def tape_ok(self, s) -> bool:
         """The owner: "at least sixty green, and no more than forty red".
@@ -3906,8 +3989,9 @@ class V36(V35):
 
     def breaking_high(self, s, price):
         """The high of the day breaking with green candles stacking on rising
-        volume: the last two closed candles green, the second on more volume,
-        both on real money. Stop at the last green's low."""
+        volume: the last two closed candles green, the second on more volume
+        and on V36_PICKUP_MULT x the minutes before, both on real money. Needs
+        no earlier rip - the pick-up is its own. Stop at the last green's low."""
         bars = s.bars
         if len(bars) < 2 or not s.hod_closed:
             return None
@@ -3916,6 +4000,9 @@ class V36(V35):
             return None
         if min(a.c * a.v, b.c * b.v) < V36_MIN_DOLLARS:
             return None
+        base = self.vol_base(bars, len(bars) - 1)
+        if base <= 0 or b.v < V36_PICKUP_MULT * base:
+            return None                         # the volume has to pick up
         level = max(s.hod_closed, s.v35_peak) + margin_for(price)
         return level, b.l, "hod"
 
@@ -3930,17 +4017,20 @@ class V36(V35):
             return
         if s.v36_entries >= V36_MAX_ENTRIES:
             return
-        if len(s.bars) <= s.v36_bars_at_entry:
+        if (s.v36_entry_bar_ts is not None and s.bars
+                and s.bars[-1].ts <= s.v36_entry_bar_ts):
             return                              # one buy a minute: no churn
         if V36_MAX_FLOAT and FLOATS.get(s.symbol, 0) > V36_MAX_FLOAT:
             return
         if not self.in_crowd(s):
             return
         await self.quote_the_crowd()
+        found = None
         j = self.rip(s)
-        if j is None:
-            return
-        found = self.pullback_after(s, j) or self.breaking_high(s, price)
+        if j is not None and self.alive(s):
+            found = self.pullback_after(s, j)
+        if not found:
+            found = self.breaking_high(s, price)
         if not found or price < found[0]:
             return
         trigger, stop_ref, kind = found
@@ -3967,13 +4057,21 @@ class V36(V35):
                                           stop_ref)
             if s.in_position:
                 s.v36_entries += 1
-                s.v36_bars_at_entry = len(s.bars)
+                s.v36_entry_bar_ts = s.bars[-1].ts if s.bars else None
                 s.v36_first = s.entry
                 self.log.info("[v36] %s STARTER %d shares (a tenth of a full "
-                              "position), buy %d today - adds once it is up "
-                              "%s on a new high", s.symbol, s.shares,
-                              s.v36_entries, " / ".join(
-                                  "%.0f%%" % (100 * at) for at, _ in V36_ADD_STEPS))
+                              "position), buy %d today - adds at %.4f and %.4f "
+                              "on a new high", s.symbol, s.shares, s.v36_entries,
+                              self.add_level(s, 0), self.add_level(s, 1))
+
+    @staticmethod
+    def add_steps():
+        return ((V36_ADD1_AT, V36_ADD1_TO), (V36_ADD2_AT, V36_ADD2_TO))
+
+    def add_level(self, s, step) -> float:
+        """The price at which add `step` (0 or 1) comes, from the starter's."""
+        at = self.add_steps()[step][0]
+        return s.v36_first + at if V36_ADD_CENTS else s.v36_first * (1 + at)
 
     async def add_step(self, s, price, to_fraction):
         """Keep adding as the stock moves: to `to_fraction` of a full position
@@ -4067,10 +4165,195 @@ class V36(V35):
         elif s.ten_break and s.v36_adds:
             await self.exit(s, "10s")
             return
-        if s.v36_adds < len(V36_ADD_STEPS) and s.v36_first and new_high:
-            at, to_fraction = V36_ADD_STEPS[s.v36_adds]
-            if price >= s.v36_first * (1 + at) and self.tape_ok(s):
-                await self.add_step(s, price, to_fraction)
+        steps = self.add_steps()
+        if s.v36_adds < len(steps) and s.v36_first and new_high:
+            if price >= self.add_level(s, s.v36_adds) and self.tape_ok(s):
+                await self.add_step(s, price, steps[s.v36_adds][1])
+
+
+# ----------------------------------------------------------------------------
+# V37 - THE SIMPLEST: WHERE THE CROWD IS, WHEN IT RIPS
+# ----------------------------------------------------------------------------
+# The owner, 2026-10-06: "a strategy that is simplest of all". No candles, no
+# indicators, no tape check:
+#   WHICH STOCK  the #1 or #2 by activity right now (dollars traded in the
+#                last few minutes), with a big crowd behind it - or the day's
+#                top gainer with real money trading (V36_GAINER_*).
+#   THE BUY      the moment it rips: up V37_FAST_PCT in the last V37_FAST_SECONDS
+#                on real money. At most V37_ENTRY_PCT over the price it saw,
+#                re-priced fast; missed, it tries again on the next print that
+#                still rips. After a sale, again only with the crowd still there,
+#                at a new high of the day.
+#   SIZE         a tenth of a position; half at +10 cents, full at +20 cents.
+#   THE EXIT     "no tolerance for loss": V37_STOP_CENTS under the buy. "Half of
+#                the profit gone, exit": half of the best gain given back.
+# Numbers marked (?) are first guesses for the owner to correct.
+V37_CROWD_TOP = 2               # the #1 or #2 by activity
+V37_CROWD_MIN_DOLLARS = 1_000_000   # "a really huge crowd": dollars traded in the
+                                # last V36_CROWD_MINUTES at least this (?)
+V37_FAST_SECONDS = 60           # "fast" (?): up V37_FAST_PCT within this many
+V37_FAST_PCT = 0.03             # seconds...
+V37_FAST_DOLLARS = 250_000      # ...on at least this many dollars traded in them
+V37_ENTRY_PCT = 0.02            # a buy pays at most this share over the price seen;
+                                # it re-prices every 0.4s up to there (FAST_BUY), and
+                                # if the stock runs past it, the next print that still
+                                # rips tries again from there - "so that way we are in"
+V37_POSITION_PCT = 0.25         # a full position: this share of equity
+V37_STARTER = 0.10              # the first buy: this fraction of a full position
+V37_ADD1_CENTS = 0.10           # up this much from the first buy, on a new high:
+V37_ADD1_TO = 0.50              # to this fraction of a full position
+V37_ADD2_CENTS = 0.20
+V37_ADD2_TO = 1.00
+V37_STOP_CENTS = 0.02           # no tolerance for loss: this far under the buy, out
+V37_GIVEBACK = 0.50             # this share of the best gain given back: out
+V37_MAX_POSITIONS = 2
+V37_MAX_ENTRIES = 10            # buys per name per day - each one small (?)
+
+
+class V37(V36):
+    """The simplest strategy - see the V37 settings above. Borrows v36's
+    crowd count and v31's order machinery; nothing else."""
+
+    name = "v37"
+
+    def halt_threshold(self) -> float:
+        env = os.getenv("V37_HALT_PCT")
+        if env not in (None, ""):
+            return float(env) / 100.0
+        return Strategy.halt_threshold(self)
+
+    def note_trade(self, s, price, size):
+        super().note_trade(s, price, size)
+        now = time.time()
+        s.v37_prints.append((now, price, size))
+        while s.v37_prints and now - s.v37_prints[0][0] > V37_FAST_SECONDS:
+            s.v37_prints.popleft()
+
+    def fast(self, s, price) -> bool:
+        """Up V37_FAST_PCT within the last V37_FAST_SECONDS, on at least
+        V37_FAST_DOLLARS traded in them."""
+        p = s.v37_prints
+        if len(p) < 2:
+            return False
+        low = min(x[1] for x in p)
+        dollars = sum(x[1] * x[2] for x in p)
+        return low > 0 and price >= low * (1 + V37_FAST_PCT) \
+            and dollars >= V37_FAST_DOLLARS
+
+    def in_the_crowd(self, s) -> bool:
+        """The #1 or #2 by activity with a big crowd - or the day's top gainer
+        with real money trading."""
+        if self.top_gainer(s):
+            return True
+        return (self.crowd_rank(s.symbol) <= V37_CROWD_TOP
+                and self.crowd_dollars(s.symbol) >= V37_CROWD_MIN_DOLLARS)
+
+    async def maybe_enter(self, s, price, fast, base):
+        if not entries_allowed():
+            return
+        if s.symbol not in self.qualified:      # the scanner: $1-$20, up 10%+
+            return
+        if not self.price_ok(s, price):
+            return
+        if len(self.open_positions()) >= V37_MAX_POSITIONS:
+            return
+        if s.v36_entries >= V37_MAX_ENTRIES:
+            return
+        if s.traded_today and price < s.day_high:
+            return                              # again only at a new high of the day
+        if not self.in_the_crowd(s) or not self.fast(s, price):
+            return
+        lock = self.lock(s.symbol)
+        if lock.locked():
+            return
+        async with lock:
+            if s.in_position:
+                return
+            await self.v37_buy(s, price)
+
+    async def v37_buy(self, s, price):
+        eq = await self.broker.equity(self.day_start_equity)
+        worst = price * (1 + V37_ENTRY_PCT)
+        held_all = sum(x.shares * (x.last_price or price)
+                       for x in self.open_positions())
+        room = max(0.0, eq * MAX_EXPOSURE_PCT - held_all)
+        shares = int(min(eq * V37_POSITION_PCT * V37_STARTER, room) / worst)
+        if shares * price < MIN_TRADE_DOLLARS:
+            return
+        filled = await self.buy(s.symbol, shares, price, V37_ENTRY_PCT)
+        if not filled:
+            return
+        s.shares = filled
+        s.entry = await self.broker.avg_entry(s.symbol) or price
+        s.v36_first = s.entry
+        s.v36_adds = 0
+        s.stop = s.entry - V37_STOP_CENTS
+        s.peak = s.entry
+        s.trail_stop = 0.0
+        s.armed = False
+        s.adopted = False
+        s.entry_kind = "rip"
+        s.traded_today = True
+        s.v36_entries += 1
+        s.entry_at = time.time()
+        self.dlog.record(ev="ENTER", sym=s.symbol, px=price, sh=filled,
+                         kind="rip", stop=s.stop)
+        self.log.info("[v37] ENTER %s %d @ %.4f (print %.4f) = $%.0f (%.1f%% of "
+                      "equity) - a tenth of a position, buy %d today | crowd #%d, "
+                      "$%.0fk in %d min | stop %.4f | adds at %.4f and %.4f",
+                      s.symbol, filled, s.entry, price, filled * s.entry,
+                      100 * filled * s.entry / eq if eq else 0.0, s.v36_entries,
+                      self.crowd_rank(s.symbol),
+                      self.crowd_dollars(s.symbol) / 1000, V36_CROWD_MINUTES,
+                      s.stop, s.v36_first + V37_ADD1_CENTS,
+                      s.v36_first + V37_ADD2_CENTS)
+        await self.quote_the_crowd()
+
+    async def v37_add(self, s, price, to_fraction):
+        async with self.lock(s.symbol):
+            if not s.in_position:
+                return
+            s.v36_adds += 1
+            eq = await self.broker.equity(self.day_start_equity)
+            worst = price * (1 + BUY_CHASE_CAP)
+            held_all = sum(x.shares * (x.last_price or price)
+                           for x in self.open_positions())
+            room = max(0.0, eq * MAX_EXPOSURE_PCT - held_all)
+            want = max(0.0, eq * V37_POSITION_PCT * to_fraction - s.shares * price)
+            shares = int(min(want, room) / worst)
+            if shares * price < MIN_TRADE_DOLLARS:
+                return
+            filled = await self.buy(s.symbol, shares, price)
+            if filled:
+                s.shares += filled
+                s.entry = await self.broker.avg_entry(s.symbol) or s.entry
+                s.peak = max(s.peak, price)
+                self.log.info("[v37] ADD %s to %.0f%% of a position: +%d @ %.4f -> "
+                              "%d shares, average %.4f", s.symbol,
+                              100 * to_fraction, filled, price, s.shares, s.entry)
+
+    async def evaluate(self, s, price):
+        if await self.halted():
+            if s.in_position:
+                await self.exit(s, "halted")
+            return
+        if not s.in_position:
+            await self.maybe_enter(s, price, None, None)
+            return
+        new_high = price >= s.peak
+        s.peak = max(s.peak, price)
+        if price <= s.stop:
+            await self.exit(s, "stop")          # no tolerance for loss
+            return
+        gain = s.peak - s.entry
+        if gain > 0 and price <= s.entry + (1 - V37_GIVEBACK) * gain:
+            await self.exit(s, "giveback")      # half of the profit gone
+            return
+        steps = ((V37_ADD1_CENTS, V37_ADD1_TO), (V37_ADD2_CENTS, V37_ADD2_TO))
+        if s.v36_adds < len(steps) and new_high:
+            at, to_fraction = steps[s.v36_adds]
+            if price >= s.v36_first + at:
+                await self.v37_add(s, price, to_fraction)
 
 
 class Engine:
@@ -4089,15 +4372,20 @@ class Engine:
         self.assets_client = TradingClient(key, secret, paper=self.paper)
 
         self.strategies = []
-        # v36, the owner's playbook, takes one account's slot (V36_REPLACES).
+        # Which strategy each account runs: SLOT_DEFAULTS, or SLOT_V31 /
+        # SLOT_V34 / SLOT_V35 in the environment.
         slots = account_classes()
-        self.add_strategy(slots["v31"], key, secret)
-        self.add_strategy(slots["v32"], os.environ.get("V32_API_KEY"),
-                          os.environ.get("V32_SECRET_KEY"))
-        self.add_strategy(slots["v34"], os.environ.get("V33_API_KEY"),
-                          os.environ.get("V33_SECRET_KEY"))
-        self.add_strategy(slots["v35"], os.environ.get("V35_API_KEY"),
-                          os.environ.get("V35_SECRET_KEY"))
+        for slot, k, s_ in (("v31", key, secret),
+                            ("v32", os.environ.get("V32_API_KEY"),
+                             os.environ.get("V32_SECRET_KEY")),
+                            ("v34", os.environ.get("V33_API_KEY"),
+                             os.environ.get("V33_SECRET_KEY")),
+                            ("v35", os.environ.get("V35_API_KEY"),
+                             os.environ.get("V35_SECRET_KEY"))):
+            if slots[slot] is None:
+                log.warning("account slot %s is OFF (SLOT_%s=off)", slot, slot.upper())
+                continue
+            self.add_strategy(slots[slot], k, s_)
 
         for strat in self.strategies:
             self.data.trade_sinks.append(strat.offer_tick)
@@ -4107,6 +4395,7 @@ class Engine:
         self.last_auth_warn = 0.0
         self.last_probe = 0.0
         self.prev_highs: dict[str, float] = {}
+        self.prev_closes: dict[str, float] = {}
 
     def add_strategy(self, cls, key, secret):
         if not key or not secret:
@@ -4189,6 +4478,7 @@ class Engine:
                     # today trades, daily_bar IS the prior session.
                     prev = snap.previous_daily_bar if age == 0 else bar
                     self.prev_highs[sym] = float(getattr(prev, "high", 0) or 0)
+                    self.prev_closes[sym] = float(getattr(prev, "close", 0) or 0)
                 except Exception:
                     continue
         self.log_probe(probe)
@@ -4228,6 +4518,7 @@ class Engine:
                                 st = strat.st(sym)
                                 st.day_high = max(st.day_high, picks[sym])
                                 st.prev_high = self.prev_highs.get(sym, st.prev_high)
+                                st.ref_price = self.prev_closes.get(sym, st.ref_price)
                         await self.data.subscribe(symbols)
             except Exception as e:
                 log.error("scanner: %s", e)
