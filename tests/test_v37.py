@@ -19,7 +19,11 @@ def now(monkeypatch):
 
 
 @pytest.fixture
-def v37(broker, data, clock, now):
+def v37(broker, data, clock, now, monkeypatch):
+    # The tests below each test one rule; the volume rule and the stop sized
+    # to the speed are tested with their own fixtures (volume_rule, leash).
+    monkeypatch.setattr(bot, "V37_VOL_RULE", False)
+    monkeypatch.setattr(bot, "V37_STOP_SPEED", False)
     strat = bot.V37(broker, data)
     strat.day_start_equity = broker.eq
     return strat
@@ -679,3 +683,12 @@ def test_the_third_buy_waits_one_candle(v37, clock, now, monkeypatch):
     candle(v37, clock, round(old + 0.03, 2))              # one candle is enough
     tick(v37, s, now, round(s.day_high + 0.01, 2))
     assert s.in_position
+
+
+def test_the_released_settings():
+    """2026-10-06, replayed on every recorded day before release: the owner's
+    rules - volume 2x normal with a 70% floor, the stop sized to the speed,
+    confirmation 0-0-1-2 - 63% won with fills 0.2% worse, every day up."""
+    assert bot.V37_VOL_RULE and bot.V37_VOL_REL == 2.0 and bot.V37_VOL_FADE == 0.70
+    assert bot.V37_STOP_SPEED and not bot.V37_GIVEBACK_ARM
+    assert bot.V37_CONFIRM_BY_BUY == (0, 0, 1, 2)

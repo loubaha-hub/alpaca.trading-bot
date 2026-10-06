@@ -4242,7 +4242,7 @@ V37_GIVEBACK = 0.50             # this share of the best gain given back: out
 # bought 7 times at real new highs while it rose 10% in under 2 minutes, each
 # shaken out by the 2c stop within 1-3 seconds (-$35) - on a $6 stock moving
 # 10c a second, 2c is noise.
-V37_STOP_SPEED = False          # the stop sized to the stock's speed instead:
+V37_STOP_SPEED = True           # the stop sized to the stock's speed instead:
 V37_STOP_SHARE = 1 / 3          # this share of the last minute's move under the
 V37_STOP_MIN = 0.03             # buy, never less than this...
 V37_STOP_MAX = 0.08             # ...nor more than this; after an add, the same
@@ -4257,8 +4257,8 @@ V37_GIVEBACK_ARM = 0.0          # "half the gain" only once the best gain reache
 # The owner, a minute later: not "three candles coming down" - a runner on
 # 10x, 8x, 7x its normal volume, green candles, price running, is a buy. The
 # volume matters in context: high for THIS stock, and not fallen off a cliff.
-V37_VOL_RULE = False            # the buy needs the volume, as below
-V37_VOL_REL = 3.0               # high: the last 60 seconds' shares at least this
+V37_VOL_RULE = True             # the buy needs the volume, as below
+V37_VOL_REL = 2.0               # high: the last 60 seconds' shares at least this
                                 # x the stock's normal minute (the median of its
                                 # last 30 closed minutes) - the playbook's 3-5x
 V37_VOL_FADE = 0.70             # not fading: the last 60 seconds' shares at least
