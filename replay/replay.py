@@ -45,7 +45,7 @@ from zoneinfo import ZoneInfo
 ET = ZoneInfo("America/New_York")
 REPO = Path(__file__).resolve().parent.parent
 CLASSES = {"v31": "V31", "v32": "V32", "v33": "V33", "v34": "V34", "v35": "V35",
-           "v36": "V36", "v37": "V37"}
+           "v36": "V36", "v36b": "V36B", "v37": "V37"}
 
 
 # ---- the simulated world -----------------------------------------------------
@@ -129,6 +129,18 @@ class SimBroker:
 
     async def cancel_open(self, symbol):
         return 0
+
+    market_refused = False
+
+    async def wait_clear(self, symbol, timeout=None):
+        return True              # every simulated order closes at once
+
+    async def send_market(self, symbol, qty, side, ref=0.0, wait=None):
+        """As Broker.send_market (regular hours): fills at the bid or ask,
+        whatever it is."""
+        self.market_refused = False
+        limit = 0.0 if side == self.bot.OrderSide.SELL else float("inf")
+        return await self.send(symbol, qty, side, limit, wait)
 
     async def send(self, symbol, qty, side, limit, wait=None):
         if qty <= 0 or symbol not in self.market.last:

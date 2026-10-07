@@ -801,22 +801,114 @@ def test_an_add_waits_for_the_high_to_hold_two_seconds(v36, clock, monkeypatch):
     assert s.v36_adds == 1
 
 
-def test_a_dip_under_the_level_starts_the_clock_again(v36, clock, monkeypatch):
+def test_a_dip_under_the_new_high_starts_the_clock_again(v36, clock, monkeypatch):
     monkeypatch.setattr(bot, "V36_ADD_HOLD_SEC", 2.0)
     now = [5_000.0]
     monkeypatch.setattr(bot.time, "time", lambda: now[0])
     s = bought(v36, clock)
     level = v36.add_level(s, 0)
-    tick(v36, s, round(level + 0.01, 2))
+    tick(v36, s, round(level + 0.02, 2))                  # a new high: the clock starts
     now[0] += 1.5
-    tick(v36, s, round(level - 0.01, 2))                  # under it: the high did not hold
+    tick(v36, s, round(level - 0.01, 2))                  # back under it: did not hold
     now[0] += 1.0
-    tick(v36, s, round(level + 0.01, 2))                  # back over: a new clock
+    tick(v36, s, round(level + 0.02, 2))                  # back to it - not a NEW high
     assert s.v36_adds == 0
+    tick(v36, s, round(level + 0.03, 2))                  # a new high: a new clock
     now[0] += 2.1
-    tick(v36, s, round(level + 0.02, 2))
+    tick(v36, s, round(level + 0.03, 2))                  # held 2.1 seconds: add
     assert s.v36_adds == 1
+
+
+def test_dki_no_add_on_the_way_down(v36, clock, monkeypatch):
+    """DKI 11:36:39: bought $2.74, ran to $3.52; the add came at $3.33 on the way
+    down (the level long passed, the hold met) - average $3.13, sold at $3.06."""
+    monkeypatch.setattr(bot, "V36_ADD_HOLD_SEC", 2.0)
+    now = [5_000.0]
+    monkeypatch.setattr(bot.time, "time", lambda: now[0])
+    s = bought(v36, clock)
+    level = v36.add_level(s, 0)
+    peak = round(level + 0.40, 2)
+    tick(v36, s, peak)                                    # the run's high
+    for k in range(1, 6):                                 # falling back, over the level
+        now[0] += 1.0
+        tick(v36, s, round(peak - 0.04 * k, 2))
+    assert s.v36_adds == 0
 
 
 def test_the_add_hold_is_on():
     assert bot.V36_ADD_HOLD_SEC == 2.0 and bot.V36_FLOOR_AVG   # the owner, 10-07
+
+
+def test_dki_the_crowd_counts_the_minutes_it_traded(v36, clock):
+    """DKI 10:37 and 10:50: "crowd #- $0k" right after a volatility halt - the
+    last 5 clock minutes were the halt. The last 5 minutes it TRADED count."""
+    s = v36.st("DKI")
+    v36.qualified.add("DKI")
+    halt_start = clock.now.astimezone(bot.timezone.utc) - bot.timedelta(minutes=12)
+    s.bars = [bot.Bar(halt_start - bot.timedelta(minutes=5 - i), 2.4, 2.9, 2.3, 2.8, 500_000)
+              for i in range(5)]                          # $1.4M a minute, then halted
+    assert v36.crowd_dollars("DKI") == pytest.approx(5 * 2.8 * 500_000)
+    v36.crowd = (None, {})
+    bot_trading = bot.V36_CROWD_TRADING
+    try:
+        bot.V36_CROWD_TRADING = False
+        assert v36.crowd_dollars("DKI") == 0.0            # as it was: $0k
+    finally:
+        bot.V36_CROWD_TRADING = bot_trading
+
+
+@pytest.mark.parametrize("fast, buys", [(True, True), (False, False)])
+def test_biya_820_speed_lifts_the_buy_cap(v36, clock, monkeypatch, fast, buys):
+    """BIYA 8:20: "NO: 6 buys today" all through $2.54 -> $33.96 (crowd #4)."""
+    monkeypatch.setattr(bot, "V36_LEADER_NO_CAP", False)
+    monkeypatch.setattr(bot, "V36_REENTRY_SPEED", 0.0)
+    monkeypatch.setattr(v36, "speeding", lambda s, p: fast)
+    s = ripping(v36, clock)
+    s.v36_entries = bot.V36_MAX_ENTRIES
+    tick(v36, s, round(s.hod_closed + bot.V36_HOD_PLUS + 0.12, 2))
+    assert entered(v36, s) == buys
+
+
+def test_speed_counts_as_the_crowd(v36, clock, monkeypatch):
+    s = v36.st("BIYA")
+    v36.qualified.add("BIYA")
+    monkeypatch.setattr(v36, "speeding", lambda s, p: False)
+    assert not v36.in_crowd(s)
+    monkeypatch.setattr(v36, "speeding", lambda s, p: True)
+    assert v36.in_crowd(s)
+
+
+def test_the_big_move_rules_are_on():
+    assert bot.V36_TREND_LIVE and bot.V36_CROWD_TRADING and bot.V36_FURIOUS
+    assert bot.V37_ACCEL_FROM_HIGH
+
+
+def test_premarket_has_no_halts_the_crowd_is_the_clock(v36, clock):
+    """The owner, 10-07: no halts premarket - the halt rule is 9:30-4:00 only."""
+    clock.now = bot.datetime(2026, 10, 1, 7, 0, tzinfo=bot.ET)
+    s = v36.st("DKI")
+    v36.qualified.add("DKI")
+    t0 = clock.now.astimezone(bot.timezone.utc) - bot.timedelta(minutes=12)
+    s.bars = [bot.Bar(t0 - bot.timedelta(minutes=5 - i), 2.4, 2.9, 2.3, 2.8, 500_000)
+              for i in range(5)]
+    assert v36.crowd_dollars("DKI") == 0.0                # 12 quiet minutes: no crowd
+
+
+@pytest.mark.parametrize("fast, buys", [(True, True), (False, False)])
+def test_running_furiously_the_filters_step_aside(v36, clock, monkeypatch, fast, buys):
+    """The owner, 10-07: "MACD, the EMAs, VWAP - all of that has to be tossed aside
+    in a movement like this"."""
+    monkeypatch.setattr(v36, "speeding", lambda s, p: fast)
+    monkeypatch.setattr(v36, "trend_ok", lambda s, p: False)      # no trend
+    s = ripping(v36, clock)
+    tick(v36, s, TRIGGER)
+    assert entered(v36, s) == buys
+
+
+def test_five_seconds_of_prints(v36):
+    s = v36.st("BIYA")
+    s.last_print_ts = 100.0
+    s.v37_prints.extend([(94.0, 3.00, 1000), (96.0, 3.10, 20_000), (99.0, 3.50, 30_000)])
+    move, dollars = v36.five_sec(s, 3.50)
+    assert move == pytest.approx(3.50 / 3.00 - 1)
+    assert dollars == pytest.approx(3.10 * 20_000 + 3.50 * 30_000)
