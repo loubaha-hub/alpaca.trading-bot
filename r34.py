@@ -136,7 +136,7 @@ RISK_CHECK_SECONDS = 5                      # the halt runs on a CLOCK, not tick
 # The file name and this string are changed together, every single time. The
 # log then answers "which code is actually running?" without anyone guessing
 # from line numbers or from behaviour that only shows up once a trade is on.
-VERSION = "v31-r34.20"
+VERSION = "v31-r34.21"
 
 # WHERE THE DAY'S HALT BASELINE COMES FROM.
 #   "last_equity" - equity at the PREVIOUS session's close, read from the broker.
@@ -796,6 +796,7 @@ class Broker:
         self.client = TradingClient(key, secret, paper=paper)
         self.paper = paper
         self.label = label
+        self._sent = deque()                   # when each order went out (ORDER_BUDGET)
         self._eq = 0.0
         self._eq_at = 0.0
         self.baseline_source = DAY_BASELINE
@@ -907,6 +908,7 @@ class Broker:
         became 35% on QTEX on 2026-10-02. Whatever has not filled is cancelled
         here, every time, before the caller decides what to do next.
         """
+        self.note_sent()
         try:
             order = await asyncio.to_thread(
                 self.client.submit_order,
@@ -917,6 +919,20 @@ class Broker:
             return self.classify(e, side, symbol)
         return await self.follow(symbol, order, qty, wait)
 
+    def note_sent(self):
+        now = time.time()
+        sent = getattr(self, "_sent", None)
+        if sent is None:
+            sent = self._sent = deque()
+        sent.append(now)
+        while sent and sent[0] < now - 60:
+            sent.popleft()
+
+    def orders_in_last_minute(self) -> int:
+        sent = getattr(self, "_sent", None) or ()
+        now = time.time()
+        return sum(1 for x in sent if x >= now - 60)
+
     async def send_market(self, symbol: str, qty: int, side, ref: float = 0.0,
                           wait: float = 3.0) -> int:
         """A market order - regular hours only: out at any price. As send():
@@ -924,6 +940,7 @@ class Broker:
         broker would not take it, so the caller can fall back to a limit.
         `ref` is not used by the broker (the fake fills at it)."""
         self.market_refused = False
+        self.note_sent()
         try:
             order = await asyncio.to_thread(
                 self.client.submit_order,
@@ -1742,7 +1759,8 @@ class Strategy:
     # ---- execution ----------------------------------------------------------
 
     async def buy(self, symbol: str, shares: int, ref: float,
-                  cap: float = None, floor: float = None, sweep: float = 0.0) -> int:
+                  cap: float = None, floor: float = None, sweep: float = 0.0,
+                  keep: bool = False) -> int:
         """Fills counted from the BROKER, never from the order reply.
 
         A cancel racing a fill used to report "got nothing" and the next attempt
@@ -1759,7 +1777,7 @@ class Strategy:
                       symbol)
             return 0
         if sweep:
-            got, why = await self.buy_sweep(symbol, shares, ref, cap, floor, sweep)
+            got, why = await self.buy_sweep(symbol, shares, ref, cap, floor, sweep, keep)
             last = start + got
         elif FAST_BUY:
             got, why = await self.buy_fast(symbol, shares, ref, cap, floor)
@@ -1784,15 +1802,19 @@ class Strategy:
         """The limit for one try of the fast buy: a little over the ask."""
         return min(ask * (1 + FAST_BUY_OVER_ASK), ceiling)
 
-    async def buy_sweep(self, symbol, shares, ref, cap, floor=None, cents=0.20):
+    async def buy_sweep(self, symbol, shares, ref, cap, floor=None, cents=0.20,
+                        keep=False):
         """V37_SWEEP: a limit at the ask plus `cents`, filling at once; what is
         left unfilled is tried again at the new ask - for V37_SWEEP_SECONDS or
         V37_SWEEP_TRIES orders, never over the safety net (ref x (1 + cap))
         and never at or under the old high (`floor`). Returns (shares, why)."""
-        top = round(ref * (1 + cap), 2)
+        top = round(ref * (1 + cap), 2) if cap != float("inf") else float("inf")
         got, why = 0, "no order sent"
         deadline = time.monotonic() + V37_SWEEP_SECONDS
-        for _ in range(V37_SWEEP_TRIES):
+        budget = getattr(self.broker, "orders_in_last_minute", None)
+        for _ in range(1 if keep else V37_SWEEP_TRIES):   # keep: the next print retries
+            if budget and budget() >= ORDER_BUDGET:
+                return got, "the order budget: %d orders in the last minute" % budget()
             if got >= shares:
                 break
             if time.monotonic() > deadline:
@@ -5171,9 +5193,18 @@ V37_SWEEP = True                # a fast buy is an order at the ask plus a few c
 V37_SWEEP_CENTS = (0.20, 0.30)  # the cents over the ask: 20c under V37_SWEEP_BIG, 30c
 V37_SWEEP_BIG = 10.0            # from it - "30 cents is $300 on a thousand shares; good
                                 # enough" (20% was $2,000 on a $10 stock)
-V37_SWEEP_SECONDS = 6.0         # the safety net: it stops trying after this long, or
-                                # once the ask is V37_ACCEL_CHASE over the breakout level
+V37_SWEEP_SECONDS = 6.0         # (V37_KEEP_TRYING off) it stops trying after this long,
+                                # or once the ask is V37_ACCEL_CHASE over the breakout
 V37_SWEEP_TRIES = 12            # ...or this many orders (Alpaca: ~200 requests a minute)
+V37_KEEP_TRYING = True          # the owner, 10-07 noon: "keep trying - the market can
+                                # stay irrational for a long time; stopping closes the
+                                # door on a winner". One order per try at the ask + the
+                                # cents, no price cap, no time limit: every print that
+                                # is still furious and over the old high fires the next
+                                # try, its rules checked again on fresh prices
+V37_RETRY_GAP = 0.5             # ...at most one try a symbol this often
+ORDER_BUDGET = 35               # orders an account may send in 60 seconds (each try is
+                                # ~5 requests; Alpaca refuses past ~200 a minute)
 V37_SWEEP_WAIT = 0.5            # seconds each order works (paper fills take ~200 ms)
 SELL_DEEP = 0.10                # premarket (limit orders only) a fast buy's exit is a
                                 # limit this far under the bid - it fills at the best
@@ -5511,7 +5542,8 @@ class V37(V36):
         if accel and s.bars and price > s.bars[-1].h:
             base = (max(s.bars[-1].h, s.day_high) if V37_ACCEL_FROM_HIGH
                     else s.bars[-1].h)          # the breakout level: BIYA 8:20 broke
-            if V37_ACCEL_CHASE and price > self.fast_top(base):           # $3.10
+            if (V37_ACCEL_CHASE and not self.keeps_trying(s, price)
+                    and price > self.fast_top(base)):                     # $3.10
                 if time.time() - s.v37_skip_logged >= 30:   # the spike has run
                     s.v37_skip_logged = time.time()
                     self.log.info("[v37] SKIP %s at %.4f - %.0f%% over the breakout "
@@ -5569,6 +5601,11 @@ class V37(V36):
         lo, hi = V37_SWEEP_CENTS
         return hi if price >= V37_SWEEP_BIG else lo
 
+    def keeps_trying(self, s, price) -> bool:
+        """V37_KEEP_TRYING - for the furious movers only (the owner, 10-07: "the
+        rest - keep the cap, it's a nice safety net")."""
+        return V37_KEEP_TRYING and self.speeding(s, price)
+
     def fast_top(self, base) -> float:
         """The safety net: a fast buy never pays V37_ACCEL_CHASE over the
         breakout level."""
@@ -5597,10 +5634,19 @@ class V37(V36):
                 return
             base = (max(s.bars[-1].h, s.day_high) if V37_ACCEL_FROM_HIGH
                     else s.bars[-1].h)
+            keep = self.keeps_trying(s, price)
+            if keep:
+                if time.time() - getattr(s, "v37_try_at", 0.0) < V37_RETRY_GAP:
+                    return                      # the next print tries again
+                s.v37_try_at = time.time()
+                sweep_to = float("inf")         # no cap: the ask + the cents, each try
+            else:
+                sweep_to = self.fast_top(base) if V37_SWEEP else None
             await self.v37_buy(s, price, account_share=share, accel=speed,
-                               sweep_to=self.fast_top(base) if V37_SWEEP else None)
+                               sweep_to=sweep_to, keep=keep)
 
-    async def v37_buy(self, s, price, account_share=None, accel=0.0, sweep_to=None):
+    async def v37_buy(self, s, price, account_share=None, accel=0.0, sweep_to=None,
+                      keep=False):
         spd = self.speed(s, price)              # logged for every buy, rule on or off
         pts, parts = self.score(s, price)       # the same
         eq = await self.broker.equity(self.day_start_equity)
@@ -5612,7 +5658,8 @@ class V37(V36):
         cap = self.entry_cap(s, price)
         worst = price * (1 + cap)
         if sweep_to and sweep_to > price:
-            cap = max(cap, sweep_to / price - 1)  # tries up to the safety net...
+            cap = (max(cap, sweep_to / price - 1) if sweep_to != float("inf")
+                   else float("inf"))           # tries up to the safety net, or none...
             worst = price + 2 * self.sweep_cents(price)   # ...sized on the likely fill
         held_all = sum(x.shares * (x.last_price or price)
                        for x in self.open_positions())
@@ -5623,7 +5670,8 @@ class V37(V36):
         filled = await self.buy(s.symbol, shares, price, cap,
                                 floor=s.day_high,   # never under the old high
                                 sweep=(self.sweep_cents(price)
-                                       if sweep_to and sweep_to > price else 0.0))
+                                       if sweep_to and sweep_to > price else 0.0),
+                                keep=keep)
         if not filled:
             return
         s.shares = filled

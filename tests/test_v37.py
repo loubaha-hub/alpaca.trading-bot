@@ -1373,7 +1373,8 @@ def test_a_furious_speed_buys_without_the_pattern_or_the_crowd(v37, clock, now,
 @pytest.mark.parametrize("over, buys", [(0.04, True), (0.15, True), (0.30, False)])
 def test_no_fast_buy_far_over_the_last_minute(v37, clock, now, monkeypatch, over, buys):
     """BIYA 10-07 8:20-8:21: $2.54 -> $33.96 -> $8.20 in under a minute. The
-    safety net: no fast buy 20% over the breakout level."""
+    safety net (V37_KEEP_TRYING off): no fast buy 20% over the breakout level."""
+    monkeypatch.setattr(bot, "V37_KEEP_TRYING", False)
     monkeypatch.setattr(bot, "V37_ACCEL", True)
     monkeypatch.setattr(v37, "real_speed", lambda s, p: 0.40)
     s = v37.st("WXYZ")
@@ -1487,6 +1488,7 @@ def test_biya_820_the_ceiling_counts_from_the_old_high(v37, clock, now, monkeypa
     """BIYA 8:20: the last candle's high $2.54, the day's high $3.10 (22% over it).
     From the candle alone, no price was both a new high and under the 20% ceiling."""
     monkeypatch.setattr(bot, "V37_ACCEL", True)
+    monkeypatch.setattr(bot, "V37_KEEP_TRYING", False)    # the net is what is tested
     monkeypatch.setattr(bot, "V37_ACCEL_FROM_HIGH", from_high)
     monkeypatch.setattr(v37, "real_speed", lambda s, p: 0.40)
     s = v37.st("BIYA")
@@ -1546,8 +1548,7 @@ def test_20_cents_under_10_dollars_30_from_10(v37, price, cents):
 
 
 def test_unfilled_it_keeps_trying_at_the_new_ask(v31, broker, data, monkeypatch):
-    """The owner: "keep trying - the markets are irrational, you see yourself
-    left behind" - each try at the new ask + 20c, under the safety net."""
+    """Not furious: the tries loop inside one buy, under the safety net."""
     asks = iter([3.12, 3.30, 3.45, 3.60, 3.65])
 
     async def ask(symbol, side):
@@ -1591,3 +1592,82 @@ def test_a_fast_buy_exits_furiously_premarket(v37, clock, broker, data, kind, h,
     data.quotes[("BIYA", "bid")] = 3.00
     run(v37.exit(s, "giveback"))
     assert broker.orders[0][3] == round(3.00 * limit, 2)
+
+
+# ---- keep trying (the owner, 10-07 noon: "the market can stay irrational") ---------
+
+def furious_stock(v37, clock, now, monkeypatch, symbol="BIYA"):
+    monkeypatch.setattr(bot, "V37_ACCEL", True)
+    monkeypatch.setattr(v37, "real_speed", lambda s, p: 0.40)
+    s = v37.st(symbol)
+    v37.qualified.add(symbol)
+    candles(s, STAIRS)
+    s.day_high = round(s.bars[-1].h * 1.22, 2)
+    return s
+
+
+def test_unfilled_the_next_furious_print_tries_again(v37, clock, now, monkeypatch, broker):
+    s = furious_stock(v37, clock, now, monkeypatch)
+    broker.fills = [0.0]                                  # the first try misses
+    price = round(s.day_high + 0.03, 2)
+    prints(v37, s, now, s.bars[-1].h, price, size=30_000)
+    tick(v37, s, now, price)
+    assert not s.in_position and len(broker.buys("BIYA")) == 1
+    now[0] += 0.6
+    tick(v37, s, now, round(price + 0.30, 2))             # still furious, higher
+    assert s.in_position and len(broker.buys("BIYA")) == 2
+
+
+def test_no_price_cap_when_it_keeps_running(v37, clock, now, monkeypatch, broker):
+    """30% over the breakout level: still bought - "stopping closes the door"."""
+    s = furious_stock(v37, clock, now, monkeypatch)
+    price = round(s.day_high * 1.30, 2)
+    prints(v37, s, now, s.bars[-1].h, price, size=30_000)
+    tick(v37, s, now, price)
+    assert s.in_position
+    assert broker.buys("BIYA")[0][3] == round(price + v37.sweep_cents(price), 2)
+
+
+def test_tries_are_paced(v37, clock, now, monkeypatch, broker):
+    s = furious_stock(v37, clock, now, monkeypatch)
+    broker.fills = [0.0, 0.0, 0.0]
+    price = round(s.day_high + 0.03, 2)
+    prints(v37, s, now, s.bars[-1].h, price, size=30_000)
+    tick(v37, s, now, price)                              # (tick moves the clock 1s)
+    now[0] -= 0.8
+    tick(v37, s, now, round(price + 0.01, 2))             # 0.2s later: waits
+    assert len(broker.buys("BIYA")) == 1
+    now[0] -= 0.6
+    tick(v37, s, now, round(price + 0.02, 2))             # 0.6s after the try: next
+    assert len(broker.buys("BIYA")) == 2
+
+
+def test_the_order_budget_holds_the_tries(v31, broker, data, monkeypatch):
+    """Alpaca refuses past ~200 requests a minute; each try is ~5."""
+    monkeypatch.setattr(broker, "orders_in_last_minute", lambda: bot.ORDER_BUDGET,
+                        raising=False)
+    n = run(v31.buy("BIYA", 1000, 3.12, float("inf"), floor=3.10, sweep=0.20))
+    assert n == 0 and broker.orders == []
+
+
+def test_the_broker_counts_its_orders(no_sleep):
+    b = bot.Broker("key", "secret", True, "v37")
+    for _ in range(3):
+        b.note_sent()
+    assert b.orders_in_last_minute() == 3
+
+
+def test_keep_trying_is_on():
+    assert bot.V37_KEEP_TRYING and bot.V37_SWEEP_CENTS == (0.20, 0.30)
+
+
+def test_not_furious_keeps_the_safety_net(v37, clock, now, monkeypatch, broker):
+    """The owner, 10-07: keep trying without a cap only for the furious movers;
+    "the rest - keep the cap, it's a nice safety net"."""
+    s = furious_stock(v37, clock, now, monkeypatch)
+    monkeypatch.setattr(v37, "real_speed", lambda s, p: 0.20)     # fast, not furious
+    monkeypatch.setattr(v37, "accelerating", lambda s: 0.20)
+    price = round(s.day_high * 1.30, 2)                            # 30% over the break
+    prints(v37, s, now, s.bars[-1].h, price, size=30_000)
+    tick(v37, s, now, price)
+    assert not s.in_position
