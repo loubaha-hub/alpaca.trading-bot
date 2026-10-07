@@ -1193,3 +1193,33 @@ def test_a_furious_gain_counts_from_the_fill(v36, clock, monkeypatch):
     assert s.in_position and s.entry == round(TRIGGER - 0.37, 2)
     assert s.peak == s.entry                              # not the $0.37-higher print
     assert v36.furious_line(s, s.peak) == 0.0
+
+
+def test_furious_one_fast_order_at_the_ask_plus_cents(v36, clock, monkeypatch, data,
+                                                     broker):
+    """The owner's "A" (SXTC 10-07 1:59pm: the 6-second loop paid $8.90 on an $8.75
+    print): one order at the ask + 20c (30c from $10), filled or dropped."""
+    monkeypatch.setattr(v36, "speeding", lambda s, p: True)
+    s = ripping(v36, clock)
+    data.quotes[("ABCD", "ask")] = round(TRIGGER + 0.01, 2)
+    tick(v36, s, TRIGGER)
+    assert entered(v36, s)
+    assert len(broker.orders) == 1
+    assert broker.orders[0][3] == pytest.approx(TRIGGER + 0.01 + 0.30)  # 30c from $10
+    assert v36.sweep_cents(9.99) == 0.20 and v36.sweep_cents(10.0) == 0.30
+
+
+def test_furious_a_miss_tries_again_half_a_second_on(v36, clock, monkeypatch, broker):
+    monkeypatch.setattr(v36, "speeding", lambda s, p: True)
+    now = [5_000.0]
+    monkeypatch.setattr(bot.time, "time", lambda: now[0])
+    s = ripping(v36, clock)
+    broker.fills = [0.0]                                  # the first order: nothing
+    tick(v36, s, TRIGGER)
+    assert not s.in_position and len(broker.orders) == 1
+    now[0] += 0.2
+    tick(v36, s, TRIGGER)                                 # 0.2s: too soon
+    assert len(broker.orders) == 1
+    now[0] += 0.4
+    tick(v36, s, TRIGGER)                                 # 0.6s: again
+    assert s.in_position and len(broker.orders) == 2

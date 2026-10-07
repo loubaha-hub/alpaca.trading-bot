@@ -140,7 +140,7 @@ RISK_CHECK_SECONDS = 5                      # the halt runs on a CLOCK, not tick
 # The file name and this string are changed together, every single time. The
 # log then answers "which code is actually running?" without anyone guessing
 # from line numbers or from behaviour that only shows up once a trade is on.
-VERSION = "v31-r34.25"
+VERSION = "v31-r34.26"
 
 # WHERE THE DAY'S HALT BASELINE COMES FROM.
 #   "last_equity" - equity at the PREVIOUS session's close, read from the broker.
@@ -2871,6 +2871,10 @@ class V31(Strategy):
             shares = cap
         return shares
 
+    async def entry_buy(self, s, shares, price, cap) -> int:
+        """The order behind an entry - V36 sends a furious one as one fast order."""
+        return await self.buy(s.symbol, shares, price, cap)
+
     async def _maybe_enter_inner(self, s, price, fast, base,
                                  kind="setup", trigger=None, stop_ref=None):
         """Size, confirm and buy. `trigger` is the level the print had to reach
@@ -2920,7 +2924,7 @@ class V31(Strategy):
                 self.log.warning("[v31] %s no quote available - entering on the "
                             "print alone", s.symbol)
 
-        filled = await self.buy(s.symbol, shares, price, cap)
+        filled = await self.entry_buy(s, shares, price, cap)
         if filled and kind == "hod":
             s.hod_reentries += 1
         if filled:
@@ -4127,6 +4131,12 @@ BID_STOP = True                 # a position's stop also fires when the live mar
                                 # only on a print the bot accepts (SXTC 10-07 1:40pm:
                                 # stop $7.65, first counted print $7.49). The middle, not
                                 # the bid: a premarket spread can be wider than a 10c stop
+V36_FURIOUS_SWEEP = True        # furious: the buy is v37's fast buy - one order at the
+                                # ask + 20c (30c from $10), filled or dropped within
+                                # V37_SWEEP_WAIT; the next furious print tries again,
+                                # V37_RETRY_GAP apart - not the 6-second loop that paid
+                                # $8.90 on an $8.75 print with the market already back
+                                # under the stop (SXTC 10-07 1:59pm; the owner's "A")
 V36_FURIOUS_ALL = True          # furious: EVERY entry check set aside - the levels, the
                                 # wick, the re-entry speed, the score, the 5% over the
                                 # trigger, and no candle pattern needed (a new high over
@@ -4547,6 +4557,19 @@ class V36(_Restore, _Momentum, V35):
                       s.symbol, q[0], q[1], s.stop)
         await self.exit(s, "stop")
         return True
+
+    def sweep_cents(self, price) -> float:
+        """V37_SWEEP_CENTS: the cents a fast buy may pay over the ask."""
+        lo, hi = V37_SWEEP_CENTS
+        return hi if price >= V37_SWEEP_BIG else lo
+
+    async def entry_buy(self, s, shares, price, cap) -> int:
+        if s.v36_furious and V36_FURIOUS_SWEEP:
+            floor = max(0.0, s.setup_level - self.confirm_tolerance())  # as the
+            return await self.buy(s.symbol, shares, price, float("inf"),  # quote check
+                                  floor=floor, sweep=self.sweep_cents(price),
+                                  keep=True)
+        return await super().entry_buy(s, shares, price, cap)
 
     def furious_new_high(self, s, price) -> bool:
         """Furious and over the high of the day as it stood before this print:
@@ -5003,12 +5026,17 @@ class V36(_Restore, _Momentum, V35):
         async with lock:
             if s.in_position:
                 return
+            if (rush and V36_FURIOUS_SWEEP      # a missed fast buy: the next furious
+                    and time.time() - getattr(s, "v36_try_at", 0.0) < V37_RETRY_GAP):
+                return                          # print tries again, this far apart
             s.v36_adds = 0
             s.ten_break = False
             s.setup_level = trigger
             s.v36_furious = rush                # entry_shares: the full position
             await self._maybe_enter_inner(s, price, fast, base, kind, trigger,
                                           stop_ref)
+            if rush and not s.in_position:
+                s.v36_try_at = time.time()      # missed: the pace for the next try
             if s.in_position:
                 s.v36_entries += 1
                 s.v36_entry_bar_ts = s.bars[-1].ts if s.bars else None
@@ -5797,11 +5825,6 @@ class V37(V36):
         """V37_FURIOUS_SPEED on real money in the last minute, the last candle
         not red."""
         return self.speeding(s, price)
-
-    def sweep_cents(self, price) -> float:
-        """V37_SWEEP_CENTS: the cents a fast buy may pay over the ask."""
-        lo, hi = V37_SWEEP_CENTS
-        return hi if price >= V37_SWEEP_BIG else lo
 
     def keeps_trying(self, s, price) -> bool:
         """V37_KEEP_TRYING - for the furious movers only (the owner, 10-07: "the
