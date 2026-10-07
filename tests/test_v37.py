@@ -1695,3 +1695,25 @@ def test_v37_held_past_the_next_half_dollar_the_stop_moves_up(v37, clock, now, m
     for _ in range(4):                                    # a second a print, over $10.55
         tick(v37, s, now, 10.60)
     assert s.v36_line == 10.5 and s.stop == pytest.approx(10.5 - bot.V36_LEVEL_GIVE)
+
+
+def test_v37_furious_up_30c_then_30_percent_back_is_out(v37, clock, now, monkeypatch):
+    """The owner, 10-07 ~1pm, for the furious buys: past 30 cents over the buy,
+    out on giving back 30% of the gain from the high."""
+    monkeypatch.setattr(bot, "V36_LEVEL_STOP", False)
+    monkeypatch.setattr(bot, "V37_ACCEL", True)
+    monkeypatch.setattr(bot, "V37_ASK_PLUS", 0.0)
+    monkeypatch.setattr(bot, "V37_GIVEBACK", 0.99)        # the half-back: its own tests
+    monkeypatch.setattr(bot, "V37_ADD1_CENTS", 5.0)       # no adds
+    monkeypatch.setattr(bot, "V37_ADD2_CENTS", 6.0)
+    monkeypatch.setattr(bot, "V37_ACCEL_ADD_AT", 5.0)
+    s = accelerating_stock(v37, clock)
+    tick(v37, s, now, 11.62)
+    assert s.in_position
+    s.v37_accel = 1.0                                     # bought furious
+    e = s.entry
+    tick(v37, s, now, round(e + 0.50, 2))
+    tick(v37, s, now, round(e + 0.36, 2))
+    assert s.in_position
+    tick(v37, s, now, round(e + 0.34, 2))
+    assert not s.in_position and v37.closed_today[-1][5] == "giveback"

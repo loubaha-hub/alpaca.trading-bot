@@ -1041,20 +1041,48 @@ def test_furious_skips_the_wick_veto(v36b, clock, monkeypatch):
     assert entered(v36b, s)
 
 
-def test_furious_out_on_a_third_of_a_spike_given_back(v36, clock, monkeypatch):
+def furious_bought(v36, clock, monkeypatch):
     monkeypatch.setattr(v36, "speeding", lambda s, p: True)
+    monkeypatch.setattr(bot, "V36_LEVEL_STOP", False)     # the levels: their own tests
     no_adds(monkeypatch)
     s = ripping(v36, clock)
     tick(v36, s, TRIGGER)
+    assert s.in_position and s.v36_furious
+    return s
+
+
+def test_furious_up_30c_then_30_percent_of_the_gain_back_is_out(v36, clock, monkeypatch):
+    """The owner, 10-07 ~1pm: past 30 cents over the buy, close it on giving
+    back 30% of the gain from the high."""
+    s = furious_bought(v36, clock, monkeypatch)
     entry = s.entry
-    top = round(entry * 1.32, 2)
-    tick(v36, s, top)
-    line = entry + (1 - bot.V37_SPIKE_GIVEBACK) * (top - entry)
-    tick(v36, s, round(line + 0.05, 2))
+    tick(v36, s, round(entry + 0.50, 2))                  # the high: +50c
+    tick(v36, s, round(entry + 0.36, 2))                  # 28% of it back: held
     assert s.in_position
-    tick(v36, s, round(line - 0.02, 2))
+    tick(v36, s, round(entry + 0.34, 2))                  # 32% back: out
     assert not s.in_position
-    assert v36.closed_today[-1][5] == "spike"
+    assert v36.closed_today[-1][5] == "giveback"
+
+
+def test_furious_up_30c_never_back_under_the_buy(v36, clock, monkeypatch):
+    """The owner: "up thirty cents and back to it - cut it off there, instead
+    of a loss"."""
+    monkeypatch.setattr(bot, "V36_FURIOUS_GIVEBACK", 0.0)
+    s = furious_bought(v36, clock, monkeypatch)
+    entry = s.entry
+    tick(v36, s, round(entry + 0.31, 2))
+    tick(v36, s, round(entry + 0.01, 2))
+    assert s.in_position
+    tick(v36, s, round(entry - 0.01, 2))
+    assert not s.in_position
+
+
+def test_furious_under_30c_only_the_stop_and_the_leash(v36, clock, monkeypatch):
+    s = furious_bought(v36, clock, monkeypatch)
+    entry = s.entry
+    tick(v36, s, round(entry + 0.25, 2))                  # +25c: not yet
+    tick(v36, s, round(entry - 0.05, 2))                  # back under the buy: held
+    assert s.in_position
 
 
 def test_a_furious_position_sells_deep_premarket(v36, clock, monkeypatch):
@@ -1075,7 +1103,8 @@ def test_a_furious_position_sells_deep_premarket(v36, clock, monkeypatch):
 def test_the_owner_s_10_07_stop_rules_are_on():
     assert bot.V36_STARTER_RISK == 0.03 and bot.V36_LEVEL_STOP
     assert bot.V36_LEVEL_GIVE == 0.02                     # "5.98 or 5.99" (the owner)
-    assert bot.V36_FURIOUS_FULL and bot.V36_FURIOUS_ALL and bot.V36_FURIOUS_SPIKE
+    assert bot.V36_FURIOUS_FULL and bot.V36_FURIOUS_ALL and bot.V37_FURIOUS_EXIT
+    assert bot.V36_FURIOUS_EVEN_AT == 0.30 and bot.V36_FURIOUS_GIVEBACK == 0.30
 
 
 def test_the_scanner_list_is_logged(caplog):
