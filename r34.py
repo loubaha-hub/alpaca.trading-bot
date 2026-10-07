@@ -1456,7 +1456,8 @@ class Strategy:
                # keeps growing past that, as v35's does.
                "v36": V35_MAX_POSITION_PCT,
                "v36b": V35_MAX_POSITION_PCT,
-               "v37": 0.60}.get(self.name, MAX_POSITION_PCT)   # 40%, grown by a run
+               "v37": max(0.60, V37_ACCEL_MAX_PCT + 0.10)}.get(
+                   self.name, MAX_POSITION_PCT)   # 40% (65% furious), grown by a run
         total_value = 0.0
         for s in self.open_positions():
             price = s.last_price or s.entry
@@ -4924,9 +4925,18 @@ ACCEL_SPEED = 0.15
 ACCEL_DOLLARS = 250_000
 V36_ACCEL = False               # v36/v36b: an acceleration counts as the crowd
 V37_ACCEL = False               # v37: buy it over the last minute's high...
-V37_ACCEL_SIZE = ((0.15, 0.10), (0.20, 0.25), (0.30, 1.00))   # ...a share of a full
-                                # position by the speed (the owner: "more than half,
-                                # maybe all" when it is this strong)
+# The owner, 10-07: "the position has to get bigger, faster - more than half of
+# the account in the next few seconds, 60-70%; I would have used the whole
+# account. You see this once a month or two; it pays for the months."
+V37_ACCEL_SIZE = ((0.15, 0.04), (0.20, 0.10), (0.30, 0.35))   # ...the first buy, a
+                                # share of the ACCOUNT by the speed...
+V37_ACCEL_MAX_PCT = 0.65        # ...still furious on a new high 2% over the buy:
+V37_ACCEL_ADD_AT = 0.02         # up to this share of the account in one add
+V37_FURIOUS_SPEED = 0.30        # the owner's speed this high on ACCEL_DOLLARS in the
+                                # last minute: a buy whatever the crowd, the money
+                                # rules or the score ("the speed overrides
+                                # everything") - not over a red candle, never on a
+                                # print the quote does not back
 V37_SPIKE_AT = 0.30             # an acceleration buy up this much: out on giving
 V37_SPIKE_GIVEBACK = 1 / 3      # back this share of the gain (spikes collapse fast)
 V37_SCORE_FURIOUS = 0.0         # >0: a speed this high buys whatever the score (the
@@ -5242,6 +5252,8 @@ class V37(V36):
             return                              # a re-buy, or out of a sideways stretch:
                                                 # not confirmed above the old high yet
         accel = self.accelerating(s) if V37_ACCEL else 0.0
+        if V37_ACCEL and not accel and self.furious(s, price):
+            accel = self.real_speed(s, price)   # the speed overrides the crowd rules
         if accel and s.bars and price > s.bars[-1].h:
             return await self.accel_buy(s, price, accel)
         if not self.in_the_crowd(s) or not self.flying(s, price):
@@ -5284,6 +5296,15 @@ class V37(V36):
                 return
             await self.v37_buy(s, price)
 
+    def furious(self, s, price) -> bool:
+        """V37_FURIOUS_SPEED on real money in the last minute, the last candle
+        not red."""
+        if self.real_speed(s, price) < V37_FURIOUS_SPEED:
+            return False
+        if sum(x[1] * x[2] for x in s.v37_prints) < ACCEL_DOLLARS:
+            return False
+        return bool(s.bars) and not s.bars[-1].red
+
     async def accel_buy(self, s, price, accel):
         """V37_ACCEL: over the last minute's high, the ask agreeing; sized by
         the speed (V37_ACCEL_SIZE)."""
@@ -5305,13 +5326,14 @@ class V37(V36):
         async with lock:
             if s.in_position:
                 return
-            await self.v37_buy(s, price, starter=share, accel=speed)
+            await self.v37_buy(s, price, account_share=share, accel=speed)
 
-    async def v37_buy(self, s, price, starter=None, accel=0.0):
+    async def v37_buy(self, s, price, account_share=None, accel=0.0):
         spd = self.speed(s, price)              # logged for every buy, rule on or off
         pts, parts = self.score(s, price)       # the same
-        starter = V37_STARTER if starter is None else starter
         eq = await self.broker.equity(self.day_start_equity)
+        starter = (account_share / self.v37_full(s, eq) if account_share
+                   else V37_STARTER)            # a share of a full position
         cap = self.entry_cap(s, price)
         worst = price * (1 + cap)
         held_all = sum(x.shares * (x.last_price or price)
@@ -5332,6 +5354,7 @@ class V37(V36):
         s.v37_pace_at_buy = self.pace(s)
         s.v37_peak_after = 0.0
         s.v37_accel = accel
+        s.v37_accel_added = False
         s.peak = s.entry
         s.trail_stop = 0.0
         s.armed = False
@@ -5349,7 +5372,8 @@ class V37(V36):
                       "speed %.2f | score %s (%s)",
                       s.symbol, filled, s.entry, price, filled * s.entry,
                       100 * filled * s.entry / eq if eq else 0.0,
-                      "ACCELERATING %.2f, %.0f%% of a position" % (accel, 100 * starter)
+                      "ACCELERATING %.2f, %.0f%% of the account" % (
+                          accel, 100 * starter * self.v37_full(s, eq))
                       if accel else "a tenth of a position", s.v36_entries,
                       self.crowd_rank(s.symbol),
                       self.crowd_dollars(s.symbol) / 1000, V36_CROWD_MINUTES,
@@ -5456,6 +5480,16 @@ class V37(V36):
             if not (q and q[0] > line):         # the bid agrees the gain is gone
                 await self.exit(s, "giveback")  # half of the profit gone
                 return
+        if (V37_ACCEL and getattr(s, "v37_accel", 0.0) >= V37_FURIOUS_SPEED
+                and not getattr(s, "v37_accel_added", True) and new_high
+                and self.fresh(s) and price >= s.v36_first * (1 + V37_ACCEL_ADD_AT)
+                and self.real_speed(s, price) >= V37_FURIOUS_SPEED):
+            s.v37_accel_added = True            # bigger, faster: to V37_ACCEL_MAX_PCT
+            eq = await self.broker.equity(self.day_start_equity)
+            full = self.v37_full(s, eq)
+            if full > 0:
+                await self.v37_add(s, price, V37_ACCEL_MAX_PCT / full)
+            return
         steps = ((V37_ADD1_CENTS, V37_ADD1_TO), (V37_ADD2_CENTS, V37_ADD2_TO))
         if len(self.open_positions()) > 1:
             steps += ((V37_ADD3_CENTS, None),)     # beside another: make room, grow

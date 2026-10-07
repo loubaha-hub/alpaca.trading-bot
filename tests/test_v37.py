@@ -1338,12 +1338,31 @@ def test_an_acceleration_buys_without_the_crowd(v37, clock, now, monkeypatch, on
 
 
 def test_the_faster_the_bigger(v37, clock, now, monkeypatch, broker):
-    """The owner: "more than half of my position, maybe all" when it is this strong."""
+    """The owner: "bigger, faster - more than half of the account in the next
+    few seconds, 60-70%" when it is this strong."""
     monkeypatch.setattr(bot, "V37_ACCEL", True)
+    monkeypatch.setattr(bot, "V37_ASK_PLUS", 0.0)
     monkeypatch.setattr(v37, "real_speed", lambda s, p: 0.35)
     s = accelerating_stock(v37, clock)
     tick(v37, s, now, 11.62)
-    assert s.shares * s.entry == pytest.approx(broker.eq * bot.V37_SOLO_PCT, rel=0.05)
+    assert s.shares * s.entry == pytest.approx(broker.eq * 0.35, rel=0.05)
+    tick(v37, s, now, round(s.entry * 1.025, 2))          # a new high, still furious
+    assert s.shares * s.entry == pytest.approx(broker.eq * 0.65, rel=0.05)
+
+
+def test_a_furious_speed_buys_without_the_pattern_or_the_crowd(v37, clock, now,
+                                                             monkeypatch):
+    """The owner: "the speed overrides everything" - but never over a red candle."""
+    monkeypatch.setattr(bot, "V37_ACCEL", True)
+    monkeypatch.setattr(v37, "real_speed", lambda s, p: 0.40)
+    s = v37.st("WXYZ")
+    v37.qualified.add("WXYZ")
+    candles(s, STAIRS)                                    # green, but no acceleration
+    s.day_high = 10.32
+    prints(v37, s, now, 10.00, 10.35, size=30_000)        # $300k+ in the minute
+    assert not v37.accelerating(s)
+    tick(v37, s, now, 10.40)
+    assert s.in_position and s.entry_kind == "accel"
 
 
 def test_a_spike_keeps_two_thirds_of_its_gain(v37, clock, now, monkeypatch):

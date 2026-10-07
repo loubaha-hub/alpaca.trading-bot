@@ -120,6 +120,18 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   back a third of the gain. Replay on all days incl. 10-07 at several
   thresholds, counting the accelerations that fail, before deciding.
 
+### The owner on furious moves (10-07 ~9:40am) - decisions for the build
+- "The position has to get bigger, faster - more than half of the account
+  in the next few seconds, 60-70%; I would have used the whole account.
+  You see this once a month or two; it pays for the months." Exit: Claude's
+  proposal - a spike sells on giving back a third (keep two thirds). "The
+  speed should override everything pretty much."
+- Built (off, V37_ACCEL): speed 0.3+ -> 35% of the account at once, +30% to
+  65% on the next new high 2%+ over the buy while still 0.3+ (0.15 -> 4%,
+  0.2 -> 10%); speed 0.3+ on $250k+ in the minute buys whatever the crowd /
+  money / score rules say. Kept (Claude's call, to confirm with the owner):
+  never over a red last candle, never on a print the quote does not back.
+
 ### The fixes, first replay (09-28..10-06, $15,000, fills 0.2% / 1% worse)
 - Built on the branch (tests from each live case, 539 pass): v37 - rip
   exception at speed 0.3+, red candle never overridden, ask above the old
