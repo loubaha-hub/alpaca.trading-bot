@@ -3,6 +3,30 @@
 Decisions, instructions and results worth keeping. Newest first. Dates are ET.
 Each entry: what was decided or found, the numbers, why, and where it lives.
 
+## 2026-10-07
+
+### Morning review with the owner (4-7am ET)
+- First side by side: v36 (T6HH) -0.74%, v36b (AUES) -0.49% at ~7am (the
+  owner's screens); 13 closed trades each, same names (MI, BIYA, SXTC,
+  LPCN) within seconds. v36b's losers -2.7% of the trade on average vs
+  v36's -4.3% - the 3% first-stop cap. Wick veto blocked SXTC 5:35am.
+- v37: 3 trades, held 1-4s, all "half the gain": BIYA +$11.88, MI +$0.94,
+  LPCN -$6.39. The owner: selective, small cuts - "light at the end of the
+  tunnel"; a big runner will tell.
+- The owner on BIYA (v36, 4:20am: added 685 @ $2.51 on a new high, the
+  floor moved to the average ~$2.46, all sold @ $2.43 one second later):
+  "I would have done that too" - $2.50 is resistance; trading clusters at
+  the whole and half dollar; reaching one, be diligent jumping out. Let
+  the bots know. This is the playbook's Levels section and rules.md 6
+  "at a resistance / half-dollar level - to build" (not built yet).
+- To build on the branch and replay after the close (the owner liked
+  them; release only with the owner's OK): (1) the half-dollar levels for
+  v36/v36b - add or start only once past the level, out when it hesitates
+  at one, stay when it bolts through; (2) v37's ripping exception only
+  with speed 0.3+ (LPCN 6:33am got in at score 9, speed 0.07); (3) v37's
+  "half the gain" confirmed by the bid (BIYA sold on a 1.1s-old $2.64
+  print while trading at $2.73).
+
 ## 2026-10-06
 
 ### v24 replayed with its holes fixed (10-07 ~1am; replay/research/v24sim.py)
