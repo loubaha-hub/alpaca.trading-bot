@@ -5,6 +5,16 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-07
 
+### The owner's decisions, ~11:00am: the adds
+- An add waits for the new high to hold about 2 seconds (V36_ADD_HOLD_SEC
+  = 2.0, built as r34.19 on the branch; release timing not yet given).
+- The sizes STAY: ease in with a small starter, bigger adds as the stock
+  keeps moving up - "that reduces the losses from the jittery entry that
+  can be shaken off; a sensible strategy, keep it in place". The
+  proposal "bigger starter, smaller adds" is rejected.
+- The owner's principle: new rules must not destroy the base built so far;
+  change a rule only where the existing rules do not cover a situation.
+
 ### The owner's decision, ~10:55am: after an add, the floor moves to the new average
 - Proposal "keep the floor at what the starter paid" REJECTED by the owner:
   "when you buy higher the position is bigger - if we don't get out before
