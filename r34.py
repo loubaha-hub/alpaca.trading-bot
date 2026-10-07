@@ -5572,6 +5572,9 @@ class V37(V36):
         spd = self.speed(s, price)              # logged for every buy, rule on or off
         pts, parts = self.score(s, price)       # the same
         eq = await self.broker.equity(self.day_start_equity)
+        if self.v37_full(s, eq) <= 0:
+            return                              # no room beside the position held
+                                                # (09-30 replayed: a division by zero)
         starter = (account_share / self.v37_full(s, eq) if account_share
                    else V37_STARTER)            # a share of a full position
         cap = self.entry_cap(s, price)

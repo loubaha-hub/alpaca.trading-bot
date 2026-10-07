@@ -1546,3 +1546,12 @@ def test_a_sweep_never_buys_under_the_high_or_past_the_ceiling(v31, broker, data
         if got:
             assert broker.orders[0][3] == 3.72
         broker.held.clear(); broker.cost.clear()
+
+
+def test_no_room_beside_a_big_position_is_no_buy_not_a_crash(v37, clock, now, monkeypatch):
+    """09-30 replayed: a fast buy beside a position holding the whole pair total
+    divided by zero (v37_full 0)."""
+    monkeypatch.setattr(v37, "v37_full", lambda s, eq=None: 0.0)
+    s = v37.st("ABCD")
+    run(v37.v37_buy(s, 10.0, account_share=0.35, accel=0.4))
+    assert not s.in_position
