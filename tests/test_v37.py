@@ -1717,3 +1717,24 @@ def test_v37_furious_up_30c_then_30_percent_back_is_out(v37, clock, now, monkeyp
     assert s.in_position
     tick(v37, s, now, round(e + 0.34, 2))
     assert not s.in_position and v37.closed_today[-1][5] == "giveback"
+
+
+def test_v37_a_furious_buy_s_stop_is_10c_under(v37, clock, now, monkeypatch):
+    monkeypatch.setattr(bot, "V37_STOP_SPEED", True)
+    s = v37.st("ABCD")
+    s.entry, s.v37_stop_pct = 5.00, 0.08                  # 8%: $4.60
+    s.v37_accel = 0.0
+    assert v37.stop_for(s) == pytest.approx(4.60)
+    s.v37_accel = bot.V37_FURIOUS_SPEED                   # furious: 10 cents
+    assert v37.stop_for(s) == pytest.approx(4.90)
+
+
+def test_v37_furious_new_high_is_not_too_soon(v37, monkeypatch):
+    monkeypatch.setattr(bot, "V37_REBUY_WAIT", 60.0)      # off in the fixture
+    s = v37.st("ABCD")
+    s.v37_sold_ts, s.v37_sold_px, s.day_high = bot.time.time(), 4.90, 5.10
+    monkeypatch.setattr(v37, "speeding", lambda s, p: False)
+    assert v37.too_soon(s, 5.12)                          # 22c over the sale: wait
+    monkeypatch.setattr(v37, "speeding", lambda s, p: True)
+    assert not v37.too_soon(s, 5.12)                      # furious, a new high: go
+    assert v37.too_soon(s, 5.05)                          # under the high: wait

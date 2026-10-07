@@ -1136,3 +1136,27 @@ def test_bought_at_6_15_the_stop_is_5_98_not_5_80(v36, clock, monkeypatch):
     assert s.in_position                                  # 1c under: not yet
     tick(v36, s, 5.98)
     assert not s.in_position
+
+
+def test_furious_the_stop_is_10c_under_what_it_paid(v36, clock, monkeypatch):
+    """The owner, 10-07 ~1pm: "not the 8% - if it drops 10 cents from the entry,
+    close it"."""
+    s = furious_bought(v36, clock, monkeypatch)
+    assert s.stop == pytest.approx(s.entry - bot.V36_FURIOUS_STOP_CENTS)
+    tick(v36, s, round(s.entry - 0.09, 2))
+    assert s.in_position
+    tick(v36, s, round(s.entry - 0.10, 2))
+    assert not s.in_position
+
+
+@pytest.mark.parametrize("fast, buys", [(True, True), (False, False)])
+def test_furious_back_in_on_a_new_high_the_same_minute(v36, clock, monkeypatch,
+                                                       fast, buys):
+    """The owner: "...and get back on it as soon as it moves above the high of
+    the day"."""
+    s = furious_bought(v36, clock, monkeypatch)
+    tick(v36, s, round(s.entry - 0.10, 2))                # stopped
+    assert not s.in_position
+    monkeypatch.setattr(v36, "speeding", lambda s, p: fast)
+    tick(v36, s, round(s.day_high + 0.03, 2))             # a new high, the same minute
+    assert s.in_position == buys
