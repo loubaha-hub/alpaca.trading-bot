@@ -4938,6 +4938,10 @@ V37_FURIOUS_SPEED = 0.30        # the owner's speed this high on ACCEL_DOLLARS i
                                 # rules or the score ("the speed overrides
                                 # everything") - not over a red candle, never on a
                                 # print the quote does not back
+V37_ACCEL_CHASE = 0.20          # no fast buy this far over the last closed minute's
+                                # high: BIYA 10-07 8:20-8:21 went $2.54 -> $33.96 ->
+                                # $8.20 in under a minute (SXTC 8:16:38 bought 13%
+                                # over it). 0 = no limit
 V37_SPIKE_AT = 0.30             # an acceleration buy up this much: out on giving
 V37_SPIKE_GIVEBACK = 1 / 3      # back this share of the gain (spikes collapse fast)
 V37_SCORE_FURIOUS = 0.0         # >0: a speed this high buys whatever the score (the
@@ -5256,6 +5260,14 @@ class V37(V36):
         if V37_ACCEL and not accel and self.furious(s, price):
             accel = self.real_speed(s, price)   # the speed overrides the crowd rules
         if accel and s.bars and price > s.bars[-1].h:
+            if V37_ACCEL_CHASE and price > s.bars[-1].h * (1 + V37_ACCEL_CHASE):
+                if time.time() - s.v37_skip_logged >= 30:   # the spike has run
+                    s.v37_skip_logged = time.time()
+                    self.log.info("[v37] SKIP %s at %.4f - %.0f%% over the last "
+                                  "minute's high %.4f: too late for a fast buy",
+                                  s.symbol, price,
+                                  100 * (price / s.bars[-1].h - 1), s.bars[-1].h)
+                return
             return await self.accel_buy(s, price, accel)
         if not self.in_the_crowd(s) or not self.flying(s, price):
             return
