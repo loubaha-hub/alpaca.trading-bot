@@ -4080,14 +4080,15 @@ V36_STARTER_RISK = 0.03         # "B": a starter is sized so its first stop cost
                                 # most this share of a normal starter - 3% of $406 is
                                 # $12; a far stop buys fewer shares. 0 = off
 V36_LEVEL_STOP = True           # the stop sits under the whole / half dollar under the
-V36_LEVEL_GIVE = 0.02           # buy, this far under it - "it goes under three, you sell
+V36_LEVEL_GIVE = 0.01           # buy, this far under it - "it goes under three, you sell
                                 # immediately; you don't wait for 2.87" - and moves up to
                                 # each level the price then clears by V36_LEVEL_PAST and
                                 # holds V36_LEVEL_HOLD_SEC: a support. 10-07 ~12:50 (the
                                 # owner): "bought at 6.15, it went to 6.30 and is coming
                                 # back - the stop should end at 5.98 or 5.99, not 5.80";
                                 # "at 1.65 retracing to 1.50 - if it breaches 1.49, 1.48,
-                                # it should sell". The stop only ever tightens. (r34.22: 5c)
+                                # it should sell". The stop only ever tightens. 7 days
+                                # replayed, 1c beat 2c and 5c for all three (r34.22: 5c)
 V36_FURIOUS_FULL = True         # furious (speeding): the FULL position in the first buy -
                                 # "I enter with a full position on the very first hit; if
                                 # I miss, I try again"...

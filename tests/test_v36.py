@@ -978,9 +978,9 @@ def test_held_past_the_next_half_dollar_the_stop_moves_up(v36, clock, monkeypatc
     tick(v36, s, 10.57)                                   # held 3.1 seconds
     assert s.v36_line == 10.5
     assert s.stop == pytest.approx(10.5 - bot.V36_LEVEL_GIVE)
-    tick(v36, s, 10.49)                                   # 1c under: not yet
+    tick(v36, s, 10.50)                                   # at $10.50: not yet
     assert s.in_position
-    tick(v36, s, 10.48)                                   # 2c under: out at once
+    tick(v36, s, round(10.5 - bot.V36_LEVEL_GIVE, 2))     # under it: out at once
     assert not s.in_position
 
 
@@ -1102,7 +1102,7 @@ def test_a_furious_position_sells_deep_premarket(v36, clock, monkeypatch):
 
 def test_the_owner_s_10_07_stop_rules_are_on():
     assert bot.V36_STARTER_RISK == 0.03 and bot.V36_LEVEL_STOP
-    assert bot.V36_LEVEL_GIVE == 0.02                     # "5.98 or 5.99" (the owner)
+    assert bot.V36_LEVEL_GIVE == 0.01                     # "5.98 or 5.99" (the owner)
     assert bot.V36_FURIOUS_FULL and bot.V36_FURIOUS_ALL and bot.V37_FURIOUS_EXIT
     assert bot.V36_FURIOUS_EVEN_AT == 0.30 and bot.V36_FURIOUS_GIVEBACK == 0.30
 
@@ -1132,9 +1132,9 @@ def test_bought_at_6_15_the_stop_is_5_98_not_5_80(v36, clock, monkeypatch):
     assert s.in_position and s.v36_line == 6.0
     assert s.stop == pytest.approx(6.0 - bot.V36_LEVEL_GIVE)
     tick(v36, s, 6.30)
-    tick(v36, s, 5.99)
-    assert s.in_position                                  # 1c under: not yet
-    tick(v36, s, 5.98)
+    tick(v36, s, 6.00)
+    assert s.in_position                                  # at $6: not yet
+    tick(v36, s, round(6.0 - bot.V36_LEVEL_GIVE, 2))      # under it: out
     assert not s.in_position
 
 
