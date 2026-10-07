@@ -5,6 +5,16 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-07
 
+### The owner near the close (~3:55pm): sizing by speed; the v37 bite; slow sales
+- "If the stock is moving furiously fast it's okay to enter with a bigger
+  position; if it is moving fast but moderately, always enter with a small
+  position - ease in slowly." Decision (confirms the tiers: furious = big;
+  fast-but-moderate = small starter and adds).
+- v37's one SXTC trade (-$290, 35% of the account on the top tick, a 7.5s
+  sale) "took the best out of it - that should not have been the case";
+  "the selling is slow - how can we get it faster"; and check whether the
+  buys come at the right time. For tonight, words first (memory/checklist.md).
+
 ### Words before code (the owner, ~3:40pm) - a standing rule
 - "When you have it built, put it in words and we'll examine those words
   really closely ... every hole plugged and every contingency accounted for.
