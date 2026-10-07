@@ -801,21 +801,38 @@ def test_an_add_waits_for_the_high_to_hold_two_seconds(v36, clock, monkeypatch):
     assert s.v36_adds == 1
 
 
-def test_a_dip_under_the_level_starts_the_clock_again(v36, clock, monkeypatch):
+def test_a_dip_under_the_new_high_starts_the_clock_again(v36, clock, monkeypatch):
     monkeypatch.setattr(bot, "V36_ADD_HOLD_SEC", 2.0)
     now = [5_000.0]
     monkeypatch.setattr(bot.time, "time", lambda: now[0])
     s = bought(v36, clock)
     level = v36.add_level(s, 0)
-    tick(v36, s, round(level + 0.01, 2))
+    tick(v36, s, round(level + 0.02, 2))                  # a new high: the clock starts
     now[0] += 1.5
-    tick(v36, s, round(level - 0.01, 2))                  # under it: the high did not hold
+    tick(v36, s, round(level - 0.01, 2))                  # back under it: did not hold
     now[0] += 1.0
-    tick(v36, s, round(level + 0.01, 2))                  # back over: a new clock
+    tick(v36, s, round(level + 0.02, 2))                  # back to it - not a NEW high
     assert s.v36_adds == 0
+    tick(v36, s, round(level + 0.03, 2))                  # a new high: a new clock
     now[0] += 2.1
-    tick(v36, s, round(level + 0.02, 2))
+    tick(v36, s, round(level + 0.03, 2))                  # held 2.1 seconds: add
     assert s.v36_adds == 1
+
+
+def test_dki_no_add_on_the_way_down(v36, clock, monkeypatch):
+    """DKI 11:36:39: bought $2.74, ran to $3.52; the add came at $3.33 on the way
+    down (the level long passed, the hold met) - average $3.13, sold at $3.06."""
+    monkeypatch.setattr(bot, "V36_ADD_HOLD_SEC", 2.0)
+    now = [5_000.0]
+    monkeypatch.setattr(bot.time, "time", lambda: now[0])
+    s = bought(v36, clock)
+    level = v36.add_level(s, 0)
+    peak = round(level + 0.40, 2)
+    tick(v36, s, peak)                                    # the run's high
+    for k in range(1, 6):                                 # falling back, over the level
+        now[0] += 1.0
+        tick(v36, s, round(peak - 0.04 * k, 2))
+    assert s.v36_adds == 0
 
 
 def test_the_add_hold_is_on():
