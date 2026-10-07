@@ -86,6 +86,10 @@ Updated 2026-10-07, 7:20am ET.
   8. v36 + v36b: re-entries (2nd buy on) only above the high of the day
      + 5c (built, off - V36_SETUP_BUYS/V36_HOD_PLUS; retest).
   9. v36 + v36b: re-entries need real speed (price up on volume).
+  10. v37: "half the gain" arms only after a real gain (>= a full cent;
+      test 1c/3c/1%) - SPAI 8:10 sold on a half-cent "gain".
+  11. v37: skip a buy whose price re-read just before sending is well
+      under the trigger (SPAI filled $4.81 on a $5.05 decision).
   Then the owner decides; release only with the OK, flat or after 8pm.
 - End of day: v36 vs v36b by % of account; v37's exits vs what each stock
   did 5/15/30 min later.

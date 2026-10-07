@@ -63,6 +63,16 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   / V36_HOD_PLUS) but OFF since 10-06 (the owner kept v36 simple; replay
   said it hurt). To retest with today's live cases: (8) re-entries only
   above the HOD + 5c; (9) re-entries need real speed (price up on volume).
+- v37 SPAI 8:09:58 (the owner: "it sold at 9:59... the stop is at the
+  bottom of the red candle - there's a problem"): bought 108 @ $4.8053,
+  decided on a $5.05 print (filled 24c lower, falling); best price after
+  $4.81 (half a cent up); 8:10:00 sold @ $4.69 by "half the gain" on a
+  2.0s-old $4.80 print; stop $4.59 never reached. -$12.45. Entry had
+  "score None (last candle red)" - in via the ripping exception.
+  To build: (10) "half the gain" arms only after a real gain - at least a
+  full cent (V37_GIVEBACK_ARM is 0 = any fraction); test 1c/3c/1%;
+  (11) skip a buy whose price, re-read just before sending, is already
+  well under the trigger (the burst reversed).
 
 ## 2026-10-06
 
