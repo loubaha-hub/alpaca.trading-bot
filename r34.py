@@ -1759,7 +1759,8 @@ class Strategy:
     # ---- execution ----------------------------------------------------------
 
     async def buy(self, symbol: str, shares: int, ref: float,
-                  cap: float = None, floor: float = None, sweep: float = 0.0) -> int:
+                  cap: float = None, floor: float = None, sweep: float = 0.0,
+                  keep: bool = False) -> int:
         """Fills counted from the BROKER, never from the order reply.
 
         A cancel racing a fill used to report "got nothing" and the next attempt
@@ -1776,7 +1777,7 @@ class Strategy:
                       symbol)
             return 0
         if sweep:
-            got, why = await self.buy_sweep(symbol, shares, ref, cap, floor, sweep)
+            got, why = await self.buy_sweep(symbol, shares, ref, cap, floor, sweep, keep)
             last = start + got
         elif FAST_BUY:
             got, why = await self.buy_fast(symbol, shares, ref, cap, floor)
@@ -1801,7 +1802,8 @@ class Strategy:
         """The limit for one try of the fast buy: a little over the ask."""
         return min(ask * (1 + FAST_BUY_OVER_ASK), ceiling)
 
-    async def buy_sweep(self, symbol, shares, ref, cap, floor=None, cents=0.20):
+    async def buy_sweep(self, symbol, shares, ref, cap, floor=None, cents=0.20,
+                        keep=False):
         """V37_SWEEP: a limit at the ask plus `cents`, filling at once; what is
         left unfilled is tried again at the new ask - for V37_SWEEP_SECONDS or
         V37_SWEEP_TRIES orders, never over the safety net (ref x (1 + cap))
@@ -1810,7 +1812,7 @@ class Strategy:
         got, why = 0, "no order sent"
         deadline = time.monotonic() + V37_SWEEP_SECONDS
         budget = getattr(self.broker, "orders_in_last_minute", None)
-        for _ in range(1 if V37_KEEP_TRYING else V37_SWEEP_TRIES):
+        for _ in range(1 if keep else V37_SWEEP_TRIES):   # keep: the next print retries
             if budget and budget() >= ORDER_BUDGET:
                 return got, "the order budget: %d orders in the last minute" % budget()
             if got >= shares:
@@ -5540,7 +5542,7 @@ class V37(V36):
         if accel and s.bars and price > s.bars[-1].h:
             base = (max(s.bars[-1].h, s.day_high) if V37_ACCEL_FROM_HIGH
                     else s.bars[-1].h)          # the breakout level: BIYA 8:20 broke
-            if (V37_ACCEL_CHASE and not V37_KEEP_TRYING
+            if (V37_ACCEL_CHASE and not self.keeps_trying(s, price)
                     and price > self.fast_top(base)):                     # $3.10
                 if time.time() - s.v37_skip_logged >= 30:   # the spike has run
                     s.v37_skip_logged = time.time()
@@ -5599,6 +5601,11 @@ class V37(V36):
         lo, hi = V37_SWEEP_CENTS
         return hi if price >= V37_SWEEP_BIG else lo
 
+    def keeps_trying(self, s, price) -> bool:
+        """V37_KEEP_TRYING - for the furious movers only (the owner, 10-07: "the
+        rest - keep the cap, it's a nice safety net")."""
+        return V37_KEEP_TRYING and self.speeding(s, price)
+
     def fast_top(self, base) -> float:
         """The safety net: a fast buy never pays V37_ACCEL_CHASE over the
         breakout level."""
@@ -5627,7 +5634,8 @@ class V37(V36):
                 return
             base = (max(s.bars[-1].h, s.day_high) if V37_ACCEL_FROM_HIGH
                     else s.bars[-1].h)
-            if V37_KEEP_TRYING:
+            keep = self.keeps_trying(s, price)
+            if keep:
                 if time.time() - getattr(s, "v37_try_at", 0.0) < V37_RETRY_GAP:
                     return                      # the next print tries again
                 s.v37_try_at = time.time()
@@ -5635,9 +5643,10 @@ class V37(V36):
             else:
                 sweep_to = self.fast_top(base) if V37_SWEEP else None
             await self.v37_buy(s, price, account_share=share, accel=speed,
-                               sweep_to=sweep_to)
+                               sweep_to=sweep_to, keep=keep)
 
-    async def v37_buy(self, s, price, account_share=None, accel=0.0, sweep_to=None):
+    async def v37_buy(self, s, price, account_share=None, accel=0.0, sweep_to=None,
+                      keep=False):
         spd = self.speed(s, price)              # logged for every buy, rule on or off
         pts, parts = self.score(s, price)       # the same
         eq = await self.broker.equity(self.day_start_equity)
@@ -5661,7 +5670,8 @@ class V37(V36):
         filled = await self.buy(s.symbol, shares, price, cap,
                                 floor=s.day_high,   # never under the old high
                                 sweep=(self.sweep_cents(price)
-                                       if sweep_to and sweep_to > price else 0.0))
+                                       if sweep_to and sweep_to > price else 0.0),
+                                keep=keep)
         if not filled:
             return
         s.shares = filled

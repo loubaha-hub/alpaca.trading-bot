@@ -1548,8 +1548,7 @@ def test_20_cents_under_10_dollars_30_from_10(v37, price, cents):
 
 
 def test_unfilled_it_keeps_trying_at_the_new_ask(v31, broker, data, monkeypatch):
-    """V37_KEEP_TRYING off: the tries loop inside one buy, under the safety net."""
-    monkeypatch.setattr(bot, "V37_KEEP_TRYING", False)
+    """Not furious: the tries loop inside one buy, under the safety net."""
     asks = iter([3.12, 3.30, 3.45, 3.60, 3.65])
 
     async def ask(symbol, side):
@@ -1660,3 +1659,15 @@ def test_the_broker_counts_its_orders(no_sleep):
 
 def test_keep_trying_is_on():
     assert bot.V37_KEEP_TRYING and bot.V37_SWEEP_CENTS == (0.20, 0.30)
+
+
+def test_not_furious_keeps_the_safety_net(v37, clock, now, monkeypatch, broker):
+    """The owner, 10-07: keep trying without a cap only for the furious movers;
+    "the rest - keep the cap, it's a nice safety net"."""
+    s = furious_stock(v37, clock, now, monkeypatch)
+    monkeypatch.setattr(v37, "real_speed", lambda s, p: 0.20)     # fast, not furious
+    monkeypatch.setattr(v37, "accelerating", lambda s: 0.20)
+    price = round(s.day_high * 1.30, 2)                            # 30% over the break
+    prints(v37, s, now, s.bars[-1].h, price, size=30_000)
+    tick(v37, s, now, price)
+    assert not s.in_position
