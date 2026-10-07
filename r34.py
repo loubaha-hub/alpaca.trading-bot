@@ -140,7 +140,7 @@ RISK_CHECK_SECONDS = 5                      # the halt runs on a CLOCK, not tick
 # The file name and this string are changed together, every single time. The
 # log then answers "which code is actually running?" without anyone guessing
 # from line numbers or from behaviour that only shows up once a trade is on.
-VERSION = "v31-r34.22"
+VERSION = "v31-r34.23"
 
 # WHERE THE DAY'S HALT BASELINE COMES FROM.
 #   "last_equity" - equity at the PREVIOUS session's close, read from the broker.
@@ -4080,18 +4080,33 @@ V36_STARTER_RISK = 0.03         # "B": a starter is sized so its first stop cost
                                 # most this share of a normal starter - 3% of $406 is
                                 # $12; a far stop buys fewer shares. 0 = off
 V36_LEVEL_STOP = True           # the stop sits under the whole / half dollar under the
-V36_LEVEL_GIVE = 0.05           # buy, this far under it - "it goes under three, you sell
-                                # immediately; you don't wait for 2.87; give it a little,
-                                # five cents" - and moves up to each level the price then
-                                # clears by V36_LEVEL_PAST and holds V36_LEVEL_HOLD_SEC
+V36_LEVEL_GIVE = 0.01           # buy, this far under it - "it goes under three, you sell
+                                # immediately; you don't wait for 2.87" - and moves up to
+                                # each level the price then clears by V36_LEVEL_PAST and
+                                # holds V36_LEVEL_HOLD_SEC: a support. 10-07 ~12:50 (the
+                                # owner): "bought at 6.15, it went to 6.30 and is coming
+                                # back - the stop should end at 5.98 or 5.99, not 5.80";
+                                # "at 1.65 retracing to 1.50 - if it breaches 1.49, 1.48,
+                                # it should sell". The stop only ever tightens. 7 days
+                                # replayed, 1c beat 2c and 5c for all three (r34.22: 5c)
 V36_FURIOUS_FULL = True         # furious (speeding): the FULL position in the first buy -
                                 # "I enter with a full position on the very first hit; if
                                 # I miss, I try again"...
 V36_FURIOUS_STOP_MAX = 0.08     # ...its stop no further than this under the buy (v37's
-                                # most), and the 10-second leash on it at once
-V36_FURIOUS_SPIKE = True        # ...and once up V37_SPIKE_AT, out on giving back
-                                # V37_SPIKE_GIVEBACK of the gain, as v37 - "when I see
-                                # it has made enough, I get out"
+                                # most), and the 10-second leash on it at once...
+V36_FURIOUS_STOP_CENTS = 0.10   # ...and no further than this (dollars) under what it
+                                # paid - "not the 8%, too big; if the stock drops 10
+                                # cents from the entry, close it, and get back on it as
+                                # soon as it moves above the high of the day again" (the
+                                # owner, 10-07 ~1pm). v36, v36b and v37's furious buys
+V36_FURIOUS_EVEN_AT = 0.30      # ...once up this much (dollars) over the buy, never
+                                # back under the buy - "up thirty cents and back to it,
+                                # cut it off there instead of a loss" (the owner, 10-07
+                                # ~1pm)...
+V36_FURIOUS_GIVEBACK = 0.30     # ...and from there out on giving back this share of the
+                                # gain from its high ("thirty percent of the gain").
+                                # 0 = off. Replaces r34.22's "up 30%, a third back".
+V37_FURIOUS_EXIT = True         # v37's furious buys (speed >= V37_FURIOUS_SPEED): the same
 V36_FURIOUS_ALL = True          # furious: EVERY entry check set aside - the levels, the
                                 # wick, the re-entry speed, the score, the 5% over the
                                 # trigger, and no candle pattern needed (a new high over
@@ -4497,6 +4512,24 @@ class V36(_Restore, _Momentum, V35):
                 shares = fit
         return shares
 
+    def furious_new_high(self, s, price) -> bool:
+        """Furious and over the high of the day as it stood before this print:
+        back in at once after a stop - "get back on it as soon as it moves up
+        above the high of the day" (the owner, 10-07)."""
+        return bool(V36_FURIOUS_ALL and V36_FURIOUS and s.day_high
+                    and price > s.day_high and self.speeding(s, price))
+
+    def furious_line(self, s, top) -> float:
+        """A furious buy, once its best price `top` is V36_FURIOUS_EVEN_AT over
+        the buy: out at the buy price, or on giving back V36_FURIOUS_GIVEBACK of
+        the gain, whichever is higher. 0.0 until then (the stop and the
+        10-second leash only)."""
+        if not V36_FURIOUS_EVEN_AT or not s.entry or top < s.entry + V36_FURIOUS_EVEN_AT - 1e-9:
+            return 0.0
+        if not V36_FURIOUS_GIVEBACK:
+            return s.entry
+        return max(s.entry, s.entry + (1 - V36_FURIOUS_GIVEBACK) * (top - s.entry))
+
     # ---- the whole / half dollar under the stop (V36_LEVEL_STOP) ---------------
 
     @staticmethod
@@ -4829,7 +4862,8 @@ class V36(_Restore, _Momentum, V35):
             self.why_not(s, price, "NO: %d buys today" % s.v36_entries)
             return
         if (s.v36_entry_bar_ts is not None and s.bars
-                and s.bars[-1].ts <= s.v36_entry_bar_ts):
+                and s.bars[-1].ts <= s.v36_entry_bar_ts
+                and not self.furious_new_high(s, price)):
             return                              # one buy a minute: no churn
         if V36_MAX_FLOAT and FLOATS.get(s.symbol, 0) > V36_MAX_FLOAT:
             self.why_not(s, price, "NO FLOAT: %.1fM > %.0fM" % (
@@ -4852,8 +4886,10 @@ class V36(_Restore, _Momentum, V35):
             found = self.pullback_after(s, j)
         if not found:
             found = self.breaking_high(s, price) if candles_ok else self.hod_plus(s)
-        if not found and rush and s.bars:       # no pattern needed: a new high over
-            found = (max(s.hod_closed, s.bars[-1].h), s.bars[-1].l, "hod")  # the minute
+        if rush and s.bars and (not found or price < found[0]):
+            level = max(s.hod_closed, s.bars[-1].h)     # no pattern needed: over the
+            if price > level:                           # last minute and the day's high
+                found = (level, s.bars[-1].l, "hod")
         if not found:
             self.why_not(s, price, "NO PATTERN: " + self.pattern_text(s))
             return
@@ -4942,6 +4978,8 @@ class V36(_Restore, _Momentum, V35):
                 s.v36_entry_bar_ts = s.bars[-1].ts if s.bars else None
                 s.v36_first = s.entry
                 self.set_line(s, price)
+                if rush and V36_FURIOUS_STOP_CENTS:      # 10 cents under what it paid
+                    s.stop = max(s.stop, s.entry - V36_FURIOUS_STOP_CENTS)
                 if rush and V36_FURIOUS_FULL:
                     s.v36_adds = len(self.add_steps())   # full already: no adds, and
                     s.v36_leash_from = time.time()       # the 10-second leash on it
@@ -5065,11 +5103,11 @@ class V36(_Restore, _Momentum, V35):
         if s.stop and price <= s.stop:
             await self.exit(s, "stop")
             return
-        if (s.v36_furious and V36_FURIOUS_SPIKE and V37_SPIKE_AT
-                and s.peak >= s.entry * (1 + V37_SPIKE_AT)
-                and price <= s.entry + (1 - V37_SPIKE_GIVEBACK) * (s.peak - s.entry)):
-            await self.exit(s, "spike")         # up 30%, a third of it given back: out
-            return
+        if s.v36_furious:
+            line = self.furious_line(s, s.peak)
+            if line and price <= line:
+                await self.exit(s, "giveback")  # up 30c, then 30% of the gain back
+                return
         if s.armed:
             dist = V36_LEASH_ABR * self.abr(s)
             dist = min(max(dist, V31_TRAIL_MIN_PCT * s.peak),
@@ -5473,6 +5511,8 @@ class V37(V36):
         """Within V37_REBUY_WAIT of a sale and not yet the jump above it."""
         if not V37_REBUY_WAIT or not s.v37_sold_ts:
             return False
+        if V37_FURIOUS_EXIT and self.furious_new_high(s, price):
+            return False                        # furious, a new high: back on it
         if time.time() - s.v37_sold_ts >= V37_REBUY_WAIT:
             return False
         jump = min(V37_REBUY_JUMP, V37_REBUY_JUMP_PCT * s.v37_sold_px)
@@ -5595,10 +5635,16 @@ class V37(V36):
         return min(V37_STOP_MAX, max(V37_STOP_MIN, V37_STOP_SHARE * self.move(s, price)))
 
     def stop_for(self, s) -> float:
-        """The stop under the average now held."""
+        """The stop under the average now held - for a furious buy never more
+        than V36_FURIOUS_STOP_CENTS under it."""
         if s.v37_stop_pct:
-            return s.entry * (1 - s.v37_stop_pct)
-        return s.entry - V37_STOP_CENTS
+            stop = s.entry * (1 - s.v37_stop_pct)
+        else:
+            stop = s.entry - V37_STOP_CENTS
+        if (V37_FURIOUS_EXIT and V36_FURIOUS_STOP_CENTS
+                and getattr(s, "v37_accel", 0.0) >= V37_FURIOUS_SPEED):
+            stop = max(stop, s.entry - V36_FURIOUS_STOP_CENTS)
+        return stop
 
     def entry_cap(self, s, price) -> float:
         """How far over the price seen the first buy may pay: half of the last
@@ -5794,6 +5840,7 @@ class V37(V36):
         s.v36_first = s.entry
         s.v36_adds = 0
         s.v37_stop_pct = self.stop_pct(s, price)
+        s.v37_accel = accel                     # stop_for: a furious buy's 10 cents
         s.stop = self.stop_for(s)
         self.set_line(s, price)                 # and under the whole / half dollar
         if s.v36_line:
@@ -5919,6 +5966,13 @@ class V37(V36):
         gain = top - s.entry
         armed = (top >= s.entry * (1 + V37_GIVEBACK_ARM)
                  and gain >= V37_GIVEBACK_ARM_CENTS - 1e-9)
+        if V37_FURIOUS_EXIT and getattr(s, "v37_accel", 0.0) >= V37_FURIOUS_SPEED:
+            fline = self.furious_line(s, top)   # up 30c: 30% of the gain back, out
+            if fline and price <= fline:
+                q = self.live_quote(s) if V37_GIVEBACK_BID else None
+                if not (q and q[0] > fline):
+                    await self.exit(s, "giveback")
+                    return
         back = V37_GIVEBACK
         if (getattr(s, "v37_accel", 0.0) and V37_SPIKE_AT
                 and top >= s.entry * (1 + V37_SPIKE_AT)):

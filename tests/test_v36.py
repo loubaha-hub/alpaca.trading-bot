@@ -943,7 +943,7 @@ def test_b_a_near_stop_keeps_the_whole_starter(v36, clock, broker):
         broker.eq * bot.V36_POSITION_PCT * bot.V36_STARTER, rel=0.1)
 
 
-def test_the_stop_sits_5c_under_the_whole_dollar_under_the_buy(v36, clock, broker):
+def test_the_stop_sits_just_under_the_whole_dollar_under_the_buy(v36, clock, broker):
     """The owner: "it goes under three, you sell immediately - you don't wait
     for 2.87"."""
     s = deep_pullback(v36, clock, 9.92)
@@ -951,7 +951,7 @@ def test_the_stop_sits_5c_under_the_whole_dollar_under_the_buy(v36, clock, broke
     assert s.v36_line == 10.0
     assert s.stop == pytest.approx(10.0 - bot.V36_LEVEL_GIVE)
     budget = broker.eq * bot.V36_POSITION_PCT * bot.V36_STARTER * bot.V36_STARTER_RISK
-    assert s.shares == int(budget / (TRIGGER - 9.95))     # sized on that stop
+    assert s.shares == int(budget / (TRIGGER - (10.0 - bot.V36_LEVEL_GIVE)))   # sized on it
 
 
 def test_a_chart_stop_nearer_than_the_level_stays(v36, clock):
@@ -977,8 +977,10 @@ def test_held_past_the_next_half_dollar_the_stop_moves_up(v36, clock, monkeypatc
     now[0] += 1.1
     tick(v36, s, 10.57)                                   # held 3.1 seconds
     assert s.v36_line == 10.5
-    assert s.stop == pytest.approx(10.45)
-    tick(v36, s, 10.45)                                   # back under: out at once
+    assert s.stop == pytest.approx(10.5 - bot.V36_LEVEL_GIVE)
+    tick(v36, s, 10.50)                                   # at $10.50: not yet
+    assert s.in_position
+    tick(v36, s, round(10.5 - bot.V36_LEVEL_GIVE, 2))     # under it: out at once
     assert not s.in_position
 
 
@@ -1039,20 +1041,48 @@ def test_furious_skips_the_wick_veto(v36b, clock, monkeypatch):
     assert entered(v36b, s)
 
 
-def test_furious_out_on_a_third_of_a_spike_given_back(v36, clock, monkeypatch):
+def furious_bought(v36, clock, monkeypatch):
     monkeypatch.setattr(v36, "speeding", lambda s, p: True)
+    monkeypatch.setattr(bot, "V36_LEVEL_STOP", False)     # the levels: their own tests
     no_adds(monkeypatch)
     s = ripping(v36, clock)
     tick(v36, s, TRIGGER)
+    assert s.in_position and s.v36_furious
+    return s
+
+
+def test_furious_up_30c_then_30_percent_of_the_gain_back_is_out(v36, clock, monkeypatch):
+    """The owner, 10-07 ~1pm: past 30 cents over the buy, close it on giving
+    back 30% of the gain from the high."""
+    s = furious_bought(v36, clock, monkeypatch)
     entry = s.entry
-    top = round(entry * 1.32, 2)
-    tick(v36, s, top)
-    line = entry + (1 - bot.V37_SPIKE_GIVEBACK) * (top - entry)
-    tick(v36, s, round(line + 0.05, 2))
+    tick(v36, s, round(entry + 0.50, 2))                  # the high: +50c
+    tick(v36, s, round(entry + 0.36, 2))                  # 28% of it back: held
     assert s.in_position
-    tick(v36, s, round(line - 0.02, 2))
+    tick(v36, s, round(entry + 0.34, 2))                  # 32% back: out
     assert not s.in_position
-    assert v36.closed_today[-1][5] == "spike"
+    assert v36.closed_today[-1][5] == "giveback"
+
+
+def test_furious_up_30c_never_back_under_the_buy(v36, clock, monkeypatch):
+    """The owner: "up thirty cents and back to it - cut it off there, instead
+    of a loss"."""
+    monkeypatch.setattr(bot, "V36_FURIOUS_GIVEBACK", 0.0)
+    s = furious_bought(v36, clock, monkeypatch)
+    entry = s.entry
+    tick(v36, s, round(entry + 0.31, 2))
+    tick(v36, s, round(entry + 0.01, 2))
+    assert s.in_position
+    tick(v36, s, round(entry - 0.01, 2))
+    assert not s.in_position
+
+
+def test_furious_under_30c_only_the_stop_and_the_leash(v36, clock, monkeypatch):
+    s = furious_bought(v36, clock, monkeypatch)
+    entry = s.entry
+    tick(v36, s, round(entry + 0.25, 2))                  # +25c: not yet
+    tick(v36, s, round(entry - 0.05, 2))                  # back under the buy: held
+    assert s.in_position
 
 
 def test_a_furious_position_sells_deep_premarket(v36, clock, monkeypatch):
@@ -1072,8 +1102,9 @@ def test_a_furious_position_sells_deep_premarket(v36, clock, monkeypatch):
 
 def test_the_owner_s_10_07_stop_rules_are_on():
     assert bot.V36_STARTER_RISK == 0.03 and bot.V36_LEVEL_STOP
-    assert bot.V36_LEVEL_GIVE == 0.05
-    assert bot.V36_FURIOUS_FULL and bot.V36_FURIOUS_ALL and bot.V36_FURIOUS_SPIKE
+    assert bot.V36_LEVEL_GIVE == 0.01                     # "5.98 or 5.99" (the owner)
+    assert bot.V36_FURIOUS_FULL and bot.V36_FURIOUS_ALL and bot.V37_FURIOUS_EXIT
+    assert bot.V36_FURIOUS_EVEN_AT == 0.30 and bot.V36_FURIOUS_GIVEBACK == 0.30
 
 
 def test_the_scanner_list_is_logged(caplog):
@@ -1088,3 +1119,44 @@ def test_the_scanner_list_is_logged(caplog):
     assert "ROSTER 2 names | in: ABCD 3.10 EFGH 7.25 | out: -" in text
     assert "ROSTER ALL 2: ABCD 3.10 EFGH 7.25" in text
     assert "ROSTER 1 names | in: - | out: EFGH" in text
+
+
+def test_bought_at_6_15_the_stop_is_5_98_not_5_80(v36, clock, monkeypatch):
+    """The owner, 10-07: bought at $6.15, up to $6.30, coming back - the stop
+    ends at $5.98, not at a $5.80 chart low."""
+    monkeypatch.setattr(bot, "V36_FAILED_RIP", False)     # the deep red is allowed here
+    s = ripping(v36, clock, scale=0.59)                   # the setup near $6
+    b = s.bars[-1]
+    s.bars[-1] = bot.Bar(b.ts, b.o, b.h, 5.80, b.c, b.v)  # the chart's low: $5.80
+    tick(v36, s, 6.15)
+    assert s.in_position and s.v36_line == 6.0
+    assert s.stop == pytest.approx(6.0 - bot.V36_LEVEL_GIVE)
+    tick(v36, s, 6.30)
+    tick(v36, s, 6.00)
+    assert s.in_position                                  # at $6: not yet
+    tick(v36, s, round(6.0 - bot.V36_LEVEL_GIVE, 2))      # under it: out
+    assert not s.in_position
+
+
+def test_furious_the_stop_is_10c_under_what_it_paid(v36, clock, monkeypatch):
+    """The owner, 10-07 ~1pm: "not the 8% - if it drops 10 cents from the entry,
+    close it"."""
+    s = furious_bought(v36, clock, monkeypatch)
+    assert s.stop == pytest.approx(s.entry - bot.V36_FURIOUS_STOP_CENTS)
+    tick(v36, s, round(s.entry - 0.09, 2))
+    assert s.in_position
+    tick(v36, s, round(s.entry - 0.10, 2))
+    assert not s.in_position
+
+
+@pytest.mark.parametrize("fast, buys", [(True, True), (False, False)])
+def test_furious_back_in_on_a_new_high_the_same_minute(v36, clock, monkeypatch,
+                                                       fast, buys):
+    """The owner: "...and get back on it as soon as it moves above the high of
+    the day"."""
+    s = furious_bought(v36, clock, monkeypatch)
+    tick(v36, s, round(s.entry - 0.10, 2))                # stopped
+    assert not s.in_position
+    monkeypatch.setattr(v36, "speeding", lambda s, p: fast)
+    tick(v36, s, round(s.day_high + 0.03, 2))             # a new high, the same minute
+    assert s.in_position == buys
