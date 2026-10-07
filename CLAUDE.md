@@ -49,7 +49,9 @@ numbers into any file here - memory files included.
   first written in plain sentences and answered against
   `memory/checklist.md` - every contingency, every hole - and the owner
   reads it before any code is written. "Every hole plugged and every
-  contingency accounted for."
+  contingency accounted for." A loss from the market's randomness is
+  accepted; a loss from something known and predictable is a defect - it
+  belongs in the code.
 
 ## Memory
 

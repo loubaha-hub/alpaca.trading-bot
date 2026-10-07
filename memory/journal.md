@@ -14,6 +14,10 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   on, the buy order, the position, the sell order, the account and process,
   the session and the stock); the owner reads it before any code. Added to
   CLAUDE.md's standing rules.
+- The owner, right after: "losses due to the randomness of the market or
+  unpredictable things - that's fine; things we already know well and can
+  predict should be in the code." Every audited loss gets tagged market or
+  code/process; each code/process loss gets a fix.
 - Today's foreseeable holes, for the record: a buy-side cancel rule applied
   to market sells; a gain measured from a stale print; two processes trading
   during a release; a position sold by one process still held by the other;
