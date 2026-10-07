@@ -1514,3 +1514,35 @@ def test_biya_413_the_trend_reads_the_live_price(v37, clock):
         assert not e12 > e26                              # as it was: MACD -0.0002
     finally:
         bot.V36_TREND_LIVE = bot_live
+
+
+def test_a_furious_buy_is_one_order_to_the_ceiling(v37, clock, now, monkeypatch, broker):
+    """The owner, 10-07: "if the price escaped, one above it immediately". One
+    order priced at the ceiling - the breakout level + 20% - takes the best ask."""
+    monkeypatch.setattr(bot, "V37_ACCEL", True)
+    monkeypatch.setattr(v37, "real_speed", lambda s, p: 0.40)
+    s = v37.st("BIYA")
+    v37.qualified.add("BIYA")
+    candles(s, STAIRS)
+    s.day_high = old_high = round(s.bars[-1].h * 1.22, 2)
+    price = round(s.day_high + 0.03, 2)
+    prints(v37, s, now, s.bars[-1].h, price, size=30_000)
+    tick(v37, s, now, price)
+    assert s.in_position
+    buys = broker.buys("BIYA")
+    assert len(buys) == 1 and buys[0][3] == round(old_high * 1.20, 2)
+    assert s.stop < s.entry                               # the stop is under the fill
+
+
+def test_a_sweep_never_buys_under_the_high_or_past_the_ceiling(v31, broker, data, monkeypatch):
+    async def ask(symbol, side):
+        return ask.px
+    monkeypatch.setattr(data, "quote", ask)
+    for ask.px, got in ((3.09, 0), (3.80, 0), (3.30, 1000)):
+        broker.orders.clear()
+        n = run(v31.buy("BIYA", 1000, 3.12, 3.72 / 3.12 - 1, floor=3.10, sweep=True))
+        assert n == got
+        assert len(broker.orders) == (1 if got else 0)
+        if got:
+            assert broker.orders[0][3] == 3.72
+        broker.held.clear(); broker.cost.clear()
