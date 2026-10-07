@@ -5,6 +5,14 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-07
 
+### The owner's decision, ~10:55am: after an add, the floor moves to the new average
+- Proposal "keep the floor at what the starter paid" REJECTED by the owner:
+  "when you buy higher the position is bigger - if we don't get out before
+  that floor is breached we incur big losses. The floor should be adjusted
+  to the add-on." So V36_FLOOR_AVG stays True (as live). The add problem
+  (sold seconds after the add) is to be solved another way: the add waits
+  for the new high to hold, and/or smaller adds - to discuss.
+
 ### The owner, ~10:45am: the rules must be re-checked while the order works
 - On WETO (the high-of-day rule checked once, at the decision, never while
   the buy reloaded for 6s): "once you put the order, that has to be
