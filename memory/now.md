@@ -5,9 +5,14 @@ Updated 2026-10-06, 10:30pm ET.
 ## Code
 - Working branch: `claude/zealous-ramanujan-br3gay`. New work goes here;
   nothing goes to `main` without the owner's OK.
-- Live on `main` (Render): VERSION v31-r34.12 (released 8:07pm ET 10-06 at
-  the owner's OK, all three accounts flat; up 8:08pm). r34.11 was 3:46pm.
-  Accounts: T6HH runs v36, P28T ("V30-100k") runs v37, AUES runs v35.
+- Live on `main` (Render): VERSION v31-r34.13 (released 10:18pm ET 10-06
+  at the owner's OK, all three accounts flat; up 10:19pm: "v36, v37,
+  v36b", no errors). r34.12 was 8:07pm.
+  Accounts: T6HH runs v36, P28T ("V30-100k") runs v37, AUES runs v36b.
+- r34.13: v36b = v36 with the 60% wick veto, the 3% first-stop cap and
+  fresh exits, on AUES in place of v35 (the owner: v36 on two accounts side
+  by side). T6HH's v36 unchanged - the three settings are per strategy now
+  (V36.own). Logs say [v36b]; SLOT_V35=v35 brings v35 back.
 - r34.12: v36's adds go right after a runner (a miss retries on the next new
   high, the limit from the ask, may pay half the minute's move when
   ripping). v36's score / first-two-buys / wick veto / stop cap / fresh
@@ -32,14 +37,6 @@ Updated 2026-10-06, 10:30pm ET.
   >= 70% of its busiest recent minute; stop a third of the last minute's
   move (3-8%). Off: "half the gain" after +3% (hurt in every replay), the
   faster-price exception to the 70% floor.
-- On the branch, waiting for the owner's OK to release (r34.13): v36b =
-  v36 with the 60% wick veto, the 3% first-stop cap and fresh exits, on
-  AUES in place of v35 (the owner, 10-06 night: "v36 on two accounts - the
-  one already trading and the one with ~$6,000, that one with r34.13").
-  T6HH's v36 is unchanged. The three settings are now per strategy
-  (V36.own); logs say [v36b]; SLOT_V35=v35 brings v35 back. Release copy
-  built in scratchpad/release10 (475 tests pass). v35's last day on AUES,
-  10-06: 5 trades, 0 won, -$74 (-1.0%), $7,061 -> $6,987.
 - On the branch only: `watchman.py` (until the real-money account).
 - Release builds are made in a separate git worktree from `origin/main`.
 
@@ -63,17 +60,19 @@ Updated 2026-10-06, 10:30pm ET.
   minute's move when ripping. Out: stop under the pullback/breakout low; the
   average after an add, 10s short leash; trail after +10%. Score and
   first-two-buys rule OFF.
+- v36b (AUES), r34.13: v36 exactly as above, plus no buy under a candle
+  that is 60%+ top wick, the first stop no more than 3% under the trigger,
+  and stops / the trail only on prints under 2s old.
 - Watch: v37's scores vs results, its couple of runs paying for the cuts;
   v36's adds filling on a rip, and its share of stop-outs (93% in replay).
 
 ## Waiting on the owner
 0. v37 speed rule (0.1+): held off by the owner until "up 3%" has a big
    enough live sample; the branch logs the speed on every buy (not live yet).
-0a. v36 r34.13 candidate (3% first-stop cap + 60% wick veto + fresh exits),
-   replayed 7 days: +$2,272 / -$78 at fills 0.2% / 1% worse vs r34.12's
-   +$1,540 / -$985. The owner: T6HH keeps r34.12 on 10-07; r34.13 runs
-   side by side as v36b on AUES once released (compare in % of account -
-   AUES is ~$7,000, T6HH ~$18,200).
+0a. v36 (T6HH) vs v36b (AUES) side by side from 10-07: compare in % of
+   the account (AUES ~$7,000, T6HH ~$18,200), trade counts, starters that
+   never add, stop sizes. Replay: v36b +$2,272 / -$78 at fills 0.2% / 1%
+   worse vs v36's +$1,540 / -$985. Live outranks it.
 0b. Watch v37 on score 12 live: trades, win rate, the score and speed of
    each buy (ENTER lines); compare with the replay (75% won at 0.2%).
 1. "Half the gain" on tiny gains (25 of today's exits under 1%): the owner

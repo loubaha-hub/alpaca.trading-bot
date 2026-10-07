@@ -5,6 +5,20 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-06
 
+### v36 on two accounts: r34.13 released (v36b on AUES)
+- The owner, ~10pm: run v36 on two accounts side by side - T6HH as it is
+  (r34.12), the ~$7,000 account (AUES) with r34.13's three changes - and
+  stop what ran there (v35: 10-06 5 trades, 0 won, -$74, -1.0%). "Release
+  r34.13 so they can run in parallel and see how they stack up."
+- Built as v36b (V36B in r34.py): wick veto 60%, first stop capped at 3%,
+  fresh exits. The settings were module globals shared by every strategy;
+  now read per strategy (V36.own), so T6HH's v36 does not change. Replayed
+  09-28..10-06 with the new code: v36b = the r34.13 numbers to the dollar,
+  v36 = r34.12's (+$2,272 / -$78 vs +$1,540 / -$985 at fills 0.2% / 1%).
+- Released 10:18pm ET (the owner's OK), all three accounts flat; up
+  10:19pm, v36b on AUES, no errors. Compare
+  the two by % of the account: AUES ~$7,000, T6HH ~$18,200.
+
 ### v36 retest: what helps it (7 days incl. 10-06, tape check off)
 - Where v36 loses (replay): 84 of 153 trades never reached the first add,
   -$1,718, stopped at a median -4.6% (the pullback's low, up to 9% away);
