@@ -3914,7 +3914,8 @@ V36_CHASE_MAX = 0.05            # no buy more than this over the trigger: the mo
 V36_RUNNER_HALF = False         # after an add: out on giving back half the gain since
                                 # the starter, in place of the floor at the average
                                 # and the 10-second leash
-V36_REENTRY_SPEED = 0.0         # >0: a re-entry needs the owner's speed this high
+V36_REENTRY_SPEED = 0.1         # >0: a re-entry needs the owner's speed this high
+                                # (replayed on v36b: +$1,779 / +$519 vs +$1,037 / -$692)
 V36_FLOOR_AVG = True            # after an add, the floor rises to: True = the
                                 # position's average (breakeven), False = what the
                                 # starter paid. Replayed 09-28..10-05: average
@@ -3935,7 +3936,7 @@ V36_CONFIRM_TOLERANCE = 0.01    # the ask may sit this far under the trigger
 # first date up to the second (ET, the second not included) into the log, in
 # the background - v27 (T6HH) from 09-24, v24 (AUES) and v30 (P28T) from
 # 09-25. () = off.
-HISTORY_DUMP = ("2026-09-24", "2026-10-01")
+HISTORY_DUMP = ()               # read 10-07 (r34.14); off
 HISTORY_PAGES = 40              # 500 orders a page
 HISTORY_PER_LINE = 25           # fills per log line
 
@@ -4923,8 +4924,8 @@ ACCEL_VOL_STEP = 2.0
 ACCEL_VOL_NORMAL = 3.0
 ACCEL_SPEED = 0.15
 ACCEL_DOLLARS = 250_000
-V36_ACCEL = False               # v36/v36b: an acceleration counts as the crowd
-V37_ACCEL = False               # v37: buy it over the last minute's high...
+V36_ACCEL = True                # v36/v36b: an acceleration counts as the crowd
+V37_ACCEL = True                # v37: buy it over the last minute's high...
 # The owner, 10-07: "the position has to get bigger, faster - more than half of
 # the account in the next few seconds, 60-70%; I would have used the whole
 # account. You see this once a month or two; it pays for the months."

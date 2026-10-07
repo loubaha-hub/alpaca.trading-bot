@@ -373,7 +373,8 @@ def test_the_high_of_the_day_break_needs_the_volume_to_pick_up(v36, clock):
 
 # ---- every re-entry starts small again ---------------------------------------------
 
-def test_a_re_entry_starts_small_and_adds_again(v36, clock, broker):
+def test_a_re_entry_starts_small_and_adds_again(v36, clock, broker, monkeypatch):
+    monkeypatch.setattr(bot, "V36_REENTRY_SPEED", 0.0)    # the speed has its own test
     s = bought(v36, clock)
     tick(v36, s, round(s.v36_first * 1.031, 2))
     assert s.v36_adds == 1
@@ -387,6 +388,18 @@ def test_a_re_entry_starts_small_and_adds_again(v36, clock, broker):
     assert s.v36_entries == 2 and s.v36_adds == 0
     assert s.shares * s.entry == pytest.approx(
         broker.eq * bot.V36_POSITION_PCT * bot.V36_STARTER, rel=0.1)
+
+
+@pytest.mark.parametrize("speed, buys", [(0.05, False), (0.15, True)])
+def test_a_re_entry_needs_the_speed(v36, clock, monkeypatch, speed, buys):
+    """10-07: "the speed is not respected" - a re-entry needs the owner's speed."""
+    s = bought(v36, clock)
+    run(v36.exit(s, "test"))
+    later(v36, clock, s, [(10.80, 11.30, 10.79, 11.25, 300_000),
+                          (11.25, 11.90, 11.24, 11.85, 400_000)])
+    monkeypatch.setattr(v36, "real_speed", lambda s, p: speed)
+    tick(v36, s, round(s.hod_closed + bot.V36_HOD_PLUS + 0.01, 2))
+    assert entered(v36, s) == buys
 
 
 def test_one_buy_a_minute_still_holds_after_400_candles(v36, clock):
@@ -670,6 +683,7 @@ def test_the_leader_making_a_new_high_is_not_capped(v36, clock, monkeypatch,
     """LPCN 7:21-7:35: "NO: 6 buys today" every minute while the #1 name ran
     through $3.50 to $3.99. False = as it was."""
     monkeypatch.setattr(bot, "V36_LEADER_NO_CAP", no_cap)
+    monkeypatch.setattr(bot, "V36_REENTRY_SPEED", 0.0)    # the speed has its own test
     s = ripping(v36, clock)
     s.v36_entries = bot.V36_MAX_ENTRIES
     tick(v36, s, round(s.hod_closed + bot.V36_HOD_PLUS + 0.12, 2))   # clear of $10.50
@@ -724,7 +738,7 @@ def test_the_10_07_rules_are_on():
     assert bot.V36_SETUP_BUYS == 1 and bot.V36_HOD_PLUS == 0.05
     assert bot.V36_LEADER_NO_CAP and bot.V36_FAILED_RIP and bot.V36_PULLBACK_VOL == 1.0
     assert bot.V36_LEVELS and bot.V36_LEVEL_PAST == 0.05
-    assert not bot.V36_RUNNER_HALF and not bot.V36_REENTRY_SPEED   # to replay first
+    assert not bot.V36_RUNNER_HALF and bot.V36_REENTRY_SPEED == 0.1
 
 
 @pytest.mark.parametrize("chase, buys", [(0.05, False), (0.0, True)])
@@ -738,7 +752,8 @@ def test_no_buy_far_over_the_trigger(v36, clock, monkeypatch, chase, buys):
 
 
 def test_an_acceleration_counts_as_the_crowd(v36, clock, monkeypatch):
-    """Proposed 10-07 (off): SXTC 8:15 - "NO CROWD" at the #1 gainer with $800k."""
+    """10-07: SXTC 8:15 - "NO CROWD" at the #1 gainer with $800k."""
+    monkeypatch.setattr(bot, "V36_ACCEL", False)          # as it was
     s = v36.st("SXTC")
     t = bot.datetime(2026, 10, 7, 12, 0, tzinfo=bot.timezone.utc)
     s.bars = [bot.Bar(t, 10.0, 10.02, 9.98, 10.0, 1_000) for _ in range(30)]

@@ -1085,8 +1085,8 @@ def test_september_history_goes_to_the_log_by_day(v37, broker, caplog, monkeypat
     assert not any("OLD" in x for x in lines)
 
 
-def test_the_history_dump_is_read_only_and_dated():
-    assert bot.HISTORY_DUMP == ("2026-09-24", "2026-10-01")
+def test_the_history_dump_is_off_once_read():
+    assert bot.HISTORY_DUMP == ()
 
 
 # ---- proposed 2026-10-06 (off): the signs weighed, not pass/fail -------------------
@@ -1381,5 +1381,7 @@ def test_a_spike_keeps_two_thirds_of_its_gain(v37, clock, now, monkeypatch):
     assert not s.in_position and v37.closed_today[-1][5] == "giveback"
 
 
-def test_the_acceleration_is_off_until_replayed():
-    assert not bot.V37_ACCEL and not bot.V36_ACCEL
+def test_the_acceleration_is_on():
+    """The owner, 10-07 9:40am: "those fixes have to be implemented right away"."""
+    assert bot.V37_ACCEL and bot.V36_ACCEL
+    assert bot.V37_ACCEL_SIZE[-1] == (0.30, 0.35) and bot.V37_ACCEL_MAX_PCT == 0.65
