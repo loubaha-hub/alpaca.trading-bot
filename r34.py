@@ -125,7 +125,7 @@ RISK_CHECK_SECONDS = 5                      # the halt runs on a CLOCK, not tick
 # The file name and this string are changed together, every single time. The
 # log then answers "which code is actually running?" without anyone guessing
 # from line numbers or from behaviour that only shows up once a trade is on.
-VERSION = "v31-r34.14"
+VERSION = "v31-r34.15"
 
 # WHERE THE DAY'S HALT BASELINE COMES FROM.
 #   "last_equity" - equity at the PREVIOUS session's close, read from the broker.
@@ -1456,7 +1456,8 @@ class Strategy:
                # keeps growing past that, as v35's does.
                "v36": V35_MAX_POSITION_PCT,
                "v36b": V35_MAX_POSITION_PCT,
-               "v37": 0.60}.get(self.name, MAX_POSITION_PCT)   # 40%, grown by a run
+               "v37": max(0.60, V37_ACCEL_MAX_PCT + 0.10)}.get(
+                   self.name, MAX_POSITION_PCT)   # 40% (65% furious), grown by a run
         total_value = 0.0
         for s in self.open_positions():
             price = s.last_price or s.entry
@@ -3868,7 +3869,9 @@ V36_SCORE_MIN = 0               # 0 = off; else the points needed (of 15)
 # after it has slept for hours). After that: only the high of the day plus 5
 # cents, jump right at it - if the moment scores (V36_SCORE_MIN). "I don't
 # want it to run into a ceiling that is just the high of the day."
-V36_SETUP_BUYS = 0              # >0: candle setups only for this many buys of a
+# 10-07 (the owner, SPAI 8:13 re-entry @ $4.99 under the $5.10 high, LPCN 7:18
+# @ $3.42 under $3.50): "a re-entry has to go past the high of the day".
+V36_SETUP_BUYS = 1              # >0: candle setups only for this many buys of a
                                 # stock a day; after that the high of the day only
 V36_HOD_PLUS = 0.05             # ...plus this over the highest closed minute
 V36_SLEEP_MIN = 120             # a stock with no new high this long: setups again
@@ -3883,6 +3886,36 @@ V36_MAX_STOP = 0.0              # >0: the first stop no further than this under
                                 # the trigger (the pullback's low was up to 9% away)
 V36_FRESH_EXITS = False         # stops and the trail decide only on prints under
                                 # V37_FRESH_SECONDS old (as v37 since r34.8)
+# 10-07 live, the owner reading the charts:
+# - LPCN 7:21-7:35: through $3.50 to $3.99 as the #1 name ($8-16M per 5 min),
+#   both v36s logged "NO: 6 buys today" every minute - the six spent on whipsaws.
+# - SPAI 8:09: "rip then red pullback" bought - but the red fell $4.92 -> $4.41,
+#   under the green's open $4.58: the rip erased, not a pullback.
+# - BIYA 4:20 (add @ $2.51), LPCN 7:18 ($3.42), SPAI 8:12 (add @ $5.08): buys at
+#   a whole / half dollar - "natural resistance; wait for it to cross, about 5
+#   cents, and hold a moment".
+V36_LEADER_NO_CAP = True        # the #1/#2 name making a new high of the day is not
+                                # held to V36_MAX_ENTRIES
+V36_FAILED_RIP = True           # a red "pullback" under the rip candle's open is a
+                                # failed rip: no buy on it
+V36_PULLBACK_VOL = 1.0          # >0: a red of the pullback trading this share of the
+                                # green's volume or more is no light pullback (0 = off)
+V36_LEVELS = True               # no buy or add from V36_LEVEL_BELOW under a $x.00 or
+V36_LEVEL_BELOW = 0.03          # $x.50 level to V36_LEVEL_PAST over it - and past it,
+V36_LEVEL_PAST = 0.05           # only once the price has stayed past that long
+V36_LEVEL_HOLD_SEC = 3.0
+# To judge in the replay (the owner: "once it runs, don't cut it until it has
+# given back half of its gain"; "the speed was not respected"):
+# SXTC 8:17: both v36s bought @ $4.83 / $4.78 on a new-high trigger of $2.77 -
+# 74% over it, after the spike - v36's stop $2.21 (54% away), v36b's 3% cap,
+# taken from the trigger, $2.69 (44% away).
+V36_CHASE_MAX = 0.05            # no buy more than this over the trigger: the move
+                                # already happened (0 = off, as before)
+V36_RUNNER_HALF = False         # after an add: out on giving back half the gain since
+                                # the starter, in place of the floor at the average
+                                # and the 10-second leash
+V36_REENTRY_SPEED = 0.1         # >0: a re-entry needs the owner's speed this high
+                                # (replayed on v36b: +$1,779 / +$519 vs +$1,037 / -$692)
 V36_FLOOR_AVG = True            # after an add, the floor rises to: True = the
                                 # position's average (breakeven), False = what the
                                 # starter paid. Replayed 09-28..10-05: average
@@ -3903,7 +3936,7 @@ V36_CONFIRM_TOLERANCE = 0.01    # the ask may sit this far under the trigger
 # first date up to the second (ET, the second not included) into the log, in
 # the background - v27 (T6HH) from 09-24, v24 (AUES) and v30 (P28T) from
 # 09-25. () = off.
-HISTORY_DUMP = ("2026-09-24", "2026-10-01")
+HISTORY_DUMP = ()               # read 10-07 (r34.14); off
 HISTORY_PAGES = 40              # 500 orders a page
 HISTORY_PER_LINE = 25           # fills per log line
 
@@ -4040,6 +4073,64 @@ class _Momentum:
         so far - a true rip (XHG 9:39am 10-06: 2.4M shares after 1.9M)."""
         vols = [b.v for b in s.bars]
         return bool(vols) and self.pace(s) > max(vols)
+
+    def accelerating(self, s) -> float:
+        """The owner's speed of the last closed minute when the minutes before
+        a run are accelerating (ACCEL_*), else 0.0."""
+        bars = s.bars
+        n = ACCEL_BARS
+        if len(bars) < n + 10:
+            return 0.0
+        for k in range(len(bars) - n, len(bars)):
+            b, prev = bars[k], bars[k - 1]
+            rng = b.h - b.l
+            if (not b.green or rng <= 0 or b.h - b.c > ACCEL_TOP * rng
+                    or b.c <= prev.c or b.v <= prev.v):
+                return 0.0
+        a, b = bars[-2], bars[-1]
+        if b.v < ACCEL_VOL_STEP * a.v or b.c * b.v < ACCEL_DOLLARS:
+            return 0.0
+        normal = statistics.median(x.v for x in bars[-30:-n])
+        if normal <= 0 or b.v < ACCEL_VOL_NORMAL * normal:
+            return 0.0
+        speed = (b.c / a.c - 1) * (b.v / a.v)
+        return speed if speed >= ACCEL_SPEED else 0.0
+
+    def rip_exception(self, s, price) -> bool:
+        """Ripping, and fast enough to skip the score: the owner's speed at
+        V37_RIP_SPEED or more (LPCN 6:33am 10-07 "ripped" at speed 0.07)."""
+        if not self.ripping(s):
+            return False
+        return not V37_RIP_SPEED or self.real_speed(s, price) >= V37_RIP_SPEED
+
+    def live_quote(self, s):
+        """(bid, ask) of the streamed quote while under V37_QUOTE_AGE old."""
+        q = s.quote
+        if not q or len(q) < 3 or time.time() - q[2] > V37_QUOTE_AGE:
+            return None
+        return q[0], q[1]
+
+    def off_quote(self, s, price) -> bool:
+        """V37_PRINT_CHECK: the print is not the market - outside the live
+        bid-ask by more than the tolerance. No live quote: it cannot say."""
+        if not V37_PRINT_CHECK:
+            return False
+        q = self.live_quote(s)
+        if not q:
+            return False
+        bid, ask = q
+        tol = max(V37_PRINT_TOL_CENTS, V37_PRINT_TOL_PCT * price)
+        return price > ask + tol or price < bid - tol
+
+    def note_off_quote(self, s, price):
+        last = getattr(self, "_off_quote_logged", None)
+        if last is None:
+            last = self._off_quote_logged = {}
+        if time.time() - last.get(s.symbol, 0.0) >= 30:
+            last[s.symbol] = time.time()
+            bid, ask = self.live_quote(s) or (0.0, 0.0)
+            self.log.info("[%s] IGNORED %s print %.4f - the market is %.4f x %.4f "
+                          "(decides nothing)", self.name, s.symbol, price, bid, ask)
 
     def score(self, s, price, pullback=False):
         """V37_SCORE_MIN: how favourable the moment is, out of 15 points, and
@@ -4221,6 +4312,8 @@ class V36(_Restore, _Momentum, V35):
         gainer with real money trading - either will do."""
         if self.top_gainer(s):
             return True
+        if V36_ACCEL and self.accelerating(s):
+            return True                         # SXTC 8:16: no need to wait for the crowd
         if self.crowd_rank(s.symbol) > V36_CROWD_TOP:
             return False
         if V36_RIP_SKIPS_HOLD and self.ripping_now(s):
@@ -4329,6 +4422,10 @@ class V36(_Restore, _Momentum, V35):
         if i < j or not bars[i].green:
             return None
         reds = bars[i + 1:]
+        if V36_FAILED_RIP and min(b.l for b in reds) < bars[j].o:
+            return None                         # the rip erased: a failed rip
+        if V36_PULLBACK_VOL and max(b.v for b in reds) >= V36_PULLBACK_VOL * bars[i].v:
+            return None                         # selling, not a light pullback
         return reds[-1].o + V31_ENTRY_TICK, min(b.l for b in reds), "setup"
 
     def breaking_high(self, s, price):
@@ -4349,6 +4446,26 @@ class V36(_Restore, _Momentum, V35):
             return None                         # the volume has to pick up
         level = max(s.hod_closed, s.v35_peak) + margin_for(price)
         return level, b.l, "hod"
+
+    def leader_new_high(self, s, price) -> bool:
+        """V36_LEADER_NO_CAP: the #1/#2 name making a new high of the day."""
+        return (V36_LEADER_NO_CAP and self.crowd_rank(s.symbol) <= V36_CROWD_TOP
+                and bool(s.hod_closed) and price > s.hod_closed)
+
+    def at_level(self, s, price) -> bool:
+        """V36_LEVELS: at a whole or half dollar - from V36_LEVEL_BELOW under it
+        to V36_LEVEL_PAST over it - or past it for less than V36_LEVEL_HOLD_SEC."""
+        if not V36_LEVELS:
+            return False
+        level = int((price + V36_LEVEL_BELOW) * 2 + 1e-9) / 2.0
+        if level <= 0:
+            return False
+        if price < level + V36_LEVEL_PAST - 1e-9:
+            s.v36_level_band = (level, time.time())     # at it: when, last
+            return True
+        band = getattr(s, "v36_level_band", None)       # just crossed: hold a moment
+        return bool(band and band[0] == level
+                    and time.time() - band[1] < V36_LEVEL_HOLD_SEC)
 
     def candles_allowed(self, s) -> bool:
         """V36_SETUP_BUYS: the candle setups for the first buys of a stock, or
@@ -4411,7 +4528,7 @@ class V36(_Restore, _Momentum, V35):
         if len(self.open_positions()) >= V36_MAX_POSITIONS:
             self.why_not(s, price, "NO: %d positions open" % len(self.open_positions()))
             return
-        if s.v36_entries >= V36_MAX_ENTRIES:
+        if s.v36_entries >= V36_MAX_ENTRIES and not self.leader_new_high(s, price):
             self.why_not(s, price, "NO: %d buys today" % s.v36_entries)
             return
         if (s.v36_entry_bar_ts is not None and s.bars
@@ -4441,6 +4558,21 @@ class V36(_Restore, _Momentum, V35):
             self.why_not(s, price, "WAIT: %s trigger %.4f" % (found[2], found[0]))
             return
         trigger, stop_ref, kind = found
+        if V36_CHASE_MAX and price > trigger * (1 + V36_CHASE_MAX):
+            self.why_not(s, price, "NO: %.4f is %.0f%% over the trigger %.4f - the move "
+                         "already happened" % (price, 100 * (price / trigger - 1), trigger),
+                         urgent=True)
+            return
+        if self.at_level(s, price):
+            self.why_not(s, price, "NO: at the $%.2f level - wait till it holds %.0fc "
+                         "past" % (int((price + V36_LEVEL_BELOW) * 2 + 1e-9) / 2.0,
+                                   100 * V36_LEVEL_PAST), urgent=True)
+            return
+        if (V36_REENTRY_SPEED and s.v36_entries >= 1
+                and self.real_speed(s, price) < V36_REENTRY_SPEED):
+            self.why_not(s, price, "NO SPEED for a re-entry: %.2f under %.2f" % (
+                self.real_speed(s, price), V36_REENTRY_SPEED), urgent=True)
+            return
         veto = self.own("WICK_VETO")
         if veto and s.bars:
             b = s.bars[-1]
@@ -4450,8 +4582,8 @@ class V36(_Restore, _Momentum, V35):
                 self.why_not(s, price, "NO: a %.0f%% top wick on the last candle - sellers "
                              "rejected the high" % (100 * wick), urgent=True)
                 return
-        if self.own("MAX_STOP"):
-            stop_ref = max(stop_ref, trigger * (1 - self.own("MAX_STOP")))
+        if self.own("MAX_STOP"):                # under what it pays, not an old trigger
+            stop_ref = max(stop_ref, max(trigger, price) * (1 - self.own("MAX_STOP")))
         if not self.trend_ok(s, price) or not s.ema12 > s.ema26:
             self.why_not(s, price, "NO TREND at the trigger %.4f: vwap %.4f e9 %.4f e20 "
                          "%.4f macd %+.4f" % (trigger, self.vwap(s), s.ema9, s.ema20,
@@ -4545,7 +4677,8 @@ class V36(_Restore, _Momentum, V35):
             if filled:
                 s.shares += filled
                 s.entry = await self.broker.avg_entry(s.symbol) or s.entry
-                s.stop = max(s.stop, s.entry if V36_FLOOR_AVG else s.v36_first)
+                if not V36_RUNNER_HALF:
+                    s.stop = max(s.stop, s.entry if V36_FLOOR_AVG else s.v36_first)
                 s.ten_break = False
                 s.v36_leash_from = time.time()
                 self.log.info("[v36] %s ADD to %.0f%% of a full position: +%d @ "
@@ -4593,6 +4726,9 @@ class V36(_Restore, _Momentum, V35):
             if s.in_position:
                 await self.exit(s, "halted")
             return
+        if self.off_quote(s, price):
+            self.note_off_quote(s, price)       # not the market: decides nothing
+            return
         if not s.in_position:
             await self.maybe_enter(s, price, self.fast_speed(s), self.baseline(s))
             return
@@ -4614,13 +4750,19 @@ class V36(_Restore, _Momentum, V35):
             if price <= s.trail_stop:
                 await self.exit(s, "trail")
                 return
+        elif V36_RUNNER_HALF and s.v36_adds:
+            if (s.peak > s.v36_first
+                    and price <= s.v36_first + 0.5 * (s.peak - s.v36_first)):
+                await self.exit(s, "half")      # half the run given back
+                return
         elif s.ten_break and s.v36_adds:
             await self.exit(s, "10s")
             return
         steps = self.add_steps()
         if (s.v36_adds < len(steps) and s.v36_first and new_high
                 and time.time() - s.v36_add_try_ts >= V36_ADD_RETRY_SEC):
-            if price >= self.add_level(s, s.v36_adds) and self.tape_ok(s):
+            if (price >= self.add_level(s, s.v36_adds) and self.tape_ok(s)
+                    and not self.at_level(s, price)):
                 await self.add_step(s, price, steps[s.v36_adds][1])
 
 
@@ -4700,6 +4842,22 @@ V37_STOP_MAX = 0.08             # ...nor more than this; after an add, the same
                                 # distance under the new average
 V37_GIVEBACK_ARM = 0.0          # "half the gain" only once the best gain reached
                                 # this (0 = from the first cent, as before)
+# 10-07 (the owner: "from the first cent"). SPAI 8:10:00: bought @ $4.8053,
+# best price $4.81 - half a cent - sold one second later by "half the gain"
+# @ $4.69 while the stop ($4.59, under the red candle) was nowhere near; the
+# next candle closed $4.93. Half a cent is not a gain.
+V37_GIVEBACK_ARM_CENTS = 0.01   # "half the gain" only once the best gain is a
+                                # full cent or more (0 = any fraction, as before)
+# 10-07: the bots acted on single prints that were not the market. BIYA
+# 4:13:55: sold by "half the gain" on a $2.64 print (1.1s old) while it traded
+# $2.73. SPAI 8:09:58: bought "above the high" on a $5.05 print while the
+# market was ~$4.78 (Webull's 8:09 high $5.02; it filled $4.81).
+V37_PRINT_CHECK = True          # a print outside the live bid-ask by more than
+V37_PRINT_TOL_CENTS = 0.02      # this, or this share of the price (whichever is
+V37_PRINT_TOL_PCT = 0.005       # larger), decides nothing - buy, add or sell
+V37_QUOTE_AGE = 2.0             # a streamed quote older than this is not "live"
+V37_CONFIRM_ASK = True          # a buy needs the ask itself above the old high
+V37_GIVEBACK_BID = True         # "half the gain" needs the bid under the line too
 # PROPOSED 2026-10-06, off until the owner decides. All 6 v37 trades from
 # 9:02 to 11:40am were sold by "half the gain" 4-13 seconds after the buy,
 # on a gain of 1-8c - noise right after the buy. A grace: for this many
@@ -4744,6 +4902,44 @@ V37_SPEED_MOVE_MIN = 0.03       # the speed counts (its points, the furious over
                                 # up this much in the last minute - the owner: huge
                                 # volume on a flat price is selling met by buying,
                                 # not a run ("I would wait for a confirmation")
+# 10-07: "ripping" (the last 60s out-traded every minute so far) skipped the
+# score - and the red-candle no-buy with it. LPCN 6:33am: score 9, speed 0.07,
+# early-premarket minutes small; LPCN 7:00 and SPAI 8:09:58 bought with the
+# last candle red ("score None"). The owner: the exception is for the furious.
+V37_RIP_SPEED = 0.3             # ripping skips the score only at this speed or
+                                # more (0 = any ripping, as before)
+V37_RIP_NO_RED = True           # a red last candle or a huge wick is no buy, ripping
+                                # or not (False = ripping skipped it, as before)
+# PROPOSED 10-07, off until replayed - SXTC (the owner: "a move like that should
+# not be missed; this is where the money is"): 8:13 +3% on 38k, 8:14 +6.6% on
+# 114k (3x), 8:15 +8% on 261k (2.3x), each closing at its high, the #1 gainer -
+# then 8:16 $2.44 -> $7.12. Every bot waited for the crowd rules ($1M, top 2).
+# THE ACCELERATION: green minutes in a row, each closing higher in its top third
+# on rising volume; the last on ACCEL_VOL_STEP x the one before and
+# ACCEL_VOL_NORMAL x the stock's normal minute, the owner's speed over
+# ACCEL_SPEED on ACCEL_DOLLARS - a candidate whatever the crowd says.
+ACCEL_BARS = 2
+ACCEL_TOP = 1 / 3
+ACCEL_VOL_STEP = 2.0
+ACCEL_VOL_NORMAL = 3.0
+ACCEL_SPEED = 0.15
+ACCEL_DOLLARS = 250_000
+V36_ACCEL = True                # v36/v36b: an acceleration counts as the crowd
+V37_ACCEL = True                # v37: buy it over the last minute's high...
+# The owner, 10-07: "the position has to get bigger, faster - more than half of
+# the account in the next few seconds, 60-70%; I would have used the whole
+# account. You see this once a month or two; it pays for the months."
+V37_ACCEL_SIZE = ((0.15, 0.04), (0.20, 0.10), (0.30, 0.35))   # ...the first buy, a
+                                # share of the ACCOUNT by the speed...
+V37_ACCEL_MAX_PCT = 0.65        # ...still furious on a new high 2% over the buy:
+V37_ACCEL_ADD_AT = 0.02         # up to this share of the account in one add
+V37_FURIOUS_SPEED = 0.30        # the owner's speed this high on ACCEL_DOLLARS in the
+                                # last minute: a buy whatever the crowd, the money
+                                # rules or the score ("the speed overrides
+                                # everything") - not over a red candle, never on a
+                                # print the quote does not back
+V37_SPIKE_AT = 0.30             # an acceleration buy up this much: out on giving
+V37_SPIKE_GIVEBACK = 1 / 3      # back this share of the gain (spikes collapse fast)
 V37_SCORE_FURIOUS = 0.0         # >0: a speed this high buys whatever the score (the
                                 # owner: "the speed is everything" - never miss the
                                 # furious ones); 0 = off
@@ -5056,24 +5252,43 @@ class V37(V36):
         if not self.confirmed(s):
             return                              # a re-buy, or out of a sideways stretch:
                                                 # not confirmed above the old high yet
+        accel = self.accelerating(s) if V37_ACCEL else 0.0
+        if V37_ACCEL and not accel and self.furious(s, price):
+            accel = self.real_speed(s, price)   # the speed overrides the crowd rules
+        if accel and s.bars and price > s.bars[-1].h:
+            return await self.accel_buy(s, price, accel)
         if not self.in_the_crowd(s) or not self.flying(s, price):
             return
         if not self.volume_ok(s):
             return                              # flying means the volume is rising
         why = self.not_running(s)
-        if (not why and V37_SCORE_MIN and not self.ripping(s)
+        rip = self.rip_exception(s, price)
+        if (not why and V37_SCORE_MIN
+                and not (rip and not V37_RIP_NO_RED)
                 and not (V37_SCORE_FURIOUS
                          and self.real_speed(s, price) >= V37_SCORE_FURIOUS)):
             points, parts = self.score(s, price)
-            if points is None or points < V37_SCORE_MIN:
-                why = "score %s/15 under %d: %s" % (points, V37_SCORE_MIN, parts) \
-                    if points is not None else parts
+            if points is None:
+                why = parts                     # a red last candle or a huge wick:
+                                                # no buy, ripping or not
+            elif points < V37_SCORE_MIN and not rip:
+                why = "score %s/15 under %d: %s" % (points, V37_SCORE_MIN, parts)
         if why:                                 # it spiked, it is not running
             if time.time() - s.v37_skip_logged >= 30:
                 s.v37_skip_logged = time.time()
                 self.log.info("[v37] SKIP %s at %.4f - not running: %s",
                               s.symbol, price, why)
             return
+        if V37_CONFIRM_ASK:                     # the market, not one print
+            q = self.live_quote(s)
+            ask = q[1] if q else await self.data.quote(s.symbol, "ask")
+            if ask is not None and ask <= s.day_high:
+                if time.time() - s.v37_skip_logged >= 30:
+                    s.v37_skip_logged = time.time()
+                    self.log.info("[v37] SKIP %s at %.4f - the ask %.4f is not above "
+                                  "the high %.4f: that print was not the market",
+                                  s.symbol, price, ask, s.day_high)
+                return
         lock = self.lock(s.symbol)
         if lock.locked():
             return
@@ -5082,16 +5297,50 @@ class V37(V36):
                 return
             await self.v37_buy(s, price)
 
-    async def v37_buy(self, s, price):
+    def furious(self, s, price) -> bool:
+        """V37_FURIOUS_SPEED on real money in the last minute, the last candle
+        not red."""
+        if self.real_speed(s, price) < V37_FURIOUS_SPEED:
+            return False
+        if sum(x[1] * x[2] for x in s.v37_prints) < ACCEL_DOLLARS:
+            return False
+        return bool(s.bars) and not s.bars[-1].red
+
+    async def accel_buy(self, s, price, accel):
+        """V37_ACCEL: over the last minute's high, the ask agreeing; sized by
+        the speed (V37_ACCEL_SIZE)."""
+        if V37_CONFIRM_ASK:
+            q = self.live_quote(s)
+            ask = q[1] if q else await self.data.quote(s.symbol, "ask")
+            if ask is not None and ask <= s.bars[-1].h:
+                return
+        speed = max(accel, self.real_speed(s, price))
+        share = 0.0
+        for at, frac in V37_ACCEL_SIZE:
+            if speed >= at:
+                share = frac
+        if not share:
+            return
+        lock = self.lock(s.symbol)
+        if lock.locked():
+            return
+        async with lock:
+            if s.in_position:
+                return
+            await self.v37_buy(s, price, account_share=share, accel=speed)
+
+    async def v37_buy(self, s, price, account_share=None, accel=0.0):
         spd = self.speed(s, price)              # logged for every buy, rule on or off
         pts, parts = self.score(s, price)       # the same
         eq = await self.broker.equity(self.day_start_equity)
+        starter = (account_share / self.v37_full(s, eq) if account_share
+                   else V37_STARTER)            # a share of a full position
         cap = self.entry_cap(s, price)
         worst = price * (1 + cap)
         held_all = sum(x.shares * (x.last_price or price)
                        for x in self.open_positions())
         room = max(0.0, eq * MAX_EXPOSURE_PCT - held_all)
-        shares = int(min(eq * self.v37_full(s, eq) * V37_STARTER, room) / worst)
+        shares = int(min(eq * self.v37_full(s, eq) * starter, room) / worst)
         if shares * price < MIN_TRADE_DOLLARS:
             return
         filled = await self.buy(s.symbol, shares, price, cap)
@@ -5105,11 +5354,13 @@ class V37(V36):
         s.stop = self.stop_for(s)
         s.v37_pace_at_buy = self.pace(s)
         s.v37_peak_after = 0.0
+        s.v37_accel = accel
+        s.v37_accel_added = False
         s.peak = s.entry
         s.trail_stop = 0.0
         s.armed = False
         s.adopted = False
-        s.entry_kind = "rip"
+        s.entry_kind = "accel" if accel else "rip"
         s.traded_today = True
         s.v36_entries += 1
         s.entry_at = time.time()
@@ -5117,11 +5368,14 @@ class V37(V36):
                          kind="rip", stop=s.stop, speed=round(spd, 3),
                          score=pts, parts=parts)
         self.log.info("[v37] ENTER %s %d @ %.4f (print %.4f) = $%.0f (%.1f%% of "
-                      "equity) - a tenth of a position, buy %d today | crowd #%d, "
+                      "equity) - %s, buy %d today | crowd #%d, "
                       "$%.0fk in %d min | stop %.4f | adds at %.4f and %.4f | "
                       "speed %.2f | score %s (%s)",
                       s.symbol, filled, s.entry, price, filled * s.entry,
-                      100 * filled * s.entry / eq if eq else 0.0, s.v36_entries,
+                      100 * filled * s.entry / eq if eq else 0.0,
+                      "ACCELERATING %.2f, %.0f%% of the account" % (
+                          accel, 100 * starter * self.v37_full(s, eq))
+                      if accel else "a tenth of a position", s.v36_entries,
                       self.crowd_rank(s.symbol),
                       self.crowd_dollars(s.symbol) / 1000, V36_CROWD_MINUTES,
                       s.stop, s.v36_first + V37_ADD1_CENTS,
@@ -5192,6 +5446,9 @@ class V37(V36):
             if s.in_position:
                 await self.exit(s, "halted")
             return
+        if self.off_quote(s, price):
+            self.note_off_quote(s, price)       # not the market: decides nothing
+            return
         if not s.in_position:
             await self.maybe_enter(s, price, None, None)
             return
@@ -5212,9 +5469,27 @@ class V37(V36):
             s.v37_peak_after = max(s.v37_peak_after or s.entry, price)
             top = s.v37_peak_after if V37_GRACE_FORGET else s.peak
         gain = top - s.entry
-        armed = top >= s.entry * (1 + V37_GIVEBACK_ARM)
-        if gain > 0 and armed and price <= s.entry + (1 - V37_GIVEBACK) * gain:
-            await self.exit(s, "giveback")      # half of the profit gone
+        armed = (top >= s.entry * (1 + V37_GIVEBACK_ARM)
+                 and gain >= V37_GIVEBACK_ARM_CENTS - 1e-9)
+        back = V37_GIVEBACK
+        if (getattr(s, "v37_accel", 0.0) and V37_SPIKE_AT
+                and top >= s.entry * (1 + V37_SPIKE_AT)):
+            back = V37_SPIKE_GIVEBACK           # a spike: keep two thirds of it
+        line = s.entry + (1 - back) * gain
+        if gain > 0 and armed and price <= line:
+            q = self.live_quote(s) if V37_GIVEBACK_BID else None
+            if not (q and q[0] > line):         # the bid agrees the gain is gone
+                await self.exit(s, "giveback")  # half of the profit gone
+                return
+        if (V37_ACCEL and getattr(s, "v37_accel", 0.0) >= V37_FURIOUS_SPEED
+                and not getattr(s, "v37_accel_added", True) and new_high
+                and self.fresh(s) and price >= s.v36_first * (1 + V37_ACCEL_ADD_AT)
+                and self.real_speed(s, price) >= V37_FURIOUS_SPEED):
+            s.v37_accel_added = True            # bigger, faster: to V37_ACCEL_MAX_PCT
+            eq = await self.broker.equity(self.day_start_equity)
+            full = self.v37_full(s, eq)
+            if full > 0:
+                await self.v37_add(s, price, V37_ACCEL_MAX_PCT / full)
             return
         steps = ((V37_ADD1_CENTS, V37_ADD1_TO), (V37_ADD2_CENTS, V37_ADD2_TO))
         if len(self.open_positions()) > 1:

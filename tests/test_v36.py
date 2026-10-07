@@ -373,18 +373,33 @@ def test_the_high_of_the_day_break_needs_the_volume_to_pick_up(v36, clock):
 
 # ---- every re-entry starts small again ---------------------------------------------
 
-def test_a_re_entry_starts_small_and_adds_again(v36, clock, broker):
+def test_a_re_entry_starts_small_and_adds_again(v36, clock, broker, monkeypatch):
+    monkeypatch.setattr(bot, "V36_REENTRY_SPEED", 0.0)    # the speed has its own test
     s = bought(v36, clock)
     tick(v36, s, round(s.v36_first * 1.031, 2))
     assert s.v36_adds == 1
     run(v36.exit(s, "test"))
     later(v36, clock, s, [(10.80, 11.30, 10.79, 11.25, 300_000),
                           (11.25, 11.90, 11.24, 11.85, 400_000)])   # a new rip, a new high
-    tick(v36, s, round(s.hod_closed + bot.margin_for(11.9) + 0.01, 2))
+    tick(v36, s, round(s.hod_closed + 0.03, 2))           # 10-07: not under HOD + 5c
+    assert s.v36_entries == 1
+    tick(v36, s, round(s.hod_closed + bot.V36_HOD_PLUS + 0.01, 2))
     assert entered(v36, s)
     assert s.v36_entries == 2 and s.v36_adds == 0
     assert s.shares * s.entry == pytest.approx(
         broker.eq * bot.V36_POSITION_PCT * bot.V36_STARTER, rel=0.1)
+
+
+@pytest.mark.parametrize("speed, buys", [(0.05, False), (0.15, True)])
+def test_a_re_entry_needs_the_speed(v36, clock, monkeypatch, speed, buys):
+    """10-07: "the speed is not respected" - a re-entry needs the owner's speed."""
+    s = bought(v36, clock)
+    run(v36.exit(s, "test"))
+    later(v36, clock, s, [(10.80, 11.30, 10.79, 11.25, 300_000),
+                          (11.25, 11.90, 11.24, 11.85, 400_000)])
+    monkeypatch.setattr(v36, "real_speed", lambda s, p: speed)
+    tick(v36, s, round(s.hod_closed + bot.V36_HOD_PLUS + 0.01, 2))
+    assert entered(v36, s) == buys
 
 
 def test_one_buy_a_minute_still_holds_after_400_candles(v36, clock):
@@ -542,7 +557,8 @@ def test_after_two_buys_only_the_high_of_the_day(v36, clock, monkeypatch):
 
 
 def test_the_new_entry_rules_are_off_until_the_owner_decides():
-    assert bot.V36_SCORE_MIN == 0 and bot.V36_SETUP_BUYS == 0
+    assert bot.V36_SCORE_MIN == 0
+    assert bot.V36_SETUP_BUYS == 1      # 10-07: re-entries past the high of the day
 
 
 # ---- 2026-10-06, to test: fewer bad starters, smaller losses, fresh exits ---------
@@ -630,3 +646,120 @@ def test_v36b_log_lines_say_v36b(v36, v36b):
     assert v36b.log.process("[v36] ABCD STARTER", {})[0] == "[v36b] ABCD STARTER"
     assert v36b.log.process("[v31] ENTER ABCD", {})[0] == "[v36b] ENTER ABCD"
     assert v36.log.process("[v36] ABCD STARTER", {})[0] == "[v36] ABCD STARTER"
+
+
+# ---- 10-07, live: the owner's rules, checked trade by trade ------------------------
+
+def red_after_rip(v36, clock, low=RED_LOW, volume=80_000):
+    s = ripping(v36, clock, pullback=False)
+    later(v36, clock, s, [(RED_OPEN, RED_OPEN + 0.02, low, 10.20, volume)])
+    return s
+
+
+@pytest.mark.parametrize("failed_rip, buys", [(True, False), (False, True)])
+def test_a_red_that_erases_the_rip_is_no_pullback(v36, clock, monkeypatch,
+                                                  failed_rip, buys):
+    """SPAI 8:09: the red fell $4.92 -> $4.41, under the rip candle's open
+    ($4.58) - a failed rip, bought as a pullback. False = as it was."""
+    monkeypatch.setattr(bot, "V36_FAILED_RIP", failed_rip)
+    s = red_after_rip(v36, clock, low=9.85)               # the rip candle opened 9.90
+    tick(v36, s, TRIGGER)
+    assert entered(v36, s) == buys
+
+
+@pytest.mark.parametrize("pullback_vol, buys", [(1.0, False), (0.0, True)])
+def test_a_red_heavier_than_the_rip_is_selling(v36, clock, monkeypatch,
+                                               pullback_vol, buys):
+    """The playbook: the pullback is light - less volume than the green."""
+    monkeypatch.setattr(bot, "V36_PULLBACK_VOL", pullback_vol)
+    s = red_after_rip(v36, clock, volume=250_000)         # the rip's green: 200k
+    tick(v36, s, TRIGGER)
+    assert entered(v36, s) == buys
+
+
+@pytest.mark.parametrize("no_cap, buys", [(True, True), (False, False)])
+def test_the_leader_making_a_new_high_is_not_capped(v36, clock, monkeypatch,
+                                                    no_cap, buys):
+    """LPCN 7:21-7:35: "NO: 6 buys today" every minute while the #1 name ran
+    through $3.50 to $3.99. False = as it was."""
+    monkeypatch.setattr(bot, "V36_LEADER_NO_CAP", no_cap)
+    monkeypatch.setattr(bot, "V36_REENTRY_SPEED", 0.0)    # the speed has its own test
+    s = ripping(v36, clock)
+    s.v36_entries = bot.V36_MAX_ENTRIES
+    tick(v36, s, round(s.hod_closed + bot.V36_HOD_PLUS + 0.12, 2))   # clear of $10.50
+    assert entered(v36, s) == buys
+
+
+def test_whole_and_half_dollars_wait_for_5_cents_held(v36, monkeypatch):
+    """BIYA 4:20 (an add @ $2.51), LPCN 7:18 ($3.42), SPAI 8:12 (an add @ $5.08):
+    "natural resistance - wait for it to cross, about 5 cents, a moment"."""
+    now = [1_000.0]
+    monkeypatch.setattr(bot.time, "time", lambda: now[0])
+    s = v36.st("BIYA")
+    assert v36.at_level(s, 2.51) and v36.at_level(s, 2.48)
+    assert not v36.at_level(s, 2.45)                      # clear of it: its own trigger
+    v36.at_level(s, 2.52)
+    now[0] += 1
+    assert v36.at_level(s, 2.56)                          # past, 1s after: hold on
+    now[0] += 3
+    assert not v36.at_level(s, 2.57)                      # held: go
+
+
+def test_no_add_at_a_level(v36, clock, monkeypatch):
+    s = bought(v36, clock)
+    monkeypatch.setattr(v36, "at_level", lambda s, p: True)
+    tick(v36, s, round(s.v36_first + 0.16, 2))
+    assert s.v36_adds == 0
+
+
+def test_a_runner_rides_until_half_the_run_is_given_back(v36, clock, monkeypatch):
+    """The owner: once it runs, don't cut it until it has given back half of
+    its gain - in place of the floor at the average and the 10s leash."""
+    monkeypatch.setattr(bot, "V36_RUNNER_HALF", True)
+    s = bought(v36, clock)
+    first = s.v36_first
+    tick(v36, s, round(first + 0.16, 2))
+    assert s.v36_adds == 1 and s.stop < first             # no floor at the average
+    tick(v36, s, round(first + 0.40, 2))
+    tick(v36, s, round(first + 0.21, 2))                  # 19 of 40 given back
+    assert s.in_position
+    tick(v36, s, round(first + 0.19, 2))                  # more than half
+    assert not s.in_position and v36.closed_today[-1][5] == "half"
+
+
+def test_a_print_off_the_quote_sells_nothing(v36, clock):
+    s = bought(v36, clock)
+    s.quote = (round(s.entry + 0.05, 2), round(s.entry + 0.06, 2), bot.time.time())
+    tick(v36, s, round(s.stop - 0.30, 2))                 # 30c under the stop, not the market
+    assert s.in_position
+
+
+def test_the_10_07_rules_are_on():
+    assert bot.V36_SETUP_BUYS == 1 and bot.V36_HOD_PLUS == 0.05
+    assert bot.V36_LEADER_NO_CAP and bot.V36_FAILED_RIP and bot.V36_PULLBACK_VOL == 1.0
+    assert bot.V36_LEVELS and bot.V36_LEVEL_PAST == 0.05
+    assert not bot.V36_RUNNER_HALF and bot.V36_REENTRY_SPEED == 0.1
+
+
+@pytest.mark.parametrize("chase, buys", [(0.05, False), (0.0, True)])
+def test_no_buy_far_over_the_trigger(v36, clock, monkeypatch, chase, buys):
+    """SXTC 8:17: bought @ $4.83 on a $2.77 new-high trigger - 74% over it,
+    after the spike; stop $2.21. 0.0 = as it was."""
+    monkeypatch.setattr(bot, "V36_CHASE_MAX", chase)
+    s = ripping(v36, clock)
+    tick(v36, s, round(TRIGGER * 1.32, 2))           # clear of $13.50
+    assert entered(v36, s) == buys
+
+
+def test_an_acceleration_counts_as_the_crowd(v36, clock, monkeypatch):
+    """10-07: SXTC 8:15 - "NO CROWD" at the #1 gainer with $800k."""
+    monkeypatch.setattr(bot, "V36_ACCEL", False)          # as it was
+    s = v36.st("SXTC")
+    t = bot.datetime(2026, 10, 7, 12, 0, tzinfo=bot.timezone.utc)
+    s.bars = [bot.Bar(t, 10.0, 10.02, 9.98, 10.0, 1_000) for _ in range(30)]
+    s.bars += [bot.Bar(t, 10.00, 10.20, 9.98, 10.15, 38_000),
+               bot.Bar(t, 10.15, 10.80, 10.15, 10.70, 114_000),
+               bot.Bar(t, 10.70, 11.60, 10.60, 11.55, 261_000)]
+    assert not v36.in_crowd(s)
+    monkeypatch.setattr(bot, "V36_ACCEL", True)
+    assert v36.in_crowd(s)
