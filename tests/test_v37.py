@@ -1370,10 +1370,11 @@ def test_a_furious_speed_buys_without_the_pattern_or_the_crowd(v37, clock, now,
     assert s.in_position and s.entry_kind == "accel"
 
 
-@pytest.mark.parametrize("over, buys", [(0.15, True), (0.30, False)])
+@pytest.mark.parametrize("over, buys", [(0.04, True), (0.15, False), (0.30, False)])
 def test_no_fast_buy_far_over_the_last_minute(v37, clock, now, monkeypatch, over, buys):
     """BIYA 10-07 8:20-8:21: $2.54 -> $33.96 -> $8.20 in under a minute. A fast
-    buy may not pay more than V37_ACCEL_CHASE over the last closed minute's high."""
+    buy pays at most the breakout level plus two rounds of cents ($10.32 + 2 x
+    50c here): 4% over it buys, 15% is too late (the owner: not 20%)."""
     monkeypatch.setattr(bot, "V37_ACCEL", True)
     monkeypatch.setattr(v37, "real_speed", lambda s, p: 0.40)
     s = v37.st("WXYZ")
@@ -1516,9 +1517,10 @@ def test_biya_413_the_trend_reads_the_live_price(v37, clock):
         bot.V36_TREND_LIVE = bot_live
 
 
-def test_a_furious_buy_is_one_order_to_the_ceiling(v37, clock, now, monkeypatch, broker):
-    """The owner, 10-07: "if the price escaped, one above it immediately". One
-    order priced at the ceiling - the breakout level + 20% - takes the best ask."""
+def test_a_fast_buy_pays_cents_over_the_ask_not_20_percent(v37, clock, now, monkeypatch,
+                                                           broker, data):
+    """The owner, 10-07: "20% is out of the picture - $2 over on a $10 stock is
+    $2,000 on a thousand shares; give it 20, 30, 40, 50 cents"."""
     monkeypatch.setattr(bot, "V37_ACCEL", True)
     monkeypatch.setattr(v37, "real_speed", lambda s, p: 0.40)
     s = v37.st("BIYA")
@@ -1526,25 +1528,44 @@ def test_a_furious_buy_is_one_order_to_the_ceiling(v37, clock, now, monkeypatch,
     candles(s, STAIRS)
     s.day_high = old_high = round(s.bars[-1].h * 1.22, 2)
     price = round(s.day_high + 0.03, 2)
+    data.quotes[("BIYA", "ask")] = price + 0.01
     prints(v37, s, now, s.bars[-1].h, price, size=30_000)
     tick(v37, s, now, price)
     assert s.in_position
     buys = broker.buys("BIYA")
-    assert len(buys) == 1 and buys[0][3] == round(old_high * 1.20, 2)
-    assert s.stop < s.entry                               # the stop is under the fill
+    cents = v37.sweep_cents(price)
+    assert len(buys) == 1 and buys[0][3] == round(price + 0.01 + cents, 2)
+    assert buys[0][3] <= old_high + 2 * v37.sweep_cents(old_high) + 1e-9
+    assert s.stop < s.entry
 
 
-def test_a_sweep_never_buys_under_the_high_or_past_the_ceiling(v31, broker, data, monkeypatch):
+@pytest.mark.parametrize("price, cents", [(3.10, 0.20), (6.00, 0.30), (8.00, 0.40),
+                                          (12.00, 0.50)])
+def test_the_cents_grow_with_the_price(v37, price, cents):
+    assert v37.sweep_cents(price) == pytest.approx(cents)
+
+
+def test_unfilled_a_second_round_then_no_more(v31, broker, data, monkeypatch):
+    asks = iter([3.12, 3.40, 3.45])
+
+    async def ask(symbol, side):
+        return next(asks)
+    monkeypatch.setattr(data, "quote", ask)
+    broker.fills = [0.0, 1.0]                              # round 1 misses
+    n = run(v31.buy("BIYA", 1000, 3.12, 3.50 / 3.12 - 1, floor=3.10, sweep=0.20))
+    assert n == 1000
+    assert [o[3] for o in broker.orders] == [3.32, 3.50]   # the ask + 20c, then capped
+
+
+def test_a_sweep_never_buys_under_the_high_or_past_the_top(v31, broker, data, monkeypatch):
     async def ask(symbol, side):
         return ask.px
     monkeypatch.setattr(data, "quote", ask)
-    for ask.px, got in ((3.09, 0), (3.80, 0), (3.30, 1000)):
+    for ask.px, got in ((3.09, 0), (3.60, 0), (3.20, 1000)):
         broker.orders.clear()
-        n = run(v31.buy("BIYA", 1000, 3.12, 3.72 / 3.12 - 1, floor=3.10, sweep=True))
+        n = run(v31.buy("BIYA", 1000, 3.12, 3.50 / 3.12 - 1, floor=3.10, sweep=0.20))
         assert n == got
         assert len(broker.orders) == (1 if got else 0)
-        if got:
-            assert broker.orders[0][3] == 3.72
         broker.held.clear(); broker.cost.clear()
 
 
