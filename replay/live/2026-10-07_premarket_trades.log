@@ -1,0 +1,165 @@
+2026-10-07 08:13:54,025 INFO [v37] ENTER BIYA 198 @ 2.6700 (print 2.6600) = $529 (3.6% of equity) - a tenth of a position, buy 1 today | crowd #1, $3617k in 5 min | stop 2.4564 | adds at 2.7700 and 2.8700 | speed 0.33 | score 13 (speed 4 candle 2 wicks 1 bodies 1 lows 0 volume 2 trend 2 macd 0 room 1)
+2026-10-07 08:13:55,161 INFO [v37] EXIT giveback BIYA 198 @ 2.7300 | trigger print 2.6400 x 100 cond ['@', 'F', 'T'], 1.1s old | entry 2.6700 peak 2.7000 stop 2.4564 | held 1s | P/L +11.88 (+2.25% of the trade, +0.08% of the account)
+2026-10-07 08:16:32,567 INFO [v37] ENTER MI 235 @ 2.3031 (print 2.3100) = $541 (3.7% of equity) - a tenth of a position, buy 1 today | crowd #2, $1424k in 5 min | stop 2.1929 | adds at 2.4031 and 2.5031 | speed 0.58 | score 14 (speed 4 candle 2 wicks 1 bodies 1 lows 1 volume 1 trend 2 macd 1 room 1)
+2026-10-07 08:16:37,000 INFO [v37] EXIT giveback MI 235 @ 2.3071 | trigger print 2.3105 x 370 cond [' ', 'T'], 1.5s old | entry 2.3031 peak 2.3400 stop 2.1929 | held 4s | P/L +0.94 (+0.17% of the trade, +0.01% of the account)
+2026-10-07 08:20:05,546 INFO [v36b] ENTER MI 79 @ 2.1000 (print 2.0800) = $166 (2% of equity) | stop 2.0176 (3.92% away) | setup trigger 2.0800
+2026-10-07 08:20:05,550 INFO [v36b] MI STARTER 79 shares (a tenth of a full position), buy 1 today - adds at 2.2500 and 2.3000 on a new high
+2026-10-07 08:20:07,114 INFO [v36] ENTER MI 208 @ 2.0867 (print 2.0800) = $434 (2% of equity) | stop 1.9700 (5.59% away) | setup trigger 2.0800
+2026-10-07 08:20:07,117 INFO [v36] MI STARTER 208 shares (a tenth of a full position), buy 1 today - adds at 2.2367 and 2.2867 on a new high
+2026-10-07 08:20:18,594 INFO [v36] ENTER BIYA 184 @ 2.3600 (print 2.3500) = $434 (2% of equity) | stop 2.2000 (6.78% away) | setup trigger 2.3000
+2026-10-07 08:20:18,597 INFO [v36] BIYA STARTER 184 shares (a tenth of a full position), buy 1 today - adds at 2.5100 and 2.5600 on a new high
+2026-10-07 08:20:34,150 INFO [v36] BIYA ADD to 50% of a full position: +685 @ 2.5100 -> 869 shares, entry 2.4625, floor 2.4625 (what the starter paid)
+2026-10-07 08:20:35,162 INFO [v36] EXIT stop BIYA 869 @ 2.4300 | trigger print 2.4600 x 200 cond ['@', 'F', 'T'], 0.0s old | entry 2.4625 peak 2.5500 stop 2.4625 | held 17s | P/L -28.22 (-1.32% of the trade, -0.15% of the account)
+2026-10-07 08:20:36,941 INFO [v36b] EXIT stop MI 79 @ 2.0000 | trigger print 2.0100 x 550 cond [' ', 'T'], 0.0s old | entry 2.1000 peak 2.1100 stop 2.0176 | held 31s | P/L -7.90 (-4.76% of the trade, -0.11% of the account)
+2026-10-07 08:20:39,828 INFO [v36] EXIT stop MI 208 @ 1.9900 | trigger print 1.9700 x 255 cond [' ', 'T'], 0.0s old | entry 2.0867 peak 2.1100 stop 1.9700 | held 33s | P/L -20.12 (-4.64% of the trade, -0.11% of the account)
+2026-10-07 08:23:30,710 INFO [v36] ENTER BIYA 180 @ 2.3898 (print 2.3900) = $430 (2% of equity) | stop 2.2200 (7.11% away) | setup trigger 2.3895
+2026-10-07 08:23:30,713 INFO [v36] BIYA STARTER 180 shares (a tenth of a full position), buy 2 today - adds at 2.5398 and 2.5898 on a new high
+2026-10-07 08:23:30,732 INFO [v36b] ENTER BIYA 69 @ 2.3986 (print 2.3900) = $165 (2% of equity) | stop 2.3178 (3.37% away) | setup trigger 2.3895
+2026-10-07 08:23:30,735 INFO [v36b] BIYA STARTER 69 shares (a tenth of a full position), buy 1 today - adds at 2.5486 and 2.5986 on a new high
+2026-10-07 08:24:02,205 INFO [v36b] EXIT stop BIYA 69 @ 2.3881 | trigger print 2.3100 x 500 cond ['@', 'T'], 0.0s old | entry 2.3986 peak 2.5300 stop 2.3178 | held 31s | P/L -0.72 (-0.44% of the trade, -0.01% of the account)
+2026-10-07 08:24:16,932 INFO [v36b] ENTER MI 77 @ 2.1700 (print 2.1600) = $167 (2% of equity) | stop 2.0952 (3.45% away) | setup trigger 2.1600
+2026-10-07 08:24:16,934 INFO [v36b] MI STARTER 77 shares (a tenth of a full position), buy 2 today - adds at 2.3200 and 2.3700 on a new high
+2026-10-07 08:24:18,593 INFO [v36] ENTER MI 201 @ 2.1700 (print 2.1600) = $436 (2% of equity) | stop 2.0800 (4.15% away) | setup trigger 2.1600
+2026-10-07 08:24:18,595 INFO [v36] MI STARTER 201 shares (a tenth of a full position), buy 2 today - adds at 2.3200 and 2.3700 on a new high
+2026-10-07 08:25:34,209 INFO [v36b] EXIT stop MI 77 @ 2.0800 | trigger print 2.0900 x 207 cond [' ', 'T'], 0.0s old | entry 2.1700 peak 2.2200 stop 2.0952 | held 77s | P/L -6.93 (-4.15% of the trade, -0.10% of the account)
+2026-10-07 08:25:39,708 INFO [v36] EXIT stop MI 201 @ 2.0800 | trigger print 2.0800 x 300 cond [' ', 'T'], 0.0s old | entry 2.1700 peak 2.2200 stop 2.0800 | held 81s | P/L -18.09 (-4.15% of the trade, -0.10% of the account)
+2026-10-07 08:25:45,128 INFO [v36] BIYA ADD to 50% of a full position: +669 @ 2.5400 -> 849 shares, entry 2.5239, floor 2.5239 (what the starter paid)
+2026-10-07 08:25:48,791 INFO [v36] BIYA ADD to 100% of a full position: +862 @ 2.5900 -> 1711 shares, entry 2.5550, floor 2.5550 (what the starter paid)
+2026-10-07 08:26:21,311 INFO [v36] EXIT 10s BIYA 1711 @ 2.6000 | trigger print 2.5900 x 206 cond ['@', 'F', 'T'], 0.0s old | entry 2.5550 peak 2.7400 stop 2.5550 | held 171s | P/L +76.95 (+1.76% of the trade, +0.42% of the account)
+2026-10-07 08:30:09,683 INFO [v36] ENTER BIYA 177 @ 2.4400 (print 2.4400) = $432 (2% of equity) | stop 2.3600 (3.28% away) | setup trigger 2.4100
+2026-10-07 08:30:09,686 INFO [v36] BIYA STARTER 177 shares (a tenth of a full position), buy 3 today - adds at 2.5900 and 2.6400 on a new high
+2026-10-07 08:31:26,817 INFO [v36] EXIT stop BIYA 177 @ 2.3500 | trigger print 2.3600 x 100 cond ['@', 'T'], 0.0s old | entry 2.4400 peak 2.4900 stop 2.3600 | held 77s | P/L -15.93 (-3.69% of the trade, -0.09% of the account)
+2026-10-07 08:34:47,800 INFO [v36] ENTER BIYA 179 @ 2.4100 (print 2.4100) = $431 (2% of equity) | stop 2.3300 (3.32% away) | setup trigger 2.4000
+2026-10-07 08:34:47,801 INFO [v36] BIYA STARTER 179 shares (a tenth of a full position), buy 4 today - adds at 2.5600 and 2.6100 on a new high
+2026-10-07 08:34:47,998 INFO [v36b] ENTER BIYA 68 @ 2.4100 (print 2.4100) = $164 (2% of equity) | stop 2.3300 (3.32% away) | setup trigger 2.4000
+2026-10-07 08:34:47,999 INFO [v36b] BIYA STARTER 68 shares (a tenth of a full position), buy 2 today - adds at 2.5600 and 2.6100 on a new high
+2026-10-07 08:35:55,428 INFO [v36] EXIT stop BIYA 179 @ 2.3100 | trigger print 2.3300 x 200 cond ['@', 'F', 'T'], 0.0s old | entry 2.4100 peak 2.4400 stop 2.3300 | held 68s | P/L -17.90 (-4.15% of the trade, -0.10% of the account)
+2026-10-07 08:35:58,790 INFO [v36b] EXIT stop BIYA 68 @ 2.2885 | trigger print 2.3300 x 200 cond ['@', 'F', 'T'], 0.0s old | entry 2.4100 peak 2.4400 stop 2.3300 | held 71s | P/L -8.26 (-5.04% of the trade, -0.12% of the account)
+2026-10-07 08:44:03,697 INFO [v36] ENTER BIYA 174 @ 2.5200 (print 2.5000) = $438 (2% of equity) | stop 2.4305 (3.55% away) | setup trigger 2.5000
+2026-10-07 08:44:03,700 INFO [v36] BIYA STARTER 174 shares (a tenth of a full position), buy 5 today - adds at 2.6700 and 2.7200 on a new high
+2026-10-07 08:44:04,532 INFO [v36b] ENTER BIYA 66 @ 2.5156 (print 2.5000) = $166 (2% of equity) | stop 2.4305 (3.38% away) | setup trigger 2.5000
+2026-10-07 08:44:04,534 INFO [v36b] BIYA STARTER 66 shares (a tenth of a full position), buy 3 today - adds at 2.6656 and 2.7156 on a new high
+2026-10-07 08:45:00,546 INFO [v36] BIYA ADD to 50% of a full position: +648 @ 2.6700 -> 822 shares, entry 2.6146, floor 2.6146 (what the starter paid)
+2026-10-07 08:45:03,629 INFO [v36b] BIYA ADD to 50% of a full position: +248 @ 2.6700 -> 314 shares, entry 2.6202, floor 2.6202 (what the starter paid)
+2026-10-07 08:45:10,975 INFO [v36b] EXIT stop BIYA 314 @ 2.6200 | trigger print 2.6200 x 100 cond ['@', 'T'], 0.0s old | entry 2.6202 peak 2.6800 stop 2.6202 | held 66s | P/L -0.06 (-0.01% of the trade, -0.00% of the account)
+2026-10-07 08:45:44,894 INFO [v36] EXIT stop BIYA 822 @ 2.5892 | trigger print 2.6100 x 100 cond ['@', 'T'], 0.0s old | entry 2.6146 peak 2.7000 stop 2.6146 | held 101s | P/L -20.86 (-0.97% of the trade, -0.11% of the account)
+2026-10-07 08:46:40,152 INFO [v36] ENTER BIYA 164 @ 2.6500 (print 2.6500) = $435 (2% of equity) | stop 2.5400 (4.15% away) | setup trigger 2.6500
+2026-10-07 08:46:40,155 INFO [v36] BIYA STARTER 164 shares (a tenth of a full position), buy 6 today - adds at 2.8000 and 2.8500 on a new high
+2026-10-07 08:46:41,453 INFO [v36b] ENTER BIYA 62 @ 2.6547 (print 2.6500) = $165 (2% of equity) | stop 2.5705 (3.17% away) | setup trigger 2.6500
+2026-10-07 08:46:41,455 INFO [v36b] BIYA STARTER 62 shares (a tenth of a full position), buy 4 today - adds at 2.8047 and 2.8547 on a new high
+2026-10-07 08:47:59,944 INFO [v36] BIYA ADD to 50% of a full position: +621 @ 2.8000 -> 785 shares, entry 2.7685, floor 2.7685 (what the starter paid)
+2026-10-07 08:48:02,742 INFO [v36] EXIT stop BIYA 785 @ 2.7789 | trigger print 2.7601 x 1381 cond ['@', 'T'], 1.5s old | entry 2.7685 peak 2.8000 stop 2.7685 | held 83s | P/L +8.17 (+0.38% of the trade, +0.04% of the account)
+2026-10-07 08:48:30,577 INFO [v36b] EXIT stop BIYA 62 @ 2.5813 | trigger print 2.5703 x 141 cond ['@', 'T'], 0.0s old | entry 2.6547 peak 2.8000 stop 2.5705 | held 109s | P/L -4.55 (-2.76% of the trade, -0.07% of the account)
+2026-10-07 08:52:19,734 INFO [v36b] ENTER BIYA 61 @ 2.7500 (print 2.7100) = $168 (2% of equity) | stop 2.6300 (4.36% away) | setup trigger 2.7100
+2026-10-07 08:52:19,737 INFO [v36b] BIYA STARTER 61 shares (a tenth of a full position), buy 5 today - adds at 2.9000 and 2.9500 on a new high
+2026-10-07 08:54:36,607 INFO [v36b] BIYA ADD to 50% of a full position: +221 @ 2.9000 -> 282 shares, entry 2.9067, floor 2.9067 (what the starter paid)
+2026-10-07 08:54:38,335 INFO [v36b] EXIT stop BIYA 282 @ 2.9600 | trigger print 2.9000 x 115 cond ['@', 'T'], 1.1s old | entry 2.9067 peak 2.9000 stop 2.9067 | held 139s | P/L +15.02 (+1.83% of the trade, +0.22% of the account)
+2026-10-07 08:57:53,186 INFO [v36b] ENTER BIYA 61 @ 2.6870 (print 2.6900) = $164 (2% of equity) | stop 2.5996 (3.25% away) | setup trigger 2.6800
+2026-10-07 08:57:53,190 INFO [v36b] BIYA STARTER 61 shares (a tenth of a full position), buy 6 today - adds at 2.8370 and 2.8870 on a new high
+2026-10-07 08:58:05,877 INFO [v36b] EXIT stop BIYA 61 @ 2.6030 | trigger print 2.5900 x 200 cond ['@', 'T'], 0.0s old | entry 2.6870 peak 2.6900 stop 2.5996 | held 13s | P/L -5.13 (-3.13% of the trade, -0.07% of the account)
+2026-10-07 09:22:21,973 INFO [v36] ENTER SXTC 196 @ 2.1900 (print 2.2000) = $429 (2% of equity) | stop 2.1200 (3.20% away) | setup trigger 2.2000
+2026-10-07 09:22:21,974 INFO [v36] SXTC STARTER 196 shares (a tenth of a full position), buy 1 today - adds at 2.3400 and 2.3900 on a new high
+2026-10-07 09:22:22,366 INFO [v36b] ENTER SXTC 75 @ 2.1900 (print 2.2000) = $164 (2% of equity) | stop 2.1340 (2.56% away) | setup trigger 2.2000
+2026-10-07 09:22:22,367 INFO [v36b] SXTC STARTER 75 shares (a tenth of a full position), buy 1 today - adds at 2.3400 and 2.3900 on a new high
+2026-10-07 09:25:01,328 INFO [v36b] EXIT stop SXTC 75 @ 2.1200 | trigger print 2.1300 x 600 cond ['@', 'T'], 0.0s old | entry 2.1900 peak 2.2600 stop 2.1340 | held 159s | P/L -5.25 (-3.20% of the trade, -0.08% of the account)
+2026-10-07 09:25:03,731 INFO [v36] EXIT stop SXTC 196 @ 2.1035 | trigger print 2.1200 x 140 cond ['@', 'T'], 0.0s old | entry 2.1900 peak 2.2600 stop 2.1200 | held 162s | P/L -16.96 (-3.95% of the trade, -0.09% of the account)
+2026-10-07 09:49:04,425 INFO [v36b] ENTER SXTC 65 @ 2.5725 (print 2.5400) = $167 (2% of equity) | stop 2.4638 (4.22% away) | setup trigger 2.5400
+2026-10-07 09:49:04,426 INFO [v36b] SXTC STARTER 65 shares (a tenth of a full position), buy 2 today - adds at 2.7225 and 2.7725 on a new high
+2026-10-07 09:49:06,537 INFO [v36] ENTER SXTC 170 @ 2.5800 (print 2.5400) = $439 (2% of equity) | stop 2.4100 (6.59% away) | setup trigger 2.5400
+2026-10-07 09:49:06,538 INFO [v36] SXTC STARTER 170 shares (a tenth of a full position), buy 2 today - adds at 2.7300 and 2.7800 on a new high
+2026-10-07 09:49:12,869 INFO [v36b] EXIT stop SXTC 65 @ 2.4600 | trigger print 2.4600 x 300 cond ['@', 'T'], 0.0s old | entry 2.5725 peak 2.7200 stop 2.4638 | held 8s | P/L -7.31 (-4.37% of the trade, -0.11% of the account)
+2026-10-07 09:49:31,120 INFO [v36] EXIT stop SXTC 170 @ 2.4100 | trigger print 2.4100 x 200 cond ['@', 'F', 'T'], 0.0s old | entry 2.5800 peak 2.7200 stop 2.4100 | held 25s | P/L -28.90 (-6.59% of the trade, -0.16% of the account)
+2026-10-07 09:51:34,962 INFO [v36] ENTER SXTC 174 @ 2.4700 (print 2.4800) = $430 (2% of equity) | stop 2.3400 (5.26% away) | setup trigger 2.4800
+2026-10-07 09:51:34,964 INFO [v36] SXTC STARTER 174 shares (a tenth of a full position), buy 3 today - adds at 2.6200 and 2.6700 on a new high
+2026-10-07 09:51:38,420 INFO [v36b] ENTER SXTC 66 @ 2.4552 (print 2.4800) = $162 (2% of equity) | stop 2.4056 (2.02% away) | setup trigger 2.4800
+2026-10-07 09:51:38,421 INFO [v36b] SXTC STARTER 66 shares (a tenth of a full position), buy 3 today - adds at 2.6052 and 2.6552 on a new high
+2026-10-07 09:52:32,241 INFO [v36b] EXIT stop SXTC 66 @ 2.4000 | trigger print 2.4000 x 106 cond ['@', 'T'], 0.0s old | entry 2.4552 peak 2.4800 stop 2.4056 | held 54s | P/L -3.64 (-2.25% of the trade, -0.05% of the account)
+2026-10-07 09:54:32,978 INFO [v36] EXIT stop SXTC 174 @ 2.3400 | trigger print 2.3400 x 130 cond ['@', 'T'], 0.0s old | entry 2.4700 peak 2.4800 stop 2.3400 | held 178s | P/L -22.62 (-5.26% of the trade, -0.12% of the account)
+2026-10-07 10:33:28,804 INFO [v36] ENTER LPCN 163 @ 2.6100 (print 2.6400) = $425 (2% of equity) | stop 2.4100 (7.66% away) | new-high trigger 2.6400
+2026-10-07 10:33:28,804 INFO [v36] LPCN STARTER 163 shares (a tenth of a full position), buy 1 today - adds at 2.7600 and 2.8100 on a new high
+2026-10-07 10:33:29,003 INFO [v37] ENTER LPCN 213 @ 2.6100 (print 2.6200) = $556 (3.8% of equity) - a tenth of a position, buy 1 today | crowd #1, $1015k in 5 min | stop 2.5317 | adds at 2.7100 and 2.8100 | speed 0.07 | score 9 (speed 0 candle 1 wicks 0 bodies 1 lows 1 volume 2 trend 2 macd 1 room 1)
+2026-10-07 10:33:29,548 INFO [v36b] ENTER LPCN 62 @ 2.6000 (print 2.6400) = $161 (2% of equity) | stop 2.5608 (1.51% away) | new-high trigger 2.6400
+2026-10-07 10:33:29,549 INFO [v36b] LPCN STARTER 62 shares (a tenth of a full position), buy 1 today - adds at 2.7500 and 2.8000 on a new high
+2026-10-07 10:33:31,107 INFO [v37] EXIT giveback LPCN 213 @ 2.5800 | trigger print 2.6100 x 375 cond ['@', 'F', 'T'], 1.5s old | entry 2.6100 peak 2.6400 stop 2.5317 | held 2s | P/L -6.39 (-1.15% of the trade, -0.04% of the account)
+2026-10-07 10:33:36,128 INFO [v36b] EXIT stop LPCN 62 @ 2.5700 | trigger print 2.5600 x 138 cond ['@', 'F', 'T'], 0.0s old | entry 2.6000 peak 2.6400 stop 2.5608 | held 7s | P/L -1.86 (-1.15% of the trade, -0.03% of the account)
+2026-10-07 10:36:07,416 INFO [v36] EXIT stop LPCN 163 @ 2.4025 | trigger print 2.4100 x 201 cond ['@', 'T'], 0.0s old | entry 2.6100 peak 2.6400 stop 2.4100 | held 159s | P/L -33.83 (-7.95% of the trade, -0.19% of the account)
+2026-10-07 10:42:33,879 INFO [v36] ENTER LPCN 161 @ 2.6934 (print 2.6700) = $434 (2% of equity) | stop 2.5350 (5.88% away) | setup trigger 2.6700
+2026-10-07 10:42:33,881 INFO [v36] LPCN STARTER 161 shares (a tenth of a full position), buy 2 today - adds at 2.8434 and 2.8934 on a new high
+2026-10-07 10:42:37,267 INFO [v36b] ENTER LPCN 61 @ 2.6859 (print 2.6700) = $164 (2% of equity) | stop 2.5899 (3.57% away) | setup trigger 2.6700
+2026-10-07 10:42:37,269 INFO [v36b] LPCN STARTER 61 shares (a tenth of a full position), buy 2 today - adds at 2.8359 and 2.8859 on a new high
+2026-10-07 10:46:19,649 INFO [v36b] LPCN ADD to 50% of a full position: +233 @ 2.8400 -> 294 shares, entry 2.7843, floor 2.7843 (what the starter paid)
+2026-10-07 10:46:29,468 INFO [v36b] EXIT stop LPCN 294 @ 2.7670 | trigger print 2.7800 x 168 cond ['@', 'T'], 0.0s old | entry 2.7843 peak 2.8400 stop 2.7843 | held 232s | P/L -5.08 (-0.62% of the trade, -0.07% of the account)
+2026-10-07 10:49:47,940 INFO [v36] LPCN ADD to 50% of a full position: +602 @ 2.8450 -> 763 shares, entry 2.8152, floor 2.8152 (what the starter paid)
+2026-10-07 10:49:52,747 INFO [v36] LPCN ADD to 100% of a full position: +760 @ 2.8950 -> 1523 shares, entry 2.8552, floor 2.8552 (what the starter paid)
+2026-10-07 10:49:54,680 INFO [v36] EXIT stop LPCN 1523 @ 2.8600 | trigger print 2.8500 x 100 cond ['@', 'T'], 0.0s old | entry 2.8552 peak 2.9000 stop 2.8552 | held 441s | P/L +7.38 (+0.17% of the trade, +0.04% of the account)
+2026-10-07 10:52:14,317 INFO [v36b] ENTER LPCN 58 @ 2.8100 (print 2.8100) = $163 (2% of equity) | stop 2.7162 (3.34% away) | setup trigger 2.8002
+2026-10-07 10:52:14,320 INFO [v36b] LPCN STARTER 58 shares (a tenth of a full position), buy 3 today - adds at 2.9600 and 3.0100 on a new high
+2026-10-07 10:52:17,329 INFO [v36] ENTER LPCN 153 @ 2.8136 (print 2.8100) = $430 (2% of equity) | stop 2.7100 (3.68% away) | setup trigger 2.8002
+2026-10-07 10:52:17,332 INFO [v36] LPCN STARTER 153 shares (a tenth of a full position), buy 3 today - adds at 2.9636 and 3.0136 on a new high
+2026-10-07 10:53:48,551 INFO [v36] LPCN ADD to 50% of a full position: +581 @ 2.9700 -> 734 shares, entry 2.9216, floor 2.9216 (what the starter paid)
+2026-10-07 10:53:50,771 INFO [v36] EXIT stop LPCN 734 @ 2.9050 | trigger print 2.9200 x 250 cond ['@', 'T'], 0.0s old | entry 2.9216 peak 2.9700 stop 2.9216 | held 93s | P/L -12.16 (-0.57% of the trade, -0.07% of the account)
+2026-10-07 10:53:51,574 INFO [v36b] LPCN ADD to 50% of a full position: +224 @ 2.9600 -> 282 shares, entry 2.9244, floor 2.9244 (what the starter paid)
+2026-10-07 10:53:52,778 INFO [v36b] EXIT stop LPCN 282 @ 2.8900 | trigger print 2.9208 x 156 cond ['@', 'T'], 2.0s old | entry 2.9244 peak 2.9600 stop 2.9244 | held 98s | P/L -9.71 (-1.18% of the trade, -0.14% of the account)
+2026-10-07 10:56:10,575 INFO [v36] ENTER LPCN 146 @ 2.9400 (print 2.9600) = $429 (2% of equity) | stop 2.8900 (1.70% away) | setup trigger 2.9600
+2026-10-07 10:56:10,578 INFO [v36] LPCN STARTER 146 shares (a tenth of a full position), buy 4 today - adds at 3.0900 and 3.1400 on a new high
+2026-10-07 10:56:13,483 INFO [v36b] ENTER LPCN 56 @ 2.9459 (print 2.9600) = $165 (2% of equity) | stop 2.8900 (1.90% away) | setup trigger 2.9600
+2026-10-07 10:56:13,485 INFO [v36b] LPCN STARTER 56 shares (a tenth of a full position), buy 4 today - adds at 3.0959 and 3.1459 on a new high
+2026-10-07 10:57:44,470 INFO [v36b] LPCN ADD to 50% of a full position: +215 @ 3.1000 -> 271 shares, entry 3.0920, floor 3.0920 (what the starter paid)
+2026-10-07 10:57:45,881 INFO [v36] LPCN ADD to 50% of a full position: +563 @ 3.0900 -> 709 shares, entry 3.0704, floor 3.0704 (what the starter paid)
+2026-10-07 10:57:48,070 INFO [v36b] EXIT stop LPCN 271 @ 3.0768 | trigger print 3.0900 x 100 cond ['@', 'T'], 2.0s old | entry 3.0920 peak 3.1000 stop 3.0920 | held 95s | P/L -4.10 (-0.49% of the trade, -0.06% of the account)
+2026-10-07 10:57:54,325 INFO [v36] EXIT stop LPCN 709 @ 3.0709 | trigger print 3.0700 x 289 cond ['@', 'T'], 0.0s old | entry 3.0704 peak 3.1208 stop 3.0704 | held 104s | P/L +0.39 (+0.02% of the trade, +0.00% of the account)
+2026-10-07 11:00:06,456 INFO [v36b] ENTER LPCN 53 @ 3.1400 (print 3.1200) = $166 (2% of equity) | stop 3.0450 (3.03% away) | setup trigger 3.1200
+2026-10-07 11:00:06,459 INFO [v36b] LPCN STARTER 53 shares (a tenth of a full position), buy 5 today - adds at 3.2900 and 3.3400 on a new high
+2026-10-07 11:00:12,227 INFO [v37] ENTER LPCN 168 @ 3.3500 (print 3.3000) = $563 (3.9% of equity) - a tenth of a position, buy 2 today | crowd #1, $5795k in 5 min | stop 3.2424 | adds at 3.4500 and 3.5500 | speed 0.11 | score None (the last candle closed red)
+2026-10-07 11:00:12,564 INFO [v36] ENTER LPCN 107 @ 3.1400 (print 3.1200) = $336 (2% of equity) | stop 3.0450 (3.03% away) | setup trigger 3.1200
+2026-10-07 11:00:12,568 INFO [v36] LPCN STARTER 107 shares (a tenth of a full position), buy 5 today - adds at 3.2900 and 3.3400 on a new high
+2026-10-07 11:00:13,844 INFO [v36] LPCN ADD to 50% of a full position: +542 @ 3.2900 -> 649 shares, entry 3.3070, floor 3.3070 (what the starter paid)
+2026-10-07 11:00:15,105 INFO [v37] EXIT giveback LPCN 168 @ 3.3297 | trigger print 3.3500 x 200 cond ['@', 'T'], 1.5s old | entry 3.3500 peak 3.3600 stop 3.2424 | held 3s | P/L -3.41 (-0.61% of the trade, -0.02% of the account)
+2026-10-07 11:00:15,505 INFO [v36b] LPCN ADD to 50% of a full position: +200 @ 3.2900 -> 253 shares, entry 3.2702, floor 3.2702 (what the starter paid)
+2026-10-07 11:00:16,371 INFO [v36] EXIT stop LPCN 649 @ 3.3095 | trigger print 3.2900 x 200 cond ['@', 'T'], 3.9s old | entry 3.3070 peak 3.2900 stop 3.3070 | held 4s | P/L +1.63 (+0.08% of the trade, +0.01% of the account)
+2026-10-07 11:00:16,921 INFO [v36b] LPCN ADD to 100% of a full position: +252 @ 3.3415 -> 505 shares, entry 3.2851, floor 3.2851 (what the starter paid)
+2026-10-07 11:00:19,295 INFO [v36b] EXIT stop LPCN 505 @ 3.2810 | trigger print 3.2800 x 256 cond ['@', 'T'], 1.5s old | entry 3.2851 peak 3.3415 stop 3.2851 | held 13s | P/L -2.06 (-0.12% of the trade, -0.03% of the account)
+2026-10-07 11:11:42,121 INFO [v37] ENTER APUS 65 @ 8.6000 (print 8.6100) = $559 (3.8% of equity) - a tenth of a position, buy 1 today | crowd #2, $1906k in 5 min | stop 8.3420 | adds at 8.7000 and 8.8000 | speed 0.19 | score 9 (speed 1 candle 1 wicks 0 bodies 0 lows 1 volume 2 trend 2 macd 1 room 1)
+2026-10-07 11:11:43,945 INFO [v37] EXIT giveback APUS 65 @ 8.5700 | trigger print 8.5300 x 100 cond [' ', 'F', 'T'], 0.0s old | entry 8.6000 peak 8.6100 stop 8.3420 | held 2s | P/L -1.95 (-0.35% of the trade, -0.01% of the account)
+2026-10-07 11:16:40,392 INFO [v36b] ENTER APUS 19 @ 8.5500 (print 8.5100) = $162 (2% of equity) | stop 8.3000 (2.92% away) | setup trigger 8.5100
+2026-10-07 11:16:40,393 INFO [v36b] APUS STARTER 19 shares (a tenth of a full position), buy 1 today - adds at 8.7000 and 8.7500 on a new high
+2026-10-07 11:16:40,511 INFO [v36] ENTER APUS 51 @ 8.5500 (print 8.5100) = $436 (2% of equity) | stop 8.3000 (2.92% away) | setup trigger 8.5100
+2026-10-07 11:16:40,512 INFO [v36] APUS STARTER 51 shares (a tenth of a full position), buy 1 today - adds at 8.7000 and 8.7500 on a new high
+2026-10-07 11:17:53,226 INFO [v36b] EXIT stop APUS 19 @ 8.3000 | trigger print 8.3000 x 104 cond [' ', 'T'], 0.0s old | entry 8.5500 peak 8.6800 stop 8.3000 | held 73s | P/L -4.75 (-2.92% of the trade, -0.07% of the account)
+2026-10-07 11:17:55,058 INFO [v36] EXIT stop APUS 51 @ 8.3020 | trigger print 8.3000 x 104 cond [' ', 'T'], 0.0s old | entry 8.5500 peak 8.6800 stop 8.3000 | held 74s | P/L -12.65 (-2.90% of the trade, -0.07% of the account)
+2026-10-07 11:18:09,143 INFO [v36] ENTER LPCN 127 @ 3.4200 (print 3.4200) = $434 (2% of equity) | stop 3.3200 (2.92% away) | setup trigger 3.4200
+2026-10-07 11:18:09,149 INFO [v36] LPCN STARTER 127 shares (a tenth of a full position), buy 6 today - adds at 3.5700 and 3.6200 on a new high
+2026-10-07 11:18:10,246 INFO [v36b] ENTER LPCN 48 @ 3.4200 (print 3.4200) = $164 (2% of equity) | stop 3.3200 (2.92% away) | setup trigger 3.4200
+2026-10-07 11:18:10,252 INFO [v36b] LPCN STARTER 48 shares (a tenth of a full position), buy 6 today - adds at 3.5700 and 3.6200 on a new high
+2026-10-07 11:20:05,413 INFO [v36] EXIT stop LPCN 127 @ 3.3500 | trigger print 3.3200 x 100 cond ['@', 'T'], 0.0s old | entry 3.4200 peak 3.4600 stop 3.3200 | held 116s | P/L -8.89 (-2.05% of the trade, -0.05% of the account)
+2026-10-07 11:20:05,773 INFO [v36b] EXIT stop LPCN 48 @ 3.3700 | trigger print 3.3200 x 100 cond ['@', 'T'], 0.0s old | entry 3.4200 peak 3.4600 stop 3.3200 | held 116s | P/L -2.40 (-1.46% of the trade, -0.03% of the account)
+2026-10-07 12:09:10,814 INFO [v36b] ENTER SPAI 33 @ 4.9100 (print 4.9400) = $162 (2% of equity) | stop 4.7821 (2.60% away) | setup trigger 4.9300
+2026-10-07 12:09:10,816 INFO [v36b] SPAI STARTER 33 shares (a tenth of a full position), buy 1 today - adds at 5.0600 and 5.1100 on a new high
+2026-10-07 12:09:15,313 INFO [v36] ENTER SPAI 87 @ 4.9082 (print 4.9400) = $427 (2% of equity) | stop 4.4121 (10.11% away) | setup trigger 4.9300
+2026-10-07 12:09:15,315 INFO [v36] SPAI STARTER 87 shares (a tenth of a full position), buy 1 today - adds at 5.0582 and 5.1082 on a new high
+2026-10-07 12:09:58,876 INFO [v37] ENTER SPAI 108 @ 4.8053 (print 5.0499) = $519 (3.6% of equity) - a tenth of a position, buy 1 today | crowd #2, $3907k in 5 min | stop 4.5934 | adds at 4.9053 and 5.0053 | speed 0.20 | score None (the last candle closed red)
+2026-10-07 12:09:59,208 INFO [v36b] EXIT stop SPAI 33 @ 4.7430 | trigger print 4.7801 x 100 cond ['@', 'T'], 0.0s old | entry 4.9100 peak 5.0499 stop 4.7821 | held 48s | P/L -5.51 (-3.40% of the trade, -0.08% of the account)
+2026-10-07 12:10:00,032 INFO [v37] EXIT giveback SPAI 108 @ 4.6900 | trigger print 4.8000 x 290 cond ['@', 'T'], 2.0s old | entry 4.8053 peak 4.8100 stop 4.5934 | held 1s | P/L -12.45 (-2.40% of the trade, -0.09% of the account)
+2026-10-07 12:12:03,160 INFO [v36] SPAI ADD to 50% of a full position: +340 @ 5.0800 -> 427 shares, entry 4.9733, floor 4.9733 (what the starter paid)
+2026-10-07 12:12:05,894 INFO [v36] EXIT stop SPAI 427 @ 4.9400 | trigger print 4.9700 x 345 cond ['@', 'T'], 0.0s old | entry 4.9733 peak 5.1000 stop 4.9733 | held 171s | P/L -14.23 (-0.67% of the trade, -0.08% of the account)
+2026-10-07 12:13:37,361 INFO [v36] ENTER SPAI 85 @ 4.9921 (print 5.0100) = $424 (2% of equity) | stop 4.8300 (3.25% away) | setup trigger 5.0100
+2026-10-07 12:13:37,364 INFO [v36] SPAI STARTER 85 shares (a tenth of a full position), buy 2 today - adds at 5.1421 and 5.1921 on a new high
+2026-10-07 12:13:38,477 INFO [v36b] ENTER SPAI 32 @ 4.9916 (print 5.0100) = $160 (2% of equity) | stop 4.8597 (2.64% away) | setup trigger 5.0100
+2026-10-07 12:13:38,479 INFO [v36b] SPAI STARTER 32 shares (a tenth of a full position), buy 2 today - adds at 5.1416 and 5.1916 on a new high
+2026-10-07 12:15:16,841 INFO [v36b] EXIT stop SPAI 32 @ 4.8500 | trigger print 4.8500 x 180 cond ['@', 'T'], 0.0s old | entry 4.9916 peak 5.0700 stop 4.8597 | held 98s | P/L -4.53 (-2.84% of the trade, -0.07% of the account)
+2026-10-07 12:15:22,931 INFO [v36] EXIT stop SPAI 85 @ 4.8100 | trigger print 4.8300 x 682 cond ['@', 'F', 'T'], 0.0s old | entry 4.9921 peak 5.0700 stop 4.8300 | held 106s | P/L -15.48 (-3.65% of the trade, -0.09% of the account)
+2026-10-07 12:16:38,460 INFO [v37] ENTER SXTC 192 @ 2.8689 (print 2.7700) = $551 (3.8% of equity) - a tenth of a position, buy 1 today | crowd #3, $2002k in 5 min | stop 2.6932 | adds at 2.9689 and 3.0689 | speed 0.40 | score 15 (speed 4 candle 2 wicks 1 bodies 1 lows 1 volume 2 trend 2 macd 1 room 1)
+2026-10-07 12:16:39,939 INFO [v37] EXIT giveback SXTC 192 @ 3.2600 | trigger print 2.8700 x 963 cond ['@', 'F', 'T'], 1.8s old | entry 2.8689 peak 2.8800 stop 2.6932 | held 1s | P/L +75.09 (+13.63% of the trade, +0.52% of the account)
+2026-10-07 12:17:04,517 INFO [v36] ENTER SXTC 92 @ 4.8300 (print 4.8000) = $444 (2% of equity) | stop 2.2100 (54.24% away) | new-high trigger 2.7700
+2026-10-07 12:17:04,568 INFO [v36] SXTC STARTER 92 shares (a tenth of a full position), buy 4 today - adds at 4.9800 and 5.0300 on a new high
+2026-10-07 12:17:06,672 INFO [v36] SXTC ADD to 50% of a full position: +352 @ 4.9900 -> 444 shares, entry 4.7745, floor 4.7745 (what the starter paid)
+2026-10-07 12:17:07,161 INFO [v36b] ENTER SXTC 35 @ 4.7780 (print 4.8000) = $167 (2% of equity) | stop 2.6869 (43.77% away) | new-high trigger 2.7700
+2026-10-07 12:17:07,166 INFO [v36b] SXTC STARTER 35 shares (a tenth of a full position), buy 4 today - adds at 4.9280 and 4.9780 on a new high
+2026-10-07 12:17:08,446 INFO [v36] EXIT stop SXTC 444 @ 4.7500 | trigger print 4.7597 x 150 cond ['@', 'T'], 2.0s old | entry 4.7745 peak 5.0000 stop 4.7745 | held 4s | P/L -10.88 (-0.51% of the trade, -0.06% of the account)
+2026-10-07 12:22:23,383 INFO [v36b] EXIT stop SXTC 35 @ 2.6600 | trigger print 2.6800 x 100 cond ['@', 'F', 'T'], 0.0s old | entry 4.7780 peak 4.8300 stop 2.6869 | held 316s | P/L -74.13 (-44.33% of the trade, -1.08% of the account)
+2026-10-07 12:38:02,847 INFO [v36] ENTER MTEN 292 @ 1.4714 (print 1.4800) = $430 (2% of equity) | stop 1.4200 (3.50% away) | setup trigger 1.4800
+2026-10-07 12:38:02,851 INFO [v36] MTEN STARTER 292 shares (a tenth of a full position), buy 1 today - adds at 1.6214 and 1.6714 on a new high
+2026-10-07 12:38:04,651 INFO [v36b] ENTER MTEN 111 @ 1.4625 (print 1.4800) = $162 (2% of equity) | stop 1.4356 (1.84% away) | setup trigger 1.4800
+2026-10-07 12:38:04,654 INFO [v36b] MTEN STARTER 111 shares (a tenth of a full position), buy 1 today - adds at 1.6125 and 1.6625 on a new high
+2026-10-07 12:38:05,200 INFO [v36] EXIT stop MTEN 292 @ 1.4079 | trigger print 1.4200 x 100 cond ['@', 'T'], 0.0s old | entry 1.4714 peak 1.4800 stop 1.4200 | held 2s | P/L -18.56 (-4.32% of the trade, -0.10% of the account)
+2026-10-07 12:38:05,935 INFO [v36b] EXIT stop MTEN 111 @ 1.4000 | trigger print 1.4300 x 143 cond ['@', 'T'], 1.9s old | entry 1.4625 peak 1.4800 stop 1.4356 | held 1s | P/L -6.94 (-4.28% of the trade, -0.10% of the account)

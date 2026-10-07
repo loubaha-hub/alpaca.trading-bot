@@ -5,6 +5,34 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-07
 
+### Premarket audit (4:00-9:20am, r34.14): every trade, one by one
+- The owner: check every order this morning, find the flaws, fix them -
+  "that is what gives us an edge". 51 round trips: v36 22 (5 won,
+  -$221.76), v36b 22 (1 won, -$155.80), v37 7 (3 won, +$63.71). Page:
+  https://claude.ai/artifact/9ZEU642xnxLiY5tQtCPUy4 ; the log lines are in
+  replay/live/2026-10-07_premarket_*.log.
+- r34.15's rules, checked on the minute chart, would most likely have
+  blocked 40 of the 44 v36/v36b buys (they lost $320 together).
+- Still open (proposals, the owner to decide one by one): (1) v37's fast
+  buy has no ceiling - a fix (no fast buy 20%+ over the last closed
+  minute's high, V37_ACCEL_CHASE) is on the branch, NOT released; (2) the
+  adds: 14 of 16 trades with adds sold within 10s of the add (the floor
+  jumps to the average) - starters +$201, adds -$199; (3) the 6-buy cap
+  still blocks a non-leader that accelerates (BIYA 8:20); (4) v37 has no
+  steady-runner entry (LPCN 7:07-7:29 +32% on ~$20M); (5) v37's giveback
+  arms at 1c - all 7 v37 trades held 1-4s; (6) first buys 15%+ under the
+  HOD; (7) 2+ reds = a lower-high trigger; (8) v36's stops 5-10% (the
+  side-by-side test, the owner's call); (9) the crowd ranking lags a
+  minute in a spike; (10) log labels.
+- BIYA 8:20-8:21: $2.54 -> $33.96 -> $8.20 in under a minute (the bots
+  saw $2.62 at 8:20:37 and $9.24 at 8:21:26); v36s "6 buys today", v37
+  never looked (crowd #4). SXTC 8:16: v37 in 1s, +$75, then $7.12.
+- Replay round 2 (7 days, $15k, 0.2% / 1% fills, without re-entry
+  speed): v36b with the fixes +$1,107 / -$611; without the HOD+5c rule
+  +$1,524 / -$63; without the leader no-cap +$1,387 / -$161. v37 with the
+  earlier acceleration +$3,495 / +$484 vs without +$3,454 / +$1,205.
+  To re-run with speed 0.1 and the live sizing.
+
 ### r34.15 released 9:20am ET (the owner's OK)
 - The owner, ~9:15am: do not wait for the end of the day - "the fixes we
   agreed on have to be implemented right away"; then "push to main".
