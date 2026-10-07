@@ -125,7 +125,7 @@ RISK_CHECK_SECONDS = 5                      # the halt runs on a CLOCK, not tick
 # The file name and this string are changed together, every single time. The
 # log then answers "which code is actually running?" without anyone guessing
 # from line numbers or from behaviour that only shows up once a trade is on.
-VERSION = "v31-r34.12"
+VERSION = "v31-r34.13"
 
 # WHERE THE DAY'S HALT BASELINE COMES FROM.
 #   "last_equity" - equity at the PREVIOUS session's close, read from the broker.
@@ -612,8 +612,11 @@ class _Named(logging.LoggerAdapter):
     same lines say "[v34]" when v34 is the one running it."""
 
     def process(self, msg, kwargs):
-        if isinstance(msg, str) and msg.startswith("[v31]"):
-            msg = "[%s]" % self.extra["name"] + msg[5:]
+        if isinstance(msg, str):
+            for tag in ("[v31]", self.extra.get("as")):
+                if tag and msg.startswith(tag):
+                    msg = "[%s]" % self.extra["name"] + msg[len(tag):]
+                    break
         return msg, kwargs
 
 
@@ -1341,11 +1344,12 @@ class SymState:
 class Strategy:
 
     name = "base"
+    log_as = None           # a copy of another strategy: its "[vNN]" lines say our name
 
     def __init__(self, broker: Broker, data: MarketData):
         self.broker = broker
         self.data = data
-        self.log = _Named(log, {"name": self.name})
+        self.log = _Named(log, {"name": self.name, "as": self.log_as})
         self.state: dict[str, SymState] = {}
         self.qualified: set[str] = set()
         self.queue: asyncio.Queue = asyncio.Queue(maxsize=QUEUE_MAX)
@@ -1421,6 +1425,7 @@ class Strategy:
                # v36 buys to 25% of equity on the way up; a runner it holds
                # keeps growing past that, as v35's does.
                "v36": V35_MAX_POSITION_PCT,
+               "v36b": V35_MAX_POSITION_PCT,
                "v37": 0.60}.get(self.name, MAX_POSITION_PCT)   # 40%, grown by a run
         total_value = 0.0
         for s in self.open_positions():
@@ -3837,6 +3842,17 @@ V36_SETUP_BUYS = 0              # >0: candle setups only for this many buys of a
                                 # stock a day; after that the high of the day only
 V36_HOD_PLUS = 0.05             # ...plus this over the highest closed minute
 V36_SLEEP_MIN = 120             # a stock with no new high this long: setups again
+# 2026-10-06, to test (the owner: "only what benefits v36"). In the replay, 84
+# of 153 v36 trades never reached the first add and lost $1,718 (stopped at a
+# median -4.6%); the 69 that added made +$3,635. Fewer bad starters, smaller
+# losses on the ones that fail - and decide exits on fresh prices (today's
+# v36 stops acted on prints 2.5-7s old: APUS 11:32, AVBP 12:19, DLXY 10:46).
+V36_WICK_VETO = 0.0             # >0: no buy when the last closed candle's top wick
+                                # is more than this share of it (APUS 11:35, 1:51)
+V36_MAX_STOP = 0.0              # >0: the first stop no further than this under
+                                # the trigger (the pullback's low was up to 9% away)
+V36_FRESH_EXITS = False         # stops and the trail decide only on prints under
+                                # V37_FRESH_SECONDS old (as v37 since r34.8)
 V36_FLOOR_AVG = True            # after an add, the floor rises to: True = the
                                 # position's average (breakeven), False = what the
                                 # starter paid. Replayed 09-28..10-05: average
@@ -3853,16 +3869,18 @@ V36_PAY_UP_MAX = 0.05           # ...never more than this (BUY_CHASE_CAP at leas
 V36_CONFIRM_TOLERANCE = 0.01    # the ask may sit this far under the trigger
 # WHICH STRATEGY TRADES EACH ACCOUNT (the owner, 2026-10-06): v31's keys
 # (T6HH, "v27-30k") run v36; v34's keys (V33_*, P28T, "V30-100k") run v37;
-# v35's keys (AUES) run v35. Each can be changed in the environment with no
-# code change: SLOT_V31 / SLOT_V34 / SLOT_V35 = v31, v34, v35, v36, v37 or off.
-SLOT_DEFAULTS = {"v31": "v36", "v34": "v37", "v35": "v35"}
+# v35's keys (AUES) run v36b (v36 with r34.13's changes; v35 until 10-06).
+# Each can be changed in the environment with no code change: SLOT_V31 /
+# SLOT_V34 / SLOT_V35 = v31, v34, v35, v36, v36b, v37 or off.
+SLOT_DEFAULTS = {"v31": "v36", "v34": "v37", "v35": "v36b"}
 
 
 def account_classes(env=None):
     """The strategy class for each account slot (None = off), by the slot's
     old name."""
     env = os.environ if env is None else env
-    names = {"v31": V31, "v34": V34, "v35": V35, "v36": V36, "v37": V37}
+    names = {"v31": V31, "v34": V34, "v35": V35, "v36": V36, "v36b": V36B,
+             "v37": V37}
     out = {"v32": V32}
     for slot, default in SLOT_DEFAULTS.items():
         chosen = (env.get("SLOT_" + slot.upper()) or default).strip().lower()
@@ -3931,6 +3949,12 @@ class _Momentum:
             s.v37_speed_prints.append((t, price, size))
         while s.v37_speed_prints and s.v37_speed_prints[0][0] < now - 2 * V37_FAST_SECONDS:
             s.v37_speed_prints.popleft()
+
+    def fresh(self, s) -> bool:
+        """The print being decided on traded within V37_FRESH_SECONDS (a
+        print with no trade time counts as fresh - the replay has none)."""
+        return (not s.last_print_ts
+                or time.time() - s.last_print_ts <= V37_FRESH_SECONDS)
 
     def pace(self, s) -> float:
         """Shares traded in the last V37_FAST_SECONDS (by when they traded)."""
@@ -4049,6 +4073,15 @@ class V36(_Restore, _Momentum, V35):
     """The owner's playbook - see the V36 settings above."""
 
     name = "v36"
+    # This strategy's own value of a V36_ setting, where it has one (v36b);
+    # None = the module setting, shared by every copy of v36.
+    WICK_VETO = None
+    MAX_STOP = None
+    FRESH_EXITS = None
+
+    def own(self, setting):
+        mine = getattr(self, setting)
+        return globals()["V36_" + setting] if mine is None else mine
 
     def __init__(self, broker, data):
         super().__init__(broker, data)
@@ -4368,6 +4401,17 @@ class V36(_Restore, _Momentum, V35):
             self.why_not(s, price, "WAIT: %s trigger %.4f" % (found[2], found[0]))
             return
         trigger, stop_ref, kind = found
+        veto = self.own("WICK_VETO")
+        if veto and s.bars:
+            b = s.bars[-1]
+            rng = b.h - b.l
+            wick = (b.h - max(b.o, b.c)) / rng if rng > 0 else 0.0
+            if wick > veto:
+                self.why_not(s, price, "NO: a %.0f%% top wick on the last candle - sellers "
+                             "rejected the high" % (100 * wick), urgent=True)
+                return
+        if self.own("MAX_STOP"):
+            stop_ref = max(stop_ref, trigger * (1 - self.own("MAX_STOP")))
         if not self.trend_ok(s, price) or not s.ema12 > s.ema26:
             self.why_not(s, price, "NO TREND at the trigger %.4f: vwap %.4f e9 %.4f e20 "
                          "%.4f macd %+.4f" % (trigger, self.vwap(s), s.ema9, s.ema20,
@@ -4512,6 +4556,8 @@ class V36(_Restore, _Momentum, V35):
         if not s.in_position:
             await self.maybe_enter(s, price, self.fast_speed(s), self.baseline(s))
             return
+        if self.own("FRESH_EXITS") and not self.fresh(s):
+            return                              # an old print: the next fresh one decides
         new_high = price >= s.peak
         s.peak = max(s.peak, price)
         s.v35_peak = max(s.v35_peak, price)
@@ -4732,6 +4778,19 @@ V37_FRESH_SECONDS = 2.0         # buy and add only on a print that traded this
                                 # 58s old (one "new high" at 3.30 filled at 3.06)
 
 
+class V36B(V36):
+    """v36 with r34.13's three changes, on its own account (the owner,
+    10-06: v36 on two accounts side by side - T6HH as it is, AUES with
+    these). Replayed 09-28..10-06 on $15,000: +$2,272 / -$78 at fills 0.2% /
+    1% worse, against v36's +$1,540 / -$985; worst trade -$39 against -$102."""
+
+    name = "v36b"
+    log_as = "[v36]"
+    WICK_VETO = 0.60        # no buy under a candle that is 60%+ top wick
+    MAX_STOP = 0.03         # the first stop no more than 3% under the trigger
+    FRESH_EXITS = True      # stops and the trail act only on fresh prints
+
+
 class V37(V36):
     """The simplest strategy - see the V37 settings above. Borrows v36's
     crowd count and v31's order machinery; nothing else."""
@@ -4881,12 +4940,6 @@ class V37(V36):
         first = s.v37_prints[0][1]
         now = s.last_price / first - 1 if first > 0 else 0.0
         return now > 0 and now >= then
-
-    def fresh(self, s) -> bool:
-        """The print being decided on traded within V37_FRESH_SECONDS (a
-        print with no trade time counts as fresh - the replay has none)."""
-        return (not s.last_print_ts
-                or time.time() - s.last_print_ts <= V37_FRESH_SECONDS)
 
     def fast(self, s, price) -> bool:
         """Up V37_FAST_PCT within the last V37_FAST_SECONDS, on at least
