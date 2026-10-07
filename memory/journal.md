@@ -5,6 +5,19 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-06
 
+### Where v24 ran, and what is left of it (found 10-06 night)
+- Code: every version is in git history (the clone was shallow; fetch
+  --unshallow). main_v24.py 09-25 (first), 09-26 ("final revision"), 09-28
+  (rebuilt: green-then-red bars, red open +1c, 12 ranked positions); on
+  09-30 4:18am ET the file was overwritten with v32. Render services
+  v24-trading-bot and v30-trading-bot (created 09-25) are suspended since
+  09-30. Nothing on Render or in the artifacts is from August.
+- Account: AUES (the owner's "v24-30k"). v24's last line, 09-30 4:00am:
+  baseline equity $21,250.22; the same keys ran v32 that morning, and the
+  main bot's v32 on AUES showed $18,452 that evening. v30's service ran on
+  P28T. Render's logs from before 09-30 are gone (about 7 days kept); the
+  trades are only in AUES's order history at Alpaca (09-25..09-29).
+
 ### v36 on two accounts: r34.13 released (v36b on AUES)
 - The owner, ~10pm: run v36 on two accounts side by side - T6HH as it is
   (r34.12), the ~$7,000 account (AUES) with r34.13's three changes - and
