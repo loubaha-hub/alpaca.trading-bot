@@ -33,6 +33,10 @@ class FakeBroker:
         self.qty_fails_on = set()
         self.qty_calls = 0
         self.settled = True            # as Broker.send: the last order closed
+        self.market_refused = False    # as Broker.send_market
+        self.market_orders = []        # (symbol, qty, side) sent at market
+        self.working = 0               # wait_clear() says "still working" this many times
+        self.clear_checks = 0
         self.day_fills = []            # as Broker.fills_today: (t, sym, side, qty, px)
 
     # -- what the strategy calls ------------------------------------------------
@@ -74,6 +78,19 @@ class FakeBroker:
         if got > 0:                    # as Broker.send: what filled, at what price
             self.fill_log.setdefault(symbol, []).append((got, limit))
         return got
+
+    async def send_market(self, symbol, qty, side, ref=0.0, wait=None):
+        """As Broker.send_market; fills at ref (what the limit would have been)."""
+        self.market_orders.append((symbol, qty, side))
+        return await self.send(symbol, qty, side, ref, wait)
+
+    async def wait_clear(self, symbol, timeout=None):
+        await asyncio.sleep(0)
+        self.clear_checks += 1
+        if self.working > 0:
+            self.working -= 1
+            return False
+        return True
 
     def take_fill_price(self, symbol):
         rows = self.fill_log.pop(symbol, [])

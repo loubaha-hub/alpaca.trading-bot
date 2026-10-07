@@ -53,7 +53,7 @@ from alpaca.data.requests import StockBarsRequest, StockSnapshotRequest
 from alpaca.data.timeframe import TimeFrame
 from alpaca.trading.client import TradingClient
 from alpaca.trading.requests import (GetAssetsRequest, GetOrdersRequest,
-                                     LimitOrderRequest)
+                                     LimitOrderRequest, MarketOrderRequest)
 from alpaca.trading.enums import (AssetStatus, OrderSide, QueryOrderStatus,
                                   TimeInForce)
 from alpaca.data.enums import DataFeed
@@ -81,6 +81,17 @@ MAX_WATCH = 200                             # symbols on the stream
 BUY_CHASE_CAP = 0.02                        # buys capped 2% above the ask
 CHASE_ATTEMPTS = 8
 CHASE_PAUSE = 0.35
+# THE EXIT (the owner, 10-07: "the exit is the key - get out very quick, at any
+# price"). SXTC 9:30:16 that day: the stop's limit sell did not fill in the
+# opening seconds, its cancel was not confirmed, and the chase sent 8 more
+# sells in about 4 seconds - all refused, the shares held by the first - then
+# did it again, "unprotected", for 5.7 minutes while SXTC fell $3.03 -> $2.85.
+SELL_MARKET_RTH = True          # 9:30-4:00 a sell goes out at market: out at any
+                                # price. Premarket and after hours take limits only.
+CANCEL_WAIT = 10.0              # a sell waits this long for its own cancelled order
+                                # to close - never another order on top of it
+OPEN_PAUSE = ((9, 29), (9, 31)) # no new buys around the opening auction (SXTC
+                                # 9:29:39: bought 21 seconds before the open)
 # BUYING A RUNNER - RELOAD THE LIMIT FAST (the owner, 2026-10-05: "put a new
 # order and a new order until it gets, especially when the stock is flying").
 # The old chase left each limit working about 2 seconds before re-pricing it;
@@ -690,7 +701,15 @@ def entries_allowed() -> bool:
     hm = (now.hour, now.minute)
     if hm >= FLATTEN_AT:
         return False
+    if OPEN_PAUSE and OPEN_PAUSE[0] <= hm < OPEN_PAUSE[1]:
+        return False                    # the opening auction: gaps, slow cancels
     return SESSION[0] <= hm < SESSION[1]
+
+
+def regular_hours() -> bool:
+    """9:30-4:00 ET on a weekday: when a market order is allowed."""
+    now = datetime.now(ET)
+    return now.weekday() < 5 and (9, 30) <= (now.hour, now.minute) < (16, 0)
 
 
 def in_window(window) -> bool:
@@ -896,6 +915,27 @@ class Broker:
                                   limit_price=limit, extended_hours=True))
         except Exception as e:
             return self.classify(e, side, symbol)
+        return await self.follow(symbol, order, qty, wait)
+
+    async def send_market(self, symbol: str, qty: int, side, ref: float = 0.0,
+                          wait: float = 3.0) -> int:
+        """A market order - regular hours only: out at any price. As send():
+        what filled, nothing left working. self.market_refused is set when the
+        broker would not take it, so the caller can fall back to a limit.
+        `ref` is not used by the broker (the fake fills at it)."""
+        self.market_refused = False
+        try:
+            order = await asyncio.to_thread(
+                self.client.submit_order,
+                MarketOrderRequest(symbol=symbol, qty=qty, side=side,
+                                   time_in_force=TimeInForce.DAY))
+        except Exception as e:
+            self.market_refused = True
+            return self.classify(e, side, symbol)
+        return await self.follow(symbol, order, qty, wait)
+
+    async def follow(self, symbol, order, qty, wait) -> int:
+        """Poll a submitted order; cancel and settle what has not filled."""
         filled = 0
         o = None
         self.settled = True
@@ -933,7 +973,7 @@ class Broker:
         """Read a cancelled order until the broker says it is closed. Sets
         self.settled False when it never does - its final fill is unknown, and
         the caller must not send another order on top of it."""
-        for _ in range(10):
+        for _ in range(max(1, int(CANCEL_WAIT / 0.2))):
             try:
                 o = await asyncio.to_thread(self.client.get_order_by_id, oid)
                 last = o
@@ -941,7 +981,7 @@ class Broker:
                     return o
             except Exception:
                 pass
-            await asyncio.sleep(0.1)
+            await asyncio.sleep(0.2)
         self.settled = False
         log.warning("[%s] %s: an order was not confirmed closed after its "
                     "cancel - no further order on top of it", self.label, symbol)
@@ -1039,6 +1079,28 @@ class Broker:
                         self.label, n, symbol)
             await asyncio.sleep(0.4)           # let the broker release them
         return n
+
+    async def wait_clear(self, symbol: str, timeout: float = None) -> bool:
+        """True once no order of ours is working on the symbol. A sell sent on
+        top of one is refused - the shares are held for it (SXTC 10-07 9:30).
+        A failed read counts as clear: a refused order costs nothing, a
+        blocked exit does."""
+        timeout = CANCEL_WAIT if timeout is None else timeout
+        for _ in range(max(1, int(timeout / 0.25))):
+            try:
+                orders = await asyncio.to_thread(
+                    self.client.get_orders,
+                    GetOrdersRequest(status=QueryOrderStatus.OPEN, symbols=[symbol]))
+            except Exception as e:
+                log.error("[%s] cannot list open orders for %s: %s",
+                          self.label, symbol, e)
+                return True
+            if not orders:
+                return True
+            await asyncio.sleep(0.25)
+        log.warning("[%s] %s: our cancelled order is still working after %.0fs "
+                    "- no sell on top of it", self.label, symbol, timeout)
+        return False
 
 
 # ----------------------------------------------------------------------------
@@ -1797,6 +1859,7 @@ class Strategy:
         want = min(int(shares), int(start))
         if want <= 0:
             return 0
+        market = SELL_MARKET_RTH and regular_hours()
         for _ in range(CHASE_ATTEMPTS):
             # EVERY pass, not just the first. The old code cancelled once above
             # and then submitted a fresh limit sell on each pass without
@@ -1805,6 +1868,8 @@ class Strategy:
             # to the whole position, available fell to 0, and the bot strangled
             # its own exit with its own orders.
             await self.broker.cancel_open(symbol)
+            if not await self.broker.wait_clear(symbol):
+                continue                       # never a sell on top of our own order
             now = await self.broker.qty(symbol)
             if now is None:
                 await asyncio.sleep(CHASE_PAUSE)  # unknown is not "none sold"
@@ -1815,7 +1880,13 @@ class Strategy:
                 break
             bid = await self.data.quote(symbol, "bid") or ref
             limit = round(max(bid * 0.995, 0.01), 2)
-            got = await self.broker.send(symbol, remaining, OrderSide.SELL, limit)
+            if market:
+                got = await self.broker.send_market(symbol, remaining,
+                                                    OrderSide.SELL, limit)
+                if getattr(self.broker, "market_refused", False):
+                    market = False             # e.g. a half day: limits from here
+            else:
+                got = await self.broker.send(symbol, remaining, OrderSide.SELL, limit)
             if got == -2:
                 await self.broker.cancel_open(symbol)
                 continue                       # our own order was in the way
