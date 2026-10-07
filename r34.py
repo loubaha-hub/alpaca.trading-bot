@@ -4041,6 +4041,42 @@ class _Momentum:
         vols = [b.v for b in s.bars]
         return bool(vols) and self.pace(s) > max(vols)
 
+    def rip_exception(self, s, price) -> bool:
+        """Ripping, and fast enough to skip the score: the owner's speed at
+        V37_RIP_SPEED or more (LPCN 6:33am 10-07 "ripped" at speed 0.07)."""
+        if not self.ripping(s):
+            return False
+        return not V37_RIP_SPEED or self.real_speed(s, price) >= V37_RIP_SPEED
+
+    def live_quote(self, s):
+        """(bid, ask) of the streamed quote while under V37_QUOTE_AGE old."""
+        q = s.quote
+        if not q or len(q) < 3 or time.time() - q[2] > V37_QUOTE_AGE:
+            return None
+        return q[0], q[1]
+
+    def off_quote(self, s, price) -> bool:
+        """V37_PRINT_CHECK: the print is not the market - outside the live
+        bid-ask by more than the tolerance. No live quote: it cannot say."""
+        if not V37_PRINT_CHECK:
+            return False
+        q = self.live_quote(s)
+        if not q:
+            return False
+        bid, ask = q
+        tol = max(V37_PRINT_TOL_CENTS, V37_PRINT_TOL_PCT * price)
+        return price > ask + tol or price < bid - tol
+
+    def note_off_quote(self, s, price):
+        last = getattr(self, "_off_quote_logged", None)
+        if last is None:
+            last = self._off_quote_logged = {}
+        if time.time() - last.get(s.symbol, 0.0) >= 30:
+            last[s.symbol] = time.time()
+            bid, ask = self.live_quote(s) or (0.0, 0.0)
+            self.log.info("[%s] IGNORED %s print %.4f - the market is %.4f x %.4f "
+                          "(decides nothing)", self.name, s.symbol, price, bid, ask)
+
     def score(self, s, price, pullback=False):
         """V37_SCORE_MIN: how favourable the moment is, out of 15 points, and
         the parts - or (None, why) when it is no buy at all: a red last candle
@@ -4700,6 +4736,22 @@ V37_STOP_MAX = 0.08             # ...nor more than this; after an add, the same
                                 # distance under the new average
 V37_GIVEBACK_ARM = 0.0          # "half the gain" only once the best gain reached
                                 # this (0 = from the first cent, as before)
+# 10-07 (the owner: "from the first cent"). SPAI 8:10:00: bought @ $4.8053,
+# best price $4.81 - half a cent - sold one second later by "half the gain"
+# @ $4.69 while the stop ($4.59, under the red candle) was nowhere near; the
+# next candle closed $4.93. Half a cent is not a gain.
+V37_GIVEBACK_ARM_CENTS = 0.01   # "half the gain" only once the best gain is a
+                                # full cent or more (0 = any fraction, as before)
+# 10-07: the bots acted on single prints that were not the market. BIYA
+# 4:13:55: sold by "half the gain" on a $2.64 print (1.1s old) while it traded
+# $2.73. SPAI 8:09:58: bought "above the high" on a $5.05 print while the
+# market was ~$4.78 (Webull's 8:09 high $5.02; it filled $4.81).
+V37_PRINT_CHECK = True          # a print outside the live bid-ask by more than
+V37_PRINT_TOL_CENTS = 0.02      # this, or this share of the price (whichever is
+V37_PRINT_TOL_PCT = 0.005       # larger), decides nothing - buy, add or sell
+V37_QUOTE_AGE = 2.0             # a streamed quote older than this is not "live"
+V37_CONFIRM_ASK = True          # a buy needs the ask itself above the old high
+V37_GIVEBACK_BID = True         # "half the gain" needs the bid under the line too
 # PROPOSED 2026-10-06, off until the owner decides. All 6 v37 trades from
 # 9:02 to 11:40am were sold by "half the gain" 4-13 seconds after the buy,
 # on a gain of 1-8c - noise right after the buy. A grace: for this many
@@ -4744,6 +4796,14 @@ V37_SPEED_MOVE_MIN = 0.03       # the speed counts (its points, the furious over
                                 # up this much in the last minute - the owner: huge
                                 # volume on a flat price is selling met by buying,
                                 # not a run ("I would wait for a confirmation")
+# 10-07: "ripping" (the last 60s out-traded every minute so far) skipped the
+# score - and the red-candle no-buy with it. LPCN 6:33am: score 9, speed 0.07,
+# early-premarket minutes small; LPCN 7:00 and SPAI 8:09:58 bought with the
+# last candle red ("score None"). The owner: the exception is for the furious.
+V37_RIP_SPEED = 0.3             # ripping skips the score only at this speed or
+                                # more (0 = any ripping, as before)
+V37_RIP_NO_RED = True           # a red last candle or a huge wick is no buy, ripping
+                                # or not (False = ripping skipped it, as before)
 V37_SCORE_FURIOUS = 0.0         # >0: a speed this high buys whatever the score (the
                                 # owner: "the speed is everything" - never miss the
                                 # furious ones); 0 = off
@@ -5061,19 +5121,33 @@ class V37(V36):
         if not self.volume_ok(s):
             return                              # flying means the volume is rising
         why = self.not_running(s)
-        if (not why and V37_SCORE_MIN and not self.ripping(s)
+        rip = self.rip_exception(s, price)
+        if (not why and V37_SCORE_MIN
+                and not (rip and not V37_RIP_NO_RED)
                 and not (V37_SCORE_FURIOUS
                          and self.real_speed(s, price) >= V37_SCORE_FURIOUS)):
             points, parts = self.score(s, price)
-            if points is None or points < V37_SCORE_MIN:
-                why = "score %s/15 under %d: %s" % (points, V37_SCORE_MIN, parts) \
-                    if points is not None else parts
+            if points is None:
+                why = parts                     # a red last candle or a huge wick:
+                                                # no buy, ripping or not
+            elif points < V37_SCORE_MIN and not rip:
+                why = "score %s/15 under %d: %s" % (points, V37_SCORE_MIN, parts)
         if why:                                 # it spiked, it is not running
             if time.time() - s.v37_skip_logged >= 30:
                 s.v37_skip_logged = time.time()
                 self.log.info("[v37] SKIP %s at %.4f - not running: %s",
                               s.symbol, price, why)
             return
+        if V37_CONFIRM_ASK:                     # the market, not one print
+            q = self.live_quote(s)
+            ask = q[1] if q else await self.data.quote(s.symbol, "ask")
+            if ask is not None and ask <= s.day_high:
+                if time.time() - s.v37_skip_logged >= 30:
+                    s.v37_skip_logged = time.time()
+                    self.log.info("[v37] SKIP %s at %.4f - the ask %.4f is not above "
+                                  "the high %.4f: that print was not the market",
+                                  s.symbol, price, ask, s.day_high)
+                return
         lock = self.lock(s.symbol)
         if lock.locked():
             return
@@ -5192,6 +5266,9 @@ class V37(V36):
             if s.in_position:
                 await self.exit(s, "halted")
             return
+        if self.off_quote(s, price):
+            self.note_off_quote(s, price)       # not the market: decides nothing
+            return
         if not s.in_position:
             await self.maybe_enter(s, price, None, None)
             return
@@ -5212,10 +5289,14 @@ class V37(V36):
             s.v37_peak_after = max(s.v37_peak_after or s.entry, price)
             top = s.v37_peak_after if V37_GRACE_FORGET else s.peak
         gain = top - s.entry
-        armed = top >= s.entry * (1 + V37_GIVEBACK_ARM)
-        if gain > 0 and armed and price <= s.entry + (1 - V37_GIVEBACK) * gain:
-            await self.exit(s, "giveback")      # half of the profit gone
-            return
+        armed = (top >= s.entry * (1 + V37_GIVEBACK_ARM)
+                 and gain >= V37_GIVEBACK_ARM_CENTS - 1e-9)
+        line = s.entry + (1 - V37_GIVEBACK) * gain
+        if gain > 0 and armed and price <= line:
+            q = self.live_quote(s) if V37_GIVEBACK_BID else None
+            if not (q and q[0] > line):         # the bid agrees the gain is gone
+                await self.exit(s, "giveback")  # half of the profit gone
+                return
         steps = ((V37_ADD1_CENTS, V37_ADD1_TO), (V37_ADD2_CENTS, V37_ADD2_TO))
         if len(self.open_positions()) > 1:
             steps += ((V37_ADD3_CENTS, None),)     # beside another: make room, grow

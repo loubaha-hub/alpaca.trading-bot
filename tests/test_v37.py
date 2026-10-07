@@ -1173,3 +1173,117 @@ def test_huge_volume_on_a_flat_price_is_not_speed(v37, clock, now):
     assert v37.speed(s, 10.10) == pytest.approx(0.30, abs=0.01)
     assert v37.real_speed(s, 10.10) == 0.0
     assert "speed 0" in v37.score(s, 10.10)[1]
+
+
+# ---- 10-07, live: the bots acted on prints that were not the market, and the
+# ---- ripping exception let in what the rules say no to ---------------------------
+
+def rip_on_stairs(v37, clock, now, last):
+    """Over the day's high on prints that out-trade every closed minute so far."""
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    candles(s, STAIRS[:2] + [last], quiet=40_000)          # $400k a minute: the crowd
+    s.day_high = 10.05
+    prints(v37, s, now, 10.00, 10.35, size=2_000)          # 60k shares: a rip
+    return s
+
+
+@pytest.mark.parametrize("rip_speed, buys", [(0.3, False), (0.0, True)])
+def test_ripping_without_speed_still_needs_the_score(v37, clock, now, monkeypatch,
+                                                     rip_speed, buys):
+    """LPCN 6:33am: "ripping" at speed 0.07 (early premarket minutes are
+    small) skipped the score - 9 of 15 - and was bought. 0.0 = as it was."""
+    monkeypatch.setattr(bot, "V37_SCORE_MIN", 12)
+    monkeypatch.setattr(bot, "V37_RIP_SPEED", rip_speed)
+    s = rip_on_stairs(v37, clock, now, STAIRS[2])
+    assert v37.ripping(s) and v37.real_speed(s, 10.36) < 0.3
+    tick(v37, s, now, 10.36)
+    assert s.in_position == buys
+
+
+def test_ripping_skips_the_score_only_at_the_furious_speed(v37, clock, now, monkeypatch):
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    monkeypatch.setattr(v37, "ripping", lambda s: True)
+    monkeypatch.setattr(v37, "real_speed", lambda s, p: 0.07)
+    assert not v37.rip_exception(s, 10.0)
+    monkeypatch.setattr(v37, "real_speed", lambda s, p: 0.33)
+    assert v37.rip_exception(s, 10.0)
+
+
+@pytest.mark.parametrize("no_red, buys", [(True, False), (False, True)])
+def test_ripping_never_buys_over_a_red_last_candle(v37, clock, now, monkeypatch,
+                                                   no_red, buys):
+    """LPCN 7:00am and SPAI 8:09:58: "score None (the last candle closed
+    red)" - bought anyway through the ripping exception. False = as it was."""
+    monkeypatch.setattr(bot, "V37_SCORE_MIN", 12)
+    monkeypatch.setattr(bot, "V37_RIP_NO_RED", no_red)
+    monkeypatch.setattr(v37, "rip_exception", lambda s, p: True)
+    s = rip_on_stairs(v37, clock, now, (10.19, 10.22, 10.10, 10.12, 7_000))
+    tick(v37, s, now, 10.36)
+    assert s.in_position == buys
+
+
+def test_half_a_cent_is_not_a_gain(v37, clock, now, monkeypatch):
+    """SPAI 8:10:00: best price half a cent over the buy, sold by "half the
+    gain" one second in - the stop ($4.59) nowhere near; the next candle
+    closed $4.93. The owner: from the first cent."""
+    monkeypatch.setattr(bot, "V37_ASK_PLUS", 0.0)
+    s = bought(v37, clock, now)
+    tick(v37, s, now, round(s.entry + 0.005, 4))
+    tick(v37, s, now, round(s.entry + 0.001, 4))
+    assert s.in_position
+    tick(v37, s, now, round(s.entry + 0.012, 4))          # a real cent, then half of it gone
+    tick(v37, s, now, round(s.entry + 0.004, 4))
+    assert not s.in_position and v37.closed_today[-1][5] == "giveback"
+
+
+def test_a_print_off_the_quote_buys_nothing(v37, clock, now):
+    """SPAI 8:09:58: "above the high" on a $5.05 print while the market was
+    ~$4.78 - Webull's 8:09 high $5.02; it filled $4.81, 12c under the red
+    candle's top, and was sold a second later."""
+    s = ripping(v37, clock, now)
+    s.quote = (9.80, 9.84, now[0] + 1)                     # the market, 50c lower
+    tick(v37, s, now, 10.36)
+    assert not s.in_position
+    s.quote = (10.34, 10.37, now[0] + 1)                   # the market agrees
+    tick(v37, s, now, 10.37)
+    assert s.in_position
+
+
+def test_a_buy_needs_the_ask_above_the_old_high(v37, clock, now, data):
+    """No streamed quote: the snapshot's ask must itself be over the high."""
+    s = ripping(v37, clock, now)
+    data.quotes[("ABCD", "ask")] = 10.04                   # under the old high 10.05
+    tick(v37, s, now, 10.36)
+    assert not s.in_position
+    data.quotes[("ABCD", "ask")] = 10.37
+    tick(v37, s, now, 10.37)
+    assert s.in_position
+
+
+def test_a_stray_low_print_sells_nothing(v37, clock, now, monkeypatch):
+    """BIYA 4:13:55: sold by "half the gain" on a $2.64 print (1.1s old)
+    while it traded $2.73 - above its own peak."""
+    monkeypatch.setattr(bot, "V37_ASK_PLUS", 0.0)
+    s = bought(v37, clock, now)
+    tick(v37, s, now, round(s.entry + 0.08, 2))
+    s.quote = (round(s.entry + 0.08, 2), round(s.entry + 0.09, 2), now[0] + 1)
+    tick(v37, s, now, round(s.entry - 0.10, 2))           # 18c under the bid: not the market
+    assert s.in_position
+
+
+def test_half_the_gain_needs_the_bid_to_agree(v37, clock, now, monkeypatch):
+    monkeypatch.setattr(bot, "V37_ASK_PLUS", 0.0)
+    s = bought(v37, clock, now)
+    tick(v37, s, now, round(s.entry + 0.08, 2))           # line: entry + 4c
+    s.quote = (round(s.entry + 0.06, 2), round(s.entry + 0.07, 2), now[0] + 1)
+    tick(v37, s, now, round(s.entry + 0.035, 3))          # a print under the line...
+    assert s.in_position                                   # ...but the bid is 2c over it
+    s.quote = (round(s.entry + 0.03, 2), round(s.entry + 0.04, 2), now[0] + 1)
+    tick(v37, s, now, round(s.entry + 0.035, 3))
+    assert not s.in_position and v37.closed_today[-1][5] == "giveback"
+
+
+def test_the_10_07_checks_are_on():
+    assert bot.V37_RIP_SPEED == 0.3 and bot.V37_RIP_NO_RED
+    assert bot.V37_GIVEBACK_ARM_CENTS == 0.01
+    assert bot.V37_PRINT_CHECK and bot.V37_CONFIRM_ASK and bot.V37_GIVEBACK_BID
