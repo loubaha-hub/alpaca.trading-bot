@@ -1,11 +1,27 @@
 # Where things stand
 
-Updated 2026-10-07, 12:10pm ET.
+Updated 2026-10-07, 12:40pm ET.
 
 ## Code
 - Working branch: `claude/zealous-ramanujan-br3gay`. New work goes here;
   nothing goes to `main` without the owner's OK.
-- Live on `main` (Render): VERSION v31-r34.21 (pushed 12:04:59pm ET 10-07,
+- Live on `main` (Render): VERSION v31-r34.22 (pushed 12:35:41pm ET 10-07 on
+  the owner's "push them in right away, as soon as they are flat"; flat at
+  12:34:45): the owner's stop and furious rules (12:20pm, decisions):
+  "B" - a v36/v36b starter is sized so its first stop costs at most 3% of a
+  normal starter (V36_STARTER_RISK; DKI 11:37's 16.6% stop lost $71); the
+  stop sits 5c under the whole / half dollar under the buy and moves up to
+  each level the price clears by 5c and holds 3s (V36_LEVEL_STOP,
+  V36_LEVEL_GIVE; v36, v36b and v37); furious (speeding): the FULL position
+  on the first hit (V36_FURIOUS_FULL), every entry check set aside -
+  levels, wick, re-entry speed, score, 5% over the trigger, no candle
+  pattern needed (V36_FURIOUS_ALL) - the stop within 8%
+  (V36_FURIOUS_STOP_MAX), the 10-second leash at once, out on giving back a
+  third once up 30% (V36_FURIOUS_SPIKE), deep premarket exits; the scanner's
+  list in the log (ROSTER lines, all of it every 15 min) for the replay.
+  Worktree release18. The 7-day replay of all three is running (fix1007
+  jobs10.txt, names d0base_* / d1new_* / d2nolevel_v37).
+- r34.21 (12:05pm) (pushed 12:04:59pm ET 10-07,
   the owner's "Push r34.21 when flat"; flat at 12:03:51; engine up 12:05:45):
   v37 keeps trying on FURIOUS movers only (keeps_trying = V37_KEEP_TRYING and
   speeding): one order a try at the ask + 20c (30c from $10), no price cap and
@@ -28,7 +44,6 @@ Updated 2026-10-07, 12:10pm ET.
   the r34.18 bug fixed (V37_HOD_CLEAR measured from the closed-candle high -
   v37 could not buy since 10:29); an add needs a NEW high that holds 2s (r34.19
   added on the way down, DKI 11:36); a sizing crash fixed. Worktree release16.
-- Open for the owner: v36's uncapped stop (16.6% on DKI 11:37, -$71).
 - r34.19 (10:56am): (pushed 10:55:42am ET 10-07 on
   the owner's standing instruction - agreed fixes go in at the next flat
   moment): an add waits for the price to hold at or over its level 2s

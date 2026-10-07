@@ -5,6 +5,31 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-07
 
+### The owner's stop and furious rules, r34.22 (12:20pm, live 12:36pm)
+- On DKI 11:37 (v36's first stop at the last minute's low, 16.6% under the
+  buy, -$71 on a $406 starter) the owner chose "B": keep the chart stop,
+  size the starter so a stop costs at most ~3% of a normal starter.
+- And, the owner's words: "when it retraces to a .00 or .50 and breaches it -
+  it goes under three - you sell immediately; you don't wait for 2.87; give it
+  a little, five cents" (sometimes the owner sells at 2.99-2.98). Built as
+  the stop 5c under the whole / half dollar under the buy, rising to each one
+  the price clears and holds.
+- Buys stay over the whole / half dollars (built 10-07 morning, V36_LEVELS)
+  and every entry rule holds - except on a furious move: "throw everything
+  through the window, get in really quick", and "the size should be
+  increased - I enter with a full position on the very first hit; if I
+  miss, I try again". v37 already sizes its fast buys by speed (35% of the
+  account at 0.30).
+- On exits: "when I see it has made enough, I get out... before I know it
+  the gains have evaporated - here we control that, we should do better".
+  Built for v36's furious buys: v37's give back a third once up 30%, the
+  10-second leash, deep premarket exits.
+- The owner: push as soon as all three are flat; then replay the seven days
+  with the new entries, one table for the three strategies; and save the
+  scanner's list through the day (ROSTER lines in the log, from r34.22). The
+  recorded days hold the traded names plus the day's premarket and regular
+  gainers, not the live scanner's list.
+
 ### r34.21 live: keep trying on furious movers only (12:05pm)
 - The owner (~12pm): a fast buy must not stop at 20% over the breakout or
   after 6 seconds - "the market can stay irrational" - keep trying; then:
