@@ -1786,20 +1786,24 @@ class Strategy:
 
     async def buy_sweep(self, symbol, shares, ref, cap, floor=None, cents=0.20):
         """V37_SWEEP: a limit at the ask plus `cents`, filling at once; what is
-        left unfilled gets one more round at the new ask (V37_SWEEP_ROUNDS),
-        never over the top (ref x (1 + cap)) and never at or under the old
-        high (`floor`). Returns (shares, why)."""
+        left unfilled is tried again at the new ask - for V37_SWEEP_SECONDS or
+        V37_SWEEP_TRIES orders, never over the safety net (ref x (1 + cap))
+        and never at or under the old high (`floor`). Returns (shares, why)."""
         top = round(ref * (1 + cap), 2)
-        got, why = 0, "no round sent"
-        for _ in range(V37_SWEEP_ROUNDS):
+        got, why = 0, "no order sent"
+        deadline = time.monotonic() + V37_SWEEP_SECONDS
+        for _ in range(V37_SWEEP_TRIES):
             if got >= shares:
                 break
+            if time.monotonic() > deadline:
+                return got, "out of time (%.0fs) - the move left us behind" % (
+                    V37_SWEEP_SECONDS)
             ask = await self.data.quote(symbol, "ask") or ref
             if floor and ask <= floor:
                 return got, "the ask %.4f is back at the high %.4f - no buy under it" % (
                     ask, floor)
             if ask > top:
-                return got, "the ask %.4f is past %.4f - too late" % (ask, top)
+                return got, "the ask %.4f is past the safety net %.4f" % (ask, top)
             limit = round(min(ask + cents, top), 2)
             n = await self.broker.send(symbol, shares - got, OrderSide.BUY, limit,
                                        V37_SWEEP_WAIT)
@@ -1883,7 +1887,7 @@ class Strategy:
                 await asyncio.sleep(CHASE_PAUSE)
         return max(last, start + confirmed)
 
-    async def sell(self, symbol: str, shares: int, ref: float) -> int:
+    async def sell(self, symbol: str, shares: int, ref: float, deep: bool = False) -> int:
         """Uncapped chase down - a stop must always get out. Clamped to what
         we really own, so it can never be rejected for shorting."""
         # Clear our own working orders before trying to get out. A resting buy
@@ -1915,7 +1919,7 @@ class Strategy:
             if remaining <= 0:
                 break
             bid = await self.data.quote(symbol, "bid") or ref
-            limit = round(max(bid * 0.995, 0.01), 2)
+            limit = round(max(bid * (1 - (SELL_DEEP if deep else 0.005)), 0.01), 2)
             if market:
                 got = await self.broker.send_market(symbol, remaining,
                                                     OrderSide.SELL, limit)
@@ -1959,7 +1963,8 @@ class Strategy:
         # awaits, and the price moves on under it.
         trigger = self.print_text(s)
         self.broker.take_fill_price(s.symbol)    # drop fills from before this sale
-        sold = await self.sell(s.symbol, shares, s.last_price)
+        sold = await self.sell(s.symbol, shares, s.last_price,
+                               deep=getattr(s, "entry_kind", "") == "accel")
         # Booked at what the sale REALLY got. The print that triggered it can
         # be far from the market: QTEX, 2026-10-05 4:06am, was logged at 1.27
         # and -$311 while the shares sold near 1.44 and the account barely
@@ -5155,17 +5160,21 @@ V37_ACCEL_FROM_HIGH = True      # ...over the breakout level: the larger of the 
                                 # minute's high and the old high of the day (BIYA
                                 # 8:20: the last candle $2.54, the high $3.10 - from
                                 # the candle alone no price passed both rules)
-V37_SWEEP = True                # a fast buy is one order at the ask plus a few cents,
-                                # filling at once; unfilled, one more round at the new
-                                # ask - then it is over. Not a re-price loop: Alpaca
-                                # takes about 200 requests a minute
-V37_SWEEP_CENTS = (0.20, 0.50)  # the cents over the ask: 5% of the price, at least
-V37_SWEEP_PCT = 0.05            # 20c, at most 50c (the owner, 10-07: "20% is out of
-                                # the picture - $2 over on a $10 stock, $2,000 on a
-                                # thousand shares; give it 20, 30, 40, 50 cents")
-V37_SWEEP_ROUNDS = 2            # rounds; the most it pays is the breakout level plus
-                                # ROUNDS x the cents ($3.50 on BIYA's $3.10 break)
-V37_SWEEP_WAIT = 1.0            # seconds each round works
+V37_SWEEP = True                # a fast buy is an order at the ask plus a few cents,
+                                # filling at once; unfilled, it tries again at the new
+                                # ask - "keep trying, the markets are irrational" (the
+                                # owner, 10-07) - up to the safety net below
+V37_SWEEP_CENTS = (0.20, 0.30)  # the cents over the ask: 20c under V37_SWEEP_BIG, 30c
+V37_SWEEP_BIG = 10.0            # from it - "30 cents is $300 on a thousand shares; good
+                                # enough" (20% was $2,000 on a $10 stock)
+V37_SWEEP_SECONDS = 6.0         # the safety net: it stops trying after this long, or
+                                # once the ask is V37_ACCEL_CHASE over the breakout level
+V37_SWEEP_TRIES = 12            # ...or this many orders (Alpaca: ~200 requests a minute)
+V37_SWEEP_WAIT = 0.5            # seconds each order works (paper fills take ~200 ms)
+SELL_DEEP = 0.10                # premarket (limit orders only) a fast buy's exit is a
+                                # limit this far under the bid - it fills at the best
+                                # bids there are, at once: "the exit as furious as can
+                                # be, more than the entry - at any price" (the owner)
 V37_SPIKE_AT = 0.30             # an acceleration buy up this much: out on giving
 V37_SPIKE_GIVEBACK = 1 / 3      # back this share of the gain (spikes collapse fast)
 V37_SCORE_FURIOUS = 0.0         # >0: a speed this high buys whatever the score (the
@@ -5554,15 +5563,12 @@ class V37(V36):
     def sweep_cents(self, price) -> float:
         """V37_SWEEP_CENTS: the cents a fast buy may pay over the ask."""
         lo, hi = V37_SWEEP_CENTS
-        return min(hi, max(lo, V37_SWEEP_PCT * price))
+        return hi if price >= V37_SWEEP_BIG else lo
 
     def fast_top(self, base) -> float:
-        """The most a fast buy pays: the breakout level plus V37_SWEEP_ROUNDS x
-        the cents (sweeping), within V37_ACCEL_CHASE of it."""
-        top = base * (1 + V37_ACCEL_CHASE) if V37_ACCEL_CHASE else float("inf")
-        if V37_SWEEP:
-            top = min(top, base + V37_SWEEP_ROUNDS * self.sweep_cents(base))
-        return top
+        """The safety net: a fast buy never pays V37_ACCEL_CHASE over the
+        breakout level."""
+        return base * (1 + V37_ACCEL_CHASE) if V37_ACCEL_CHASE else float("inf")
 
     async def accel_buy(self, s, price, accel):
         """V37_ACCEL: over the last minute's high, the ask agreeing; sized by
@@ -5600,9 +5606,10 @@ class V37(V36):
         starter = (account_share / self.v37_full(s, eq) if account_share
                    else V37_STARTER)            # a share of a full position
         cap = self.entry_cap(s, price)
-        if sweep_to and sweep_to > price:
-            cap = max(cap, sweep_to / price - 1)  # one order, up to the ceiling
         worst = price * (1 + cap)
+        if sweep_to and sweep_to > price:
+            cap = max(cap, sweep_to / price - 1)  # tries up to the safety net...
+            worst = price + 2 * self.sweep_cents(price)   # ...sized on the likely fill
         held_all = sum(x.shares * (x.last_price or price)
                        for x in self.open_positions())
         room = max(0.0, eq * MAX_EXPOSURE_PCT - held_all)

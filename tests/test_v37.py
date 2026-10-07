@@ -1370,11 +1370,10 @@ def test_a_furious_speed_buys_without_the_pattern_or_the_crowd(v37, clock, now,
     assert s.in_position and s.entry_kind == "accel"
 
 
-@pytest.mark.parametrize("over, buys", [(0.04, True), (0.15, False), (0.30, False)])
+@pytest.mark.parametrize("over, buys", [(0.04, True), (0.15, True), (0.30, False)])
 def test_no_fast_buy_far_over_the_last_minute(v37, clock, now, monkeypatch, over, buys):
-    """BIYA 10-07 8:20-8:21: $2.54 -> $33.96 -> $8.20 in under a minute. A fast
-    buy pays at most the breakout level plus two rounds of cents ($10.32 + 2 x
-    50c here): 4% over it buys, 15% is too late (the owner: not 20%)."""
+    """BIYA 10-07 8:20-8:21: $2.54 -> $33.96 -> $8.20 in under a minute. The
+    safety net: no fast buy 20% over the breakout level."""
     monkeypatch.setattr(bot, "V37_ACCEL", True)
     monkeypatch.setattr(v37, "real_speed", lambda s, p: 0.40)
     s = v37.st("WXYZ")
@@ -1535,35 +1534,38 @@ def test_a_fast_buy_pays_cents_over_the_ask_not_20_percent(v37, clock, now, monk
     buys = broker.buys("BIYA")
     cents = v37.sweep_cents(price)
     assert len(buys) == 1 and buys[0][3] == round(price + 0.01 + cents, 2)
-    assert buys[0][3] <= old_high + 2 * v37.sweep_cents(old_high) + 1e-9
+    assert buys[0][3] <= old_high * 1.20 + 1e-9
     assert s.stop < s.entry
 
 
-@pytest.mark.parametrize("price, cents", [(3.10, 0.20), (6.00, 0.30), (8.00, 0.40),
-                                          (12.00, 0.50)])
-def test_the_cents_grow_with_the_price(v37, price, cents):
+@pytest.mark.parametrize("price, cents", [(3.10, 0.20), (9.99, 0.20), (10.00, 0.30),
+                                          (15.00, 0.30)])
+def test_20_cents_under_10_dollars_30_from_10(v37, price, cents):
+    """The owner, 10-07: "20 cents for a small one, 30 above ten dollars - not more"."""
     assert v37.sweep_cents(price) == pytest.approx(cents)
 
 
-def test_unfilled_a_second_round_then_no_more(v31, broker, data, monkeypatch):
-    asks = iter([3.12, 3.40, 3.45])
+def test_unfilled_it_keeps_trying_at_the_new_ask(v31, broker, data, monkeypatch):
+    """The owner: "keep trying - the markets are irrational, you see yourself
+    left behind" - each try at the new ask + 20c, under the safety net."""
+    asks = iter([3.12, 3.30, 3.45, 3.60, 3.65])
 
     async def ask(symbol, side):
         return next(asks)
     monkeypatch.setattr(data, "quote", ask)
-    broker.fills = [0.0, 1.0]                              # round 1 misses
-    n = run(v31.buy("BIYA", 1000, 3.12, 3.50 / 3.12 - 1, floor=3.10, sweep=0.20))
+    broker.fills = [0.0, 0.0, 0.0, 1.0]                    # three misses
+    n = run(v31.buy("BIYA", 1000, 3.12, 3.72 / 3.12 - 1, floor=3.10, sweep=0.20))
     assert n == 1000
-    assert [o[3] for o in broker.orders] == [3.32, 3.50]   # the ask + 20c, then capped
+    assert [o[3] for o in broker.orders] == [3.32, 3.50, 3.65, 3.72]
 
 
 def test_a_sweep_never_buys_under_the_high_or_past_the_top(v31, broker, data, monkeypatch):
     async def ask(symbol, side):
         return ask.px
     monkeypatch.setattr(data, "quote", ask)
-    for ask.px, got in ((3.09, 0), (3.60, 0), (3.20, 1000)):
+    for ask.px, got in ((3.09, 0), (3.80, 0), (3.20, 1000)):
         broker.orders.clear()
-        n = run(v31.buy("BIYA", 1000, 3.12, 3.50 / 3.12 - 1, floor=3.10, sweep=0.20))
+        n = run(v31.buy("BIYA", 1000, 3.12, 3.72 / 3.12 - 1, floor=3.10, sweep=0.20))
         assert n == got
         assert len(broker.orders) == (1 if got else 0)
         broker.held.clear(); broker.cost.clear()
@@ -1576,3 +1578,16 @@ def test_no_room_beside_a_big_position_is_no_buy_not_a_crash(v37, clock, now, mo
     s = v37.st("ABCD")
     run(v37.v37_buy(s, 10.0, account_share=0.35, accel=0.4))
     assert not s.in_position
+
+
+@pytest.mark.parametrize("kind, h, limit", [("accel", 7, 0.90), ("rip", 7, 0.995)])
+def test_a_fast_buy_exits_furiously_premarket(v37, clock, broker, data, kind, h, limit):
+    """The owner: "the exit as furious as can be - at any price". Premarket takes
+    limit orders only: a fast buy's exit goes 10% under the bid, filling at once."""
+    clock.now = bot.datetime(2026, 10, 7, h, 0, tzinfo=bot.ET)
+    s = v37.st("BIYA")
+    broker.held["BIYA"], broker.cost["BIYA"] = 1000.0, 3300.0
+    s.shares, s.entry, s.entry_kind, s.last_price = 1000, 3.30, kind, 3.20
+    data.quotes[("BIYA", "bid")] = 3.00
+    run(v37.exit(s, "giveback"))
+    assert broker.orders[0][3] == round(3.00 * limit, 2)
