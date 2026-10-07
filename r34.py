@@ -1417,6 +1417,16 @@ class Strategy:
             self.state[symbol] = SymState(symbol=symbol)
         return self.state[symbol]
 
+    def seed_high(self, s: SymState, high: float):
+        """The real high of the day, read from today's bars - a restart must
+        not forget the morning. v37 reads day_high, v36 hod_closed. SXTC
+        2026-10-07 9:29:39: after the 9:20 restart v36 knew only the candles
+        since then and bought $3.23 as a "new high" on a day already up to
+        $7.12."""
+        if high and high > 0:
+            s.day_high = max(s.day_high, high)
+            s.hod_closed = max(s.hod_closed, high)
+
     def open_positions(self):
         return [s for s in self.state.values() if s.in_position]
 
@@ -5706,8 +5716,8 @@ class Engine:
                             strat.qualified.update(symbols)
                             for sym in symbols:
                                 st = strat.st(sym)
-                                st.day_high = max(st.day_high, picks[sym],
-                                                  self.day_highs.get(sym, 0.0))
+                                st.day_high = max(st.day_high, picks[sym])
+                                strat.seed_high(st, self.day_highs.get(sym, 0.0))
                                 st.prev_high = self.prev_highs.get(sym, st.prev_high)
                                 st.ref_price = self.prev_closes.get(sym, st.ref_price)
                         await self.data.subscribe(symbols)
