@@ -73,6 +73,16 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   full cent (V37_GIVEBACK_ARM is 0 = any fraction); test 1c/3c/1%;
   (11) skip a buy whose price, re-read just before sending, is already
   well under the trigger (the burst reversed).
+- Webull's 1-minute bars (8:08 red 4.93/4.93/4.41/4.52; 8:09 green
+  4.52/5.02/4.51/4.72; 8:10 green 4.71/5.02/4.68/4.93; 8:11 close 5.00):
+  v37's buy trigger was a $5.05 print the market never traded at (Webull's
+  8:09 high $5.02, earlier in the minute); it filled at the real ~$4.80
+  one second before the 8:09 candle closed at $4.72, and sold at $4.69 -
+  the 8:10 candle's exact low - which then closed $4.93; SPAI made $5.10
+  at 8:12. With the stop only and a real "half the gain": about +$15
+  instead of -$12.45. Widened fixes 4 and 11: act on a print only when
+  the live quote agrees (buy if the ask is near the trigger; sell if the
+  bid confirms).
 
 ## 2026-10-06
 
