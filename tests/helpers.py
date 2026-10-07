@@ -45,6 +45,11 @@ class FakeBroker:
         await asyncio.sleep(0)
         return sorted(self.day_fills)
 
+    async def fills_between(self, start, end=None, pages=20):
+        await asyncio.sleep(0)
+        hi = end.timestamp() if end else float("inf")
+        return sorted(f for f in self.day_fills if start.timestamp() <= f[0] < hi)
+
     async def qty(self, symbol):
         await asyncio.sleep(0)
         self.qty_calls += 1
