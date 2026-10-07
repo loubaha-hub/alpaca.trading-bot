@@ -83,6 +83,14 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   instead of -$12.45. Widened fixes 4 and 11: act on a print only when
   the live quote agrees (buy if the ask is near the trigger; sell if the
   bid confirms).
+- The owner on it: the entry was probably OK; the exit was not respected
+  - the exit is the stop under the red candle's body (8:08 red's body
+  bottom $4.52; v37's stop $4.59 was right), not "half the gain" one
+  second in on the first print of the next candle (8:10:00.03, a 2s-old
+  $4.80, half-cent "gain"). Rule to build (fix 10, exact): right after a
+  buy only the stop under the red body sells; "half the gain" only once
+  there is a real gain. (10-06 the owner rejected a time-based grace;
+  this one waits for a gain, not a clock - replay both.)
 
 ## 2026-10-06
 
