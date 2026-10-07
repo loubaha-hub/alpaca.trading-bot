@@ -27,6 +27,9 @@ def v37(broker, data, clock, now, monkeypatch):
     monkeypatch.setattr(bot, "V37_REBUY_WAIT", 0.0)      # tested on its own below
     monkeypatch.setattr(bot, "V37_SPEED_MIN", 0.0)       # the speed: tested below
     monkeypatch.setattr(bot, "V37_SCORE_MIN", 0)         # the score: tested below
+    monkeypatch.setattr(bot, "V37_HOD_CLEAR", ())        # WETO's rules: tested below
+    monkeypatch.setattr(bot, "V37_ACCEL_REAL", False)
+    monkeypatch.setattr(bot, "V37_ACCEL_TAPE", False)
     strat = bot.V37(broker, data)
     strat.day_start_equity = broker.eq
     return strat
@@ -1401,3 +1404,62 @@ def test_the_acceleration_is_on():
     """The owner, 10-07 9:40am: "those fixes have to be implemented right away"."""
     assert bot.V37_ACCEL and bot.V36_ACCEL
     assert bot.V37_ACCEL_SIZE[-1] == (0.30, 0.35) and bot.V37_ACCEL_MAX_PCT == 0.65
+
+
+# ---- WETO, 2026-10-07 9:52: should not have been bought, and kept reloading -----------
+
+def test_weto_a_cent_over_the_high_is_not_a_new_high(v37, clock, now, monkeypatch):
+    """The premarket high was $1.32; one print at $1.33, then $1.26."""
+    monkeypatch.setattr(bot, "V37_HOD_CLEAR", (0.02, 0.005))
+    s = ripping(v37, clock, now)
+    s.day_high = 10.50
+    tick(v37, s, now, 10.51)                              # a cent over: a touch
+    assert not s.in_position
+    assert s.day_high == 10.51                            # the touch is the new high
+    tick(v37, s, now, 10.56)                              # 5c over it: under 0.5%
+    assert not s.in_position
+    tick(v37, s, now, 10.62)                              # 0.5% over $10.56: through
+    assert s.in_position
+
+
+def test_weto_no_buy_reloads_under_the_old_high(v31, broker, data, monkeypatch):
+    """WETO: the order followed the ask down from $1.33 and filled at $1.26."""
+    asks = iter([1.33, 1.30, 1.26, 1.26])
+
+    async def quote(symbol, side):
+        return next(asks)
+    monkeypatch.setattr(data, "quote", quote)
+    broker.fills = [0.0, 0.0, 1.0]                         # the first try misses
+    got = run(v31.buy("WETO", 1000, 1.33, 0.03, floor=1.32))
+    assert got == 0                                       # stopped at $1.30: under $1.32
+    assert [o[3] for o in broker.orders] == [round(1.33 * (1 + bot.FAST_BUY_OVER_ASK), 2)]
+
+
+def test_without_a_floor_the_reloads_follow_the_ask(v31, broker, data, monkeypatch):
+    asks = iter([1.33, 1.30, 1.26, 1.26])
+
+    async def quote(symbol, side):
+        return next(asks)
+    monkeypatch.setattr(data, "quote", quote)
+    broker.fills = [0.0, 0.0, 1.0]
+    assert run(v31.buy("WETO", 1000, 1.33, 0.03)) == 1000    # as it was: filled low
+
+
+@pytest.mark.parametrize("speed, tape, buys", [(0.40, True, True), (0.06, True, False),
+                                               (0.40, False, False)])
+def test_weto_a_fast_buy_needs_the_speed_and_the_tape(v37, clock, now, monkeypatch,
+                                                      speed, tape, buys):
+    """WETO: the candles said 0.26, the owner's speed was 0.06, the tape 49/51."""
+    monkeypatch.setattr(bot, "V37_ACCEL", True)
+    monkeypatch.setattr(bot, "V37_ACCEL_REAL", True)
+    monkeypatch.setattr(bot, "V37_ACCEL_TAPE", True)
+    monkeypatch.setattr(v37, "real_speed", lambda s, p: speed)
+    monkeypatch.setattr(v37, "tape_ok", lambda s: tape)
+    s = accelerating_stock(v37, clock)
+    tick(v37, s, now, 11.62)
+    assert (s.in_position and s.entry_kind == "accel") == buys
+
+
+def test_the_weto_rules_are_on():
+    assert bot.V37_HOD_CLEAR == (0.02, 0.005)
+    assert bot.V37_ACCEL_REAL and bot.V37_ACCEL_TAPE
