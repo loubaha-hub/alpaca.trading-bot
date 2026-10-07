@@ -5,6 +5,23 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-06
 
+### The droplet's v24, retrieved (10-06 night)
+- The owner copied it off the DigitalOcean droplet (keys none, account
+  numbers masked): `v24_files (3).tgz` on the working branch. On the
+  droplet the crontab line for launch_live_v24_real.sh was switched off
+  (backup /root/crontab_backup.txt); Webull showed no orders since 09-25.
+- v24 (09-15, "buy everything, tight stop, reclaim to re-enter"): buys
+  every scanned symbol on its first bar; equal split of the pot, re-split
+  on every buy/sell; sell the first close under entry, or on giving back
+  10% of the gain; re-buy when a bar's HIGH tops the exit level, filled AT
+  that level. Positions were simulated in the bot; orders went to Webull's
+  OpenAPI (dry run, then real). Not Alpaca. Base $5,000 / $4,046.80.
+- 09-17 (simulated): +$2,023.55 on $4,046.80, 501 closed trades, 54% won
+  - fills at exact levels, no costs, thousands of re-split orders (5,110
+  trims). 09-18 real: 968 orders accepted, 2,769 rejected as duplicates,
+  1,941 skipped by TRADING_HALT. The $507,574.92 (Sep 16) is not in these
+  files (they start 09-16 night).
+
 ### The first strategies on Alpaca (found 10-06 night)
 - Before Render: a DigitalOcean "droplet" ran v21, v22, v24 and v27 (the
   09-21 Claude Doc: "confirmed on the droplet"; all but v27 on a shared
