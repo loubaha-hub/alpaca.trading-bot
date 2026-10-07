@@ -5,6 +5,21 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-07
 
+### Furious churn on SXTC; r34.25 and r34.26 (2:00-2:15pm)
+- The owner: 9:30-4 every sell at market, as fast as possible ("those round
+  trips of 2-3 seconds, 13 seconds back and forth, no good"); "cancelling and
+  re-sending a market order during business hours is a bug". Sells 9:30-4 were
+  already market orders (r34.17); r34.24 stopped the cancel-and-resend; r34.25
+  sends the first sell straight out and logs each sell's order type.
+  Premarket: market orders are not accepted - limits (the owner agrees).
+- SXTC 1:40-1:59pm: 8 furious full-size trades, all losers, -$959 - buys
+  filled above the print (v36's 6-second loop: $8.90 on an $8.75 print), a 10c
+  stop inside 20-50c swings, buy-backs seconds apart; the 1:56 pair traded by
+  the OLD instance during the deploy overlap.
+- Offered A-D; the owner chose A only: v36/v36b furious buys use v37's fast
+  buy (r34.26, live ~2:12pm). B (stop = larger of 10c and 2%), C (buy-back
+  waits) and D (no buys 60s after a deploy) not chosen.
+
 ### SXTC 1:40pm: the exit too slow - r34.24 (live ~1:56pm)
 - The owner sent the chart: v37 respected the high of the day and tried to
   get out at once, "but the exit did not work fast enough". The log: bought

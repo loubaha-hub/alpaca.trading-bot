@@ -1,11 +1,28 @@
 # Where things stand
 
-Updated 2026-10-07, 2:00pm ET.
+Updated 2026-10-07, 2:15pm ET.
 
 ## Code
 - Working branch: `claude/zealous-ramanujan-br3gay`. New work goes here;
   nothing goes to `main` without the owner's OK.
-- Live on `main` (Render): VERSION v31-r34.24 (pushed 1:55:20pm ET 10-07 on
+- Live on `main` (Render): VERSION v31-r34.26 (pushed 2:11:19pm ET 10-07 on
+  the owner's choice "A"; flat at 2:10:28): v36/v36b furious buys use v37's
+  fast buy (V36_FURIOUS_SWEEP, entry_buy) - one order at the ask + 20c (30c
+  from $10), filled or dropped in 0.5s, the next furious print tries again
+  0.5s after a miss. Worktree release22. The owner did NOT choose (open):
+  B the furious stop as the larger of 10c and 2%; C a buy-back after a
+  furious stop waits for the new high to hold 2s, at most 2 per stock per
+  10 min; D no buys for 60s after a deploy (the old instance keeps trading
+  ~20-40s after the new one starts - it did, 1:56pm).
+- r34.25 (2:07pm, pushed 2:06:40 on the owner's "sell at market 9:30-4, as
+  fast as possible"): the first sell goes straight out when nothing of ours
+  was working; each sell logs "SELL n at MARKET" or "at a limit". Sells
+  9:30-4 have been market orders since r34.17; premarket stays limits.
+- SXTC 1:40-1:59pm, furious full positions: 8 trades, -$959 (v36 3 more after
+  r34.24, -$377): fills above the print from v36's 6-second loop, the 10c stop
+  inside SXTC's 20-50c swings, buy-backs 4s apart. Day at 2:10pm: v36 -5.9%
+  ($747 above its halt), v37 -2.0%, v36b -4.3%.
+- r34.24 (1:56pm) (pushed 1:55:20pm ET 10-07 on
   the owner's "Push r34.24 when flat"; flat at 1:54:45): exits, from SXTC
   1:40pm (v37 bought 625 @ $7.75, the top tick of a $7.15 -> $7.74 -> $7.17
   wick; stop $7.65 decided on a $7.49 print 6s later; the sale took 7.5s
