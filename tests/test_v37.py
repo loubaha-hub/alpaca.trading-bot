@@ -1044,6 +1044,51 @@ def test_the_broker_reads_todays_fills_page_by_page():
     assert Client.asked[1] is not None                    # the second page asked for
 
 
+def test_the_broker_reads_fills_between_two_dates():
+    from types import SimpleNamespace as NS
+    asked = []
+
+    class Client:
+        def get_orders(self, req):
+            asked.append((req.after, req.until))
+            at = bot.datetime(2026, 9, 25, 10, 0, tzinfo=bot.ET)
+            return [NS(symbol="ABCD", side=bot.OrderSide.SELL, filled_qty="5",
+                       filled_avg_price="2.5", filled_at=at, submitted_at=at)]
+
+    b = object.__new__(bot.Broker)
+    b.client, b.label = Client(), "test"
+    start = bot.datetime(2026, 9, 24, tzinfo=bot.ET)
+    end = bot.datetime(2026, 10, 1, tzinfo=bot.ET)
+    got = run(b.fills_between(start, end))
+    assert asked == [(start, end)]                        # one short page: done
+    assert got == [(bot.datetime(2026, 9, 25, 10, 0, tzinfo=bot.ET).timestamp(),
+                    "ABCD", "sell", 5.0, 2.5)]
+
+
+def test_september_history_goes_to_the_log_by_day(v37, broker, caplog, monkeypatch):
+    """The owner, 10-06: the website stops at 10-02 - the log carries the
+    first strategies' September fills."""
+    monkeypatch.setattr(bot, "HISTORY_PER_LINE", 2)
+    t = bot.datetime(2026, 9, 25, 13, 0, tzinfo=bot.ET).timestamp()
+    broker.day_fills = [(t, "ABCD", "buy", 100.0, 2.0), (t + 60, "ABCD", "sell", 100.0, 2.5),
+                        (t + 120, "WXYZ", "buy", 10.0, 5.0),
+                        (t + 86400, "WXYZ", "sell", 10.0, 4.0),
+                        (t - 86400 * 9, "OLD", "buy", 1.0, 1.0)]     # before the dates
+    with caplog.at_level(bot.logging.INFO):
+        run(v37.dump_history("2026-09-24", "2026-10-01"))
+    lines = [r.getMessage() for r in caplog.records if "history" in r.getMessage()]
+    assert lines[0] == "[v37] history 2026-09-24..2026-10-01: 4 fills on 2 days"
+    assert "[v37] history 2026-09-25: 3 fills, 2 stocks, bought $250.00, sold $250.00" in lines
+    assert "[v37] history 2026-09-25 #1: 13:00:00 B ABCD 100@2.0000; 13:01:00 S ABCD 100@2.5000" in lines
+    assert "[v37] history 2026-09-25 #2: 13:02:00 B WXYZ 10@5.0000" in lines
+    assert "[v37] history 2026-09-26: 1 fills, 1 stocks, bought $0.00, sold $40.00" in lines
+    assert not any("OLD" in x for x in lines)
+
+
+def test_the_history_dump_is_read_only_and_dated():
+    assert bot.HISTORY_DUMP == ("2026-09-24", "2026-10-01")
+
+
 # ---- proposed 2026-10-06 (off): the signs weighed, not pass/fail -------------------
 
 def test_a_clean_staircase_scores_high(v37, clock, now):

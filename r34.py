@@ -983,15 +983,20 @@ class Broker:
         (epoch seconds, symbol, "buy" or "sell", shares, average price) -
         what a restart reads back. [] when the broker cannot say."""
         start = datetime.now(ET).replace(hour=4, minute=0, second=0, microsecond=0)
-        orders, until = [], None
-        for _ in range(20):                     # 500 a page, newest first
+        return await self.fills_between(start)
+
+    async def fills_between(self, start, end=None, pages=20) -> list:
+        """As fills_today, for orders submitted from `start` to `end` (None =
+        now)."""
+        orders, until = [], end
+        for _ in range(pages):                  # 500 a page, newest first
             try:
                 page = await asyncio.to_thread(
                     self.client.get_orders,
                     GetOrdersRequest(status=QueryOrderStatus.CLOSED, after=start,
                                      until=until, limit=500))
             except Exception as e:
-                log.error("[%s] cannot list today's orders: %s", self.label, e)
+                log.error("[%s] cannot list orders since %s: %s", self.label, start, e)
                 return []
             orders += page or []
             if not page or len(page) < 500:
@@ -1344,6 +1349,31 @@ class SymState:
 class Strategy:
 
     name = "base"
+
+    async def dump_history(self, first, last):
+        """Write this account's fills from `first` up to `last` (ET dates,
+        `last` not included) into the log, HISTORY_PER_LINE to a line, with a
+        total per day. Read-only."""
+        start = datetime.fromisoformat(first).replace(tzinfo=ET)
+        end = datetime.fromisoformat(last).replace(tzinfo=ET)
+        fills = await self.broker.fills_between(start, end, pages=HISTORY_PAGES)
+        days = {}
+        for t, sym, side, q, px in fills:
+            days.setdefault(datetime.fromtimestamp(t, ET).date().isoformat(), []).append(
+                (t, sym, side, q, px))
+        log.info("[%s] history %s..%s: %d fills on %d days", self.name, first, last,
+                 len(fills), len(days))
+        for day, rows in sorted(days.items()):
+            bought = sum(q * px for _, _, side, q, px in rows if side == "buy")
+            sold = sum(q * px for _, _, side, q, px in rows if side == "sell")
+            log.info("[%s] history %s: %d fills, %d stocks, bought $%.2f, sold $%.2f",
+                     self.name, day, len(rows), len({r[1] for r in rows}), bought, sold)
+            for k in range(0, len(rows), HISTORY_PER_LINE):
+                log.info("[%s] history %s #%d: %s", self.name, day, k // HISTORY_PER_LINE + 1,
+                         "; ".join("%s %s %s %g@%.4f" % (
+                             datetime.fromtimestamp(t, ET).strftime("%H:%M:%S"),
+                             side[0].upper(), sym, q, px)
+                             for t, sym, side, q, px in rows[k:k + HISTORY_PER_LINE]))
     log_as = None           # a copy of another strategy: its "[vNN]" lines say our name
 
     def __init__(self, broker: Broker, data: MarketData):
@@ -3867,6 +3897,16 @@ V36_MAX_ENTRIES = 6             # buys per name per day - each one small
 V36_PAY_UP_ABR = 1.0            # a buy may pay this many ABRs over the trigger...
 V36_PAY_UP_MAX = 0.05           # ...never more than this (BUY_CHASE_CAP at least)
 V36_CONFIRM_TOLERANCE = 0.01    # the ask may sit this far under the trigger
+# READ-ONLY, ONE-OFF (the owner, 10-06 night: find the first strategies'
+# trades). Alpaca's website lists only the last 30 pages of an account's
+# orders (back to 10-02). At start-up each account writes its fills from the
+# first date up to the second (ET, the second not included) into the log, in
+# the background - v27 (T6HH) from 09-24, v24 (AUES) and v30 (P28T) from
+# 09-25. () = off.
+HISTORY_DUMP = ("2026-09-24", "2026-10-01")
+HISTORY_PAGES = 40              # 500 orders a page
+HISTORY_PER_LINE = 25           # fills per log line
+
 # WHICH STRATEGY TRADES EACH ACCOUNT (the owner, 2026-10-06): v31's keys
 # (T6HH, "v27-30k") run v36; v34's keys (V33_*, P28T, "V30-100k") run v37;
 # v35's keys (AUES) run v36b (v36 with r34.13's changes; v35 until 10-06).
@@ -5223,6 +5263,7 @@ class Engine:
         self.assets_client = TradingClient(key, secret, paper=self.paper)
 
         self.strategies = []
+        self.history_tasks = []
         # Which strategy each account runs: SLOT_DEFAULTS, or SLOT_V31 /
         # SLOT_V34 / SLOT_V35 in the environment.
         slots = account_classes()
@@ -5249,6 +5290,12 @@ class Engine:
         self.prev_closes: dict[str, float] = {}
         self.day_highs: dict[str, float] = {}   # from today's bars, once a day
         self.day_highs_date = None
+
+    async def history(self, strat, first, last):
+        try:
+            await strat.dump_history(first, last)
+        except Exception as e:
+            log.error("[%s] history %s..%s: %s", strat.name, first, last, e)
 
     def add_strategy(self, cls, key, secret):
         if not key or not secret:
@@ -5672,6 +5719,9 @@ class Engine:
                     await strat.restore_today()
                 except Exception as e:
                     log.error("[%s] restore from today's orders: %s", strat.name, e)
+            if HISTORY_DUMP:
+                self.history_tasks.append(asyncio.create_task(
+                    self.history(strat, *HISTORY_DUMP)))
 
         log.info("engine up: VERSION %s | %s | one data connection | "
                  "orphan mode %s | baseline " + DAY_BASELINE + " | "
