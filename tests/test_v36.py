@@ -1223,3 +1223,14 @@ def test_furious_a_miss_tries_again_half_a_second_on(v36, clock, monkeypatch, br
     now[0] += 0.4
     tick(v36, s, TRIGGER)                                 # 0.6s: again
     assert s.in_position and len(broker.orders) == 2
+
+
+def test_no_v36_buys_9_30_to_4_on_the_owner_s_days(v36, clock, monkeypatch):
+    """The owner, 10-07 2:50pm: stop v36/v36b buys until 4pm."""
+    monkeypatch.setattr(bot, "V36_NO_RTH_BUYS_ON", (clock.now.date().isoformat(),))
+    s = ripping(v36, clock)                               # 10:00am on that day
+    tick(v36, s, TRIGGER)
+    assert not entered(v36, s)
+    monkeypatch.setattr(bot, "V36_NO_RTH_BUYS_ON", ())
+    tick(v36, s, TRIGGER)
+    assert entered(v36, s)
