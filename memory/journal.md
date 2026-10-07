@@ -5,6 +5,23 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-07
 
+### Furious moves: one order to the ceiling (~12:00pm)
+- The owner: in a move like BIYA 8:20 the bot should act within a second
+  and re-price every ~50 ms. Told: Alpaca takes about 200 requests a minute,
+  so a send/cancel/check loop that fast would be refused within seconds;
+  built instead (branch fa28edb, V37_SWEEP): a fast buy is ONE limit at the
+  ceiling (the breakout level + 20%), filling at the best ask at once; the
+  stop is set from the real fill. The owner agreed.
+- The owner on latency: Alpaca paper (simulated) orders take about 200 ms;
+  real money about 14 ms (the owner used 50 ms to be safe).
+- Also built for the big moves (not yet released, replay running): trend
+  checks with the live price; the fast-buy ceiling from the old high; speed
+  counts as the crowd and lifts the 6-buy cap; at furious speed v36 sets
+  trend, tape and room aside; the halt crowd rule 9:30-4 only (the owner: no
+  halts premarket); a 5-second move measure logged; and the r34.18 bug fixed
+  - the v37 high margin measured from the closed-candle high (a climb a cent
+  at a time never cleared it; 10-05 replayed: 12 v37 trades became 1).
+
 ### The owner, ~11:20am: slow down - first, why the bots miss the runners
 - "We were writing code against the things we already had." First
   priority: examine very closely why the programs do not pick up the
