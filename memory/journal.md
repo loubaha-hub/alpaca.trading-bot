@@ -5,6 +5,19 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-07
 
+### The owner, ~10:35am: make the code airtight
+- Two kinds of problems, in the owner's words: the market is more complex
+  than the rules ("you and I can deal with that"), and rules given "black
+  and white" that the bots do not follow - "where the rubber meets the
+  road: the code has to be as precise as possible, airtight". The entry
+  has improved ("I applaud you for that"); the forward test on the live
+  market is the judge; "we still have work ahead of us".
+- Plan agreed in principle (to show the owner before anything goes live):
+  the rule sheet as the contract (each rule one precise line, with its
+  number, its code and its test); one gate every buy passes; a checklist
+  logged with every buy and an automatic audit; a walk through every way
+  the code can buy or sell, listing the holes; record prints and quotes.
+
 ### WETO: v37 should not have bought it, and kept reloading (r34.18)
 - The owner, ~10:20: "v37 entered WETO and WETO did not go above the high
   of the day - this should not happen"; "it keeps loading after the stock
