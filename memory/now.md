@@ -1,11 +1,31 @@
 # Where things stand
 
-Updated 2026-10-07, 12:40pm ET.
+Updated 2026-10-07, 1:40pm ET.
 
 ## Code
 - Working branch: `claude/zealous-ramanujan-br3gay`. New work goes here;
   nothing goes to `main` without the owner's OK.
-- Live on `main` (Render): VERSION v31-r34.22 (pushed 12:35:41pm ET 10-07 on
+- Live on `main` (Render): VERSION v31-r34.23 (pushed 1:34:55pm ET 10-07 on
+  the owner's "Push r34.23 when flat", after the owner saw the replay table;
+  flat at 1:34:32): the owner's furious exit (~1pm, decisions) - a furious
+  buy's stop 10c under what it paid, not 8% (V36_FURIOUS_STOP_CENTS; 8%
+  stays the outer limit under $1.25); back in at once on a new high of the
+  day while still furious (furious_new_high: one buy a minute and v37's
+  60-second re-buy wait lifted for that); once up 30c, never back under the
+  buy, and out on giving back 30% of the gain from the high
+  (V36_FURIOUS_EVEN_AT, V36_FURIOUS_GIVEBACK; v36/v36b and v37's furious
+  buys, V37_FURIOUS_EXIT); the 10-second leash kept. The whole / half dollar
+  stop 1c under the level (V36_LEVEL_GIVE; the owner: "5.98 or 5.99"; 7 days
+  replayed, 1c beat 2c and 5c for all three). Worktree release19.
+  Replay, 7 days, $15k, fills 0.2% / 1% worse (r34.22 -> r34.23):
+  v36 +$8,583 -> +$12,487 / +$5,410 -> +$9,016; v36b +$10,466 -> +$13,377 /
+  +$7,244 -> +$9,826; v37 +$31,263 -> +$34,693 / +$19,122 -> +$20,019. MI
+  10-05 is the biggest trade in every one. scratchpad sidebyside.py builds
+  the table (names d0base_*, d1new_*, h1r23_*, c9split).
+- To look at: v37's keep-trying buy at 12:25 (FFR) sent one order 20c over
+  the $1.93 ask and nothing filled in its 0.5s (paper fills seem slower);
+  proposed to the owner: 1 second a try on paper (V37_SWEEP_WAIT).
+- r34.22 (12:36pm) (pushed 12:35:41pm ET 10-07 on
   the owner's "push them in right away, as soon as they are flat"; flat at
   12:34:45): the owner's stop and furious rules (12:20pm, decisions):
   "B" - a v36/v36b starter is sized so its first stop costs at most 3% of a

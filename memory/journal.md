@@ -5,6 +5,24 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-07
 
+### The owner's furious exit, r34.23 (~1pm, live 1:35pm)
+- The owner: "not the 8% - too big; these furious ones can crash faster than
+  you would ever imagine. If the stock drops 10 cents from the entry, close
+  it, and get back on it as soon as it moves above the high of the day
+  again." Keep the 10-second leash. "Up 30 cents over the buy and back to
+  it - cut it off there instead of a loss; above 30 cents, close it on
+  giving back 30% of the gain." And on the levels (12:50pm): "bought at
+  6.15... the stop should end at 5.98 or 5.99, not 5.80"; "at 1.65 coming
+  back to 1.50 - if it breaches 1.49, 1.48, sell; a little more churning,
+  but that's the best strategy overall". Decisions.
+- The owner asked to see the table before releasing it. 7 days replayed, $15k,
+  fills 0.2% / 1% worse, r34.22 -> r34.23: v36 +$8,583 -> +$12,487 /
+  +$5,410 -> +$9,016; v36b +$10,466 -> +$13,377 / +$7,244 -> +$9,826; v37
+  +$31,263 -> +$34,693 / +$19,122 -> +$20,019; worst days better for all
+  three. The 1-minute replay cannot show the seconds inside a furious
+  minute: live, the 10c stop will be hit more often. The owner: "Push r34.23
+  when flat" - live 1:35pm.
+
 ### The owner's stop and furious rules, r34.22 (12:20pm, live 12:36pm)
 - On DKI 11:37 (v36's first stop at the last minute's low, 16.6% under the
   buy, -$71 on a $406 starter) the owner chose "B": keep the chart stop,
