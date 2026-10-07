@@ -76,6 +76,10 @@ GAIN_FROM_OPEN = 0.10                       # up 10% from the day's reference
 MAX_BAR_AGE_DAYS = 5                        # ignore names that have not traded
 SCAN_SECONDS = 8
 MAX_WATCH = 200                             # symbols on the stream
+ROSTER_LOG_MIN = 15                         # the scanner's list in the log: what came
+                                            # and went at each scan, and all of it this
+                                            # often (minutes) - the replay's stock list
+                                            # for the day (the owner, 10-07). 0 = off
 
 # --- execution (shared) ------------------------------------------------------
 BUY_CHASE_CAP = 0.02                        # buys capped 2% above the ask
@@ -6005,6 +6009,8 @@ class Engine:
 
         self.last_auth_warn = 0.0
         self.last_probe = 0.0
+        self.roster: set = set()                # the scanner's list at the last scan
+        self.roster_all_at = 0.0
         self.prev_highs: dict[str, float] = {}
         self.prev_closes: dict[str, float] = {}
         self.day_highs: dict[str, float] = {}   # from today's bars, once a day
@@ -6103,6 +6109,26 @@ class Engine:
         self.log_probe(probe)
         return picks
 
+    def log_roster(self, picks, symbols):
+        """ROSTER_LOG_MIN: the names the scanner passed, as they come and go,
+        and the whole list every ROSTER_LOG_MIN minutes - with each name's
+        high so far."""
+        if not ROSTER_LOG_MIN:
+            return
+        now = time.time()
+        cur = set(symbols)
+        new, gone = sorted(cur - self.roster), sorted(self.roster - cur)
+        if new or gone:
+            log.info("ROSTER %d names | in: %s | out: %s", len(cur),
+                     " ".join("%s %.2f" % (s, picks[s]) for s in new) or "-",
+                     " ".join(gone) or "-")
+        if now - self.roster_all_at >= ROSTER_LOG_MIN * 60:
+            self.roster_all_at = now
+            log.info("ROSTER ALL %d%s: %s", len(cur),
+                     " (of %d)" % len(picks) if len(picks) > len(cur) else "",
+                     " ".join("%s %.2f" % (s, picks[s]) for s in sorted(cur)))
+        self.roster = cur
+
     def log_probe(self, probe):
         now = time.time()
         if not probe or now - self.last_probe < 60:
@@ -6131,6 +6157,7 @@ class Engine:
                     picks = await self.scan()
                     if picks:
                         symbols = list(picks)[:MAX_WATCH]
+                        self.log_roster(picks, symbols)
                         # The real high of the day BEFORE a name can be
                         # traded - a restart must not forget the morning.
                         await self.seed_day_highs(symbols)

@@ -1074,3 +1074,17 @@ def test_the_owner_s_10_07_stop_rules_are_on():
     assert bot.V36_STARTER_RISK == 0.03 and bot.V36_LEVEL_STOP
     assert bot.V36_LEVEL_GIVE == 0.05
     assert bot.V36_FURIOUS_FULL and bot.V36_FURIOUS_ALL and bot.V36_FURIOUS_SPIKE
+
+
+def test_the_scanner_list_is_logged(caplog):
+    """The owner, 10-07: save the scanner's names through the day for the replay."""
+    eng = bot.Engine.__new__(bot.Engine)
+    eng.roster, eng.roster_all_at = set(), 0.0
+    picks = {"ABCD": 3.10, "EFGH": 7.25}
+    with caplog.at_level("INFO"):
+        eng.log_roster(picks, list(picks))
+        eng.log_roster({"ABCD": 3.20}, ["ABCD"])
+    text = caplog.text
+    assert "ROSTER 2 names | in: ABCD 3.10 EFGH 7.25 | out: -" in text
+    assert "ROSTER ALL 2: ABCD 3.10 EFGH 7.25" in text
+    assert "ROSTER 1 names | in: - | out: EFGH" in text
