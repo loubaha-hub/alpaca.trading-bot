@@ -91,6 +91,15 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   buy only the stop under the red body sells; "half the gain" only once
   there is a real gain. (10-06 the owner rejected a time-based grace;
   this one waits for a gain, not a clock - replay both.)
+- Second by second from our own logs: 8:09:57.8 v36b's stop fired on a
+  $4.78 trade (the market then); 8:09:58.9 v37 bought "above the high" on
+  a $5.05 print - stale/out of sequence - filled $4.81 (12c under the red
+  candle's top $4.93; two partial fills, which Alpaca shows as a buy and
+  an "add"); 8:10:00.0 sold $4.69. The owner suspected the bot "messed
+  up" the timing - right: the buy signal was false. Fix 11 tightened:
+  just before buying, the live ask must still be at/above the trigger.
+  Exact ticks: Webull's tick feed no longer reaches 8:09; Alpaca has
+  them (a read-only dump at the next restart, if the owner wants).
 
 ## 2026-10-06
 
