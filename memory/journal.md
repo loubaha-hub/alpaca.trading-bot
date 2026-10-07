@@ -120,6 +120,22 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   back a third of the gain. Replay on all days incl. 10-07 at several
   thresholds, counting the accelerations that fail, before deciding.
 
+### The fixes, first replay (09-28..10-06, $15,000, fills 0.2% / 1% worse)
+- Built on the branch (tests from each live case, 539 pass): v37 - rip
+  exception at speed 0.3+, red candle never overridden, ask above the old
+  high, prints outside the bid-ask ignored, giveback from a full cent and
+  only if the bid agrees. v36/v36b - re-entries past HOD+5c (SETUP_BUYS 1),
+  leader not capped, failed rip, heavy red, $x.00/$x.50 levels, no buy 5%+
+  over the trigger, the 3% stop from the price paid. Proposed, off:
+  RUNNER_HALF, REENTRY_SPEED, ACCEL (v36/v37).
+- v37: live +$3,563 / +$366 (85 trades) -> fixed +$3,454 / +$1,205 (49).
+  v36: +$1,540 / -$985 (185) -> +$1,746 / -$176 (131).
+  v36b: +$2,272 / -$78 (181) -> +$1,037 / -$692 (151) - WORSE; finding
+  which rule. v36b + RUNNER_HALF -$368 / -$1,603 (drop it). v36b +
+  REENTRY_SPEED 0.1 +$1,779 / +$519 (95 trades).
+- The replay has no quotes: the print checks are proven by the tests,
+  not by these numbers.
+
 ## 2026-10-06
 
 ### v24 replayed with its holes fixed (10-07 ~1am; replay/research/v24sim.py)
