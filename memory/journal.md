@@ -44,6 +44,15 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   while it makes new highs of the day (the owner's "leaders first, never
   banned for ripping"); v37's ripping exception never overrides the red
   candle.
+- SPAI 8:09am: both v36s bought $4.91 on "rip then red pullback" - but the
+  8:08 red candle fell $4.92 -> $4.41 (-10%), under the 8:07 green's open
+  ($4.58), on 267k vs the rip's 304k: a reversal, not a light pullback.
+  v36b's 3% cap: out at $4.74 in 48s (-$5.51); v36: stop at the red low
+  $4.41 (10% away), still holding at 8:10. v37 skipped at 8:09:09 (red
+  candle), then bought 8:09:58 via the ripping exception, -$12.45 in 1s.
+  The owner: "this one shouldn't have bought it". To build: a red candle
+  that falls under the green's open (erases the rip) on heavy volume = a
+  failed rip, no buy; the pullback must be light and hold the rip.
 
 ## 2026-10-06
 
