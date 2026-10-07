@@ -8,7 +8,9 @@ Updated 2026-10-07, 0:20am ET.
 - Live on `main` (Render): VERSION v31-r34.14 (released 00:14am ET 10-07
   at the owner's OK, all three accounts flat): r34.13 + each account's
   September fills written to the log at start-up (read-only; HISTORY_DUMP,
-  set it to () once read). r34.13 was 10:18pm 10-06, r34.12 8:07pm.
+  set it to () in the next release - read already). r34.13 was 10:18pm
+  10-06, r34.12 8:07pm. v24 (and the other September strategies) set
+  aside by the owner after the review (journal, 10-06/07).
   Accounts: T6HH runs v36, P28T ("V30-100k") runs v37, AUES runs v36b.
 - r34.13: v36b = v36 with the 60% wick veto, the 3% first-stop cap and
   fresh exits, on AUES in place of v35 (the owner: v36 on two accounts side

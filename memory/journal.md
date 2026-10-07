@@ -18,7 +18,9 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   C -$14,722 / -$22,638 (33% / 12% won, 1 up-day, halted 6-7 days).
   Honest fills alone turn 09-28's +$21,698 into +$3,077 (no costs).
 - Verdict (Claude's): the gains were the simulator's perfect fills and
-  churn; not worth reviving.
+  churn; not worth reviving. The owner (10-07 ~1am): v24 is set aside -
+  it was only to see its problems; 10-07 runs v36 (T6HH), v36b (AUES) and
+  v37 (P28T) as planned.
 
 ### September on Alpaca, from the accounts' own fills (r34.14, 10-07 0:14am)
 - r34.14 (the owner's OK, accounts flat, 00:14 ET 10-07): at start-up each
