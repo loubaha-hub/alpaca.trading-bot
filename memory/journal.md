@@ -26,6 +26,13 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   with speed 0.3+ (LPCN 6:33am got in at score 9, speed 0.07); (3) v37's
   "half the gain" confirmed by the bid (BIYA sold on a 1.1s-old $2.64
   print while trading at $2.73).
+- The owner, ~7:15am, for v36 AND v36b: be mindful of $x.00 and $x.50 -
+  natural resistance. Wait for the price to cross the level and hold a
+  moment, about 5c past it, before adding (BIYA: the starter bought low
+  would have been kept). And once a position runs, do not cut it until it
+  has given back half of its gain - "that is where we will see positive
+  results". To build and replay (with a range of settings), then the
+  owner decides.
 
 ## 2026-10-06
 
