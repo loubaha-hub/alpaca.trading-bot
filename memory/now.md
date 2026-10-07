@@ -1,10 +1,18 @@
 # Where things stand
 
-Updated 2026-10-07, 3:35pm ET.
+Updated 2026-10-07, 4:10pm ET.
 
 ## Code
 - Working branch: `claude/zealous-ramanujan-br3gay`. New work goes here;
   nothing goes to `main` without the owner's OK.
+- The close, 10-07: no trades 2:55-4:06pm; all flat. Day: v36 -7.9%
+  ($16,780), v36b -5.7% ($6,588), v37 -2.0% ($14,247). Tonight (scheduled
+  8:05pm ET): save today's logs to replay/live/, record the 10-07 bars, then
+  the analysis in words first (memory/checklist.md) - the v37 SXTC bite and
+  buy timing, where the seconds go in a sale, the live rules against the
+  checklist (holes, contradictions, stacked conditions), the scorecard
+  proposal. Waiting on the owner: furious full size premarket only?
+  releases after 8pm only + 60s no-buy start? the scorecard?
 - Live on `main` (Render): VERSION v31-r34.28 (pushed 3:32:22pm ET 10-07 on
   the owner's "stop v36/v36b buys until 4pm"; flat since 2:55): no new
   v36/v36b buys 9:30-4 on 2026-10-07 only (V36_NO_RTH_BUYS_ON); v37,
