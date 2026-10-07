@@ -5,6 +5,22 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-07
 
+### SXTC 1:40pm: the exit too slow - r34.24 (live ~1:56pm)
+- The owner sent the chart: v37 respected the high of the day and tried to
+  get out at once, "but the exit did not work fast enough". The log: bought
+  625 @ $7.75 at 1:40:07.7 (35% of the account) - the top tick of a candle
+  $7.15 -> $7.74 -> $7.17; stop $7.65 (the new 10c); price ~$7.74 at
+  1:40:10.5; stop decided at 1:40:14.0 on a $7.49 print; the sale 1:40:14 ->
+  1:40:21.6, three market orders, the first two cancelled after partial
+  fills (our follow() rule meant for buys), out at $7.29: -$290. v36 bought
+  547 @ $7.73, out $7.32 (-$228); v36b filled $7.35 on a stale $7.72 print
+  and sold on a 37c "gain" it never had (-$6).
+- Built and released at the owner's OK ("Push r34.24 when flat"): market
+  sells left to fill; the stop also on the live market (mid of bid and ask -
+  the middle, because a premarket spread can be wider than a 10c stop); a
+  furious gain counted from the fill. The owner is checking for a resistance
+  level near $7.74 (open: should furious buys respect resistance?).
+
 ### The owner's furious exit, r34.23 (~1pm, live 1:35pm)
 - The owner: "not the 8% - too big; these furious ones can crash faster than
   you would ever imagine. If the stock drops 10 cents from the entry, close

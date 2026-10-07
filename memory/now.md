@@ -1,11 +1,21 @@
 # Where things stand
 
-Updated 2026-10-07, 1:40pm ET.
+Updated 2026-10-07, 2:00pm ET.
 
 ## Code
 - Working branch: `claude/zealous-ramanujan-br3gay`. New work goes here;
   nothing goes to `main` without the owner's OK.
-- Live on `main` (Render): VERSION v31-r34.23 (pushed 1:34:55pm ET 10-07 on
+- Live on `main` (Render): VERSION v31-r34.24 (pushed 1:55:20pm ET 10-07 on
+  the owner's "Push r34.24 when flat"; flat at 1:54:45): exits, from SXTC
+  1:40pm (v37 bought 625 @ $7.75, the top tick of a $7.15 -> $7.74 -> $7.17
+  wick; stop $7.65 decided on a $7.49 print 6s later; the sale took 7.5s
+  and three market orders, out at $7.29, -$290). A market sell is left to
+  fill - Broker.follow(market=True) no longer cancels it after a partial
+  fill and sends it again (send_market waits up to 6s); BID_STOP - the stop
+  also fires when the middle of the live bid and ask is at or under it; a
+  furious v36 buy's gain counts from the fill (v36b sold on a 37c "gain"
+  measured from a stale $7.72 print). Worktree release20.
+- r34.23 (1:36pm) (pushed 1:34:55pm ET 10-07 on
   the owner's "Push r34.23 when flat", after the owner saw the replay table;
   flat at 1:34:32): the owner's furious exit (~1pm, decisions) - a furious
   buy's stop 10c under what it paid, not 8% (V36_FURIOUS_STOP_CENTS; 8%
