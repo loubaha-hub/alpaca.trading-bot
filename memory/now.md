@@ -1,13 +1,14 @@
 # Where things stand
 
-Updated 2026-10-06, 10:30pm ET.
+Updated 2026-10-07, 0:20am ET.
 
 ## Code
 - Working branch: `claude/zealous-ramanujan-br3gay`. New work goes here;
   nothing goes to `main` without the owner's OK.
-- Live on `main` (Render): VERSION v31-r34.13 (released 10:18pm ET 10-06
-  at the owner's OK, all three accounts flat; up 10:19pm: "v36, v37,
-  v36b", no errors). r34.12 was 8:07pm.
+- Live on `main` (Render): VERSION v31-r34.14 (released 00:14am ET 10-07
+  at the owner's OK, all three accounts flat): r34.13 + each account's
+  September fills written to the log at start-up (read-only; HISTORY_DUMP,
+  set it to () once read). r34.13 was 10:18pm 10-06, r34.12 8:07pm.
   Accounts: T6HH runs v36, P28T ("V30-100k") runs v37, AUES runs v36b.
 - r34.13: v36b = v36 with the 60% wick veto, the 3% first-stop cap and
   fresh exits, on AUES in place of v35 (the owner: v36 on two accounts side

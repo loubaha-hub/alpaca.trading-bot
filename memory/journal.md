@@ -5,6 +5,20 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-06
 
+### September on Alpaca, from the accounts' own fills (r34.14, 10-07 0:14am)
+- r34.14 (the owner's OK, accounts flat, 00:14 ET 10-07): at start-up each
+  account logs its fills 09-24..09-30, read-only, in the background
+  (HISTORY_DUMP; trading unchanged). Fills: T6HH 641, AUES 1,319, P28T 2,193.
+- Day totals, sold minus bought (the accounts were mostly flat at night):
+  P28T (v30, $100,000): 09-25 -$45,258, 09-28 +$7,856, 09-29 -$7,534,
+  09-30 -$8,862 - matches $54,947 on 09-30 4am. AUES ($30,000 on 09-28;
+  v24, v32 on 09-30): -$6,143, -$2,591, -$5,099 - matches $21,250. T6HH
+  (v31 from 09-28): -$616 (the owner's "about $615"), -$3,406, -$3,299.
+- No fills at all on T6HH and AUES before 09-28 (reset over the weekend, or
+  v27/v24 traded elsewhere 09-24..26). Volume: P28T bought $3.08 million on
+  09-28, AUES $323k on 09-28 - churn. No Alpaca account "ran high"; the
+  big gains remembered were the bots' own reports (droplet v24).
+
 ### The droplet's v24, retrieved (10-06 night)
 - The owner copied it off the DigitalOcean droplet (keys none, account
   numbers masked): `v24_files (3).tgz` on the working branch. On the
