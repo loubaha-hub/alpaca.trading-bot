@@ -4036,11 +4036,15 @@ V36_MAX_ENTRIES = 6             # buys per name per day - each one small
 # miss these moves the program will not advance"):
 V36_TREND_LIVE = True           # trend checks with the forming candle at the live
                                 # price, as the chart draws them (BIYA 4:13)
-V36_CROWD_TRADING = True        # the crowd counts the last V36_CROWD_MINUTES minutes
-V36_CROWD_SPAN_MIN = 30         # the stock TRADED, within this span - after a halt
-                                # it is not "$0k" (DKI 10:36 and 10:50)
+V36_CROWD_TRADING = True        # 9:30-4:00 the crowd counts the last V36_CROWD_MINUTES
+V36_CROWD_SPAN_MIN = 30         # minutes the stock TRADED, within this span - after
+                                # a halt it is not "$0k" (DKI 10:36 and 10:50).
+                                # Premarket has no halts (the owner): the clock window
 V36_FURIOUS = True              # the owner's speed at V37_FURIOUS_SPEED on real money
                                 # counts as the crowd and lifts the buy cap (BIYA 8:20)
+V36_FURIOUS_SKIPS = True        # ...and sets the trend (VWAP, EMA, MACD), tape and room
+                                # checks aside: "all the filters tossed aside in a
+                                # movement like this" (the owner, 10-07)
 V36_PAY_UP_ABR = 1.0            # a buy may pay this many ABRs over the trigger...
 V36_PAY_UP_MAX = 0.05           # ...never more than this (BUY_CHASE_CAP at least)
 V36_CONFIRM_TOLERANCE = 0.01    # the ask may sit this far under the trigger
@@ -4187,6 +4191,19 @@ class _Momentum:
         so far - a true rip (XHG 9:39am 10-06: 2.4M shares after 1.9M)."""
         vols = [b.v for b in s.bars]
         return bool(vols) and self.pace(s) > max(vols)
+
+    def five_sec(self, s, price):
+        """The last 5 seconds of prints: (how far the price moved, dollars
+        traded). The owner, 10-07: "how much the stock appreciated every five
+        seconds" - logged with each furious decision, to set a number on it."""
+        now = s.last_print_ts or time.time()
+        old, dollars = None, 0.0
+        for t, px, sz in reversed(s.v37_prints):
+            if t < now - 5:
+                old = px
+                break
+            dollars += px * sz
+        return ((price / old - 1) if old else 0.0), dollars
 
     def speeding(self, s, price) -> bool:
         """The owner's speed at V37_FURIOUS_SPEED on ACCEL_DOLLARS in the last
@@ -4393,9 +4410,9 @@ class V36(_Restore, _Momentum, V35):
             for sym in self.qualified:
                 st = self.state.get(sym)
                 if st and st.bars:
-                    if V36_CROWD_TRADING:       # the last minutes it TRADED: a halt
-                        recent = [b for b in st.bars[-V36_CROWD_MINUTES:]   # is not $0
-                                  if b.ts >= span]
+                    if V36_CROWD_TRADING and regular_hours():   # halts: 9:30-4
+                        recent = [b for b in st.bars[-V36_CROWD_MINUTES:]   # only - a
+                                  if b.ts >= span]      # halt is not $0
                     else:
                         recent = [b for b in st.bars if b.ts >= since]
                     d = sum(b.c * b.v for b in recent)
@@ -4717,13 +4734,19 @@ class V36(_Restore, _Momentum, V35):
                 return
         if self.own("MAX_STOP"):                # under what it pays, not an old trigger
             stop_ref = max(stop_ref, max(trigger, price) * (1 - self.own("MAX_STOP")))
+        furious = V36_FURIOUS_SKIPS and self.speeding(s, price)
+        if furious:                             # the owner, 10-07: running this fast,
+            move, dollars = self.five_sec(s, price)   # every filter is set aside
+            self.log.info("[v36] FURIOUS %s at %.4f: speed %.2f, 5s %+.1f%% on $%.0fk - "
+                          "trend, tape and room set aside", s.symbol, price,
+                          self.real_speed(s, price), 100 * move, dollars / 1000)
         e9, e20, e12, e26 = self.live_emas(s, price)
-        if not self.trend_ok(s, price) or not e12 > e26:
+        if not furious and (not self.trend_ok(s, price) or not e12 > e26):
             self.why_not(s, price, "NO TREND at the trigger %.4f: vwap %.4f e9 %.4f e20 "
                          "%.4f macd %+.4f" % (trigger, self.vwap(s), e9, e20,
                                               e12 - e26), urgent=True)
             return
-        if not self.tape_ok(s):
+        if not furious and not self.tape_ok(s):
             b, r, m, tot, q = self.tape_split(s, V36_TAPE_SECONDS)
             self.why_not(s, price, "NO TAPE at the trigger %.4f: %ds ask %.0f%% bid %.0f%% "
                          "between %.0f%% of %.0f sh (%.0f%% by quote)" % (
@@ -4734,7 +4757,7 @@ class V36(_Restore, _Momentum, V35):
         # ROOM TO RUN: the next wall overhead - the prior day's high - at
         # least V35_ROOM_RR times what the stop risks.
         risk = trigger - min(stop_ref, trigger * (1 - MIN_STOP_PCT))
-        if (V35_ROOM_RR and s.prev_high > trigger
+        if (not furious and V35_ROOM_RR and s.prev_high > trigger
                 and s.prev_high - trigger < V35_ROOM_RR * risk):
             self.why_not(s, price, "NO ROOM at the trigger %.4f: prior high %.4f" % (
                 trigger, s.prev_high), urgent=True)
@@ -5415,9 +5438,14 @@ class V37(V36):
             return                              # every buy ABOVE the high of the day
                                                 # (the owner, 2026-10-06) - touching
                                                 # it is not a new high
-        if V37_HOD_CLEAR and s.day_high and price < s.day_high + max(
-                V37_HOD_CLEAR[0], V37_HOD_CLEAR[1] * s.day_high) - 1e-9:
-            return                              # a cent over it is a touch too
+        if V37_HOD_CLEAR and s.day_high:
+            # From the high of the closed minutes (and the morning's, seeded),
+            # not the high this minute's prints keep raising: measured from
+            # that one, a stock climbing a cent at a time never cleared it
+            # (10-05 replayed: 12 trades became 1).
+            ref = s.hod_closed or s.day_high
+            if price < ref + max(V37_HOD_CLEAR[0], V37_HOD_CLEAR[1] * ref) - 1e-9:
+                return                          # a cent over it is a touch too
         if not self.confirmed(s):
             return                              # a re-buy, or out of a sideways stretch:
                                                 # not confirmed above the old high yet

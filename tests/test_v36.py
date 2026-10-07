@@ -864,3 +864,34 @@ def test_speed_counts_as_the_crowd(v36, clock, monkeypatch):
 def test_the_big_move_rules_are_on():
     assert bot.V36_TREND_LIVE and bot.V36_CROWD_TRADING and bot.V36_FURIOUS
     assert bot.V37_ACCEL_FROM_HIGH
+
+
+def test_premarket_has_no_halts_the_crowd_is_the_clock(v36, clock):
+    """The owner, 10-07: no halts premarket - the halt rule is 9:30-4:00 only."""
+    clock.now = bot.datetime(2026, 10, 1, 7, 0, tzinfo=bot.ET)
+    s = v36.st("DKI")
+    v36.qualified.add("DKI")
+    t0 = clock.now.astimezone(bot.timezone.utc) - bot.timedelta(minutes=12)
+    s.bars = [bot.Bar(t0 - bot.timedelta(minutes=5 - i), 2.4, 2.9, 2.3, 2.8, 500_000)
+              for i in range(5)]
+    assert v36.crowd_dollars("DKI") == 0.0                # 12 quiet minutes: no crowd
+
+
+@pytest.mark.parametrize("fast, buys", [(True, True), (False, False)])
+def test_running_furiously_the_filters_step_aside(v36, clock, monkeypatch, fast, buys):
+    """The owner, 10-07: "MACD, the EMAs, VWAP - all of that has to be tossed aside
+    in a movement like this"."""
+    monkeypatch.setattr(v36, "speeding", lambda s, p: fast)
+    monkeypatch.setattr(v36, "trend_ok", lambda s, p: False)      # no trend
+    s = ripping(v36, clock)
+    tick(v36, s, TRIGGER)
+    assert entered(v36, s) == buys
+
+
+def test_five_seconds_of_prints(v36):
+    s = v36.st("BIYA")
+    s.last_print_ts = 100.0
+    s.v37_prints.extend([(94.0, 3.00, 1000), (96.0, 3.10, 20_000), (99.0, 3.50, 30_000)])
+    move, dollars = v36.five_sec(s, 3.50)
+    assert move == pytest.approx(3.50 / 3.00 - 1)
+    assert dollars == pytest.approx(3.10 * 20_000 + 3.50 * 30_000)

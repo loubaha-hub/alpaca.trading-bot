@@ -1414,14 +1414,26 @@ def test_weto_a_cent_over_the_high_is_not_a_new_high(v37, clock, now, monkeypatc
     """The premarket high was $1.32; one print at $1.33, then $1.26."""
     monkeypatch.setattr(bot, "V37_HOD_CLEAR", (0.02, 0.005))
     s = ripping(v37, clock, now)
-    s.day_high = 10.50
+    s.day_high = s.hod_closed = 10.50                     # the high of the closed minutes
     tick(v37, s, now, 10.51)                              # a cent over: a touch
     assert not s.in_position
-    assert s.day_high == 10.51                            # the touch is the new high
-    tick(v37, s, now, 10.56)                              # 5c over it: under 0.5%
+    tick(v37, s, now, 10.54)                              # 4 cents: under 0.5% (5.25c)
     assert not s.in_position
-    tick(v37, s, now, 10.62)                              # 0.5% over $10.56: through
+    tick(v37, s, now, 10.56)                              # 6 cents over $10.50: through
     assert s.in_position
+
+
+def test_a_climb_a_cent_at_a_time_still_clears_the_high(v37, clock, now, monkeypatch):
+    """Measured from the high this minute's prints keep raising, a stock rising
+    a cent at a time never cleared it (10-05 replayed: 12 trades became 1)."""
+    monkeypatch.setattr(bot, "V37_HOD_CLEAR", (0.02, 0.005))
+    s = ripping(v37, clock, now)
+    s.day_high = s.hod_closed = 10.50
+    for c in range(1, 8):                                 # $10.51, 10.52 ... 10.57
+        tick(v37, s, now, round(10.50 + c / 100, 2))
+        if s.in_position:
+            break
+    assert s.in_position and s.entry <= 10.57 * 1.03
 
 
 def test_weto_no_buy_reloads_under_the_old_high(v31, broker, data, monkeypatch):
