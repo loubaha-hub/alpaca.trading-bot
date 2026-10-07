@@ -61,9 +61,10 @@ Updated 2026-10-06, 10:25am ET.
 ## Waiting on the owner
 0. v37 speed rule (0.1+): held off by the owner until "up 3%" has a big
    enough live sample; the branch logs the speed on every buy (not live yet).
-0a. v36 retest (10-06 evening): a 3% cap on its first stop helps most
-   (+$1,540 -> +$2,186 at 0.2%, -$985 -> -$279 at 1%), wick veto 60% a
-   little, fresh exits no harm - waiting on the owner (next release).
+0a. v36 r34.13 candidate (3% first-stop cap + 60% wick veto + fresh exits),
+   replayed 7 days: +$2,272 / -$78 at fills 0.2% / 1% worse vs r34.12's
+   +$1,540 / -$985. The owner: run v36 on r34.12 on 10-07 first, see what it
+   does live, then decide on r34.13 (not for the 4am open).
 0b. Watch v37 on score 12 live: trades, win rate, the score and speed of
    each buy (ENTER lines); compare with the replay (75% won at 0.2%).
 1. "Half the gain" on tiny gains (25 of today's exits under 1%): the owner
