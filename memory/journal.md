@@ -5,6 +5,18 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-07
 
+### The owner, ~10:45am: the rules must be re-checked while the order works
+- On WETO (the high-of-day rule checked once, at the decision, never while
+  the buy reloaded for 6s): "once you put the order, that has to be
+  checked - if the situation changes in front of me I cancel the order or
+  move it up; those things have to be in the code". And: a fix must not
+  open another can of worms.
+- To build (tonight, shown before release): every reload of a buy (and
+  every add) re-runs the strategy's entry rules on the current quote and
+  stops the moment one fails, logging which; a fill under the old high is
+  sold at once and logged as a rule break; each with tests from today's
+  live cases.
+
 ### The owner, ~10:35am: make the code airtight
 - Two kinds of problems, in the owner's words: the market is more complex
   than the rules ("you and I can deal with that"), and rules given "black
