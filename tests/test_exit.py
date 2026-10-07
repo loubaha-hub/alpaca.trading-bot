@@ -183,3 +183,16 @@ def test_nothing_working_the_first_sell_goes_straight_out(v31, broker, clock, ca
         assert run(v31.sell("SXTC", 133, 7.30)) == 133
     assert broker.market_orders and all(sent_first)
     assert "SXTC SELL 133 at MARKET" in caplog.text
+
+
+def test_sold_elsewhere_the_position_closes_here(v31, broker, clock, caplog):
+    """CPHI 10-07 2:12pm: the old process (a deploy) sold the shares the new one
+    had adopted; the new one tried to sell 0 shares on every print."""
+    at(clock, 14, 12)
+    s = v31.st("CPHI")
+    s.shares, s.entry, s.stop = 3552, 1.0654, 1.0554    # held here, none at the broker
+    with caplog.at_level(logging.WARNING):
+        run(v31.exit(s, "stop"))
+    assert not s.in_position and s.shares == 0
+    assert "already sold elsewhere" in caplog.text
+    assert not v31.closed_today                           # nothing booked

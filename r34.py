@@ -2011,6 +2011,14 @@ class Strategy:
         sold = await self.sell(s.symbol, shares, s.last_price,
                                deep=(getattr(s, "entry_kind", "") == "accel"
                                      or getattr(s, "v36_furious", False)))
+        if not sold and await self.broker.qty(s.symbol) == 0:
+            # NOTHING LEFT TO SELL: sold elsewhere. CPHI 10-07 2:12pm - during a
+            # deploy the old process sold the position the new one had just
+            # adopted, and the new one tried to sell 0 shares every print.
+            log.warning("[%s] %s: the broker holds none - already sold elsewhere; "
+                        "closed here, nothing booked", self.name, s.symbol)
+            self.clear(s)
+            return
         # Booked at what the sale REALLY got. The print that triggered it can
         # be far from the market: QTEX, 2026-10-05 4:06am, was logged at 1.27
         # and -$311 while the shares sold near 1.44 and the account barely
