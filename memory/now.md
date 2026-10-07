@@ -1,17 +1,28 @@
 # Where things stand
 
-Updated 2026-10-07, 7:20am ET.
+Updated 2026-10-07, 9:25am ET.
 
 ## Code
 - Working branch: `claude/zealous-ramanujan-br3gay`. New work goes here;
   nothing goes to `main` without the owner's OK.
-- Live on `main` (Render): VERSION v31-r34.14 (released 00:14am ET 10-07
-  at the owner's OK, all three accounts flat): r34.13 + each account's
-  September fills written to the log at start-up (read-only; HISTORY_DUMP,
-  set it to () in the next release - read already). r34.13 was 10:18pm
-  10-06, r34.12 8:07pm. v24 (and the other September strategies) set
-  aside by the owner after the review (journal, 10-06/07).
-  Accounts: T6HH runs v36, P28T ("V30-100k") runs v37, AUES runs v36b.
+- Live on `main` (Render): VERSION v31-r34.15 (pushed 9:20am ET 10-07 at
+  the owner's OK - "the fixes we agreed on have to be implemented right
+  away" - all three accounts flat at 9:19). The 10-07 fixes from the owner's
+  live review: v37 - ripping skips the score only at speed 0.3+ and never
+  over a red last candle; "half the gain" only after a 1c+ gain and with the
+  bid agreeing; a buy needs the ask over the old high; prints outside the
+  live bid/ask decide nothing. v36/v36b - re-entries only over HOD + 5c and
+  at speed 0.1+; the #1/#2 leader making new highs is not held by the 6-buy
+  cap; a red under the rip candle's open, or heavier than the rip, is no
+  pullback; $x.00/$x.50: wait 5c past, held ~3s; no buy 5%+ over the
+  trigger; the 3% stop from the price paid. Acceleration (SXTC): counts as
+  the crowd for v36/v36b; v37 buys it at 4/10/35% of the account by speed
+  (0.15/0.20/0.30), adds to 65% on a new high 2%+ up at speed 0.3+, a spike
+  (+30%) sells on giving back a third. HISTORY_DUMP off. Left out: the
+  runner "rides to half" (lost in the replay). Release worktree:
+  scratchpad release10.
+- r34.14 (00:14am 10-07): r34.13 + each account's September fills in the
+  log at start-up (read; off in r34.15).
 - r34.13: v36b = v36 with the 60% wick veto, the 3% first-stop cap and
   fresh exits, on AUES in place of v35 (the owner: v36 on two accounts side
   by side). T6HH's v36 unchanged - the three settings are per strategy now

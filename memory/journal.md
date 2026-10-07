@@ -5,6 +5,21 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-07
 
+### r34.15 released 9:20am ET (the owner's OK)
+- The owner, ~9:15am: do not wait for the end of the day - "the fixes we
+  agreed on have to be implemented right away"; then "push to main".
+  All three accounts flat (pos=0) at 9:19; pushed a4b3008 at 9:20.
+- In it: every fix agreed in the morning review (see below and now.md),
+  the acceleration entry at the owner's sizing, re-entry speed 0.1
+  (replayed on v36b, 7 days, $15k: +$1,779 / +$519 at 0.2% / 1% fills vs
+  +$1,037 / -$692 without). Not in it: the runner "rides to half" (lost:
+  -$368 / -$1,603). 542 tests, the live cases among them.
+- The owner asked whether the bots will learn from their mistakes. Told:
+  no - they repeat a mistake until the code changes; it streamlines
+  because each live mistake becomes a fix plus a test that keeps it fixed.
+- The owner: keep the re-entry and chase rules - "these run, come back and
+  run" - and fine-tune them (with the 10-07 bars, after 8pm).
+
 ### Morning review with the owner (4-7am ET)
 - First side by side: v36 (T6HH) -0.74%, v36b (AUES) -0.49% at ~7am (the
   owner's screens); 13 closed trades each, same names (MI, BIYA, SXTC,
