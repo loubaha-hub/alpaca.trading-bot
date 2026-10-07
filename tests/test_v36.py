@@ -319,11 +319,13 @@ def test_no_more_than_the_days_entries(v36, clock, monkeypatch):
 
 # ---- which account -----------------------------------------------------------------
 
-def test_the_accounts_run_v36_v37_v35():
-    """The owner, 10-06: v36 over v31's account, v37 over "V30-100k" (v34's)."""
+def test_the_accounts_run_v36_v37_v36b():
+    """The owner, 10-06: v36 over v31's account, v37 over "V30-100k" (v34's),
+    and v36 with r34.13's changes (v36b) over AUES (v35's) in place of v35."""
     slots = bot.account_classes({})
     assert slots["v31"] is bot.V36 and slots["v34"] is bot.V37
-    assert slots["v35"] is bot.V35
+    assert slots["v35"] is bot.V36B
+    assert bot.account_classes({"SLOT_V35": "v35"})["v35"] is bot.V35
 
 
 def test_each_account_can_be_switched_or_turned_off():
@@ -577,3 +579,54 @@ def test_fresh_exits_skip_an_old_print(v36, clock, monkeypatch):
 
 def test_the_v36_candidates_are_off_until_tested():
     assert not bot.V36_WICK_VETO and not bot.V36_MAX_STOP and not bot.V36_FRESH_EXITS
+
+
+# ---- v36b: v36 with those three, on its own account (the owner, 10-06) -------------
+
+@pytest.fixture
+def v36b(data, clock, monkeypatch):
+    from helpers import FakeBroker
+    monkeypatch.setattr(bot, "V36_TAPE_GREEN", 0.0)
+    monkeypatch.setattr(bot, "V36_CROWD_HOLD_MIN", 0)
+    strat = bot.V36B(FakeBroker(equity=100_000.0), data)
+    strat.day_start_equity = strat.broker.eq
+    return strat
+
+
+def test_v36b_vetoes_the_wick_v36_buys_in_the_same_process(v36, v36b, clock):
+    """Both run in one process on one data feed: the setting is v36b's own."""
+    for strat in (v36, v36b):
+        s = ripping(strat, clock)
+        b = s.bars[-1]
+        s.bars[-1] = bot.Bar(b.ts, b.o, b.o + 0.60, b.l, b.c, b.v)
+        tick(strat, s, TRIGGER)
+    assert entered(v36, v36.state["ABCD"])
+    assert not entered(v36b, v36b.state["ABCD"])
+
+
+def test_v36b_caps_the_first_stop_v36_does_not(v36, v36b, clock):
+    """A deep pullback (to 9.95, 4.4% under the trigger): v36's stop sits
+    under it, v36b's no more than 3% under the trigger."""
+    for strat in (v36, v36b):
+        s = ripping(strat, clock)
+        b = s.bars[-1]
+        s.bars[-1] = bot.Bar(b.ts, b.o, b.h, 9.95, b.c, b.v)
+        tick(strat, s, TRIGGER)
+        assert entered(strat, s)
+    assert v36.state["ABCD"].stop < TRIGGER * 0.97
+    assert v36b.state["ABCD"].stop >= TRIGGER * 0.97 - 1e-9
+
+
+def test_v36b_waits_for_a_fresh_print_v36_does_not(v36, v36b, clock):
+    for strat in (v36, v36b):
+        s = bought(strat, clock)
+        s.last_print_ts = time.time() - 7
+        tick(strat, s, round(s.stop - 0.05, 2))
+    assert not v36.state["ABCD"].in_position
+    assert v36b.state["ABCD"].in_position
+
+
+def test_v36b_log_lines_say_v36b(v36, v36b):
+    assert v36b.log.process("[v36] ABCD STARTER", {})[0] == "[v36b] ABCD STARTER"
+    assert v36b.log.process("[v31] ENTER ABCD", {})[0] == "[v36b] ENTER ABCD"
+    assert v36.log.process("[v36] ABCD STARTER", {})[0] == "[v36] ABCD STARTER"
