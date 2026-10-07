@@ -1388,6 +1388,7 @@ def test_no_fast_buy_far_over_the_last_minute(v37, clock, now, monkeypatch, over
 
 
 def test_a_spike_keeps_two_thirds_of_its_gain(v37, clock, now, monkeypatch):
+    monkeypatch.setattr(bot, "V36_LEVEL_STOP", False)     # the levels: their own test
     monkeypatch.setattr(bot, "V37_ACCEL", True)
     monkeypatch.setattr(bot, "V37_ASK_PLUS", 0.0)
     s = accelerating_stock(v37, clock)
@@ -1671,3 +1672,26 @@ def test_not_furious_keeps_the_safety_net(v37, clock, now, monkeypatch, broker):
     prints(v37, s, now, s.bars[-1].h, price, size=30_000)
     tick(v37, s, now, price)
     assert not s.in_position
+
+
+# ---- 10-07 ~12:20: the whole / half dollar under the buy (the owner) ---------------
+
+def test_v37_stop_never_further_than_5c_under_the_dollar(v37, clock, now, monkeypatch):
+    """An 8% stop under a $10.36 buy is $9.53; the line is $10: out at $9.95."""
+    monkeypatch.setattr(bot, "V37_STOP_SPEED", True)
+    monkeypatch.setattr(v37, "stop_pct", lambda s, p: 0.08)
+    s = ripping(v37, clock, now)
+    tick(v37, s, now, 10.36)
+    assert s.in_position and s.v36_line == 10.0
+    assert s.stop == pytest.approx(9.95)
+
+
+def test_v37_held_past_the_next_half_dollar_the_stop_moves_up(v37, clock, now, monkeypatch):
+    monkeypatch.setattr(bot, "V37_GIVEBACK", 0.99)        # the giveback: its own tests
+    monkeypatch.setattr(bot, "V37_ADD1_CENTS", 5.0)       # and no adds
+    monkeypatch.setattr(bot, "V37_ADD2_CENTS", 6.0)
+    s = ripping(v37, clock, now)
+    tick(v37, s, now, 10.36)
+    for _ in range(4):                                    # a second a print, over $10.55
+        tick(v37, s, now, 10.60)
+    assert s.v36_line == 10.5 and s.stop == pytest.approx(10.45)
