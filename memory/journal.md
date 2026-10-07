@@ -17,6 +17,9 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   -$347 -> -$160); fresh exits: identical (the replay has no lag) - no harm.
 - The cap holds across 3% and 4%; the wick veto only at 60% (fragile).
   Proposal: cap 3% + fresh exits for v36, wick veto 60% optional.
+- r34.12 released 8:07pm ET (the owner's OK at 5:14pm), accounts flat;
+  up 8:08pm, the restore lines tagged [v36]/[v37]. The day roll clears
+  each stock's state at the new day, so 10-06's counts do not carry over.
 
 ### v36 replayed, 6 days (tape check off - the replay has no real tape)
 - Live v36 as it is: 153 trades, 7% won; +$1,917 at fills 0.2% worse

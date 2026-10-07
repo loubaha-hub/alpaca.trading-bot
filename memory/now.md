@@ -5,9 +5,13 @@ Updated 2026-10-06, 10:25am ET.
 ## Code
 - Working branch: `claude/zealous-ramanujan-br3gay`. New work goes here;
   nothing goes to `main` without the owner's OK.
-- Live on `main` (Render): VERSION v31-r34.11 (released 3:46pm ET 10-06 at
-  the owner's OK, all three accounts flat; r34.10 was 10:21am).
+- Live on `main` (Render): VERSION v31-r34.12 (released 8:07pm ET 10-06 at
+  the owner's OK, all three accounts flat; up 8:08pm). r34.11 was 3:46pm.
   Accounts: T6HH runs v36, P28T ("V30-100k") runs v37, AUES runs v35.
+- r34.12: v36's adds go right after a runner (a miss retries on the next new
+  high, the limit from the ask, may pay half the minute's move when
+  ripping). v36's score / first-two-buys / wick veto / stop cap / fresh
+  exits: built, OFF.
 - r34.11: v37 buys only at a score of 12 of 15 (speed 1/2/4 at 0.1/0.2/0.3
   with the price itself up 3%; candle, volume, trend, wicks, bodies, lows,
   MACD, room; red last candle or a huge wick = no buy; ripping skips it);
@@ -57,9 +61,9 @@ Updated 2026-10-06, 10:25am ET.
 ## Waiting on the owner
 0. v37 speed rule (0.1+): held off by the owner until "up 3%" has a big
    enough live sample; the branch logs the speed on every buy (not live yet).
-0a. Release r34.12 (r34.11 + v36's add fix; v36 score and first-two-buys
-   rule stay off): the owner's OK at 5:14pm 10-06 to release after 8pm;
-   scheduled check-in 8:05pm ET (worktree release9, commit 75b6e49).
+0a. v36 retest (10-06 evening): a 3% cap on its first stop helps most
+   (+$1,540 -> +$2,186 at 0.2%, -$985 -> -$279 at 1%), wick veto 60% a
+   little, fresh exits no harm - waiting on the owner (next release).
 0b. Watch v37 on score 12 live: trades, win rate, the score and speed of
    each buy (ENTER lines); compare with the replay (75% won at 0.2%).
 1. "Half the gain" on tiny gains (25 of today's exits under 1%): the owner
