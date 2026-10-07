@@ -33,6 +33,17 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   has given back half of its gain - "that is where we will see positive
   results". To build and replay (with a range of settings), then the
   owner decides.
+- LPCN 7:18am (the owner's chart): v36/v36b bought $3.42 on a pullback
+  setup while it stalled under $3.50; stopped 7:20 (-$8.89 / -$2.40). It
+  was their 6th LPCN buy, so from 7:21 to 7:35 - LPCN through $3.50 to
+  $3.99 (+20%), #1 name with $8-16M per 5 min - both logged "NO: 6 buys
+  today" every minute. The 6 buys went on whipsaws (mostly add-then-stop).
+  v37 bought 7:00 @ $3.35 with "score None (the last candle closed red)" -
+  the ripping exception overrode the red-candle no-buy; out in 3s.
+  Added to tonight's build: the 6-buys cap not to apply to the #1/#2 name
+  while it makes new highs of the day (the owner's "leaders first, never
+  banned for ripping"); v37's ripping exception never overrides the red
+  candle.
 
 ## 2026-10-06
 

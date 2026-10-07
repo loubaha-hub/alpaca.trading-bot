@@ -78,6 +78,9 @@ Updated 2026-10-07, 7:20am ET.
      back half the gain - in place of the floor at the average.
   3. v37: the ripping exception only at speed 0.3+.
   4. v37: "half the gain" confirmed by the bid.
+  5. v36 + v36b: the 6-buys-a-stock cap not for the #1/#2 name while it
+     makes new highs (LPCN 7:21-7:35: "NO: 6 buys today" through $3.99).
+  6. v37: the ripping exception never overrides the red-candle no-buy.
   Then the owner decides; release only with the OK, flat or after 8pm.
 - End of day: v36 vs v36b by % of account; v37's exits vs what each stock
   did 5/15/30 min later.
