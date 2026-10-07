@@ -29,6 +29,17 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   09-30 -$8,862 - matches $54,947 on 09-30 4am. AUES ($30,000 on 09-28;
   v24, v32 on 09-30): -$6,143, -$2,591, -$5,099 - matches $21,250. T6HH
   (v31 from 09-28): -$616 (the owner's "about $615"), -$3,406, -$3,299.
+- Correction (FIFO-matched, 10-07 1am): realized 09-25..09-30 = -$74,951
+  (T6HH -$7,320, AUES -$13,834, P28T -$53,797), 876 round trips, 11.6%
+  won, $17.7M traded. P28T's 09-25 "-$45,258" was mostly stock carried
+  over the weekend: realized -$8,610 that day, -$8,059 when sold on 09-28.
+  Holes the fills prove: 210 P28T trades held under 10s lost -$34,538
+  (exits 1c under, inside the spread); doubled buys (same qty again within
+  10s) -$20,418 on P28T, v24's 50% slot doubled to ~100% on AUES; MSGY on
+  T6HH 7 buys in 37s to 152% of the account, -$3,167; one oversell (VBIO,
+  short 4,475 for 4 min); leftover shares (LANV 5,733); 877 re-buys within
+  60s of a sale; BKYI 129 orders in 9 min. No single $9,375 loss in the
+  fills - that is v30's top-up size. Data: scratchpad sept_history/.
 - No fills at all on T6HH and AUES before 09-28 (reset over the weekend, or
   v27/v24 traded elsewhere 09-24..26). Volume: P28T bought $3.08 million on
   09-28, AUES $323k on 09-28 - churn. No Alpaca account "ran high"; the
