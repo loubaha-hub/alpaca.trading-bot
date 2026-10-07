@@ -943,7 +943,7 @@ def test_b_a_near_stop_keeps_the_whole_starter(v36, clock, broker):
         broker.eq * bot.V36_POSITION_PCT * bot.V36_STARTER, rel=0.1)
 
 
-def test_the_stop_sits_5c_under_the_whole_dollar_under_the_buy(v36, clock, broker):
+def test_the_stop_sits_just_under_the_whole_dollar_under_the_buy(v36, clock, broker):
     """The owner: "it goes under three, you sell immediately - you don't wait
     for 2.87"."""
     s = deep_pullback(v36, clock, 9.92)
@@ -951,7 +951,7 @@ def test_the_stop_sits_5c_under_the_whole_dollar_under_the_buy(v36, clock, broke
     assert s.v36_line == 10.0
     assert s.stop == pytest.approx(10.0 - bot.V36_LEVEL_GIVE)
     budget = broker.eq * bot.V36_POSITION_PCT * bot.V36_STARTER * bot.V36_STARTER_RISK
-    assert s.shares == int(budget / (TRIGGER - 9.95))     # sized on that stop
+    assert s.shares == int(budget / (TRIGGER - (10.0 - bot.V36_LEVEL_GIVE)))   # sized on it
 
 
 def test_a_chart_stop_nearer_than_the_level_stays(v36, clock):
@@ -977,8 +977,10 @@ def test_held_past_the_next_half_dollar_the_stop_moves_up(v36, clock, monkeypatc
     now[0] += 1.1
     tick(v36, s, 10.57)                                   # held 3.1 seconds
     assert s.v36_line == 10.5
-    assert s.stop == pytest.approx(10.45)
-    tick(v36, s, 10.45)                                   # back under: out at once
+    assert s.stop == pytest.approx(10.5 - bot.V36_LEVEL_GIVE)
+    tick(v36, s, 10.49)                                   # 1c under: not yet
+    assert s.in_position
+    tick(v36, s, 10.48)                                   # 2c under: out at once
     assert not s.in_position
 
 
@@ -1072,7 +1074,7 @@ def test_a_furious_position_sells_deep_premarket(v36, clock, monkeypatch):
 
 def test_the_owner_s_10_07_stop_rules_are_on():
     assert bot.V36_STARTER_RISK == 0.03 and bot.V36_LEVEL_STOP
-    assert bot.V36_LEVEL_GIVE == 0.05
+    assert bot.V36_LEVEL_GIVE == 0.02                     # "5.98 or 5.99" (the owner)
     assert bot.V36_FURIOUS_FULL and bot.V36_FURIOUS_ALL and bot.V36_FURIOUS_SPIKE
 
 
@@ -1088,3 +1090,20 @@ def test_the_scanner_list_is_logged(caplog):
     assert "ROSTER 2 names | in: ABCD 3.10 EFGH 7.25 | out: -" in text
     assert "ROSTER ALL 2: ABCD 3.10 EFGH 7.25" in text
     assert "ROSTER 1 names | in: - | out: EFGH" in text
+
+
+def test_bought_at_6_15_the_stop_is_5_98_not_5_80(v36, clock, monkeypatch):
+    """The owner, 10-07: bought at $6.15, up to $6.30, coming back - the stop
+    ends at $5.98, not at a $5.80 chart low."""
+    monkeypatch.setattr(bot, "V36_FAILED_RIP", False)     # the deep red is allowed here
+    s = ripping(v36, clock, scale=0.59)                   # the setup near $6
+    b = s.bars[-1]
+    s.bars[-1] = bot.Bar(b.ts, b.o, b.h, 5.80, b.c, b.v)  # the chart's low: $5.80
+    tick(v36, s, 6.15)
+    assert s.in_position and s.v36_line == 6.0
+    assert s.stop == pytest.approx(6.0 - bot.V36_LEVEL_GIVE)
+    tick(v36, s, 6.30)
+    tick(v36, s, 5.99)
+    assert s.in_position                                  # 1c under: not yet
+    tick(v36, s, 5.98)
+    assert not s.in_position

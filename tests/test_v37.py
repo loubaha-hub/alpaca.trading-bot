@@ -1676,14 +1676,14 @@ def test_not_furious_keeps_the_safety_net(v37, clock, now, monkeypatch, broker):
 
 # ---- 10-07 ~12:20: the whole / half dollar under the buy (the owner) ---------------
 
-def test_v37_stop_never_further_than_5c_under_the_dollar(v37, clock, now, monkeypatch):
-    """An 8% stop under a $10.36 buy is $9.53; the line is $10: out at $9.95."""
+def test_v37_stop_never_further_than_just_under_the_dollar(v37, clock, now, monkeypatch):
+    """An 8% stop under a $10.36 buy is $9.53; the line is $10: out at $9.98."""
     monkeypatch.setattr(bot, "V37_STOP_SPEED", True)
     monkeypatch.setattr(v37, "stop_pct", lambda s, p: 0.08)
     s = ripping(v37, clock, now)
     tick(v37, s, now, 10.36)
     assert s.in_position and s.v36_line == 10.0
-    assert s.stop == pytest.approx(9.95)
+    assert s.stop == pytest.approx(10.0 - bot.V36_LEVEL_GIVE)
 
 
 def test_v37_held_past_the_next_half_dollar_the_stop_moves_up(v37, clock, now, monkeypatch):
@@ -1694,4 +1694,4 @@ def test_v37_held_past_the_next_half_dollar_the_stop_moves_up(v37, clock, now, m
     tick(v37, s, now, 10.36)
     for _ in range(4):                                    # a second a print, over $10.55
         tick(v37, s, now, 10.60)
-    assert s.v36_line == 10.5 and s.stop == pytest.approx(10.45)
+    assert s.v36_line == 10.5 and s.stop == pytest.approx(10.5 - bot.V36_LEVEL_GIVE)
