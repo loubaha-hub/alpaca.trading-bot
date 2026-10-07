@@ -3944,6 +3944,11 @@ V36_ADD2_TO = 1.00
 # roughly +$200 on a full position. "If we did not catch it, go right after it."
 V36_ADD_RETRY = True            # a miss does not use up the add: try again on the
 V36_ADD_RETRY_SEC = 2.0         # next new high, this long after the miss
+V36_ADD_HOLD_SEC = 2.0          # an add waits for the price to hold at or over its
+                                # level this long, no print under it (the owner,
+                                # 10-07: "add after the new high holds, about two
+                                # seconds" - APUS 10:25:08 added at $9.56, the floor
+                                # moved to the average, sold 5 seconds later). 0 = off
 V36_ADD_FROM_ASK = True         # an add's limit counts from the current ask when it
                                 # is above the print (prints can lag in a rush)
 V36_ADD_RIP_PAY = 0.10          # ripping (busiest minute of its day): an add may pay
@@ -4848,11 +4853,28 @@ class V36(_Restore, _Momentum, V35):
             await self.exit(s, "10s")
             return
         steps = self.add_steps()
-        if (s.v36_adds < len(steps) and s.v36_first and new_high
-                and time.time() - s.v36_add_try_ts >= V36_ADD_RETRY_SEC):
-            if (price >= self.add_level(s, s.v36_adds) and self.tape_ok(s)
+        if s.v36_adds < len(steps) and s.v36_first:
+            level = self.add_level(s, s.v36_adds)
+            ready = self.add_held(s, price, level) if V36_ADD_HOLD_SEC else new_high
+            if (ready and time.time() - s.v36_add_try_ts >= V36_ADD_RETRY_SEC
+                    and price >= level and self.tape_ok(s)
                     and not self.at_level(s, price)):
                 await self.add_step(s, price, steps[s.v36_adds][1])
+
+    def add_held(self, s, price, level) -> bool:
+        """V36_ADD_HOLD_SEC: the price at or over the add's level for that long,
+        with no print under it in between. The clock belongs to this position
+        and this level; a print under the level starts it again."""
+        now = time.time()
+        key = (level, s.entry_at)
+        hold = getattr(s, "v36_add_hold", None)
+        if price < level:
+            s.v36_add_hold = None
+            return False
+        if not hold or hold[0] != key:
+            s.v36_add_hold = (key, now)
+            return False
+        return now - hold[1] >= V36_ADD_HOLD_SEC
 
 
 # ----------------------------------------------------------------------------
