@@ -3905,6 +3905,11 @@ V36_LEVEL_PAST = 0.05           # only once the price has stayed past that long
 V36_LEVEL_HOLD_SEC = 3.0
 # To judge in the replay (the owner: "once it runs, don't cut it until it has
 # given back half of its gain"; "the speed was not respected"):
+# SXTC 8:17: both v36s bought @ $4.83 / $4.78 on a new-high trigger of $2.77 -
+# 74% over it, after the spike - v36's stop $2.21 (54% away), v36b's 3% cap,
+# taken from the trigger, $2.69 (44% away).
+V36_CHASE_MAX = 0.05            # no buy more than this over the trigger: the move
+                                # already happened (0 = off, as before)
 V36_RUNNER_HALF = False         # after an add: out on giving back half the gain since
                                 # the starter, in place of the floor at the average
                                 # and the 10-second leash
@@ -4527,6 +4532,11 @@ class V36(_Restore, _Momentum, V35):
             self.why_not(s, price, "WAIT: %s trigger %.4f" % (found[2], found[0]))
             return
         trigger, stop_ref, kind = found
+        if V36_CHASE_MAX and price > trigger * (1 + V36_CHASE_MAX):
+            self.why_not(s, price, "NO: %.4f is %.0f%% over the trigger %.4f - the move "
+                         "already happened" % (price, 100 * (price / trigger - 1), trigger),
+                         urgent=True)
+            return
         if self.at_level(s, price):
             self.why_not(s, price, "NO: at the $%.2f level - wait till it holds %.0fc "
                          "past" % (int((price + V36_LEVEL_BELOW) * 2 + 1e-9) / 2.0,
@@ -4546,8 +4556,8 @@ class V36(_Restore, _Momentum, V35):
                 self.why_not(s, price, "NO: a %.0f%% top wick on the last candle - sellers "
                              "rejected the high" % (100 * wick), urgent=True)
                 return
-        if self.own("MAX_STOP"):
-            stop_ref = max(stop_ref, trigger * (1 - self.own("MAX_STOP")))
+        if self.own("MAX_STOP"):                # under what it pays, not an old trigger
+            stop_ref = max(stop_ref, max(trigger, price) * (1 - self.own("MAX_STOP")))
         if not self.trend_ok(s, price) or not s.ema12 > s.ema26:
             self.why_not(s, price, "NO TREND at the trigger %.4f: vwap %.4f e9 %.4f e20 "
                          "%.4f macd %+.4f" % (trigger, self.vwap(s), s.ema9, s.ema20,

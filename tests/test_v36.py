@@ -725,3 +725,13 @@ def test_the_10_07_rules_are_on():
     assert bot.V36_LEADER_NO_CAP and bot.V36_FAILED_RIP and bot.V36_PULLBACK_VOL == 1.0
     assert bot.V36_LEVELS and bot.V36_LEVEL_PAST == 0.05
     assert not bot.V36_RUNNER_HALF and not bot.V36_REENTRY_SPEED   # to replay first
+
+
+@pytest.mark.parametrize("chase, buys", [(0.05, False), (0.0, True)])
+def test_no_buy_far_over_the_trigger(v36, clock, monkeypatch, chase, buys):
+    """SXTC 8:17: bought @ $4.83 on a $2.77 new-high trigger - 74% over it,
+    after the spike; stop $2.21. 0.0 = as it was."""
+    monkeypatch.setattr(bot, "V36_CHASE_MAX", chase)
+    s = ripping(v36, clock)
+    tick(v36, s, round(TRIGGER * 1.32, 2))           # clear of $13.50
+    assert entered(v36, s) == buys

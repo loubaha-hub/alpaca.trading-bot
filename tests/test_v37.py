@@ -1287,3 +1287,15 @@ def test_the_10_07_checks_are_on():
     assert bot.V37_RIP_SPEED == 0.3 and bot.V37_RIP_NO_RED
     assert bot.V37_GIVEBACK_ARM_CENTS == 0.01
     assert bot.V37_PRINT_CHECK and bot.V37_CONFIRM_ASK and bot.V37_GIVEBACK_BID
+
+
+def test_a_furious_buy_is_not_sold_on_a_stale_print(v37, clock, now, monkeypatch):
+    """SXTC 8:16:38: bought @ $2.87 (score 15, speed 0.40), sold 1.5s later by
+    "half the gain" on a 1.8s-old $2.87 print - filled $3.26 while the stock
+    went to $7. The bid was far over the line."""
+    monkeypatch.setattr(bot, "V37_ASK_PLUS", 0.0)
+    s = bought(v37, clock, now)
+    tick(v37, s, now, round(s.entry + 0.011, 3))           # a 1.1c "peak"
+    s.quote = (round(s.entry + 0.38, 2), round(s.entry + 0.40, 2), now[0] + 1)
+    tick(v37, s, now, round(s.entry + 0.001, 3))           # the stale print
+    assert s.in_position
