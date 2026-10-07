@@ -1,6 +1,6 @@
 # Where things stand
 
-Updated 2026-10-06, 10:25am ET.
+Updated 2026-10-06, 10:30pm ET.
 
 ## Code
 - Working branch: `claude/zealous-ramanujan-br3gay`. New work goes here;
@@ -32,6 +32,14 @@ Updated 2026-10-06, 10:25am ET.
   >= 70% of its busiest recent minute; stop a third of the last minute's
   move (3-8%). Off: "half the gain" after +3% (hurt in every replay), the
   faster-price exception to the 70% floor.
+- On the branch, waiting for the owner's OK to release (r34.13): v36b =
+  v36 with the 60% wick veto, the 3% first-stop cap and fresh exits, on
+  AUES in place of v35 (the owner, 10-06 night: "v36 on two accounts - the
+  one already trading and the one with ~$6,000, that one with r34.13").
+  T6HH's v36 is unchanged. The three settings are now per strategy
+  (V36.own); logs say [v36b]; SLOT_V35=v35 brings v35 back. Release copy
+  built in scratchpad/release10 (475 tests pass). v35's last day on AUES,
+  10-06: 5 trades, 0 won, -$74 (-1.0%), $7,061 -> $6,987.
 - On the branch only: `watchman.py` (until the real-money account).
 - Release builds are made in a separate git worktree from `origin/main`.
 
@@ -63,8 +71,9 @@ Updated 2026-10-06, 10:25am ET.
    enough live sample; the branch logs the speed on every buy (not live yet).
 0a. v36 r34.13 candidate (3% first-stop cap + 60% wick veto + fresh exits),
    replayed 7 days: +$2,272 / -$78 at fills 0.2% / 1% worse vs r34.12's
-   +$1,540 / -$985. The owner: run v36 on r34.12 on 10-07 first, see what it
-   does live, then decide on r34.13 (not for the 4am open).
+   +$1,540 / -$985. The owner: T6HH keeps r34.12 on 10-07; r34.13 runs
+   side by side as v36b on AUES once released (compare in % of account -
+   AUES is ~$7,000, T6HH ~$18,200).
 0b. Watch v37 on score 12 live: trades, win rate, the score and speed of
    each buy (ENTER lines); compare with the replay (75% won at 0.2%).
 1. "Half the gain" on tiny gains (25 of today's exits under 1%): the owner
