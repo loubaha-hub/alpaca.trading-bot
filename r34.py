@@ -76,6 +76,10 @@ GAIN_FROM_OPEN = 0.10                       # up 10% from the day's reference
 MAX_BAR_AGE_DAYS = 5                        # ignore names that have not traded
 SCAN_SECONDS = 8
 MAX_WATCH = 200                             # symbols on the stream
+ROSTER_LOG_MIN = 15                         # the scanner's list in the log: what came
+                                            # and went at each scan, and all of it this
+                                            # often (minutes) - the replay's stock list
+                                            # for the day (the owner, 10-07). 0 = off
 
 # --- execution (shared) ------------------------------------------------------
 BUY_CHASE_CAP = 0.02                        # buys capped 2% above the ask
@@ -136,7 +140,7 @@ RISK_CHECK_SECONDS = 5                      # the halt runs on a CLOCK, not tick
 # The file name and this string are changed together, every single time. The
 # log then answers "which code is actually running?" without anyone guessing
 # from line numbers or from behaviour that only shows up once a trade is on.
-VERSION = "v31-r34.21"
+VERSION = "v31-r34.22"
 
 # WHERE THE DAY'S HALT BASELINE COMES FROM.
 #   "last_equity" - equity at the PREVIOUS session's close, read from the broker.
@@ -1378,6 +1382,10 @@ class SymState:
     v37_peak_after: float = 0.0      # v37: the best price since the grace ended
     v37_skip_logged: float = 0.0     # v37: when a "not running" skip was last logged
     v36_add_try_ts: float = 0.0      # v36: when an add was last tried
+    v36_line: float = 0.0            # v36/v37: the whole / half dollar the stop sits
+                                     # under (V36_LEVEL_STOP); 0 = none
+    v36_line_since: float = 0.0      # ...since when the price has held past the next one
+    v36_furious: bool = False        # v36: this position was bought furious
     mom_high_ts: float = 0.0         # v36/v37: when the last new high of the day printed
                                      # v37: (time, price, size) over V37_FAST_SECONDS
     last_exit: float = 0.0           # v33: the level that threw us out
@@ -1986,7 +1994,8 @@ class Strategy:
         trigger = self.print_text(s)
         self.broker.take_fill_price(s.symbol)    # drop fills from before this sale
         sold = await self.sell(s.symbol, shares, s.last_price,
-                               deep=getattr(s, "entry_kind", "") == "accel")
+                               deep=(getattr(s, "entry_kind", "") == "accel"
+                                     or getattr(s, "v36_furious", False)))
         # Booked at what the sale REALLY got. The print that triggered it can
         # be far from the market: QTEX, 2026-10-05 4:06am, was logged at 1.27
         # and -$311 while the shares sold near 1.44 and the account barely
@@ -4065,6 +4074,30 @@ V36_LEVELS = True               # no buy or add from V36_LEVEL_BELOW under a $x.
 V36_LEVEL_BELOW = 0.03          # $x.50 level to V36_LEVEL_PAST over it - and past it,
 V36_LEVEL_PAST = 0.05           # only once the price has stayed past that long
 V36_LEVEL_HOLD_SEC = 3.0
+# 10-07 ~12:20 (the owner, on DKI 11:37: v36's first stop sat at the last
+# minute's low, 16.6% under the buy, and one $406 starter lost $71):
+V36_STARTER_RISK = 0.03         # "B": a starter is sized so its first stop costs at
+                                # most this share of a normal starter - 3% of $406 is
+                                # $12; a far stop buys fewer shares. 0 = off
+V36_LEVEL_STOP = True           # the stop sits under the whole / half dollar under the
+V36_LEVEL_GIVE = 0.05           # buy, this far under it - "it goes under three, you sell
+                                # immediately; you don't wait for 2.87; give it a little,
+                                # five cents" - and moves up to each level the price then
+                                # clears by V36_LEVEL_PAST and holds V36_LEVEL_HOLD_SEC
+V36_FURIOUS_FULL = True         # furious (speeding): the FULL position in the first buy -
+                                # "I enter with a full position on the very first hit; if
+                                # I miss, I try again"...
+V36_FURIOUS_STOP_MAX = 0.08     # ...its stop no further than this under the buy (v37's
+                                # most), and the 10-second leash on it at once
+V36_FURIOUS_SPIKE = True        # ...and once up V37_SPIKE_AT, out on giving back
+                                # V37_SPIKE_GIVEBACK of the gain, as v37 - "when I see
+                                # it has made enough, I get out"
+V36_FURIOUS_ALL = True          # furious: EVERY entry check set aside - the levels, the
+                                # wick, the re-entry speed, the score, the 5% over the
+                                # trigger, and no candle pattern needed (a new high over
+                                # the last minute is the trigger). The never-rules stay:
+                                # hours, 9:29-9:31, the quote backing the trigger, the
+                                # account and position caps, the day's loss halt
 # To judge in the replay (the owner: "once it runs, don't cut it until it has
 # given back half of its gain"; "the speed was not respected"):
 # SXTC 8:17: both v36s bought @ $4.83 / $4.78 on a new-high trigger of $2.77 -
@@ -4406,6 +4439,7 @@ class V36(_Restore, _Momentum, V35):
     WICK_VETO = None
     MAX_STOP = None
     FRESH_EXITS = None
+    LEVEL_STOP = None
 
     def own(self, setting):
         mine = getattr(self, setting)
@@ -4447,8 +4481,65 @@ class V36(_Restore, _Momentum, V35):
         held_all = sum(x.shares * (x.last_price or price)
                        for x in self.open_positions())
         room = max(0.0, eq * MAX_EXPOSURE_PCT - held_all)
+        if s.v36_furious and V36_FURIOUS_FULL:  # "a full position on the first hit"
+            return int(min(eq * V36_POSITION_PCT, eq * MAX_POSITION_PCT, room) / worst)
         dollars = min(eq * V36_POSITION_PCT * V36_STARTER, room)
-        return int(dollars / worst)
+        shares = int(dollars / worst)
+        if V36_STARTER_RISK and price > 0:      # "B": a far stop buys fewer shares
+            risk = max(price - stop_ref, MIN_STOP_PCT * price, 0.01)
+            budget = eq * V36_POSITION_PCT * V36_STARTER * V36_STARTER_RISK
+            fit = int(budget / risk)
+            if fit < shares:
+                self.log.info("[v31] %s STARTER sized for its stop: %d -> %d shares "
+                              "($%.0f) - the stop %.4f is %.1f%% under %.4f, $%.0f at "
+                              "risk", s.symbol, shares, fit, fit * price, stop_ref,
+                              100 * (price - stop_ref) / price, price, fit * risk)
+                shares = fit
+        return shares
+
+    # ---- the whole / half dollar under the stop (V36_LEVEL_STOP) ---------------
+
+    @staticmethod
+    def half_under(price) -> float:
+        """The whole or half dollar at or under the price."""
+        return int(price * 2 + 1e-9) / 2.0 if price > 0 else 0.0
+
+    def line_stop(self, price) -> float:
+        """Where the stop goes for a buy at `price`: V36_LEVEL_GIVE under the
+        whole or half dollar under it (0.0 with V36_LEVEL_STOP off)."""
+        if not self.own("LEVEL_STOP"):
+            return 0.0
+        line = self.half_under(price)
+        return line - V36_LEVEL_GIVE if line > 0 else 0.0
+
+    def set_line(self, s, price):
+        """At a buy: the line is the whole or half dollar under the price."""
+        s.v36_line = self.half_under(price) if self.own("LEVEL_STOP") else 0.0
+        s.v36_line_since = 0.0
+
+    def raise_line(self, s, price):
+        """The next whole or half dollar over the line, once the price has
+        cleared it by V36_LEVEL_PAST and stayed past it V36_LEVEL_HOLD_SEC (no
+        print under), becomes the line; the stop moves up to V36_LEVEL_GIVE
+        under it - "it goes back under, you sell immediately" (the owner)."""
+        if not (s.v36_line and self.own("LEVEL_STOP")):
+            return
+        nxt = s.v36_line + 0.5
+        if price < nxt + V36_LEVEL_PAST - 1e-9:
+            s.v36_line_since = 0.0
+            return
+        now = time.time()
+        if not s.v36_line_since:
+            s.v36_line_since = now
+            return
+        if now - s.v36_line_since < V36_LEVEL_HOLD_SEC:
+            return
+        s.v36_line = nxt
+        s.v36_line_since = now                  # the next one's clock, if past it too
+        if nxt - V36_LEVEL_GIVE > s.stop:
+            s.stop = nxt - V36_LEVEL_GIVE
+            self.log.info("[v31] %s held past $%.2f: the stop up to %.4f (entry %.4f)",
+                          s.symbol, nxt, s.stop, s.entry)
 
     # ---- where the crowd is ---------------------------------------------------
 
@@ -4750,6 +4841,10 @@ class V36(_Restore, _Momentum, V35):
                                                     V36_GAINER_MIN_DOLLARS / 1000))
             return
         await self.quote_the_crowd()
+        # V36_FURIOUS_ALL (the owner, 10-07): running furious, every entry check
+        # below is set aside - "throw everything through the window, get in
+        # really quick" - and the first buy is the full position.
+        rush = V36_FURIOUS_ALL and V36_FURIOUS and self.speeding(s, price)
         found = None
         candles_ok = self.candles_allowed(s)
         j = self.rip(s)
@@ -4757,6 +4852,8 @@ class V36(_Restore, _Momentum, V35):
             found = self.pullback_after(s, j)
         if not found:
             found = self.breaking_high(s, price) if candles_ok else self.hod_plus(s)
+        if not found and rush and s.bars:       # no pattern needed: a new high over
+            found = (max(s.hod_closed, s.bars[-1].h), s.bars[-1].l, "hod")  # the minute
         if not found:
             self.why_not(s, price, "NO PATTERN: " + self.pattern_text(s))
             return
@@ -4764,22 +4861,22 @@ class V36(_Restore, _Momentum, V35):
             self.why_not(s, price, "WAIT: %s trigger %.4f" % (found[2], found[0]))
             return
         trigger, stop_ref, kind = found
-        if V36_CHASE_MAX and price > trigger * (1 + V36_CHASE_MAX):
+        if not rush and V36_CHASE_MAX and price > trigger * (1 + V36_CHASE_MAX):
             self.why_not(s, price, "NO: %.4f is %.0f%% over the trigger %.4f - the move "
                          "already happened" % (price, 100 * (price / trigger - 1), trigger),
                          urgent=True)
             return
-        if self.at_level(s, price):
+        if not rush and self.at_level(s, price):
             self.why_not(s, price, "NO: at the $%.2f level - wait till it holds %.0fc "
                          "past" % (int((price + V36_LEVEL_BELOW) * 2 + 1e-9) / 2.0,
                                    100 * V36_LEVEL_PAST), urgent=True)
             return
-        if (V36_REENTRY_SPEED and s.v36_entries >= 1
+        if (not rush and V36_REENTRY_SPEED and s.v36_entries >= 1
                 and self.real_speed(s, price) < V36_REENTRY_SPEED):
             self.why_not(s, price, "NO SPEED for a re-entry: %.2f under %.2f" % (
                 self.real_speed(s, price), V36_REENTRY_SPEED), urgent=True)
             return
-        veto = self.own("WICK_VETO")
+        veto = 0.0 if rush else self.own("WICK_VETO")
         if veto and s.bars:
             b = s.bars[-1]
             rng = b.h - b.l
@@ -4790,6 +4887,9 @@ class V36(_Restore, _Momentum, V35):
                 return
         if self.own("MAX_STOP"):                # under what it pays, not an old trigger
             stop_ref = max(stop_ref, max(trigger, price) * (1 - self.own("MAX_STOP")))
+        if rush and V36_FURIOUS_STOP_MAX:       # a full position: never a far stop
+            stop_ref = max(stop_ref, price * (1 - V36_FURIOUS_STOP_MAX))
+        stop_ref = max(stop_ref, self.line_stop(price))   # under the whole / half dollar
         furious = V36_FURIOUS_SKIPS and self.speeding(s, price)
         if furious:                             # the owner, 10-07: running this fast,
             move, dollars = self.five_sec(s, price)   # every filter is set aside
@@ -4818,7 +4918,7 @@ class V36(_Restore, _Momentum, V35):
             self.why_not(s, price, "NO ROOM at the trigger %.4f: prior high %.4f" % (
                 trigger, s.prev_high), urgent=True)
             return
-        if V36_SCORE_MIN and not self.ripping(s):
+        if V36_SCORE_MIN and not rush and not self.ripping(s):
             points, parts = self.score(s, price, pullback=(kind != "hod"))
             if points is None or points < V36_SCORE_MIN:
                 self.why_not(s, price, "NO SCORE at the trigger %.4f: %s" % (
@@ -4834,16 +4934,25 @@ class V36(_Restore, _Momentum, V35):
             s.v36_adds = 0
             s.ten_break = False
             s.setup_level = trigger
+            s.v36_furious = rush                # entry_shares: the full position
             await self._maybe_enter_inner(s, price, fast, base, kind, trigger,
                                           stop_ref)
             if s.in_position:
                 s.v36_entries += 1
                 s.v36_entry_bar_ts = s.bars[-1].ts if s.bars else None
                 s.v36_first = s.entry
-                self.log.info("[v36] %s STARTER %d shares (a tenth of a full "
-                              "position), buy %d today - adds at %.4f and %.4f "
-                              "on a new high", s.symbol, s.shares, s.v36_entries,
-                              self.add_level(s, 0), self.add_level(s, 1))
+                self.set_line(s, price)
+                if rush and V36_FURIOUS_FULL:
+                    s.v36_adds = len(self.add_steps())   # full already: no adds, and
+                    s.v36_leash_from = time.time()       # the 10-second leash on it
+                    self.log.info("[v36] %s FULL POSITION %d shares at once (furious), "
+                                  "buy %d today - stop %.4f, line $%.2f", s.symbol,
+                                  s.shares, s.v36_entries, s.stop, s.v36_line)
+                else:
+                    self.log.info("[v36] %s STARTER %d shares (a tenth of a full "
+                                  "position), buy %d today - adds at %.4f and %.4f "
+                                  "on a new high", s.symbol, s.shares, s.v36_entries,
+                                  self.add_level(s, 0), self.add_level(s, 1))
 
     @staticmethod
     def add_steps():
@@ -4950,10 +5059,16 @@ class V36(_Restore, _Momentum, V35):
         new_high = price >= s.peak
         s.peak = max(s.peak, price)
         s.v35_peak = max(s.v35_peak, price)
+        self.raise_line(s, price)
         if s.entry and s.peak >= s.entry * (1 + V36_LEASH_AT):
             s.armed = True
         if s.stop and price <= s.stop:
             await self.exit(s, "stop")
+            return
+        if (s.v36_furious and V36_FURIOUS_SPIKE and V37_SPIKE_AT
+                and s.peak >= s.entry * (1 + V37_SPIKE_AT)
+                and price <= s.entry + (1 - V37_SPIKE_GIVEBACK) * (s.peak - s.entry)):
+            await self.exit(s, "spike")         # up 30%, a third of it given back: out
             return
         if s.armed:
             dist = V36_LEASH_ABR * self.abr(s)
@@ -5680,6 +5795,10 @@ class V37(V36):
         s.v36_adds = 0
         s.v37_stop_pct = self.stop_pct(s, price)
         s.stop = self.stop_for(s)
+        self.set_line(s, price)                 # and under the whole / half dollar
+        if s.v36_line:
+            s.stop = max(s.stop, min(self.line_stop(price),
+                                     s.entry * (1 - MIN_STOP_PCT)))
         s.v37_pace_at_buy = self.pace(s)
         s.v37_peak_after = 0.0
         s.v37_accel = accel
@@ -5784,6 +5903,7 @@ class V37(V36):
             return                              # an old print: the next fresh one decides
         new_high = price >= s.peak
         s.peak = max(s.peak, price)
+        self.raise_line(s, price)
         if price <= s.stop:
             await self.exit(s, "stop")          # no tolerance for loss
             return
@@ -5889,6 +6009,8 @@ class Engine:
 
         self.last_auth_warn = 0.0
         self.last_probe = 0.0
+        self.roster: set = set()                # the scanner's list at the last scan
+        self.roster_all_at = 0.0
         self.prev_highs: dict[str, float] = {}
         self.prev_closes: dict[str, float] = {}
         self.day_highs: dict[str, float] = {}   # from today's bars, once a day
@@ -5987,6 +6109,26 @@ class Engine:
         self.log_probe(probe)
         return picks
 
+    def log_roster(self, picks, symbols):
+        """ROSTER_LOG_MIN: the names the scanner passed, as they come and go,
+        and the whole list every ROSTER_LOG_MIN minutes - with each name's
+        high so far."""
+        if not ROSTER_LOG_MIN:
+            return
+        now = time.time()
+        cur = set(symbols)
+        new, gone = sorted(cur - self.roster), sorted(self.roster - cur)
+        if new or gone:
+            log.info("ROSTER %d names | in: %s | out: %s", len(cur),
+                     " ".join("%s %.2f" % (s, picks[s]) for s in new) or "-",
+                     " ".join(gone) or "-")
+        if now - self.roster_all_at >= ROSTER_LOG_MIN * 60:
+            self.roster_all_at = now
+            log.info("ROSTER ALL %d%s: %s", len(cur),
+                     " (of %d)" % len(picks) if len(picks) > len(cur) else "",
+                     " ".join("%s %.2f" % (s, picks[s]) for s in sorted(cur)))
+        self.roster = cur
+
     def log_probe(self, probe):
         now = time.time()
         if not probe or now - self.last_probe < 60:
@@ -6015,6 +6157,7 @@ class Engine:
                     picks = await self.scan()
                     if picks:
                         symbols = list(picks)[:MAX_WATCH]
+                        self.log_roster(picks, symbols)
                         # The real high of the day BEFORE a name can be
                         # traded - a restart must not forget the morning.
                         await self.seed_day_highs(symbols)
