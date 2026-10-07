@@ -1299,3 +1299,68 @@ def test_a_furious_buy_is_not_sold_on_a_stale_print(v37, clock, now, monkeypatch
     s.quote = (round(s.entry + 0.38, 2), round(s.entry + 0.40, 2), now[0] + 1)
     tick(v37, s, now, round(s.entry + 0.001, 3))           # the stale print
     assert s.in_position
+
+
+# ---- proposed 10-07 (off): the acceleration - SXTC 8:13-8:15, then $2.44 -> $7.12 ---
+
+SXTC = [(10.00, 10.20, 9.98, 10.15, 38_000),       # +1.5%, 38x the quiet minutes
+        (10.15, 10.80, 10.15, 10.70, 114_000),     # +5.4% on 3x, closed at its high
+        (10.70, 11.60, 10.60, 11.55, 261_000)]     # +7.9% on 2.3x: speed 0.18
+
+
+def accelerating_stock(v37, clock):
+    s = v37.st("SXTC")                                     # not in any crowd
+    v37.qualified.add("SXTC")
+    candles(s, SXTC)
+    s.day_high = 11.60
+    return s
+
+
+def test_sxtc_is_accelerating_before_the_spike(v37, clock):
+    s = accelerating_stock(v37, clock)
+    assert v37.accelerating(s) == pytest.approx((11.55 / 10.70 - 1) * 261 / 114, rel=1e-3)
+    candles(s, SXTC[:2] + [(10.70, 11.60, 10.60, 10.90, 261_000)])   # closed low
+    assert v37.accelerating(s) == 0.0
+    candles(s, SXTC[:2] + [(10.70, 11.60, 10.60, 11.55, 150_000)])   # 1.3x the one before
+    assert v37.accelerating(s) == 0.0
+
+
+@pytest.mark.parametrize("on, buys", [(True, True), (False, False)])
+def test_an_acceleration_buys_without_the_crowd(v37, clock, now, monkeypatch, on, buys):
+    """SXTC 8:15: the #1 gainer, $800k in 5 min, #4 by money - every bot waited
+    for the crowd rules. Over the last minute's high, it is bought."""
+    monkeypatch.setattr(bot, "V37_ACCEL", on)
+    s = accelerating_stock(v37, clock)
+    tick(v37, s, now, 11.62)
+    assert s.in_position == buys
+    if buys:
+        assert s.entry_kind == "accel"
+
+
+def test_the_faster_the_bigger(v37, clock, now, monkeypatch, broker):
+    """The owner: "more than half of my position, maybe all" when it is this strong."""
+    monkeypatch.setattr(bot, "V37_ACCEL", True)
+    monkeypatch.setattr(v37, "real_speed", lambda s, p: 0.35)
+    s = accelerating_stock(v37, clock)
+    tick(v37, s, now, 11.62)
+    assert s.shares * s.entry == pytest.approx(broker.eq * bot.V37_SOLO_PCT, rel=0.05)
+
+
+def test_a_spike_keeps_two_thirds_of_its_gain(v37, clock, now, monkeypatch):
+    monkeypatch.setattr(bot, "V37_ACCEL", True)
+    monkeypatch.setattr(bot, "V37_ASK_PLUS", 0.0)
+    s = accelerating_stock(v37, clock)
+    tick(v37, s, now, 11.62)
+    first = s.entry
+    for k in range(1, 61):                                # +1% a print, adds on the way
+        tick(v37, s, now, round(first * (1 + k / 100), 2))
+    e, gain = s.entry, s.peak - s.entry
+    assert s.peak >= e * 1.30                              # a spike over the average
+    tick(v37, s, now, round(e + 0.70 * gain, 2))          # 30% of it back: still in
+    assert s.in_position
+    tick(v37, s, now, round(e + 0.60 * gain, 2))          # 40% back: out
+    assert not s.in_position and v37.closed_today[-1][5] == "giveback"
+
+
+def test_the_acceleration_is_off_until_replayed():
+    assert not bot.V37_ACCEL and not bot.V36_ACCEL

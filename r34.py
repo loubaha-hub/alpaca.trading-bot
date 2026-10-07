@@ -4072,6 +4072,28 @@ class _Momentum:
         vols = [b.v for b in s.bars]
         return bool(vols) and self.pace(s) > max(vols)
 
+    def accelerating(self, s) -> float:
+        """The owner's speed of the last closed minute when the minutes before
+        a run are accelerating (ACCEL_*), else 0.0."""
+        bars = s.bars
+        n = ACCEL_BARS
+        if len(bars) < n + 10:
+            return 0.0
+        for k in range(len(bars) - n, len(bars)):
+            b, prev = bars[k], bars[k - 1]
+            rng = b.h - b.l
+            if (not b.green or rng <= 0 or b.h - b.c > ACCEL_TOP * rng
+                    or b.c <= prev.c or b.v <= prev.v):
+                return 0.0
+        a, b = bars[-2], bars[-1]
+        if b.v < ACCEL_VOL_STEP * a.v or b.c * b.v < ACCEL_DOLLARS:
+            return 0.0
+        normal = statistics.median(x.v for x in bars[-30:-n])
+        if normal <= 0 or b.v < ACCEL_VOL_NORMAL * normal:
+            return 0.0
+        speed = (b.c / a.c - 1) * (b.v / a.v)
+        return speed if speed >= ACCEL_SPEED else 0.0
+
     def rip_exception(self, s, price) -> bool:
         """Ripping, and fast enough to skip the score: the owner's speed at
         V37_RIP_SPEED or more (LPCN 6:33am 10-07 "ripped" at speed 0.07)."""
@@ -4288,6 +4310,8 @@ class V36(_Restore, _Momentum, V35):
         gainer with real money trading - either will do."""
         if self.top_gainer(s):
             return True
+        if V36_ACCEL and self.accelerating(s):
+            return True                         # SXTC 8:16: no need to wait for the crowd
         if self.crowd_rank(s.symbol) > V36_CROWD_TOP:
             return False
         if V36_RIP_SKIPS_HOLD and self.ripping_now(s):
@@ -4884,6 +4908,27 @@ V37_RIP_SPEED = 0.3             # ripping skips the score only at this speed or
                                 # more (0 = any ripping, as before)
 V37_RIP_NO_RED = True           # a red last candle or a huge wick is no buy, ripping
                                 # or not (False = ripping skipped it, as before)
+# PROPOSED 10-07, off until replayed - SXTC (the owner: "a move like that should
+# not be missed; this is where the money is"): 8:13 +3% on 38k, 8:14 +6.6% on
+# 114k (3x), 8:15 +8% on 261k (2.3x), each closing at its high, the #1 gainer -
+# then 8:16 $2.44 -> $7.12. Every bot waited for the crowd rules ($1M, top 2).
+# THE ACCELERATION: green minutes in a row, each closing higher in its top third
+# on rising volume; the last on ACCEL_VOL_STEP x the one before and
+# ACCEL_VOL_NORMAL x the stock's normal minute, the owner's speed over
+# ACCEL_SPEED on ACCEL_DOLLARS - a candidate whatever the crowd says.
+ACCEL_BARS = 2
+ACCEL_TOP = 1 / 3
+ACCEL_VOL_STEP = 2.0
+ACCEL_VOL_NORMAL = 3.0
+ACCEL_SPEED = 0.15
+ACCEL_DOLLARS = 250_000
+V36_ACCEL = False               # v36/v36b: an acceleration counts as the crowd
+V37_ACCEL = False               # v37: buy it over the last minute's high...
+V37_ACCEL_SIZE = ((0.15, 0.10), (0.20, 0.25), (0.30, 1.00))   # ...a share of a full
+                                # position by the speed (the owner: "more than half,
+                                # maybe all" when it is this strong)
+V37_SPIKE_AT = 0.30             # an acceleration buy up this much: out on giving
+V37_SPIKE_GIVEBACK = 1 / 3      # back this share of the gain (spikes collapse fast)
 V37_SCORE_FURIOUS = 0.0         # >0: a speed this high buys whatever the score (the
                                 # owner: "the speed is everything" - never miss the
                                 # furious ones); 0 = off
@@ -5196,6 +5241,9 @@ class V37(V36):
         if not self.confirmed(s):
             return                              # a re-buy, or out of a sideways stretch:
                                                 # not confirmed above the old high yet
+        accel = self.accelerating(s) if V37_ACCEL else 0.0
+        if accel and s.bars and price > s.bars[-1].h:
+            return await self.accel_buy(s, price, accel)
         if not self.in_the_crowd(s) or not self.flying(s, price):
             return
         if not self.volume_ok(s):
@@ -5236,16 +5284,40 @@ class V37(V36):
                 return
             await self.v37_buy(s, price)
 
-    async def v37_buy(self, s, price):
+    async def accel_buy(self, s, price, accel):
+        """V37_ACCEL: over the last minute's high, the ask agreeing; sized by
+        the speed (V37_ACCEL_SIZE)."""
+        if V37_CONFIRM_ASK:
+            q = self.live_quote(s)
+            ask = q[1] if q else await self.data.quote(s.symbol, "ask")
+            if ask is not None and ask <= s.bars[-1].h:
+                return
+        speed = max(accel, self.real_speed(s, price))
+        share = 0.0
+        for at, frac in V37_ACCEL_SIZE:
+            if speed >= at:
+                share = frac
+        if not share:
+            return
+        lock = self.lock(s.symbol)
+        if lock.locked():
+            return
+        async with lock:
+            if s.in_position:
+                return
+            await self.v37_buy(s, price, starter=share, accel=speed)
+
+    async def v37_buy(self, s, price, starter=None, accel=0.0):
         spd = self.speed(s, price)              # logged for every buy, rule on or off
         pts, parts = self.score(s, price)       # the same
+        starter = V37_STARTER if starter is None else starter
         eq = await self.broker.equity(self.day_start_equity)
         cap = self.entry_cap(s, price)
         worst = price * (1 + cap)
         held_all = sum(x.shares * (x.last_price or price)
                        for x in self.open_positions())
         room = max(0.0, eq * MAX_EXPOSURE_PCT - held_all)
-        shares = int(min(eq * self.v37_full(s, eq) * V37_STARTER, room) / worst)
+        shares = int(min(eq * self.v37_full(s, eq) * starter, room) / worst)
         if shares * price < MIN_TRADE_DOLLARS:
             return
         filled = await self.buy(s.symbol, shares, price, cap)
@@ -5259,11 +5331,12 @@ class V37(V36):
         s.stop = self.stop_for(s)
         s.v37_pace_at_buy = self.pace(s)
         s.v37_peak_after = 0.0
+        s.v37_accel = accel
         s.peak = s.entry
         s.trail_stop = 0.0
         s.armed = False
         s.adopted = False
-        s.entry_kind = "rip"
+        s.entry_kind = "accel" if accel else "rip"
         s.traded_today = True
         s.v36_entries += 1
         s.entry_at = time.time()
@@ -5271,11 +5344,13 @@ class V37(V36):
                          kind="rip", stop=s.stop, speed=round(spd, 3),
                          score=pts, parts=parts)
         self.log.info("[v37] ENTER %s %d @ %.4f (print %.4f) = $%.0f (%.1f%% of "
-                      "equity) - a tenth of a position, buy %d today | crowd #%d, "
+                      "equity) - %s, buy %d today | crowd #%d, "
                       "$%.0fk in %d min | stop %.4f | adds at %.4f and %.4f | "
                       "speed %.2f | score %s (%s)",
                       s.symbol, filled, s.entry, price, filled * s.entry,
-                      100 * filled * s.entry / eq if eq else 0.0, s.v36_entries,
+                      100 * filled * s.entry / eq if eq else 0.0,
+                      "ACCELERATING %.2f, %.0f%% of a position" % (accel, 100 * starter)
+                      if accel else "a tenth of a position", s.v36_entries,
                       self.crowd_rank(s.symbol),
                       self.crowd_dollars(s.symbol) / 1000, V36_CROWD_MINUTES,
                       s.stop, s.v36_first + V37_ADD1_CENTS,
@@ -5371,7 +5446,11 @@ class V37(V36):
         gain = top - s.entry
         armed = (top >= s.entry * (1 + V37_GIVEBACK_ARM)
                  and gain >= V37_GIVEBACK_ARM_CENTS - 1e-9)
-        line = s.entry + (1 - V37_GIVEBACK) * gain
+        back = V37_GIVEBACK
+        if (getattr(s, "v37_accel", 0.0) and V37_SPIKE_AT
+                and top >= s.entry * (1 + V37_SPIKE_AT)):
+            back = V37_SPIKE_GIVEBACK           # a spike: keep two thirds of it
+        line = s.entry + (1 - back) * gain
         if gain > 0 and armed and price <= line:
             q = self.live_quote(s) if V37_GIVEBACK_BID else None
             if not (q and q[0] > line):         # the bid agrees the gain is gone

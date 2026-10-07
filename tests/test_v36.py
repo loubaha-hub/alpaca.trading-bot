@@ -735,3 +735,16 @@ def test_no_buy_far_over_the_trigger(v36, clock, monkeypatch, chase, buys):
     s = ripping(v36, clock)
     tick(v36, s, round(TRIGGER * 1.32, 2))           # clear of $13.50
     assert entered(v36, s) == buys
+
+
+def test_an_acceleration_counts_as_the_crowd(v36, clock, monkeypatch):
+    """Proposed 10-07 (off): SXTC 8:15 - "NO CROWD" at the #1 gainer with $800k."""
+    s = v36.st("SXTC")
+    t = bot.datetime(2026, 10, 7, 12, 0, tzinfo=bot.timezone.utc)
+    s.bars = [bot.Bar(t, 10.0, 10.02, 9.98, 10.0, 1_000) for _ in range(30)]
+    s.bars += [bot.Bar(t, 10.00, 10.20, 9.98, 10.15, 38_000),
+               bot.Bar(t, 10.15, 10.80, 10.15, 10.70, 114_000),
+               bot.Bar(t, 10.70, 11.60, 10.60, 11.55, 261_000)]
+    assert not v36.in_crowd(s)
+    monkeypatch.setattr(bot, "V36_ACCEL", True)
+    assert v36.in_crowd(s)
