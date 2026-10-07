@@ -90,6 +90,21 @@ Updated 2026-10-07, 7:20am ET.
       test 1c/3c/1%) - SPAI 8:10 sold on a half-cent "gain".
   11. v37: skip a buy whose price re-read just before sending is well
       under the trigger (SPAI filled $4.81 on a $5.05 decision).
+- The root cause (the owner, 10-07 ~8:40am: "on the surface it executed;
+  dig and none of it was respected - fix that"): decisions on single
+  prints taken as the live price. Plan, all three strategies:
+  A. a price check before every buy/add/stop/"half the gain": drop prints
+     outside the live bid-ask by more than a few cents, older than one
+     already seen, or not regular sales; buy only if the ask still holds
+     the trigger, sell on giveback/stop only if the bid confirms; re-check
+     just before sending.
+  B. the 11 rule fixes above.
+  C. a daily execution report: decision price, bid/ask then, fill, exit
+     reason; flag any trade where they disagree by ~1%+ or an exit whose
+     rule was not met.
+  Today's live cases (SPAI 8:09:58, BIYA 4:13:55, LPCN 7:00, ...) become
+  permanent tests from the real prints - pull Alpaca's trade-by-trade for
+  those moments into the log (read-only) at tonight's restart.
   Then the owner decides; release only with the OK, flat or after 8pm.
 - End of day: v36 vs v36b by % of account; v37's exits vs what each stock
   did 5/15/30 min later.
