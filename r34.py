@@ -140,7 +140,7 @@ RISK_CHECK_SECONDS = 5                      # the halt runs on a CLOCK, not tick
 # The file name and this string are changed together, every single time. The
 # log then answers "which code is actually running?" without anyone guessing
 # from line numbers or from behaviour that only shows up once a trade is on.
-VERSION = "v31-r34.26"
+VERSION = "v31-r34.27"
 
 # WHERE THE DAY'S HALT BASELINE COMES FROM.
 #   "last_equity" - equity at the PREVIOUS session's close, read from the broker.
@@ -2011,6 +2011,14 @@ class Strategy:
         sold = await self.sell(s.symbol, shares, s.last_price,
                                deep=(getattr(s, "entry_kind", "") == "accel"
                                      or getattr(s, "v36_furious", False)))
+        if not sold and await self.broker.qty(s.symbol) == 0:
+            # NOTHING LEFT TO SELL: sold elsewhere. CPHI 10-07 2:12pm - during a
+            # deploy the old process sold the position the new one had just
+            # adopted, and the new one tried to sell 0 shares every print.
+            log.warning("[%s] %s: the broker holds none - already sold elsewhere; "
+                        "closed here, nothing booked", self.name, s.symbol)
+            self.clear(s)
+            return
         # Booked at what the sale REALLY got. The print that triggered it can
         # be far from the market: QTEX, 2026-10-05 4:06am, was logged at 1.27
         # and -$311 while the shares sold near 1.44 and the account barely
