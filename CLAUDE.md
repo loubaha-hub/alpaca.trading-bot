@@ -45,6 +45,11 @@ numbers into any file here - memory files included.
 - The day's #1 and #2 leaders come first, and a stock is never banned for
   ripping (2026-10-05; replaces "the no-chase rule stays"). The owner's
   method is in `memory/playbook.md`; the bot is to follow it point by point.
+- **Words before code** (the owner, 2026-10-07): every new rule or change is
+  first written in plain sentences and answered against
+  `memory/checklist.md` - every contingency, every hole - and the owner
+  reads it before any code is written. "Every hole plugged and every
+  contingency accounted for."
 
 ## Memory
 

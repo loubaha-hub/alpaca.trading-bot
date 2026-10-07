@@ -5,6 +5,21 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-07
 
+### Words before code (the owner, ~3:40pm) - a standing rule
+- "When you have it built, put it in words and we'll examine those words
+  really closely ... every hole plugged and every contingency accounted for.
+  Now everything we built is full of holes, and the strategies are losing
+  money hand over fist." Decision: every new rule is first written in plain
+  sentences and answered against memory/checklist.md (the price it decides
+  on, the buy order, the position, the sell order, the account and process,
+  the session and the stock); the owner reads it before any code. Added to
+  CLAUDE.md's standing rules.
+- Today's foreseeable holes, for the record: a buy-side cancel rule applied
+  to market sells; a gain measured from a stale print; two processes trading
+  during a release; a position sold by one process still held by the other;
+  paper fills slower than the 0.5s order window; premarket rules applied to
+  regular hours untested.
+
 ### The owner, ~2:50pm: "our strategy is no good if it loses that much a day"
 - v36 -7.8%, v36b -5.7%, v37 -2.0%: "we have not succeeded yet in translating
   our ideas into code - pull away fast from the losers, capture the gainers,
