@@ -4145,6 +4145,10 @@ V36_FURIOUS_SWEEP = True        # furious: the buy is v37's fast buy - one order
                                 # V37_RETRY_GAP apart - not the 6-second loop that paid
                                 # $8.90 on an $8.75 print with the market already back
                                 # under the stop (SXTC 10-07 1:59pm; the owner's "A")
+V36_NO_RTH_BUYS_ON = ("2026-10-07",)   # these days (ET): no new v36/v36b buys 9:30-4
+                                # (the owner, 10-07 2:50pm, after -7.8% / -5.7%: "stop
+                                # v36/v36b buys until 4pm"); premarket and after hours,
+                                # and v37, unchanged
 V36_FURIOUS_ALL = True          # furious: EVERY entry check set aside - the levels, the
                                 # wick, the re-entry speed, the score, the 5% over the
                                 # trigger, and no candle pattern needed (a new high over
@@ -4917,6 +4921,9 @@ class V36(_Restore, _Momentum, V35):
     async def maybe_enter(self, s, price, fast, base):
         if not entries_allowed():
             return
+        if (V36_NO_RTH_BUYS_ON and regular_hours()
+                and datetime.now(ET).date().isoformat() in V36_NO_RTH_BUYS_ON):
+            return                              # the owner: no v36/v36b buys 9:30-4 today
         if s.symbol not in self.qualified:      # the scanner: $1-$20, up 10%+
             return
         if not self.price_ok(s, price):
