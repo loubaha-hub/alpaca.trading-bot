@@ -1365,6 +1365,22 @@ def test_a_furious_speed_buys_without_the_pattern_or_the_crowd(v37, clock, now,
     assert s.in_position and s.entry_kind == "accel"
 
 
+@pytest.mark.parametrize("over, buys", [(0.15, True), (0.30, False)])
+def test_no_fast_buy_far_over_the_last_minute(v37, clock, now, monkeypatch, over, buys):
+    """BIYA 10-07 8:20-8:21: $2.54 -> $33.96 -> $8.20 in under a minute. A fast
+    buy may not pay more than V37_ACCEL_CHASE over the last closed minute's high."""
+    monkeypatch.setattr(bot, "V37_ACCEL", True)
+    monkeypatch.setattr(v37, "real_speed", lambda s, p: 0.40)
+    s = v37.st("WXYZ")
+    v37.qualified.add("WXYZ")
+    candles(s, STAIRS)
+    s.day_high = s.bars[-1].h
+    price = round(s.bars[-1].h * (1 + over), 2)
+    prints(v37, s, now, s.bars[-1].h, price, size=30_000)
+    tick(v37, s, now, price)
+    assert s.in_position == buys
+
+
 def test_a_spike_keeps_two_thirds_of_its_gain(v37, clock, now, monkeypatch):
     monkeypatch.setattr(bot, "V37_ACCEL", True)
     monkeypatch.setattr(bot, "V37_ASK_PLUS", 0.0)

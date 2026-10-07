@@ -763,3 +763,18 @@ def test_an_acceleration_counts_as_the_crowd(v36, clock, monkeypatch):
     assert not v36.in_crowd(s)
     monkeypatch.setattr(bot, "V36_ACCEL", True)
     assert v36.in_crowd(s)
+
+
+def test_a_restart_remembers_the_high_of_the_day(v36, clock, monkeypatch):
+    """SXTC 10-07 9:29:39: after the 9:20 restart v36 bought $3.23 as a "new
+    high" on a day already up to $7.12 - it knew only the candles since then."""
+    monkeypatch.setattr(bot, "V36_REENTRY_SPEED", 0.0)
+    s = bought(v36, clock)
+    run(v36.exit(s, "test"))
+    v36.seed_high(s, 15.00)                               # the morning's spike
+    assert s.hod_closed == 15.00 and s.day_high >= 15.00
+    later(v36, clock, s, [(10.80, 11.30, 10.79, 11.25, 300_000),
+                          (11.25, 11.90, 11.24, 11.85, 400_000)])
+    tick(v36, s, 11.97)                                   # over today's candles only
+    assert not entered(v36, s)
+    assert v36.hod_plus(s)[0] == pytest.approx(15.05)
