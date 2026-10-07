@@ -1,11 +1,19 @@
 # Where things stand
 
-Updated 2026-10-07, 10:15am ET.
+Updated 2026-10-07, 10:20am ET.
 
 ## Code
 - Working branch: `claude/zealous-ramanujan-br3gay`. New work goes here;
   nothing goes to `main` without the owner's OK.
-- Live on `main` (Render): VERSION v31-r34.16 (pushed 10:07am ET 10-07 at
+- Live on `main` (Render): VERSION v31-r34.17 (pushed 10:15:54am ET 10-07
+  at the owner's OK - "Push r34.17 now" - all three flat at 10:14:54): the
+  exit. 9:30-4:00 every sell goes out at market (SELL_MARKET_RTH; a refused
+  market order falls back to a limit); a sell never goes out on top of our
+  own working order (Broker.wait_clear, CANCEL_WAIT 10s; settle waits 10s);
+  no new buys 9:29-9:31 (OPEN_PAUSE). Release worktree: scratchpad
+  release12. Still to build (tonight): an exit must not block the bot's
+  data (the per-strategy tick worker awaits the chase); book every fill.
+- r34.16 (10:07am): (pushed 10:07am ET 10-07 at
   the owner's OK - "Push with the 20% cap" - all three flat at 10:06): r34.15
   + no v37 fast buy more than 20% over the last closed minute's high
   (V37_ACCEL_CHASE, the BIYA 8:20 spike) + v36 remembers the real high of

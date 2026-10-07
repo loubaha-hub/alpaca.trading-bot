@@ -5,6 +5,17 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-07
 
+### r34.17 released 10:15am: the exit
+- The owner: "we really need to fix the fast exit - six minutes is not
+  acceptable"; "push them in"; asked to confirm, chose "Push r34.17 now".
+  Pushed bd4a229 at 10:15:54, all three flat. Market sells 9:30-4:00, no
+  sell on top of our own working order, no buys 9:29-9:31. Deferred, said
+  so: keeping the data flowing during an exit (a concurrency change, too
+  risky mid-day).
+- WETO (v37 9:52:38): ran $1.16 -> $1.33 9:51-9:52 on ~1.7M shares, the
+  9:52 candle closed $1.22 with a long top wick; v37 decided on the $1.33
+  top print and filled $1.26; faded to $1.13 by 10:14.
+
 ### r34.16 released 10:07am; the first trades after the fixes
 - The owner agreed the 20% ceiling on v37's fast buy ("when the stock is
   way too stretched and you buy near the top you're a sitting duck";
