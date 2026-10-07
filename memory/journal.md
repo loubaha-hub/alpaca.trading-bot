@@ -5,6 +5,12 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-07
 
+### Standing instruction, ~11:00am: agreed fixes go in when flat
+- The owner: "all of our fixes have to go in as we put them in - when all
+  the positions are flat, push them in". Added to CLAUDE.md's standing
+  rules. r34.19 (the add waits for the new high to hold 2s) pushed 10:55:42,
+  all three flat since 10:29.
+
 ### The owner's decisions, ~11:00am: the adds
 - An add waits for the new high to hold about 2 seconds (V36_ADD_HOLD_SEC
   = 2.0, built as r34.19 on the branch; release timing not yet given).

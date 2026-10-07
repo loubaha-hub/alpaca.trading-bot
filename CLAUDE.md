@@ -21,6 +21,10 @@ numbers into any file here - memory files included.
   every commit to `main`, and a deploy restarts the bot, which wipes its watch
   list and per-symbol state. Restart only when all three accounts are flat, or
   after hours (after 8pm ET). Work on the branch named in `memory/now.md`.
+  The owner, 2026-10-07 ~11am: every fix the owner has agreed goes to `main`
+  as soon as it is built and its tests pass, at the next moment all three
+  accounts are flat - "push them in". A fix the owner has not agreed still
+  waits for the owner's OK.
 - Never ask for keys or secrets in the chat; the owner types them only into
   settings screens. Do not regenerate Alpaca keys.
 - Claude's access to Alpaca is read-only unless the owner explicitly says
