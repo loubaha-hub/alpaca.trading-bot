@@ -5,6 +5,21 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-06
 
+### v24 replayed with its holes fixed (10-07 ~1am; replay/research/v24sim.py)
+- The owner: "what would v24 really have done after fixing the holes".
+  Written from v24's rules (not the droplet code), recorded days
+  09-28..10-06, $30,000 a day, a stock joins when up 10%+ on the prior
+  close, $1-$20. A = as built (fills at the decision price / the exact
+  reclaim level, re-split on every buy/sell, no halt); B = fills at the
+  next minute's open, 0.2%/1% worse, 10% halt; C = B without re-splitting
+  (each buy 10% of the account).
+- 7 days: A -$28,321 (09-28 +$21,698, 10-01 -$29,125; 31,266 orders,
+  $111M traded, 44% won); B -$27,627 / -$29,216 (halted every day);
+  C -$14,722 / -$22,638 (33% / 12% won, 1 up-day, halted 6-7 days).
+  Honest fills alone turn 09-28's +$21,698 into +$3,077 (no costs).
+- Verdict (Claude's): the gains were the simulator's perfect fills and
+  churn; not worth reviving.
+
 ### September on Alpaca, from the accounts' own fills (r34.14, 10-07 0:14am)
 - r34.14 (the owner's OK, accounts flat, 00:14 ET 10-07): at start-up each
   account logs its fills 09-24..09-30, read-only, in the background
