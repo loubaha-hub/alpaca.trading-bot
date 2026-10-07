@@ -5,6 +5,20 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-07
 
+### WETO: v37 should not have bought it, and kept reloading (r34.18)
+- The owner, ~10:20: "v37 entered WETO and WETO did not go above the high
+  of the day - this should not happen"; "it keeps loading after the stock
+  has gone down"; "almost every one I touch strays from the rules".
+- Found: the high was $1.32 (premarket 8:27); one $1.33 print a cent over;
+  the fast-buy route then reloaded the buy at the falling ask for 6s and
+  filled $1.26. Fixed on the branch (9428727): V37_HOD_CLEAR (2c or 0.5%
+  over the old high), buy(floor=old high) - no reload under it,
+  V37_ACCEL_REAL (the owner's speed >= ACCEL_SPEED) and V37_ACCEL_TAPE
+  (60/40) for fast buys. The owner chose "Push r34.18 when flat".
+- Pattern told to the owner: each special route (rip exception, fast buy)
+  skipped some basic rule; the fix is that every buy passes the same
+  never-rules.
+
 ### r34.17 released 10:15am: the exit
 - The owner: "we really need to fix the fast exit - six minutes is not
   acceptable"; "push them in"; asked to confirm, chose "Push r34.17 now".
