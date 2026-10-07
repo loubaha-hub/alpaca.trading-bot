@@ -5,6 +5,23 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-06
 
+### The first strategies on Alpaca (found 10-06 night)
+- Before Render: a DigitalOcean "droplet" ran v21, v22, v24 and v27 (the
+  09-21 Claude Doc: "confirmed on the droplet"; all but v27 on a shared
+  live_cycle_common.py). Not reachable from here; its code and logs are on
+  the droplet if it still exists. v21 = compounding, 10%/50% giveback
+  stop, volume-signal re-entry; only result: 09-18 same-day backtest on
+  $5,000, 440 trades, 51.6% won, +$1,742.88 (simulated; "churning").
+  v12 is not in the repo, Render or any artifact.
+- On Render (this repo, from 09-24 4:35pm ET): v27 (main.py, "v27 logic,
+  rebuilt clean"; Alpaca movers list, up 10%+, $1-$20, green-then-red
+  pullback, 2 stocks at half the cash each, ladder 2%/10% under the peak,
+  then keep 80%/90% of the gain) on the main service's keys (T6HH,
+  "v27-30k") until main.py became v31 on 09-28; v24 09-25 on AUES; v30
+  09-25 on P28T ("V30-100k": buy at +10%, 4 by speed, $25k/$12.5k/$6.25k/
+  $3.125k caps, 0.5% trail under +5%). 09-30 4am balances: T6HH $28,776,
+  AUES $21,250, P28T $54,947.
+
 ### Where v24 ran, and what is left of it (found 10-06 night)
 - Code: every version is in git history (the clone was shallow; fetch
   --unshallow). main_v24.py 09-25 (first), 09-26 ("final revision"), 09-28
