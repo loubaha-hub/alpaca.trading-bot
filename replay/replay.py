@@ -130,6 +130,18 @@ class SimBroker:
     async def cancel_open(self, symbol):
         return 0
 
+    market_refused = False
+
+    async def wait_clear(self, symbol, timeout=None):
+        return True              # every simulated order closes at once
+
+    async def send_market(self, symbol, qty, side, ref=0.0, wait=None):
+        """As Broker.send_market (regular hours): fills at the bid or ask,
+        whatever it is."""
+        self.market_refused = False
+        limit = 0.0 if side == self.bot.OrderSide.SELL else float("inf")
+        return await self.send(symbol, qty, side, limit, wait)
+
     async def send(self, symbol, qty, side, limit, wait=None):
         if qty <= 0 or symbol not in self.market.last:
             return 0
