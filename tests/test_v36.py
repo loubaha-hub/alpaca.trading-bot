@@ -27,6 +27,7 @@ TRIGGER = RED_OPEN + bot.V31_ENTRY_TICK
 def v36(broker, data, clock, monkeypatch):
     monkeypatch.setattr(bot, "V36_TAPE_GREEN", 0.0)
     monkeypatch.setattr(bot, "V36_CROWD_HOLD_MIN", 0)
+    monkeypatch.setattr(bot, "V36_ADD_HOLD_SEC", 0.0)    # the hold: tested below
     strat = bot.V36(broker, data)
     strat.day_start_equity = broker.eq
     return strat
@@ -778,3 +779,44 @@ def test_a_restart_remembers_the_high_of_the_day(v36, clock, monkeypatch):
     tick(v36, s, 11.97)                                   # over today's candles only
     assert not entered(v36, s)
     assert v36.hod_plus(s)[0] == pytest.approx(15.05)
+
+
+# ---- the add waits for the new high to hold (the owner, 10-07 10:55am) -----------------
+
+def test_an_add_waits_for_the_high_to_hold_two_seconds(v36, clock, monkeypatch):
+    """APUS 10:25:08: added at $9.56, the floor moved to the average, sold 5
+    seconds later. Now the price must stay at or over the add level 2 seconds."""
+    monkeypatch.setattr(bot, "V36_ADD_HOLD_SEC", 2.0)
+    now = [5_000.0]
+    monkeypatch.setattr(bot.time, "time", lambda: now[0])
+    s = bought(v36, clock)
+    level = v36.add_level(s, 0)
+    tick(v36, s, round(level + 0.01, 2))                  # the new high: the clock starts
+    assert s.v36_adds == 0
+    now[0] += 1.0
+    tick(v36, s, round(level + 0.02, 2))                  # 1 second: not yet
+    assert s.v36_adds == 0
+    now[0] += 1.1
+    tick(v36, s, round(level + 0.02, 2))                  # held 2.1 seconds: add
+    assert s.v36_adds == 1
+
+
+def test_a_dip_under_the_level_starts_the_clock_again(v36, clock, monkeypatch):
+    monkeypatch.setattr(bot, "V36_ADD_HOLD_SEC", 2.0)
+    now = [5_000.0]
+    monkeypatch.setattr(bot.time, "time", lambda: now[0])
+    s = bought(v36, clock)
+    level = v36.add_level(s, 0)
+    tick(v36, s, round(level + 0.01, 2))
+    now[0] += 1.5
+    tick(v36, s, round(level - 0.01, 2))                  # under it: the high did not hold
+    now[0] += 1.0
+    tick(v36, s, round(level + 0.01, 2))                  # back over: a new clock
+    assert s.v36_adds == 0
+    now[0] += 2.1
+    tick(v36, s, round(level + 0.02, 2))
+    assert s.v36_adds == 1
+
+
+def test_the_add_hold_is_on():
+    assert bot.V36_ADD_HOLD_SEC == 2.0 and bot.V36_FLOOR_AVG   # the owner, 10-07
