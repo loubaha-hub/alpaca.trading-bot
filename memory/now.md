@@ -1,11 +1,23 @@
 # Where things stand
 
-Updated 2026-10-07, 2:20pm ET.
+Updated 2026-10-07, 3:35pm ET.
 
 ## Code
 - Working branch: `claude/zealous-ramanujan-br3gay`. New work goes here;
   nothing goes to `main` without the owner's OK.
-- Live on `main` (Render): VERSION v31-r34.27 (pushed 2:17:50pm ET 10-07 on
+- Live on `main` (Render): VERSION v31-r34.28 (pushed 3:32:22pm ET 10-07 on
+  the owner's "stop v36/v36b buys until 4pm"; flat since 2:55): no new
+  v36/v36b buys 9:30-4 on 2026-10-07 only (V36_NO_RTH_BUYS_ON); v37,
+  premarket and after hours unchanged. The day: v36 -7.9% ($16,780), v36b
+  -5.7% ($6,588), v37 -2.0% ($14,247). By session: premarket v36 -$280,
+  v36b -$156, v37 +$64; 9:30-4 v36 -$1,153, v36b -$243, v37 -$358. The
+  furious full-size buys after 1:35 cost v36 -$932 in 6 trades; the deploy
+  overlaps ~-$508. The 7-day replay's gains are premarket too (r34.23, fills
+  0.2% / 1%: v36 premarket +$11,183 / +$9,190, 9:30-4 +$1,072 / -$121).
+  Proposed to the owner (not chosen yet): furious full size premarket only,
+  9:30-4 back to a starter + adds until a regular-hours design is built and
+  tested; releases after 8pm only + 60s no-buy start. To analyze tonight.
+- r34.27 (2:18pm) (pushed 2:17:50pm ET 10-07 on
   the owner's "Push r34.27 now"; all three flat at the broker): a sale that
   finds the broker holding none closes the position here, nothing booked.
   CPHI 2:11-2:17pm: during the r34.26 deploy the OLD process bought CPHI

@@ -5,6 +5,18 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-07
 
+### The owner, ~2:50pm: "our strategy is no good if it loses that much a day"
+- v36 -7.8%, v36b -5.7%, v37 -2.0%: "we have not succeeded yet in translating
+  our ideas into code - pull away fast from the losers, capture the gainers,
+  and even with small numbers we would have a positive day." Analyze why.
+- Found: >80% of the day's loss was 9:30-4; v36's furious full-size buys
+  after 1:35 -$932 in 6 trades; deploy overlaps ~-$508 (releases during
+  market hours - my process failure). The replay's gains are premarket; its
+  9:30-4 is near zero for v36 even with kind fills.
+- The owner chose: stop v36/v36b buys 9:30-4 for the rest of today (r34.28,
+  3:32pm). Not chosen yet: furious full size premarket only; releases after
+  8pm only.
+
 ### CPHI 2:11pm: the deploy overlap, a stuck v36 - r34.27 (2:18pm)
 - Flat when r34.26 was pushed (2:10:28), but the old process kept trading
   during the ~45s build/switch: it bought CPHI furiously for v36 and v36b and
