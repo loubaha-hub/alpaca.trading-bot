@@ -3868,7 +3868,9 @@ V36_SCORE_MIN = 0               # 0 = off; else the points needed (of 15)
 # after it has slept for hours). After that: only the high of the day plus 5
 # cents, jump right at it - if the moment scores (V36_SCORE_MIN). "I don't
 # want it to run into a ceiling that is just the high of the day."
-V36_SETUP_BUYS = 0              # >0: candle setups only for this many buys of a
+# 10-07 (the owner, SPAI 8:13 re-entry @ $4.99 under the $5.10 high, LPCN 7:18
+# @ $3.42 under $3.50): "a re-entry has to go past the high of the day".
+V36_SETUP_BUYS = 1              # >0: candle setups only for this many buys of a
                                 # stock a day; after that the high of the day only
 V36_HOD_PLUS = 0.05             # ...plus this over the highest closed minute
 V36_SLEEP_MIN = 120             # a stock with no new high this long: setups again
@@ -3883,6 +3885,30 @@ V36_MAX_STOP = 0.0              # >0: the first stop no further than this under
                                 # the trigger (the pullback's low was up to 9% away)
 V36_FRESH_EXITS = False         # stops and the trail decide only on prints under
                                 # V37_FRESH_SECONDS old (as v37 since r34.8)
+# 10-07 live, the owner reading the charts:
+# - LPCN 7:21-7:35: through $3.50 to $3.99 as the #1 name ($8-16M per 5 min),
+#   both v36s logged "NO: 6 buys today" every minute - the six spent on whipsaws.
+# - SPAI 8:09: "rip then red pullback" bought - but the red fell $4.92 -> $4.41,
+#   under the green's open $4.58: the rip erased, not a pullback.
+# - BIYA 4:20 (add @ $2.51), LPCN 7:18 ($3.42), SPAI 8:12 (add @ $5.08): buys at
+#   a whole / half dollar - "natural resistance; wait for it to cross, about 5
+#   cents, and hold a moment".
+V36_LEADER_NO_CAP = True        # the #1/#2 name making a new high of the day is not
+                                # held to V36_MAX_ENTRIES
+V36_FAILED_RIP = True           # a red "pullback" under the rip candle's open is a
+                                # failed rip: no buy on it
+V36_PULLBACK_VOL = 1.0          # >0: a red of the pullback trading this share of the
+                                # green's volume or more is no light pullback (0 = off)
+V36_LEVELS = True               # no buy or add from V36_LEVEL_BELOW under a $x.00 or
+V36_LEVEL_BELOW = 0.03          # $x.50 level to V36_LEVEL_PAST over it - and past it,
+V36_LEVEL_PAST = 0.05           # only once the price has stayed past that long
+V36_LEVEL_HOLD_SEC = 3.0
+# To judge in the replay (the owner: "once it runs, don't cut it until it has
+# given back half of its gain"; "the speed was not respected"):
+V36_RUNNER_HALF = False         # after an add: out on giving back half the gain since
+                                # the starter, in place of the floor at the average
+                                # and the 10-second leash
+V36_REENTRY_SPEED = 0.0         # >0: a re-entry needs the owner's speed this high
 V36_FLOOR_AVG = True            # after an add, the floor rises to: True = the
                                 # position's average (breakeven), False = what the
                                 # starter paid. Replayed 09-28..10-05: average
@@ -4365,6 +4391,10 @@ class V36(_Restore, _Momentum, V35):
         if i < j or not bars[i].green:
             return None
         reds = bars[i + 1:]
+        if V36_FAILED_RIP and min(b.l for b in reds) < bars[j].o:
+            return None                         # the rip erased: a failed rip
+        if V36_PULLBACK_VOL and max(b.v for b in reds) >= V36_PULLBACK_VOL * bars[i].v:
+            return None                         # selling, not a light pullback
         return reds[-1].o + V31_ENTRY_TICK, min(b.l for b in reds), "setup"
 
     def breaking_high(self, s, price):
@@ -4385,6 +4415,26 @@ class V36(_Restore, _Momentum, V35):
             return None                         # the volume has to pick up
         level = max(s.hod_closed, s.v35_peak) + margin_for(price)
         return level, b.l, "hod"
+
+    def leader_new_high(self, s, price) -> bool:
+        """V36_LEADER_NO_CAP: the #1/#2 name making a new high of the day."""
+        return (V36_LEADER_NO_CAP and self.crowd_rank(s.symbol) <= V36_CROWD_TOP
+                and bool(s.hod_closed) and price > s.hod_closed)
+
+    def at_level(self, s, price) -> bool:
+        """V36_LEVELS: at a whole or half dollar - from V36_LEVEL_BELOW under it
+        to V36_LEVEL_PAST over it - or past it for less than V36_LEVEL_HOLD_SEC."""
+        if not V36_LEVELS:
+            return False
+        level = int((price + V36_LEVEL_BELOW) * 2 + 1e-9) / 2.0
+        if level <= 0:
+            return False
+        if price < level + V36_LEVEL_PAST - 1e-9:
+            s.v36_level_band = (level, time.time())     # at it: when, last
+            return True
+        band = getattr(s, "v36_level_band", None)       # just crossed: hold a moment
+        return bool(band and band[0] == level
+                    and time.time() - band[1] < V36_LEVEL_HOLD_SEC)
 
     def candles_allowed(self, s) -> bool:
         """V36_SETUP_BUYS: the candle setups for the first buys of a stock, or
@@ -4447,7 +4497,7 @@ class V36(_Restore, _Momentum, V35):
         if len(self.open_positions()) >= V36_MAX_POSITIONS:
             self.why_not(s, price, "NO: %d positions open" % len(self.open_positions()))
             return
-        if s.v36_entries >= V36_MAX_ENTRIES:
+        if s.v36_entries >= V36_MAX_ENTRIES and not self.leader_new_high(s, price):
             self.why_not(s, price, "NO: %d buys today" % s.v36_entries)
             return
         if (s.v36_entry_bar_ts is not None and s.bars
@@ -4477,6 +4527,16 @@ class V36(_Restore, _Momentum, V35):
             self.why_not(s, price, "WAIT: %s trigger %.4f" % (found[2], found[0]))
             return
         trigger, stop_ref, kind = found
+        if self.at_level(s, price):
+            self.why_not(s, price, "NO: at the $%.2f level - wait till it holds %.0fc "
+                         "past" % (int((price + V36_LEVEL_BELOW) * 2 + 1e-9) / 2.0,
+                                   100 * V36_LEVEL_PAST), urgent=True)
+            return
+        if (V36_REENTRY_SPEED and s.v36_entries >= 1
+                and self.real_speed(s, price) < V36_REENTRY_SPEED):
+            self.why_not(s, price, "NO SPEED for a re-entry: %.2f under %.2f" % (
+                self.real_speed(s, price), V36_REENTRY_SPEED), urgent=True)
+            return
         veto = self.own("WICK_VETO")
         if veto and s.bars:
             b = s.bars[-1]
@@ -4581,7 +4641,8 @@ class V36(_Restore, _Momentum, V35):
             if filled:
                 s.shares += filled
                 s.entry = await self.broker.avg_entry(s.symbol) or s.entry
-                s.stop = max(s.stop, s.entry if V36_FLOOR_AVG else s.v36_first)
+                if not V36_RUNNER_HALF:
+                    s.stop = max(s.stop, s.entry if V36_FLOOR_AVG else s.v36_first)
                 s.ten_break = False
                 s.v36_leash_from = time.time()
                 self.log.info("[v36] %s ADD to %.0f%% of a full position: +%d @ "
@@ -4629,6 +4690,9 @@ class V36(_Restore, _Momentum, V35):
             if s.in_position:
                 await self.exit(s, "halted")
             return
+        if self.off_quote(s, price):
+            self.note_off_quote(s, price)       # not the market: decides nothing
+            return
         if not s.in_position:
             await self.maybe_enter(s, price, self.fast_speed(s), self.baseline(s))
             return
@@ -4650,13 +4714,19 @@ class V36(_Restore, _Momentum, V35):
             if price <= s.trail_stop:
                 await self.exit(s, "trail")
                 return
+        elif V36_RUNNER_HALF and s.v36_adds:
+            if (s.peak > s.v36_first
+                    and price <= s.v36_first + 0.5 * (s.peak - s.v36_first)):
+                await self.exit(s, "half")      # half the run given back
+                return
         elif s.ten_break and s.v36_adds:
             await self.exit(s, "10s")
             return
         steps = self.add_steps()
         if (s.v36_adds < len(steps) and s.v36_first and new_high
                 and time.time() - s.v36_add_try_ts >= V36_ADD_RETRY_SEC):
-            if price >= self.add_level(s, s.v36_adds) and self.tape_ok(s):
+            if (price >= self.add_level(s, s.v36_adds) and self.tape_ok(s)
+                    and not self.at_level(s, price)):
                 await self.add_step(s, price, steps[s.v36_adds][1])
 
 
