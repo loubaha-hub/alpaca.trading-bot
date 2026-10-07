@@ -5,6 +5,24 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-07
 
+### The owner, ~11:20am: slow down - first, why the bots miss the runners
+- "We were writing code against the things we already had." First
+  priority: examine very closely why the programs do not pick up the
+  runners and what blocks them - "that's where the money is; if we miss
+  these runs we will not advance". Second: reduce the common small losses.
+  To sit down together after the owner's break; no new code before that.
+- On v37 exits: once a stock runs, the gain is not in danger; the higher
+  the gain the more likely it stays (a 50% retracement of a big gain is
+  huge). The owner likes the "give back a third of a big gain -> close"
+  rule (V37_SPIKE_GIVEBACK, r34.15).
+- Blockers found in the bots' own logs (to examine together): NO TREND
+  (EMA9<EMA20 / MACD<0 lag at the start of a run - BIYA 4:10-4:14 +51%),
+  NO CROWD (top 2 held 2m; $0k after LULD halts - DKI), NO PATTERN (high
+  break needs 2x volume - LPCN climb, DKI reopen candles), 6 buys today
+  (BIYA 8:20, LPCN 7:20-7:35), NO ROOM (yesterday's high - APUS 7:14),
+  NO TAPE (between-prints - APUS), v37 spike-only gates, and the r34.16 20%
+  ceiling from the last candle (conflicts with the HOD rule; halt gaps).
+
 ### Standing instruction, ~11:00am: agreed fixes go in when flat
 - The owner: "all of our fixes have to go in as we put them in - when all
   the positions are flat, push them in". Added to CLAUDE.md's standing
