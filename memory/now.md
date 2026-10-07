@@ -1,10 +1,21 @@
 # Where things stand
 
-Updated 2026-10-07, 9:25am ET.
+Updated 2026-10-07, 10:15am ET.
 
 ## Code
 - Working branch: `claude/zealous-ramanujan-br3gay`. New work goes here;
   nothing goes to `main` without the owner's OK.
+- Live on `main` (Render): VERSION v31-r34.16 (pushed 10:07am ET 10-07 at
+  the owner's OK - "Push with the 20% cap" - all three flat at 10:06): r34.15
+  + no v37 fast buy more than 20% over the last closed minute's high
+  (V37_ACCEL_CHASE, the BIYA 8:20 spike) + v36 remembers the real high of
+  the day after a restart (seed_high; SXTC 9:29:39 bought $3.23 as a "new
+  high" under $7.12). Release worktree: scratchpad release11.
+- The owner wants every trade audited (right / wrong / fix), with a table by
+  strategy: https://claude.ai/artifact/RXffPBQE7ZStZJo8JakA66 (after the
+  fixes, updated through the day; data in scratchpad
+  audit_1007/scripts/after_data.py) and the premarket audit
+  https://claude.ai/artifact/9ZEU642xnxLiY5tQtCPUy4 .
 - Live on `main` (Render): VERSION v31-r34.15 (pushed 9:20am ET 10-07 at
   the owner's OK - "the fixes we agreed on have to be implemented right
   away" - all three accounts flat at 9:19). The 10-07 fixes from the owner's

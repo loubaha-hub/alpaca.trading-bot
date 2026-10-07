@@ -5,6 +5,27 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-07
 
+### r34.16 released 10:07am; the first trades after the fixes
+- The owner agreed the 20% ceiling on v37's fast buy ("when the stock is
+  way too stretched and you buy near the top you're a sitting duck";
+  "the exit is the key - get out very quick, at any price"). Asked to
+  confirm, the owner chose "Push with the 20% cap"; pushed 3e24d61 at
+  10:07 with v36's restart high-of-day fix, all three flat.
+- After the fixes, 9:20-10:07 (from the accounts' equity): v36 SXTC
+  9:29:39 -$58.49 (a "new high" under the $7.12 morning high after the
+  restart; the stop sell stuck 5.7 minutes at the open - cancels not
+  confirmed, 8 refused re-sends in 4s, "unprotected", v36's data queue
+  dropped 30,278 messages; booked only 8 of 133 shares); v37 WETO 9:52:38
+  -$68.26 (fast buy, 10% of the account, on a $1.33 print 5% over the
+  market - crowd #6, no live quote; tape 49/51); v36 APUS 9:58:36 -$43.17
+  (4c under $9.00, stop 9.2% away, rode $8.98 -> $8.08); v36b APUS
+  9:58:42 -$1.80 (a stale $8.96 print, filled $8.77, sold at once).
+- Proposals to the owner (not decided): stops sell at market 9:30-4:00
+  and wait for cancels premarket; no buys 9:29-9:31; an exit must not
+  block the data; book every fill; buys need the live quote; fast buys
+  need a fresh quote, the owner's speed and the 60/40 tape; the level band
+  scales with price; v36's 3% cap (the owner's call).
+
 ### Premarket audit (4:00-9:20am, r34.14): every trade, one by one
 - The owner: check every order this morning, find the flaws, fix them -
   "that is what gives us an edge". 51 round trips: v36 22 (5 won,
