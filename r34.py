@@ -136,7 +136,7 @@ RISK_CHECK_SECONDS = 5                      # the halt runs on a CLOCK, not tick
 # The file name and this string are changed together, every single time. The
 # log then answers "which code is actually running?" without anyone guessing
 # from line numbers or from behaviour that only shows up once a trade is on.
-VERSION = "v31-r34.17"
+VERSION = "v31-r34.18"
 
 # WHERE THE DAY'S HALT BASELINE COMES FROM.
 #   "last_equity" - equity at the PREVIOUS session's close, read from the broker.
@@ -1742,7 +1742,7 @@ class Strategy:
     # ---- execution ----------------------------------------------------------
 
     async def buy(self, symbol: str, shares: int, ref: float,
-                  cap: float = None) -> int:
+                  cap: float = None, floor: float = None) -> int:
         """Fills counted from the BROKER, never from the order reply.
 
         A cancel racing a fill used to report "got nothing" and the next attempt
@@ -1759,7 +1759,7 @@ class Strategy:
                       symbol)
             return 0
         if FAST_BUY:
-            got, why = await self.buy_fast(symbol, shares, ref, cap)
+            got, why = await self.buy_fast(symbol, shares, ref, cap, floor)
             last = start + got
         else:
             last = await self.buy_chase(symbol, shares, ref, cap, start)
@@ -1781,7 +1781,7 @@ class Strategy:
         """The limit for one try of the fast buy: a little over the ask."""
         return min(ask * (1 + FAST_BUY_OVER_ASK), ceiling)
 
-    async def buy_fast(self, symbol, shares, ref, cap):
+    async def buy_fast(self, symbol, shares, ref, cap, floor=None):
         """FAST_BUY: a limit off the ask, re-priced every FAST_BUY_WAIT seconds
         until filled, out of time or tries, or the ask is past the ceiling.
         Counts what the broker CONFIRMED filled on each closed order. Returns
@@ -1800,7 +1800,15 @@ class Strategy:
             # Past the ceiling, the bid still sits AT the ceiling: a runner
             # that dips for a moment fills it.
             ask = await self.data.quote(symbol, "ask") or ref
+            if floor and ask <= floor:
+                # WETO 2026-10-07 9:52: one print a cent over the $1.32 high,
+                # then the reloads followed the ask down and filled at $1.26 -
+                # under the high it was buying the break of.
+                return got, ("the ask %.4f fell back to the high %.4f - no buy "
+                             "under it" % (ask, floor))
             limit = round(self.buy_limit(ask, ceiling), 2)
+            if floor:
+                limit = min(limit, ceiling)
             n = await self.broker.send(symbol, shares - got, OrderSide.BUY, limit,
                                        FAST_BUY_WAIT)
             if n == -2:
@@ -5023,6 +5031,13 @@ V37_ACCEL_CHASE = 0.20          # no fast buy this far over the last closed minu
                                 # high: BIYA 10-07 8:20-8:21 went $2.54 -> $33.96 ->
                                 # $8.20 in under a minute (SXTC 8:16:38 bought 13%
                                 # over it). 0 = no limit
+V37_HOD_CLEAR = (0.02, 0.005)   # a new high must clear the old one by this much -
+                                # the larger of 2 cents and 0.5% (WETO 10-07 9:52: a
+                                # print a cent over $1.32, then $1.26). () = off
+V37_ACCEL_REAL = True           # a fast buy needs the owner's speed at ACCEL_SPEED
+                                # too, not only the candles (WETO: candles 0.26,
+                                # the owner's speed 0.06)...
+V37_ACCEL_TAPE = True           # ...and the tape at 60/40 (WETO: 49/51)
 V37_SPIKE_AT = 0.30             # an acceleration buy up this much: out on giving
 V37_SPIKE_GIVEBACK = 1 / 3      # back this share of the gain (spikes collapse fast)
 V37_SCORE_FURIOUS = 0.0         # >0: a speed this high buys whatever the score (the
@@ -5334,12 +5349,19 @@ class V37(V36):
             return                              # every buy ABOVE the high of the day
                                                 # (the owner, 2026-10-06) - touching
                                                 # it is not a new high
+        if V37_HOD_CLEAR and s.day_high and price < s.day_high + max(
+                V37_HOD_CLEAR[0], V37_HOD_CLEAR[1] * s.day_high) - 1e-9:
+            return                              # a cent over it is a touch too
         if not self.confirmed(s):
             return                              # a re-buy, or out of a sideways stretch:
                                                 # not confirmed above the old high yet
         accel = self.accelerating(s) if V37_ACCEL else 0.0
         if V37_ACCEL and not accel and self.furious(s, price):
             accel = self.real_speed(s, price)   # the speed overrides the crowd rules
+        if accel and V37_ACCEL_REAL and self.real_speed(s, price) < ACCEL_SPEED:
+            accel = 0.0                         # the candles say fast, the price does not
+        if accel and V37_ACCEL_TAPE and not self.tape_ok(s):
+            accel = 0.0                         # nobody buying at the ask
         if accel and s.bars and price > s.bars[-1].h:
             if V37_ACCEL_CHASE and price > s.bars[-1].h * (1 + V37_ACCEL_CHASE):
                 if time.time() - s.v37_skip_logged >= 30:   # the spike has run
@@ -5436,7 +5458,8 @@ class V37(V36):
         shares = int(min(eq * self.v37_full(s, eq) * starter, room) / worst)
         if shares * price < MIN_TRADE_DOLLARS:
             return
-        filled = await self.buy(s.symbol, shares, price, cap)
+        filled = await self.buy(s.symbol, shares, price, cap,
+                                floor=s.day_high)   # never under the old high
         if not filled:
             return
         s.shares = filled
