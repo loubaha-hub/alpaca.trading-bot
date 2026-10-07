@@ -1160,3 +1160,36 @@ def test_furious_back_in_on_a_new_high_the_same_minute(v36, clock, monkeypatch,
     monkeypatch.setattr(v36, "speeding", lambda s, p: fast)
     tick(v36, s, round(s.day_high + 0.03, 2))             # a new high, the same minute
     assert s.in_position == buys
+
+
+def test_the_market_at_the_stop_sells_whatever_the_print(v36, clock, monkeypatch):
+    """SXTC 10-07 1:40pm: stop $7.65, the first print the bot counted $7.49. The
+    middle of the live bid and ask at or under the stop is enough."""
+    s = bought(v36, clock)
+    s.quote = (round(s.stop - 0.06, 2), round(s.stop + 0.02, 2), bot.time.time())
+    tick(v36, s, round(s.entry + 0.05, 2))                # an old, high print
+    assert not s.in_position
+
+
+def test_a_wide_spread_alone_does_not_stop(v36, clock):
+    s = bought(v36, clock)
+    s.quote = (round(s.stop - 0.03, 2), round(s.entry + 0.10, 2), bot.time.time())
+    tick(v36, s, round(s.entry + 0.02, 2))                # the middle is over the stop
+    assert s.in_position
+
+
+def test_a_furious_gain_counts_from_the_fill(v36, clock, monkeypatch):
+    """SXTC 10-07 1:40pm: v36b paid $7.35 on a $7.72 print and sold on giving back
+    30% of a 37c "gain" it never had."""
+    monkeypatch.setattr(v36, "speeding", lambda s, p: True)
+    monkeypatch.setattr(bot, "V36_LEVEL_STOP", False)
+    no_adds(monkeypatch)
+    s = ripping(v36, clock)
+
+    async def paid(symbol):                               # filled 37c under the print
+        return round(TRIGGER - 0.37, 2)
+    monkeypatch.setattr(v36.broker, "avg_entry", paid)
+    tick(v36, s, TRIGGER)
+    assert s.in_position and s.entry == round(TRIGGER - 0.37, 2)
+    assert s.peak == s.entry                              # not the $0.37-higher print
+    assert v36.furious_line(s, s.peak) == 0.0

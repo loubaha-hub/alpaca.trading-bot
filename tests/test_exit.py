@@ -127,3 +127,41 @@ def test_wait_clear_waits_for_our_cancelled_order(no_sleep, working, clear):
     b = bot.Broker("key", "secret", True, "v36")
     b.client = Client(working=working)
     assert run(b.wait_clear("SXTC")) is clear
+
+
+class PartialClient(Client):
+    """A market order that fills in pieces, as a crashing stock's bids do."""
+
+    def __init__(self, steps):
+        super().__init__()
+        self.steps, self.cancels = list(steps), 0
+
+    def get_order_by_id(self, oid):
+        q = self.reqs[-1].qty
+        if self.cancels:                                  # cancelled: what filled stays
+            return SimpleNamespace(filled_qty=str(self.got), filled_avg_price="7.29",
+                                   status=SimpleNamespace(value="canceled"))
+        self.got = self.steps.pop(0) if self.steps else q
+        return SimpleNamespace(filled_qty=str(self.got), filled_avg_price="7.29",
+                               status=SimpleNamespace(value="filled" if self.got >= q
+                                                      else "partially_filled"))
+
+    def cancel_order_by_id(self, oid):
+        self.cancels += 1
+
+
+def test_a_market_sell_is_left_to_fill(no_sleep):
+    """SXTC 10-07 1:40pm: each market sell was cancelled after its first partial
+    fill and sent again - 7.5 seconds and three orders to get out."""
+    b = bot.Broker("key", "secret", True, "v37")
+    b.client = PartialClient([100, 300, 500])
+    assert run(b.send_market("SXTC", 625, bot.OrderSide.SELL, 7.3)) == 625
+    assert b.client.cancels == 0 and len(b.client.reqs) == 1
+
+
+def test_a_limit_buy_still_stops_at_a_partial_fill(no_sleep):
+    b = bot.Broker("key", "secret", True, "v37")
+    b.client = PartialClient([100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+                              100, 100, 100, 100])
+    assert run(b.send("SXTC", 625, bot.OrderSide.BUY, 7.95, 0.5)) == 100
+    assert b.client.cancels == 1

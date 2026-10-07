@@ -140,7 +140,7 @@ RISK_CHECK_SECONDS = 5                      # the halt runs on a CLOCK, not tick
 # The file name and this string are changed together, every single time. The
 # log then answers "which code is actually running?" without anyone guessing
 # from line numbers or from behaviour that only shows up once a trade is on.
-VERSION = "v31-r34.23"
+VERSION = "v31-r34.24"
 
 # WHERE THE DAY'S HALT BASELINE COMES FROM.
 #   "last_equity" - equity at the PREVIOUS session's close, read from the broker.
@@ -938,7 +938,7 @@ class Broker:
         return sum(1 for x in sent if x >= now - 60)
 
     async def send_market(self, symbol: str, qty: int, side, ref: float = 0.0,
-                          wait: float = 3.0) -> int:
+                          wait: float = 6.0) -> int:
         """A market order - regular hours only: out at any price. As send():
         what filled, nothing left working. self.market_refused is set when the
         broker would not take it, so the caller can fall back to a limit.
@@ -953,10 +953,13 @@ class Broker:
         except Exception as e:
             self.market_refused = True
             return self.classify(e, side, symbol)
-        return await self.follow(symbol, order, qty, wait)
+        return await self.follow(symbol, order, qty, wait, market=True)
 
-    async def follow(self, symbol, order, qty, wait) -> int:
-        """Poll a submitted order; cancel and settle what has not filled."""
+    async def follow(self, symbol, order, qty, wait, market=False) -> int:
+        """Poll a submitted order; cancel and settle what has not filled. A
+        market order is left to fill: SXTC 10-07 1:40pm, each market sell was
+        cancelled after its first partial fill and sent again - 7.5 seconds
+        and three orders to get out of a crashing stock (-$290)."""
         filled = 0
         o = None
         self.settled = True
@@ -968,7 +971,7 @@ class Broker:
                 filled = int(float(o.filled_qty or 0))
                 if filled >= qty or order_done(o):
                     break
-                if filled > 0:
+                if filled > 0 and not market:
                     break                      # partial: cancel the rest below
         except Exception as e:
             log.error("[%s] cannot poll order on %s: %s", self.label, symbol, e)
@@ -4107,6 +4110,11 @@ V36_FURIOUS_GIVEBACK = 0.30     # ...and from there out on giving back this shar
                                 # gain from its high ("thirty percent of the gain").
                                 # 0 = off. Replaces r34.22's "up 30%, a third back".
 V37_FURIOUS_EXIT = True         # v37's furious buys (speed >= V37_FURIOUS_SPEED): the same
+BID_STOP = True                 # a position's stop also fires when the live market -
+                                # the middle of the bid and ask - is at or under it, not
+                                # only on a print the bot accepts (SXTC 10-07 1:40pm:
+                                # stop $7.65, first counted print $7.49). The middle, not
+                                # the bid: a premarket spread can be wider than a 10c stop
 V36_FURIOUS_ALL = True          # furious: EVERY entry check set aside - the levels, the
                                 # wick, the re-entry speed, the score, the 5% over the
                                 # trigger, and no candle pattern needed (a new high over
@@ -4511,6 +4519,22 @@ class V36(_Restore, _Momentum, V35):
                               100 * (price - stop_ref) / price, price, fit * risk)
                 shares = fit
         return shares
+
+    async def bid_stop(self, s) -> bool:
+        """BID_STOP: the live market (the middle of the bid and ask) at or under
+        the stop sells now - whatever the last print was, and however old."""
+        if not (BID_STOP and s.in_position and s.stop):
+            return False
+        q = self.live_quote(s)
+        if not q or not q[0] or not q[1]:
+            return False
+        mid = (q[0] + q[1]) / 2.0
+        if mid > s.stop:
+            return False
+        self.log.info("[v31] %s the market %.4f x %.4f is at the stop %.4f - out",
+                      s.symbol, q[0], q[1], s.stop)
+        await self.exit(s, "stop")
+        return True
 
     def furious_new_high(self, s, price) -> bool:
         """Furious and over the high of the day as it stood before this print:
@@ -4980,6 +5004,9 @@ class V36(_Restore, _Momentum, V35):
                 self.set_line(s, price)
                 if rush and V36_FURIOUS_STOP_CENTS:      # 10 cents under what it paid
                     s.stop = max(s.stop, s.entry - V36_FURIOUS_STOP_CENTS)
+                if rush:                        # its gain counts from the fill: SXTC
+                    s.peak = s.entry            # 1:40pm v36b paid $7.35 on a $7.72
+                                                # print and sold on a "gain" it never had
                 if rush and V36_FURIOUS_FULL:
                     s.v36_adds = len(self.add_steps())   # full already: no adds, and
                     s.v36_leash_from = time.time()       # the 10-second leash on it
@@ -5085,6 +5112,8 @@ class V36(_Restore, _Momentum, V35):
         if await self.halted():
             if s.in_position:
                 await self.exit(s, "halted")
+            return
+        if await self.bid_stop(s):
             return
         if self.off_quote(s, price):
             self.note_off_quote(s, price)       # not the market: decides nothing
@@ -5939,6 +5968,8 @@ class V37(V36):
         if await self.halted():
             if s.in_position:
                 await self.exit(s, "halted")
+            return
+        if await self.bid_stop(s):
             return
         if self.off_quote(s, price):
             self.note_off_quote(s, price)       # not the market: decides nothing
