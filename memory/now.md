@@ -1,6 +1,6 @@
 # Where things stand
 
-Updated 2026-10-07, 0:20am ET.
+Updated 2026-10-07, 7:20am ET.
 
 ## Code
 - Working branch: `claude/zealous-ramanujan-br3gay`. New work goes here;
@@ -68,6 +68,19 @@ Updated 2026-10-07, 0:20am ET.
   and stops / the trail only on prints under 2s old.
 - Watch: v37's scores vs results, its couple of runs paying for the cuts;
   v36's adds filling on a rip, and its share of stop-outs (93% in replay).
+
+## Next (the owner, 10-07 morning: leave the bots alone today; fine-tune entries)
+- After the close, on the branch, replayed on every day (today included),
+  a range of settings, fills 0.2%/1% worse, against what is live:
+  1. v36 + v36b: $x.00/$x.50 levels - add/start only ~5c past and held a
+     moment; out when it hesitates at one; stay when it bolts through.
+  2. v36 + v36b: once running (from the first add), out only on giving
+     back half the gain - in place of the floor at the average.
+  3. v37: the ripping exception only at speed 0.3+.
+  4. v37: "half the gain" confirmed by the bid.
+  Then the owner decides; release only with the OK, flat or after 8pm.
+- End of day: v36 vs v36b by % of account; v37's exits vs what each stock
+  did 5/15/30 min later.
 
 ## Waiting on the owner
 0. v37 speed rule (0.1+): held off by the owner until "up 3%" has a big
