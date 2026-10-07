@@ -1,11 +1,27 @@
 # Where things stand
 
-Updated 2026-10-07, 11:00am ET.
+Updated 2026-10-07, 12:00pm ET.
 
 ## Code
 - Working branch: `claude/zealous-ramanujan-br3gay`. New work goes here;
   nothing goes to `main` without the owner's OK.
-- Live on `main` (Render): VERSION v31-r34.19 (pushed 10:55:42am ET 10-07 on
+- Live on `main` (Render): VERSION v31-r34.20 (pushed 11:57:59am ET 10-07,
+  the owner's "Push r34.20 when flat"): the big moves - v37 fast buys from the
+  breakout level (V37_ACCEL_FROM_HIGH) at the ask + 20c (30c from $10), retried
+  for 6s within a 20% net (V37_SWEEP*), sized on the likely fill; a fast buy's
+  premarket exit is a limit 10% under the bid (SELL_DEEP); trend checks with
+  the live price (V36_TREND_LIVE); speed (V37_FURIOUS_SPEED on $250k) counts as
+  the crowd, lifts the 6-buy cap and sets trend/tape/room aside for v36/v36b
+  (V36_FURIOUS, V36_FURIOUS_SKIPS); the crowd counts trading minutes 9:30-4 only
+  (V36_CROWD_TRADING; the owner: no halts premarket); a 5-second move logged;
+  the r34.18 bug fixed (V37_HOD_CLEAR measured from the closed-candle high -
+  v37 could not buy since 10:29); an add needs a NEW high that holds 2s (r34.19
+  added on the way down, DKI 11:36); a sizing crash fixed. Worktree release16.
+- Next (the owner, ~12pm): fast buys keep trying - no 20% cap, no 6-second
+  limit - every print still furious and over the old high fires another try,
+  paced under Alpaca's ~200 requests a minute. To build as r34.21.
+- Open for the owner: v36's uncapped stop (16.6% on DKI 11:37, -$71).
+- r34.19 (10:56am): (pushed 10:55:42am ET 10-07 on
   the owner's standing instruction - agreed fixes go in at the next flat
   moment): an add waits for the price to hold at or over its level 2s
   (V36_ADD_HOLD_SEC); the floor still moves to the new average after an add
