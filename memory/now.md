@@ -1,11 +1,16 @@
 # Where things stand
 
-Updated 2026-10-07, 10:30am ET.
+Updated 2026-10-07, 11:00am ET.
 
 ## Code
 - Working branch: `claude/zealous-ramanujan-br3gay`. New work goes here;
   nothing goes to `main` without the owner's OK.
-- Live on `main` (Render): VERSION v31-r34.18 (pushed 10:28:34am ET 10-07,
+- Live on `main` (Render): VERSION v31-r34.19 (pushed 10:55:42am ET 10-07 on
+  the owner's standing instruction - agreed fixes go in at the next flat
+  moment): an add waits for the price to hold at or over its level 2s
+  (V36_ADD_HOLD_SEC); the floor still moves to the new average after an add
+  and the sizes are unchanged (the owner's decisions). Worktree release14.
+- r34.18 (10:29am): (pushed 10:28:34am ET 10-07,
   the owner's choice "Push r34.18 when flat", flat from 10:25:42): v37 needs
   the price over the old high by 2c or 0.5% (V37_HOD_CLEAR); a buy never
   reloads once the ask falls back to the old high (buy(floor=)); a fast buy
