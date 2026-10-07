@@ -3645,9 +3645,20 @@ class V35(V31):
     def vwap(self, s) -> float:
         return s.vwap_pv / s.vwap_v if s.vwap_v else 0.0
 
+    def live_emas(self, s, price):
+        """(EMA9, EMA20, EMA12, EMA26) as the owner's chart draws them: with the
+        forming candle at `price` (V36_TREND_LIVE), not only the closed ones.
+        BIYA 2026-10-07 4:13:44-4:14:00: "NO TREND" every 5 seconds on the 4:12
+        candle's MACD of -0.0002 while the price went $2.25 -> $2.76."""
+        if not V36_TREND_LIVE or not price:
+            return s.ema9, s.ema20, s.ema12, s.ema26
+        return tuple(e + 2.0 / (n + 1) * (price - e) if e else e
+                     for e, n in ((s.ema9, 9), (s.ema20, 20), (s.ema12, 12), (s.ema26, 26)))
+
     def trend_ok(self, s, price) -> bool:
         vwap = self.vwap(s)
-        return vwap > 0 and price > vwap and price > s.ema9 > s.ema20
+        e9, e20, _, _ = self.live_emas(s, price)
+        return vwap > 0 and price > vwap and price > e9 > e20
 
     def pullback(self, s):
         """The last closed candles: a green one, then one or more reds.
@@ -4021,6 +4032,15 @@ V36_TEN_GRACE = 10              # seconds after an add before the short leash ac
 V36_LEASH_AT = 0.10             # up this much: the long leash instead
 V36_LEASH_ABR = 2.0             # long leash: this many ABRs under the high
 V36_MAX_ENTRIES = 6             # buys per name per day - each one small
+# THE BIG MOVES (the owner, 10-07: "the other fixes are small potatoes - if we
+# miss these moves the program will not advance"):
+V36_TREND_LIVE = True           # trend checks with the forming candle at the live
+                                # price, as the chart draws them (BIYA 4:13)
+V36_CROWD_TRADING = True        # the crowd counts the last V36_CROWD_MINUTES minutes
+V36_CROWD_SPAN_MIN = 30         # the stock TRADED, within this span - after a halt
+                                # it is not "$0k" (DKI 10:36 and 10:50)
+V36_FURIOUS = True              # the owner's speed at V37_FURIOUS_SPEED on real money
+                                # counts as the crowd and lifts the buy cap (BIYA 8:20)
 V36_PAY_UP_ABR = 1.0            # a buy may pay this many ABRs over the trigger...
 V36_PAY_UP_MAX = 0.05           # ...never more than this (BUY_CHASE_CAP at least)
 V36_CONFIRM_TOLERANCE = 0.01    # the ask may sit this far under the trigger
@@ -4168,6 +4188,15 @@ class _Momentum:
         vols = [b.v for b in s.bars]
         return bool(vols) and self.pace(s) > max(vols)
 
+    def speeding(self, s, price) -> bool:
+        """The owner's speed at V37_FURIOUS_SPEED on ACCEL_DOLLARS in the last
+        minute, the last candle not red - the moves that pay for the months."""
+        if self.real_speed(s, price) < V37_FURIOUS_SPEED:
+            return False
+        if sum(x[1] * x[2] for x in s.v37_prints) < ACCEL_DOLLARS:
+            return False
+        return bool(s.bars) and not s.bars[-1].red
+
     def accelerating(self, s) -> float:
         """The owner's speed of the last closed minute when the minutes before
         a run are accelerating (ACCEL_*), else 0.0."""
@@ -4286,9 +4315,10 @@ class _Momentum:
         busy = sum(1 for b in bars[-3:] if normal and b.v >= 2 * normal)
         parts["volume"] = min(2, busy)
         vwap = self.vwap(s)
+        e9, e20, e12, e26 = self.live_emas(s, price)
         parts["trend"] = (1 if vwap and price > vwap else 0) + (
-            1 if s.ema9 and price > s.ema9 > s.ema20 else 0)
-        parts["macd"] = 1 if s.ema12 > s.ema26 else 0
+            1 if e9 and price > e9 > e20 else 0)
+        parts["macd"] = 1 if e12 > e26 else 0
         parts["room"] = 0 if (s.prev_high > price
                               and s.prev_high < price * (1 + V37_SCORE_ROOM)) else 1
         return sum(parts.values()), " ".join("%s %d" % kv for kv in parts.items())
@@ -4358,11 +4388,17 @@ class V36(_Restore, _Momentum, V35):
         minute = int(time.time() // 60)
         if self.crowd[0] != minute:
             since = datetime.now(timezone.utc) - timedelta(minutes=V36_CROWD_MINUTES)
+            span = datetime.now(timezone.utc) - timedelta(minutes=V36_CROWD_SPAN_MIN)
             dv = {}
             for sym in self.qualified:
                 st = self.state.get(sym)
                 if st and st.bars:
-                    d = sum(b.c * b.v for b in st.bars if b.ts >= since)
+                    if V36_CROWD_TRADING:       # the last minutes it TRADED: a halt
+                        recent = [b for b in st.bars[-V36_CROWD_MINUTES:]   # is not $0
+                                  if b.ts >= span]
+                    else:
+                        recent = [b for b in st.bars if b.ts >= since]
+                    d = sum(b.c * b.v for b in recent)
                     if d > 0:
                         dv[sym] = d
             order = sorted(dv, key=dv.get, reverse=True)
@@ -4408,6 +4444,8 @@ class V36(_Restore, _Momentum, V35):
             return True
         if V36_ACCEL and self.accelerating(s):
             return True                         # SXTC 8:16: no need to wait for the crowd
+        if V36_FURIOUS and self.speeding(s, s.last_price):
+            return True                         # BIYA 8:20: #4 by money, a minute late
         if self.crowd_rank(s.symbol) > V36_CROWD_TOP:
             return False
         if V36_RIP_SKIPS_HOLD and self.ripping_now(s):
@@ -4622,7 +4660,8 @@ class V36(_Restore, _Momentum, V35):
         if len(self.open_positions()) >= V36_MAX_POSITIONS:
             self.why_not(s, price, "NO: %d positions open" % len(self.open_positions()))
             return
-        if s.v36_entries >= V36_MAX_ENTRIES and not self.leader_new_high(s, price):
+        if (s.v36_entries >= V36_MAX_ENTRIES and not self.leader_new_high(s, price)
+                and not (V36_FURIOUS and self.speeding(s, price))):
             self.why_not(s, price, "NO: %d buys today" % s.v36_entries)
             return
         if (s.v36_entry_bar_ts is not None and s.bars
@@ -4678,10 +4717,11 @@ class V36(_Restore, _Momentum, V35):
                 return
         if self.own("MAX_STOP"):                # under what it pays, not an old trigger
             stop_ref = max(stop_ref, max(trigger, price) * (1 - self.own("MAX_STOP")))
-        if not self.trend_ok(s, price) or not s.ema12 > s.ema26:
+        e9, e20, e12, e26 = self.live_emas(s, price)
+        if not self.trend_ok(s, price) or not e12 > e26:
             self.why_not(s, price, "NO TREND at the trigger %.4f: vwap %.4f e9 %.4f e20 "
-                         "%.4f macd %+.4f" % (trigger, self.vwap(s), s.ema9, s.ema20,
-                                              s.ema12 - s.ema26), urgent=True)
+                         "%.4f macd %+.4f" % (trigger, self.vwap(s), e9, e20,
+                                              e12 - e26), urgent=True)
             return
         if not self.tape_ok(s):
             b, r, m, tot, q = self.tape_split(s, V36_TAPE_SECONDS)
@@ -5060,6 +5100,10 @@ V37_ACCEL_REAL = True           # a fast buy needs the owner's speed at ACCEL_SP
                                 # too, not only the candles (WETO: candles 0.26,
                                 # the owner's speed 0.06)...
 V37_ACCEL_TAPE = True           # ...and the tape at 60/40 (WETO: 49/51)
+V37_ACCEL_FROM_HIGH = True      # ...over the breakout level: the larger of the last
+                                # minute's high and the old high of the day (BIYA
+                                # 8:20: the last candle $2.54, the high $3.10 - from
+                                # the candle alone no price passed both rules)
 V37_SPIKE_AT = 0.30             # an acceleration buy up this much: out on giving
 V37_SPIKE_GIVEBACK = 1 / 3      # back this share of the gain (spikes collapse fast)
 V37_SCORE_FURIOUS = 0.0         # >0: a speed this high buys whatever the score (the
@@ -5385,13 +5429,14 @@ class V37(V36):
         if accel and V37_ACCEL_TAPE and not self.tape_ok(s):
             accel = 0.0                         # nobody buying at the ask
         if accel and s.bars and price > s.bars[-1].h:
-            if V37_ACCEL_CHASE and price > s.bars[-1].h * (1 + V37_ACCEL_CHASE):
+            base = (max(s.bars[-1].h, s.day_high) if V37_ACCEL_FROM_HIGH
+                    else s.bars[-1].h)          # the breakout level: BIYA 8:20 broke
+            if V37_ACCEL_CHASE and price > base * (1 + V37_ACCEL_CHASE):   # $3.10
                 if time.time() - s.v37_skip_logged >= 30:   # the spike has run
                     s.v37_skip_logged = time.time()
-                    self.log.info("[v37] SKIP %s at %.4f - %.0f%% over the last "
-                                  "minute's high %.4f: too late for a fast buy",
-                                  s.symbol, price,
-                                  100 * (price / s.bars[-1].h - 1), s.bars[-1].h)
+                    self.log.info("[v37] SKIP %s at %.4f - %.0f%% over the breakout "
+                                  "level %.4f: too late for a fast buy",
+                                  s.symbol, price, 100 * (price / base - 1), base)
                 return
             return await self.accel_buy(s, price, accel)
         if not self.in_the_crowd(s) or not self.flying(s, price):
@@ -5437,11 +5482,7 @@ class V37(V36):
     def furious(self, s, price) -> bool:
         """V37_FURIOUS_SPEED on real money in the last minute, the last candle
         not red."""
-        if self.real_speed(s, price) < V37_FURIOUS_SPEED:
-            return False
-        if sum(x[1] * x[2] for x in s.v37_prints) < ACCEL_DOLLARS:
-            return False
-        return bool(s.bars) and not s.bars[-1].red
+        return self.speeding(s, price)
 
     async def accel_buy(self, s, price, accel):
         """V37_ACCEL: over the last minute's high, the ask agreeing; sized by

@@ -820,3 +820,47 @@ def test_a_dip_under_the_level_starts_the_clock_again(v36, clock, monkeypatch):
 
 def test_the_add_hold_is_on():
     assert bot.V36_ADD_HOLD_SEC == 2.0 and bot.V36_FLOOR_AVG   # the owner, 10-07
+
+
+def test_dki_the_crowd_counts_the_minutes_it_traded(v36, clock):
+    """DKI 10:37 and 10:50: "crowd #- $0k" right after a volatility halt - the
+    last 5 clock minutes were the halt. The last 5 minutes it TRADED count."""
+    s = v36.st("DKI")
+    v36.qualified.add("DKI")
+    halt_start = clock.now.astimezone(bot.timezone.utc) - bot.timedelta(minutes=12)
+    s.bars = [bot.Bar(halt_start - bot.timedelta(minutes=5 - i), 2.4, 2.9, 2.3, 2.8, 500_000)
+              for i in range(5)]                          # $1.4M a minute, then halted
+    assert v36.crowd_dollars("DKI") == pytest.approx(5 * 2.8 * 500_000)
+    v36.crowd = (None, {})
+    bot_trading = bot.V36_CROWD_TRADING
+    try:
+        bot.V36_CROWD_TRADING = False
+        assert v36.crowd_dollars("DKI") == 0.0            # as it was: $0k
+    finally:
+        bot.V36_CROWD_TRADING = bot_trading
+
+
+@pytest.mark.parametrize("fast, buys", [(True, True), (False, False)])
+def test_biya_820_speed_lifts_the_buy_cap(v36, clock, monkeypatch, fast, buys):
+    """BIYA 8:20: "NO: 6 buys today" all through $2.54 -> $33.96 (crowd #4)."""
+    monkeypatch.setattr(bot, "V36_LEADER_NO_CAP", False)
+    monkeypatch.setattr(bot, "V36_REENTRY_SPEED", 0.0)
+    monkeypatch.setattr(v36, "speeding", lambda s, p: fast)
+    s = ripping(v36, clock)
+    s.v36_entries = bot.V36_MAX_ENTRIES
+    tick(v36, s, round(s.hod_closed + bot.V36_HOD_PLUS + 0.12, 2))
+    assert entered(v36, s) == buys
+
+
+def test_speed_counts_as_the_crowd(v36, clock, monkeypatch):
+    s = v36.st("BIYA")
+    v36.qualified.add("BIYA")
+    monkeypatch.setattr(v36, "speeding", lambda s, p: False)
+    assert not v36.in_crowd(s)
+    monkeypatch.setattr(v36, "speeding", lambda s, p: True)
+    assert v36.in_crowd(s)
+
+
+def test_the_big_move_rules_are_on():
+    assert bot.V36_TREND_LIVE and bot.V36_CROWD_TRADING and bot.V36_FURIOUS
+    assert bot.V37_ACCEL_FROM_HIGH

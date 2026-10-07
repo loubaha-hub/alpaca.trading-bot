@@ -30,6 +30,8 @@ def v37(broker, data, clock, now, monkeypatch):
     monkeypatch.setattr(bot, "V37_HOD_CLEAR", ())        # WETO's rules: tested below
     monkeypatch.setattr(bot, "V37_ACCEL_REAL", False)
     monkeypatch.setattr(bot, "V37_ACCEL_TAPE", False)
+    monkeypatch.setattr(bot, "V36_CROWD_TRADING", False)  # its candles are dated oddly;
+                                                          # the halt rule is tested below
     strat = bot.V37(broker, data)
     strat.day_start_equity = broker.eq
     return strat
@@ -1463,3 +1465,40 @@ def test_weto_a_fast_buy_needs_the_speed_and_the_tape(v37, clock, now, monkeypat
 def test_the_weto_rules_are_on():
     assert bot.V37_HOD_CLEAR == (0.02, 0.005)
     assert bot.V37_ACCEL_REAL and bot.V37_ACCEL_TAPE
+
+
+# ---- the big moves (the owner, 10-07: "the other fixes are small potatoes") -------
+
+@pytest.mark.parametrize("from_high, buys", [(True, True), (False, False)])
+def test_biya_820_the_ceiling_counts_from_the_old_high(v37, clock, now, monkeypatch,
+                                                      from_high, buys):
+    """BIYA 8:20: the last candle's high $2.54, the day's high $3.10 (22% over it).
+    From the candle alone, no price was both a new high and under the 20% ceiling."""
+    monkeypatch.setattr(bot, "V37_ACCEL", True)
+    monkeypatch.setattr(bot, "V37_ACCEL_FROM_HIGH", from_high)
+    monkeypatch.setattr(v37, "real_speed", lambda s, p: 0.40)
+    s = v37.st("BIYA")
+    v37.qualified.add("BIYA")
+    candles(s, STAIRS)
+    s.day_high = round(s.bars[-1].h * 1.22, 2)            # $3.10 over $2.54
+    price = round(s.day_high + 0.03, 2)
+    prints(v37, s, now, s.bars[-1].h, price, size=30_000)
+    tick(v37, s, now, price)
+    assert s.in_position == buys
+
+
+def test_biya_413_the_trend_reads_the_live_price(v37, clock):
+    """BIYA 4:13:44: vwap 1.9697, e9 1.9813, e20 1.9706, MACD -0.0002 on the 4:12
+    candle - "NO TREND" at $2.25 through $2.76. With the live price: a trend."""
+    s = v37.st("BIYA")
+    s.vwap_pv, s.vwap_v = 1.9697 * 1000, 1000
+    s.ema9, s.ema20, s.ema12, s.ema26 = 1.9813, 1.9706, 1.9700, 1.9702
+    e9, e20, e12, e26 = v37.live_emas(s, 2.25)
+    assert v37.trend_ok(s, 2.25) and e12 > e26
+    bot_live = bot.V36_TREND_LIVE
+    try:
+        bot.V36_TREND_LIVE = False
+        e9, e20, e12, e26 = v37.live_emas(s, 2.25)
+        assert not e12 > e26                              # as it was: MACD -0.0002
+    finally:
+        bot.V36_TREND_LIVE = bot_live
