@@ -1925,7 +1925,7 @@ class Strategy:
         we really own, so it can never be rejected for shorting."""
         # Clear our own working orders before trying to get out. A resting buy
         # order on this symbol will have the sell rejected as a wash trade.
-        await self.broker.cancel_open(symbol)
+        cleared = await self.broker.cancel_open(symbol)
         start = await self.broker.qty(symbol)
         if start is None:
             start = float(shares)
@@ -1933,6 +1933,7 @@ class Strategy:
         if want <= 0:
             return 0
         market = SELL_MARKET_RTH and regular_hours()
+        first = True
         for _ in range(CHASE_ATTEMPTS):
             # EVERY pass, not just the first. The old code cancelled once above
             # and then submitted a fresh limit sell on each pass without
@@ -1940,10 +1941,18 @@ class Strategy:
             # three resting sells each reserved shares, held_for_orders climbed
             # to the whole position, available fell to 0, and the bot strangled
             # its own exit with its own orders.
-            await self.broker.cancel_open(symbol)
-            if not await self.broker.wait_clear(symbol):
-                continue                       # never a sell on top of our own order
-            now = await self.broker.qty(symbol)
+            # The first pass, with nothing of ours working a moment ago, goes
+            # straight out: three broker round trips fewer (the owner, 10-07:
+            # "as fast as possible").
+            if first and not cleared and start is not None:
+                first = False
+                now = start
+            else:
+                first = False
+                await self.broker.cancel_open(symbol)
+                if not await self.broker.wait_clear(symbol):
+                    continue                   # never a sell on top of our own order
+                now = await self.broker.qty(symbol)
             if now is None:
                 await asyncio.sleep(CHASE_PAUSE)  # unknown is not "none sold"
                 continue
@@ -1953,12 +1962,15 @@ class Strategy:
                 break
             bid = await self.data.quote(symbol, "bid") or ref
             limit = round(max(bid * (1 - (SELL_DEEP if deep else 0.005)), 0.01), 2)
-            if market:
+            if market:                         # 9:30-4: at market, always
+                log.info("[%s] %s SELL %d at MARKET", self.name, symbol, remaining)
                 got = await self.broker.send_market(symbol, remaining,
                                                     OrderSide.SELL, limit)
                 if getattr(self.broker, "market_refused", False):
                     market = False             # e.g. a half day: limits from here
-            else:
+            else:                              # premarket / after hours: limits only
+                log.info("[%s] %s SELL %d at a limit %.2f (bid %.4f)", self.name, symbol,
+                         remaining, limit, bid)
                 got = await self.broker.send(symbol, remaining, OrderSide.SELL, limit)
             if got == -2:
                 await self.broker.cancel_open(symbol)

@@ -99,7 +99,7 @@ class FakeBroker:
 
     async def cancel_open(self, symbol):
         await asyncio.sleep(0)
-        return 0
+        return 1 if self.working else 0    # as Broker: it found ours and cancelled it
 
     async def avg_entry(self, symbol):
         await asyncio.sleep(0)

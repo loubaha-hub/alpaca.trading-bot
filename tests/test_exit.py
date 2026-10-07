@@ -165,3 +165,21 @@ def test_a_limit_buy_still_stops_at_a_partial_fill(no_sleep):
                               100, 100, 100, 100])
     assert run(b.send("SXTC", 625, bot.OrderSide.BUY, 7.95, 0.5)) == 100
     assert b.client.cancels == 1
+
+
+def test_nothing_working_the_first_sell_goes_straight_out(v31, broker, clock, caplog):
+    """The owner, 10-07: 9:30-4 every sell at market, as fast as possible - with
+    nothing of ours working, no second cancel, wait or position read first."""
+    at(clock, 13, 40)
+    holding(broker)
+    sent_first = []
+    real = broker.wait_clear
+
+    async def wait_clear(symbol, timeout=None):
+        sent_first.append(bool(broker.market_orders))     # the sell already out?
+        return await real(symbol, timeout)
+    broker.wait_clear = wait_clear
+    with caplog.at_level(logging.INFO):
+        assert run(v31.sell("SXTC", 133, 7.30)) == 133
+    assert broker.market_orders and all(sent_first)
+    assert "SXTC SELL 133 at MARKET" in caplog.text
