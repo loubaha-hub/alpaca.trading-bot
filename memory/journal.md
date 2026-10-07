@@ -101,6 +101,25 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   Exact ticks: Webull's tick feed no longer reaches 8:09; Alpaca has
   them (a read-only dump at the next restart, if the owner wants).
 
+### SXTC 8:16 - the move the owner has been describing (proposal, not built)
+- Webull 1-min: 8:13 2.05->2.11 38k; 8:14 2.11->2.25 114k (3x); 8:15
+  2.25->2.43 261k (2.3x), each closing at its high, the #1 gainer; 8:16
+  2.44 -> 7.12 high -> 4.81 close, 788k; 8:17 red to 3.96; ~2.30 by 8:55.
+  The owner's speed: 8:14 0.20, 8:15 0.18. v36/v36b: "NO CROWD" (#1 gainer
+  but $800k < $1M); v37: #4 by money until 8:16; bought $2.87 (score 15)
+  and sold 1.5s later on a stale print (+$75); v36/v36b bought $4.83/$4.78
+  after the spike (v36b -$74). The owner: "this is where the money is";
+  bigger size at high speed; watch it come down; "a move like that should
+  not be missed - how do we set the metrics?"
+- Claude's proposal (12): an "acceleration" entry for v36 and v37 - any
+  scanner name; 2-3 green minutes, each closing in its top third and
+  higher; volume rising, the last >= 2x the one before and >= 3x normal;
+  the owner's speed >= 0.15 on >= $250k in the minute; buy the first
+  fresh print over the last candle's high (SXTC ~$2.46 at 8:16:00); size
+  1x/2x/3x the starter at speed 0.15/0.2/0.3; once up 30%+ sell on giving
+  back a third of the gain. Replay on all days incl. 10-07 at several
+  thresholds, counting the accelerations that fail, before deciding.
+
 ## 2026-10-06
 
 ### v24 replayed with its holes fixed (10-07 ~1am; replay/research/v24sim.py)
