@@ -1,12 +1,23 @@
 # Where things stand
 
-Updated 2026-10-07, 12:00pm ET.
+Updated 2026-10-07, 12:10pm ET.
 
 ## Code
 - Working branch: `claude/zealous-ramanujan-br3gay`. New work goes here;
   nothing goes to `main` without the owner's OK.
-- Live on `main` (Render): VERSION v31-r34.20 (pushed 11:57:59am ET 10-07,
-  the owner's "Push r34.20 when flat"): the big moves - v37 fast buys from the
+- Live on `main` (Render): VERSION v31-r34.21 (pushed 12:04:59pm ET 10-07,
+  the owner's "Push r34.21 when flat"; flat at 12:03:51; engine up 12:05:45):
+  v37 keeps trying on FURIOUS movers only (keeps_trying = V37_KEEP_TRYING and
+  speeding): one order a try at the ask + 20c (30c from $10), no price cap and
+  no time limit, every print over the old high tries again, paced 0.5s a
+  symbol (V37_RETRY_GAP) and 35 orders a minute an account (ORDER_BUDGET).
+  Every other fast buy keeps the 20% safety net and the 6-second, 12-try loop
+  (the owner: "only for furious movers... the rest keep it, a nice safety
+  net"). The 7-day replay is unchanged by this (+$28,133 / +$16,539): 1-minute
+  bars cannot show a 5-second chase - only live trading will. Worktree
+  release17.
+- r34.20 (11:58am) (pushed 11:57:59am ET 10-07, the owner's "Push r34.20 when flat"):
+  the big moves - v37 fast buys from the
   breakout level (V37_ACCEL_FROM_HIGH) at the ask + 20c (30c from $10), retried
   for 6s within a 20% net (V37_SWEEP*), sized on the likely fill; a fast buy's
   premarket exit is a limit 10% under the bid (SELL_DEEP); trend checks with
@@ -17,9 +28,6 @@ Updated 2026-10-07, 12:00pm ET.
   the r34.18 bug fixed (V37_HOD_CLEAR measured from the closed-candle high -
   v37 could not buy since 10:29); an add needs a NEW high that holds 2s (r34.19
   added on the way down, DKI 11:36); a sizing crash fixed. Worktree release16.
-- Next (the owner, ~12pm): fast buys keep trying - no 20% cap, no 6-second
-  limit - every print still furious and over the old high fires another try,
-  paced under Alpaca's ~200 requests a minute. To build as r34.21.
 - Open for the owner: v36's uncapped stop (16.6% on DKI 11:37, -$71).
 - r34.19 (10:56am): (pushed 10:55:42am ET 10-07 on
   the owner's standing instruction - agreed fixes go in at the next flat

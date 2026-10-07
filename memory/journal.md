@@ -5,6 +5,23 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-07
 
+### r34.21 live: keep trying on furious movers only (12:05pm)
+- The owner (~12pm): a fast buy must not stop at 20% over the breakout or
+  after 6 seconds - "the market can stay irrational" - keep trying; then:
+  remove the cap "only for furious movers... the rest maybe we should keep
+  it because it's a nice safety net". Decision.
+- Built (66bcb73), released as r34.21 (the owner's "Push r34.21 when flat",
+  pushed 12:04:59, engine up 12:05:45): when the owner's speed says furious,
+  each try is one limit at the ask + 20c (30c from $10), no price cap, no
+  time limit, the next furious print over the old high tries again, paced
+  0.5s a symbol and 35 orders a minute an account. Every other fast buy keeps
+  the 20% net and the 6s/12-try loop.
+- The 7-day replay is the same with or without it (v37 +$28,133 at fills
+  0.2% worse, +$16,539 at 1% worse): 1-minute bars cannot show a 5-second
+  chase. Almost all of the big-move gain is one replay trade (MI 10-05,
+  +$10,048), and the replay's fills are kinder than live. Live results
+  will tell.
+
 ### Furious moves: one order to the ceiling (~12:00pm)
 - The owner: in a move like BIYA 8:20 the bot should act within a second
   and re-price every ~50 ms. Told: Alpaca takes about 200 requests a minute,
