@@ -1,11 +1,22 @@
 # Where things stand
 
-Updated 2026-10-07, 10:20am ET.
+Updated 2026-10-07, 10:30am ET.
 
 ## Code
 - Working branch: `claude/zealous-ramanujan-br3gay`. New work goes here;
   nothing goes to `main` without the owner's OK.
-- Live on `main` (Render): VERSION v31-r34.17 (pushed 10:15:54am ET 10-07
+- Live on `main` (Render): VERSION v31-r34.18 (pushed 10:28:34am ET 10-07,
+  the owner's choice "Push r34.18 when flat", flat from 10:25:42): v37 needs
+  the price over the old high by 2c or 0.5% (V37_HOD_CLEAR); a buy never
+  reloads once the ask falls back to the old high (buy(floor=)); a fast buy
+  needs the owner's speed >= ACCEL_SPEED and the 60/40 tape (WETO 9:52).
+  Release worktree: scratchpad release13.
+- Proposed to the owner (10:30, not decided): one gate of never-rules every
+  buy passes whatever its route; a rule checklist logged with every buy
+  and an automatic hourly/nightly audit; record prints and quotes so the
+  replay sees seconds; fewer, slower releases; simplify to one entry
+  pattern and one exit.
+- r34.17 (10:16am): (pushed 10:15:54am ET 10-07
   at the owner's OK - "Push r34.17 now" - all three flat at 10:14:54): the
   exit. 9:30-4:00 every sell goes out at market (SELL_MARKET_RTH; a refused
   market order falls back to a limit); a sell never goes out on top of our
