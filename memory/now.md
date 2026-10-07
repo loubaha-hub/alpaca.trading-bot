@@ -1,11 +1,21 @@
 # Where things stand
 
-Updated 2026-10-07, 2:15pm ET.
+Updated 2026-10-07, 2:20pm ET.
 
 ## Code
 - Working branch: `claude/zealous-ramanujan-br3gay`. New work goes here;
   nothing goes to `main` without the owner's OK.
-- Live on `main` (Render): VERSION v31-r34.26 (pushed 2:11:19pm ET 10-07 on
+- Live on `main` (Render): VERSION v31-r34.27 (pushed 2:17:50pm ET 10-07 on
+  the owner's "Push r34.27 now"; all three flat at the broker): a sale that
+  finds the broker holding none closes the position here, nothing booked.
+  CPHI 2:11-2:17pm: during the r34.26 deploy the OLD process bought CPHI
+  furiously (v36 3,552 @ $1.0654, v36b 1,487 @ $1.06; both sold, -$259 /
+  -$70); the new process had adopted v36's CPHI 2s before the old one sold
+  it, then tried to sell 0 shares on every print - v36's tick queue filled
+  (19,999) and dropped ticks until r34.27. DEPLOY OVERLAP IS REAL: the old
+  process keeps trading ~20-45s after the new one starts (1:56, 2:07, 2:11).
+  Option D (no buys for 60s after a start) not chosen yet - raise again.
+- r34.26 (2:12pm) (pushed 2:11:19pm ET 10-07 on
   the owner's choice "A"; flat at 2:10:28): v36/v36b furious buys use v37's
   fast buy (V36_FURIOUS_SWEEP, entry_buy) - one order at the ask + 20c (30c
   from $10), filled or dropped in 0.5s, the next furious print tries again

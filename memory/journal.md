@@ -5,6 +5,15 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-07
 
+### CPHI 2:11pm: the deploy overlap, a stuck v36 - r34.27 (2:18pm)
+- Flat when r34.26 was pushed (2:10:28), but the old process kept trading
+  during the ~45s build/switch: it bought CPHI furiously for v36 and v36b and
+  sold both (-$259, -$70). The new process adopted v36's CPHI 2s before the old
+  one sold it, then looped selling 0 shares; v36's tick queue filled and
+  dropped ticks. r34.27 (the owner's "Push r34.27 now"): a sale that finds
+  nothing held closes the position. Day at 2:17pm: v36 -7.3% ($489 above its
+  halt), v36b -5.3%, v37 -2.0%.
+
 ### Furious churn on SXTC; r34.25 and r34.26 (2:00-2:15pm)
 - The owner: 9:30-4 every sell at market, as fast as possible ("those round
   trips of 2-3 seconds, 13 seconds back and forth, no good"); "cancelling and
