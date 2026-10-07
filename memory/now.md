@@ -83,6 +83,9 @@ Updated 2026-10-07, 7:20am ET.
   6. v37: the ripping exception never overrides the red-candle no-buy.
   7. v36 + v36b: a red "pullback" under the green's open on heavy volume
      is a failed rip - no buy (SPAI 8:09).
+  8. v36 + v36b: re-entries (2nd buy on) only above the high of the day
+     + 5c (built, off - V36_SETUP_BUYS/V36_HOD_PLUS; retest).
+  9. v36 + v36b: re-entries need real speed (price up on volume).
   Then the owner decides; release only with the OK, flat or after 8pm.
 - End of day: v36 vs v36b by % of account; v37's exits vs what each stock
   did 5/15/30 min later.

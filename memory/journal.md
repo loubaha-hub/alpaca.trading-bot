@@ -53,6 +53,16 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   The owner: "this one shouldn't have bought it". To build: a red candle
   that falls under the green's open (erases the rip) on heavy volume = a
   failed rip, no buy; the pullback must be light and hold the rip.
+- SPAI 8:12-8:13am: v36 added @ $5.08 (at the $5.00 level), stopped 2s
+  later (-$14.23); both v36s re-entered 8:13:37 @ ~$4.99 (buy 2) after an
+  8:12 red ($5.00 -> $5.10 high -> $4.89, 274k vs the green's 236k) -
+  under the high of the day ($5.10), at $5.00, no speed check. The owner:
+  a re-entry must go past the high of the day; it bought on a red candle;
+  speed not respected; small candles, everything coming down - "quite a
+  few things broken". The HOD rule for later buys is built (V36_SETUP_BUYS
+  / V36_HOD_PLUS) but OFF since 10-06 (the owner kept v36 simple; replay
+  said it hurt). To retest with today's live cases: (8) re-entries only
+  above the HOD + 5c; (9) re-entries need real speed (price up on volume).
 
 ## 2026-10-06
 
