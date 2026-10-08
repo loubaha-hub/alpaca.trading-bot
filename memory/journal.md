@@ -34,6 +34,23 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   within 3c of a line -$321, 5c -$320, 10c -$175 (FLYE 7:25 at $2.91 never
   crossed $3.05 in the data: -$233 skipped) vs tiers alone -$273.
 
+### The owner's ladder ON TOP of the cents cut (the owner's correction, ~8:20pm)
+- The owner: the tiers are an add-on to the 5c (or 4c) cut, not an
+  alternative: the cut first ("5 introductory cents ... below 10c"), then
+  never under the buy up to +20c, half the gain kept 20-50c, two thirds
+  50c-$1, all but a fifth above $1. (My "tiers" row was already this with
+  the cut until +5c; now also tested until +10c and with 4c:
+  secsim.cut_then_tiers.)
+- Trades with no adds, 3 days: v36 50: cut alone 5c -$692 / 4c -$581;
+  ladder from +10c -$761 / -$750. v36b 59: -$391 / -$248 vs -$420 / -$311.
+  v37 114: -$1,329 / -$1,063 vs -$1,368 / -$1,105. On the runners: the
+  same within $15 for every bot.
+- Why: the best gain each trade reached before it was sold (5c, ladder
+  from +10c): 174 of 223 never got 5c above the buy; 12 reached 10-20c; 4
+  reached 20-50c; none 50c+. The ladder's upper steps almost never come into
+  play - the runners shake out in the first cents. (10-08's FLYE 7:22 and
+  DKI 6:54, missing from the data, are two that did run.)
+
 ### The three-day test, second by second (findings, ~8pm 10-08; the owner decides)
 - Data: SEC_DUMP read 6:03-7:29pm, 76 windows, none lost at the source.
   Fetched 72 (69 whole); missing: 10-08 DKI (3 windows), CRE, FLYE's first

@@ -113,6 +113,25 @@ def tiers(lead=0.05, k=1.0, top="fifth"):
     return line
 
 
+def cut_then_tiers(intro=0.05, until=0.10):
+    """The owner's ladder on top of the cents cut: `intro` under the best until
+    the gain reaches `until`; then never under the buy price up to +20c, half
+    the gain kept from +20c, two thirds from +50c, all but a fifth from +$1.
+    The line never comes down (run() keeps the highest)."""
+    def line(fill, best):
+        g = best - fill
+        if g < until - 1e-9:
+            return best - intro
+        if g < 0.20:
+            return fill
+        if g < 0.50:
+            return fill + g / 2
+        if g < 1.00:
+            return fill + g * 2 / 3
+        return best - g / 5
+    return line
+
+
 def furious(even_at=0.30, back=0.30):
     """v36's furious exit: nothing until up 30c, then the buy price or 30% of
     the gain back, whichever is higher."""
