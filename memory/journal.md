@@ -5,6 +5,24 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-08
 
+### r34.30 live (pushed 1:26:03pm, all three flat): no limit on buys of a stock a day
+- The owner (decision, ~1:20pm): "they can go there as many times as
+  possible... we cannot limit the number of entries for the day" - removed
+  from all strategies, released at once. V36_MAX_ENTRIES 6 -> 0 (v36, v36b);
+  v37's has been 0 since 10-06. The owner had believed it was gone: on 10-06
+  only v37's limit was removed; 10-07 added only the leader exception.
+- Why: FLYE 7:22-7:25 spent v36's six buys (four whipsaws), then "NO: 6 buys
+  today" every minute 7:26-7:40 while the #1 name ran $2.23 -> $3.60; the
+  leader exception needs a new high over the closed minutes' high ($3.09,
+  the 7:25 spike), which FLYE did not clear until 7:40.
+- The owner on the numbers: win rates and averages per ENTRY (32 / 35 / 19
+  today), added up over days before judging a rule. v36 today: 37.5% won,
+  average win $210 vs loss $112 - "starting to act like something good";
+  its +$289 rests on FLYE +$733 and DKI +$631.
+- v36's drawdown from +9.2% (8:00am) to +1.8%: CHR 8:02 -$348 (up 14c, not
+  protected), BIAF 8:06 -$382 and KAPA 9:34 -$225 (both now blocked by
+  r34.29), BIAF 8:09 -$134, KAPA 9:37 -$63, the rest -$70.
+
 ### r34.29 live (pushed 1:08:58pm, all three flat): two fast-buy checks
 - The owner's decisions (~9:15am, released "at the next flat moment"):
   - no fast buy (v36/v36b furious, v37 accelerating) unless the price is

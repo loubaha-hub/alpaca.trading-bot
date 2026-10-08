@@ -1,14 +1,16 @@
 # Where things stand
 
-Updated 2026-10-08, ~1:15pm ET.
+Updated 2026-10-08, ~1:30pm ET.
 
 ## Now (10-08)
 - Working branch: `claude/happy-ride-o56nlz` (this session). The memory
   files came over from `claude/zealous-ramanujan-br3gay`. Nothing goes to
   `main` without the owner's OK; a push to `main` restarts the bot.
-- Live: **VERSION v31-r34.29** (pushed 1:08:58pm, all three flat): no fast
-  buy unless the price is up over the last 5 seconds; no fast buy when the
-  ask is more than 10c over the bid. Everything else as r34.28.
+- Live: **VERSION v31-r34.30** (pushed 1:26:03pm, all three flat): no limit
+  on buys of a stock a day (v36, v36b; v37 had none). r34.29 (1:08:58pm): no
+  fast buy unless the price is up over the last 5 seconds; no fast buy when
+  the ask is more than 10c over the bid. Everything else as r34.28.
+- Judge rules per entry, added up over days (the owner, 10-08).
 - The owner chose at ~3:40am: v36, v36b and v37 on the full schedule
   (4am-8pm), not premarket only.
 - The day at 1:05pm: v36 +$288, v36b -$326 ($312 above its halt), v37 -$743.
