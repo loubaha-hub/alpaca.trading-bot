@@ -5,6 +5,24 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-08
 
+### r34.32 live (pushed 3:25:13pm, flat): a one-off read of v37's trades, print by print
+- The owner: the 1-minute replay "gives a sense of false hope" - it cannot
+  judge rules that act in seconds (v37's exits; replay 69% won vs live 0/19).
+  The 8-day v37 replay: re-buy 10c/20c and fix 3 made no difference; arming
+  "half the gain" at 5/10/15c lowered the replay's P/L step by step - but the
+  replay never shows the 1c flicker. Minute bars on today's 15 trades could
+  not reproduce the live 1c result (-$993..+$457 vs -$249), so no verdict.
+- Decision: v37 unchanged live (20c re-buy, half the gain from 1c); the
+  10c-under-$2 re-buy built OFF on the branch; fix 3 built OFF.
+- The owner asked for an exact test on today's data: TICK_DUMP (read-only, at
+  start-up) read every trade and bid/ask change in 12 windows around v37's 19
+  trades - 353k trades, 47k quotes, logged as TICKDUMP lines 3:26pm. A tick
+  replay (scratchpad tick/tickreplay.py) runs them through V37's own exit
+  code at 1-5c arming, selling at the real bid 0.5s after the decision.
+- Ways to get second-by-second data from now on: the recorder (proposed), or
+  a read-only data key in the environment (POLYGON_API_KEY or
+  ALPACA_DATA_KEY_ID / ALPACA_DATA_SECRET) for past days.
+
 ### r34.31 live (pushed 2:17:50pm, all three flat); a standing rule
 - The owner (decision): v37 buys back within 60s of a sale only once the
   price is 20c over it - not 30c, and no 10% ("just 20 cents higher").
