@@ -80,6 +80,7 @@ def main():
         live, missing, n = [], 0, 0
         per_day = defaultdict(lambda: defaultdict(float))
         runners = []                           # (entry, the move after it, P/L by rule)
+        solo = defaultdict(float); solo_n = [0, 0]   # trades with no adds: live vs rules, like for like
         for day in sorted(rts[bot]):
             done_windows = set()
             for rt in rts[bot][day]:
@@ -106,6 +107,12 @@ def main():
                     res[c].extend(x[0] for x in r)
                     per_day[day][c] += sum(x[0] for x in r)
                     got[c] = sum(x[0] for x in r)
+                adds = [b for b in rt["buys"] if S.ts(day, b[0]) - t0 > ENTRY_SECONDS]
+                if not adds and not rebuy:
+                    solo_n[0] += 1; solo_n[1] += rt["pl"] > 0
+                    solo["live"] += rt["pl"]
+                    for c in combos:
+                        solo[c] += got[c]
                 if move >= 0.50 or move >= 0.20 * px:
                     runners.append((day, rt["open"], rt["sym"], px, sh, move, rt["pl"], got))
         print("\n=== %s: %d entries%s (%d without data) - live %+.2f, %d won ===" % (
@@ -121,6 +128,10 @@ def main():
         print("  %-23s %+10.2f %8d %6d %+9.2f   %s" % (
             "live", sum(live), len(live), sum(x > 0 for x in live), sum(live) / max(1, len(live)),
             "  ".join("%+9.2f" % per_day[d]["live"] for d in sorted(per_day))))
+        if solo_n[0]:
+            print("  LIKE FOR LIKE - the %d trades with no adds (live won %d): live %+.2f | %s" % (
+                solo_n[0], solo_n[1], solo["live"], " | ".join("%s %s %+.2f" % (c[0], c[1], solo[c]) for c in combos
+                                                         if c[0] in ("10c", "3%"))))
         show = [("10c", "5c cut"), ("10c", "tiers"), ("10c", "furious 30c/30%"), ("3%", "furious 30c/30%"), ("15c", "tiers 10c lead")]
         print("  RUNNERS (up 50c or 20%% after the buy, within the window): %d entries; the move x shares = $%.0f" % (
             len(runners), sum(r[5] * r[4] for r in runners)))

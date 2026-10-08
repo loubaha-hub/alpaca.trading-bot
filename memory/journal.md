@@ -34,6 +34,45 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   within 3c of a line -$321, 5c -$320, 10c -$175 (FLYE 7:25 at $2.91 never
   crossed $3.05 in the data: -$233 skipped) vs tiers alone -$273.
 
+### The three-day test, second by second (findings, ~8pm 10-08; the owner decides)
+- Data: SEC_DUMP read 6:03-7:29pm, 76 windows, none lost at the source.
+  Fetched 72 (69 whole); missing: 10-08 DKI (3 windows), CRE, FLYE's first
+  minutes (7:17-), part of VCIG 10-06 and CPHI 10-07 - the session's safety
+  check blocked saving some log pages (base64 read as "credentials").
+  Saved: replay/live/2026-10-08_secdump/ (windows/, roundtrips.json).
+- Live, from the accounts' fills (corrected - a dedupe bug of mine dropped
+  same-second fills): v36 94 trades -$1,718; v36b 86 -$1,032; v37 141
+  -$1,790.
+- Tool: replay/research/secsim.py (+ secsim_run.py, secsim_check.py);
+  checked against the bot's own v37 code on 10-08: 5c -$260/-$297 vs -$290,
+  10c -$637/-$661 vs -$632. Like for like = trades with no adds.
+- Trades with no adds, 3 days (stop 10c under the buy):
+  v36 (50): live -$1,550 | 4c cut -$581 | 5c -$692 | half from 2c -$767 |
+    tiers -$1,097 | 10c cut -$1,724 | furious 30c/30% alone -$3,095.
+  v36b (59): live -$964 | 4c -$248 | half any -$268 | 5c -$391 | tiers -$575.
+  v37 (114): live -$995 | 4c -$1,063 | 3c -$1,108 | half any -$1,181 |
+    5c -$1,329 | tiers -$1,595 | 10c -$2,327. By day v37 5c vs live: 10-06
+    -$707 vs -$315 (92 trades; live then "half from any fraction"), 10-07
+    -$504 vs -$368, 10-08 -$118 vs -$312.
+- So: v36/v36b - a quick cut (4-6c, or half the gain) about halves their
+  losses against their live exits on 10-07 and 10-08 alike. v37 - no exit
+  beats what it did live over the three days; the 5c cut won 10-08 only.
+  Tiers never beat the plain 5c cut (the 5-20c "back to the buy" zone
+  gives the small gains back). 10c is worse than 5c for all three.
+- v36's 10c stop vs v36b's 3%: with quick cuts no difference; with slow
+  exits 3% did better on both bots' trades - but 10-08's FLYE and DKI (where
+  10c won) are in the missing data. Not settled.
+- Runners (the stock 50c+ or 20%+ higher within 30 min of the buy): every
+  rule lost on them - v37 56 trades, the whole move worth $15,370: live
+  -$759, 5c -$643, tiers -$687, v36's furious 30c/30% -$112, a 10c stop
+  and nothing else -$1,157. They fall through any leash first, then run.
+- Buying back over the day's high + 5c (ask 1s later), same stretches:
+  v36 5c -$567 -> -$905 (43 -> 78 buys); v36b -$199 -> -$318; v37 -$756 ->
+  -$899. The buy-backs lose too.
+- Reading: the exits are not where the money is lost; the entries are -
+  bought at the top of one-second bursts. Next: the entry (e.g. buy the
+  hold after the burst, not the burst), on this data.
+
 ### r34.35 released 6:02pm 10-08 (the owner: "push")
 - The owner (~6pm): stop all three for tonight ("flatten them; we'll start
   them later") and get the three-day data now. All three were flat (no

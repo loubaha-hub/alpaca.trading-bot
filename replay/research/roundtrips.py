@@ -10,19 +10,19 @@ HIST = re.compile(r"\[(\w+)\] history (\d{4}-\d\d-\d\d) #\d+: (.*)$")
 
 def fills(path):
     out = defaultdict(list)                      # (bot, day) -> [(hms, side, sym, q, px)]
-    seen = set()
-    for line in open(path, encoding="utf-8"):
-        m = HIST.search(line.rstrip("\n"))
+    seen = set()                                 # a whole line seen twice (a restart wrote it
+    for line in open(path, encoding="utf-8"):    # again) counts once; two equal fills in one
+        m = HIST.search(line.rstrip("\n"))       # second on one line are two orders
         if not m:
             continue
         bot, day, rows = m.groups()
+        key = (bot, day, line[line.find("#"):].strip())
+        if key in seen:
+            continue
+        seen.add(key)
         for r in rows.split("; "):
             t, side, sym, qp = r.split(" ")
             q, px = qp.split("@")
-            key = (bot, day, t, side, sym, q, px)
-            if key in seen:
-                continue
-            seen.add(key)
             out[(bot, day)].append((t, side, sym, float(q), float(px)))
     return out
 

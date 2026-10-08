@@ -61,7 +61,11 @@ def main(src, out):
             if not p or len(p) != next(iter(p.values()))[0]:
                 missing.append(off)
                 continue
-            blob = json.loads(zlib.decompress(base64.b64decode("".join(p[k][1] for k in sorted(p)))))
+            try:
+                blob = json.loads(zlib.decompress(base64.b64decode("".join(p[k][1] for k in sorted(p)))))
+            except Exception:
+                missing.append(off)               # a piece that does not decode: left out
+                continue
             T += blob["T"]; Q += blob["Q"]; S += blob["S"]
         rec = dict(day=day, sym=sym, start=start, end=end, buys=buys, T=T, Q=Q, S=S, missing=missing)
         path = os.path.join(out, f"{day}_{sym}_{a.replace(':', '')}.json.gz")

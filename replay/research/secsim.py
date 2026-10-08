@@ -39,6 +39,12 @@ class Path:
     def __init__(self, rec):
         self.day, self.sym, self.start = rec["day"], rec["sym"], rec["start"]
         self.end = rec["end"]
+        if rec.get("missing"):                    # a gap in the read: the path ends there
+            self.end = min(self.end, self.start + min(rec["missing"]))
+            cut = min(rec["missing"])
+            rec = dict(rec, T=[r for r in rec["T"] if r[0] < cut * 1000],
+                       Q=[r for r in rec["Q"] if r[0] < cut * 1000],
+                       S=[r for r in rec["S"] if r[0] < cut])
         a = self.start
         tick_secs = {int(r[0] // 1000) for r in rec["T"]}
         ev = []
@@ -169,7 +175,8 @@ def load_windows(d):
 
 def path_for(windows, paths, day, sym, t):
     for rec in windows.get((day, sym), []):
-        if rec["start"] <= t <= rec["end"]:
+        end = rec["start"] + min(rec["missing"]) if rec.get("missing") else rec["end"]
+        if rec["start"] <= t <= end - 60:      # at least a minute of data after the buy
             key = (day, sym, rec["start"])
             if key not in paths:
                 paths[key] = Path(rec)
