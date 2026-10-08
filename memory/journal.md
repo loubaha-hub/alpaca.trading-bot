@@ -34,6 +34,21 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   within 3c of a line -$321, 5c -$320, 10c -$175 (FLYE 7:25 at $2.91 never
   crossed $3.05 in the data: -$233 skipped) vs tiers alone -$273.
 
+### r34.35 released 6:02pm 10-08 (the owner: "push")
+- The owner (~6pm): stop all three for tonight ("flatten them; we'll start
+  them later") and get the three-day data now. All three were flat (no
+  positions since 4:53pm). main a8cc776 -> 6eec247: r34.33's 5c cut for
+  v37, r34.34's read (SEC_DUMP), NO_BUYS_FROM 10-08 from 6pm. 644 tests.
+- The first push was held by the session's safety check until the owner
+  said "push" - a push to main is a production deploy; it needs the owner's
+  word in the chat.
+- Day's end (5:45pm): v36 +$191 (+1.16%), v36b -$356 (-5.58%), v37 -$744
+  (-5.22%).
+- v37 on 10-08's 19 trades, 10c cut vs 5c: -$632 (1 won) vs -$290 (3 won).
+- The owner: v36b's re-buys did happen (FLYE 8 buys) - each one higher, at
+  a burst's top, with the same ~6c stop: out again in 1-2s. Getting back on
+  cannot make up for a stop narrower than the stock's normal swing.
+
 ### v36 vs v36b on 10-08 (finding, ~6pm; the owner decides)
 - The day at 5:45pm: v36 +$191 (+1.16%, $16,681); v36b -$356 (-5.58%,
   $6,028); v37 -$744 (-5.22%). v36b = v36 + three settings: the first stop

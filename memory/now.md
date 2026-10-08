@@ -1,6 +1,6 @@
 # Where things stand
 
-Updated 2026-10-08, ~5pm ET.
+Updated 2026-10-08, ~6:05pm ET.
 
 ## Now (10-08)
 - Working branch: `claude/happy-ride-o56nlz` (this session). The memory
@@ -13,12 +13,19 @@ Updated 2026-10-08, ~5pm ET.
   fast buy unless the price is up over the last 5 seconds; no fast buy when
   the ask is more than 10c over the bid. Everything else as r34.28.
 - Judge rules per entry, added up over days (the owner, 10-08).
-- **Waiting for after 8pm 10-08: r34.34** (branch ee85d84) = r34.33 + the
-  read-only SEC_DUMP of 10-06/07/08 (every buy of the three, 30 minutes,
-  second by second). Then fetch the SECDUMP lines from Render, run
-  replay/research/secread.py, test the tiers / 5c cut / re-entries / line
-  rules for all three bots; then v36 vs v36b (the owner's next question).
-- r34.33 (branch c08b67b) - v37 sells 5c
+- **Released 6:02pm 10-08 (the owner: "push"): r34.35** (main 6eec247) =
+  r34.33 (v37 sells 5c under its best since the buy, in place of half the
+  gain; TICK_DUMP off) + r34.34 (SEC_DUMP: read-only, every buy of the three
+  on 10-06/07/08, one row a second from 5 min before to 30 min after, every
+  print for the first minute) + NO_BUYS_FROM 10-08 18:00 (the owner:
+  "flatten them; we'll start them later" - no buys tonight; 10-09 trades as
+  usual from 4am). All three were flat. Next: fetch the SECDUMP lines from
+  Render, replay/research/secread.py, then test for all three bots on all
+  three days, per entry: the tiers, the 5c and 10c cuts, re-entries, the
+  line rules, v36 vs v36b (v36b's 3% first stop vs the furious 10c). The
+  NEXT release must set SEC_DUMP_DAYS = () and NO_BUYS_FROM = () - else the
+  read runs again at every restart.
+- (history) r34.33 (branch c08b67b) - v37 sells 5c
   under its best since the buy, in place of half the gain (a trial); the
   one-off TICK_DUMP off. Built off on the branch, not chosen: the 10c-under-$2
   re-buy, fix 3 (gain from the bid), V37_TRAIL_KEEPS_HALF.
