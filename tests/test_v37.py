@@ -34,6 +34,8 @@ def v37(broker, data, clock, now, monkeypatch):
                                                           # the halt rule is tested below
     monkeypatch.setattr(bot, "FAST_BUY_5S_UP", False)     # the fast-buy checks:
     monkeypatch.setattr(bot, "FAST_BUY_MAX_SPREAD", 0.0)  # tested on their own below
+    monkeypatch.setattr(bot, "V37_TRAIL_CENTS", 0.0)      # the 5c cut: its own tests;
+                                                          # "half the gain" tested as before
     strat = bot.V37(broker, data)
     strat.day_start_equity = broker.eq
     return strat
@@ -1844,8 +1846,20 @@ def test_trail_cents_sells_3c_under_the_best(v37, clock, now, monkeypatch):
     assert not s.in_position and v37.closed_today[-1][5] == "trail"
 
 
-def test_trail_cents_off_as_today(v37):
-    assert bot.V37_TRAIL_CENTS == 0.0
+def test_live_v37_sells_5c_under_its_best():
+    """The owner, 10-08: the trial - out 5c under the best since the buy."""
+    assert bot.V37_TRAIL_CENTS == 0.05 and bot.V37_TRAIL_KEEPS_HALF is False
+
+
+def test_5c_cut_never_up_sells_5c_under_the_buy(v37, clock, now, monkeypatch):
+    monkeypatch.setattr(bot, "V37_TRAIL_CENTS", 0.05)
+    s = bought(v37, clock, now)
+    e = s.entry
+    s.stop = round(e - 0.20, 2)                           # the stop further away
+    tick(v37, s, now, round(e - 0.04, 2))                 # 4c under: held
+    assert s.in_position
+    tick(v37, s, now, round(e - 0.05, 2))                 # 5c under the buy: out
+    assert not s.in_position and v37.closed_today[-1][5] == "trail"
 
 
 def test_trail_beside_half_the_gain(v37, clock, now, monkeypatch):

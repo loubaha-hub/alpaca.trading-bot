@@ -142,7 +142,7 @@ RISK_CHECK_SECONDS = 5                      # the halt runs on a CLOCK, not tick
 # The file name and this string are changed together, every single time. The
 # log then answers "which code is actually running?" without anyone guessing
 # from line numbers or from behaviour that only shows up once a trade is on.
-VERSION = "v31-r34.32"
+VERSION = "v31-r34.33"
 
 # WHERE THE DAY'S HALT BASELINE COMES FROM.
 #   "last_equity" - equity at the PREVIOUS session's close, read from the broker.
@@ -4212,7 +4212,10 @@ V36_FURIOUS_ALL = True          # furious: EVERY entry check set aside - the lev
                                 # wick, the re-entry speed, the score, the 5% over the
                                 # trigger, and no candle pattern needed (a new high over
                                 # the last minute is the trigger). The never-rules stay:
-                                # hours, 9:29-9:31, the quote backing the trigger, the
+                                # hours, 9:29-9:31, the scanner's list and price band, the
+                                # float, the quote backing the trigger (and no buy once the
+                                # ask is back at the old high), the last candle not red,
+                                # FAST_BUY_5S_UP and FAST_BUY_MAX_SPREAD (r34.29), the
                                 # account and position caps, the day's loss halt
 FAST_BUY_5S_UP = True           # a fast buy - v36/v36b furious, v37 accelerating - goes
                                 # out only while the price is higher than 5 seconds ago
@@ -4285,12 +4288,8 @@ HISTORY_DUMP = ()               # read 10-07 (r34.14); off
 # before each buy to minutes after, so its exit can be replayed print by print.
 # No orders, no trading state touched. () = off.
 TICK_DUMP_DAY = "2026-10-08"
-TICK_DUMP = (("AIXI", "04:02:00", "04:08:00"), ("IPW", "04:09:48", "04:16:00"),
-             ("DKI", "04:13:08", "04:22:00"), ("DKI", "05:00:17", "05:06:00"),
-             ("SBFM", "05:20:47", "05:28:00"), ("MEDS", "05:43:21", "05:49:00"),
-             ("DKI", "06:57:06", "07:03:00"), ("MOBX", "07:01:19", "07:07:00"),
-             ("FLYE", "07:23:00", "07:31:00"), ("CHR", "08:01:49", "08:07:00"),
-             ("BIAF", "08:09:11", "08:15:00"), ("NCT", "11:46:10", "11:52:00"))
+TICK_DUMP = ()                  # read once by r34.32 (10-08 3:26pm); saved in
+                                # replay/live/2026-10-08_ticks/tickdump_v37.txt.gz
 TICK_DUMP_CHARS = 3500          # characters of rows in one log line
 HISTORY_PAGES = 40              # 500 orders a page
 HISTORY_PER_LINE = 25           # fills per log line
@@ -5448,9 +5447,13 @@ V37_GIVEBACK_ARM = 0.0          # "half the gain" only once the best gain reache
 # best price $4.81 - half a cent - sold one second later by "half the gain"
 # @ $4.69 while the stop ($4.59, under the red candle) was nowhere near; the
 # next candle closed $4.93. Half a cent is not a gain.
-V37_TRAIL_CENTS = 0.0           # PROPOSAL (the owner, 10-08, off until decided): in place
-                                # of "half the gain", out once the price is this many dollars
-                                # under its best since the buy (the stop stays under it)
+V37_TRAIL_CENTS = 0.05          # in place of "half the gain", out once the price is this
+                                # many dollars under its best since the buy - the price paid,
+                                # if it never rose; the stop stays under it (the owner, 10-08,
+                                # a trial on v37). 10-08's 19 v37 trades, print by print
+                                # (replay/research/tickreplay.py): half the gain from 1c
+                                # -$752 (live -$742); out 2c under the best -$664, 3c -$569,
+                                # 4c -$532, 5c -$290, 6c -$339, 8c -$471. 0 = off
 V37_TRAIL_KEEPS_HALF = False     # ...True: beside "half the gain", not in place of it
 V37_GIVEBACK_FROM_BID = False   # PROPOSAL (10-08, fix 3, off until the owner decides):
                                 # "half the gain" arms only once the live bid has been
