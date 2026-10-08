@@ -38,8 +38,11 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 - "The rules we are working under now, we'll keep those ... not moving the
   goalposts" - all that has been measured would stop counting. So: 4:00-9:30
   10% over yesterday's close; from 9:30 10% over today's open (unchanged).
-  The 4am-baseline idea below is dropped. The 2-minute crowd look-back is
-  still a question to the owner.
+  The 4am-baseline idea below is dropped.
+- And (~5:40pm): the 2-minute crowd wait stays as it is - no look-back.
+  Only a furious move throws it away, as the code already does (in_crowd:
+  speeding at 0.30 on real money; also a top-2 gainer with $1M, an
+  acceleration, a rip in the last 2 minutes - unchanged).
 
 ### The scanner's baseline and the 2-minute crowd wait (the owner, ~5:30pm; words sent, to confirm)
 - The owner: "fix right away" - a stock goes on the list when it is up 10%
