@@ -34,6 +34,24 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   within 3c of a line -$321, 5c -$320, 10c -$175 (FLYE 7:25 at $2.91 never
   crossed $3.05 in the data: -$233 skipped) vs tiers alone -$273.
 
+### v36 vs v36b on 10-08 (finding, ~6pm; the owner decides)
+- The day at 5:45pm: v36 +$191 (+1.16%, $16,681); v36b -$356 (-5.58%,
+  $6,028); v37 -$744 (-5.22%). v36b = v36 + three settings: the first stop
+  at most 3% under the trigger (MAX_STOP), no buy under a 60% top wick
+  (WICK_VETO), stops on fresh prints only (FRESH_EXITS). Sizes are % of
+  each account (25% for a furious buy), so compare in %.
+- Paired trade by trade (replay/research/v36_vs_v36b_1008.py): the whole
+  6.7-point gap is two stocks. FLYE 7:22-7:26 v36 +0.39%, v36b -4.33%; IPW
+  4:10 v36 +0.66%, v36b -1.57%. On $1.77-$1.80, 3% under the trigger is
+  ~6c - tighter than the owner's furious 10c - so v36b was stopped in 1-6
+  seconds (FLYE 7:22:53 out at $1.70 in 0.7s; v36 held to $2.21, +$733,
+  +4.45%), then bought again higher (FLYE 8 buys vs 7, IPW 3 vs 1). The
+  same tight stop saved v36b on stocks that fell at once: BIAF 8:06-8:09
+  +1.9 points, CHR +0.8.
+- 10-07: v36b lost less (-8.62% vs -9.45%). One day each way; the v36b
+  replay (09-28..10-06) was on 1-minute bars, blind to these seconds. To
+  judge on the three-day read, per entry.
+
 ### The owner on rules working against each other (~5:50pm)
 - "Some of the rules are working against each other, even though they are
   not completely contradictory ... as a human I would have said this takes
