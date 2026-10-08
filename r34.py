@@ -140,7 +140,7 @@ RISK_CHECK_SECONDS = 5                      # the halt runs on a CLOCK, not tick
 # The file name and this string are changed together, every single time. The
 # log then answers "which code is actually running?" without anyone guessing
 # from line numbers or from behaviour that only shows up once a trade is on.
-VERSION = "v31-r34.32"
+VERSION = "v31-r34.31"
 
 # WHERE THE DAY'S HALT BASELINE COMES FROM.
 #   "last_equity" - equity at the PREVIOUS session's close, read from the broker.
@@ -5574,7 +5574,9 @@ V37_EXTRAORDINARY = True
 # $2, 20 cents from $2 up.
 V37_REBUY_WAIT = 60.0
 V37_REBUY_JUMP = 0.20
-V37_REBUY_JUMP_CHEAP = 0.10
+V37_REBUY_JUMP_CHEAP = 0.0      # 10c under $2: built, OFF - the 1-minute replay showed
+                                # no difference on 8 days and cannot judge a seconds rule;
+                                # live stays at 20c (the owner, 10-08: judge on live data)
 V37_REBUY_CHEAP_UNDER = 2.00
 V37_REBUY_JUMP_PCT = 0.0
 V37_FRESH_EXITS = True          # sells, stops and adds decide only on prints under

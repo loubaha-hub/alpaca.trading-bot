@@ -734,6 +734,12 @@ def test_no_re_buy_within_a_minute_of_the_sale(v37, clock, now, rebuy_wait, monk
     assert sold > 0
 
 
+def test_live_the_jump_is_20_cents_at_any_price(v37, clock, now, rebuy_wait):
+    s = bought(v37, clock, now)
+    s.v37_sold_ts, s.v37_sold_px = now[0], 1.00
+    assert v37.too_soon(s, 1.19) and not v37.too_soon(s, 1.21)
+
+
 def test_a_20_cent_jump_buys_back_at_once(v37, clock, now, rebuy_wait, monkeypatch):
     """The owner, 10-08: 20 cents, not 30."""
     monkeypatch.setattr(v37, "fast", lambda s, p: True)
@@ -752,8 +758,10 @@ def test_a_20_cent_jump_buys_back_at_once(v37, clock, now, rebuy_wait, monkeypat
     (6.00, 6.19, 6.21),
 ])
 def test_the_jump_is_10_cents_under_2_dollars_and_20_from_2(v37, clock, now, rebuy_wait,
-                                                           sold, wait, buy):
-    """The owner, 10-08: no 10% - 10 cents under $2, 20 cents from $2 up."""
+                                                           monkeypatch, sold, wait, buy):
+    """The owner, 10-08: no 10% - 10 cents under $2, 20 cents from $2 up (built,
+    off until live data says so)."""
+    monkeypatch.setattr(bot, "V37_REBUY_JUMP_CHEAP", 0.10)
     s = bought(v37, clock, now)
     s.v37_sold_ts, s.v37_sold_px = now[0], sold
     assert v37.too_soon(s, wait) and not v37.too_soon(s, buy)
