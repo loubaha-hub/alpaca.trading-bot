@@ -1,0 +1,52 @@
+{"timestamp": "2026-10-08T13:33:28.175Z", "message": "2026-10-08 13:33:28,175 INFO ROSTER 4 names | in: KAPA 1.04 | out: -"}
+{"timestamp": "2026-10-08T13:34:48.031Z", "message": "2026-10-08 13:34:48,031 INFO [v36] FURIOUS KAPA at 1.1200: speed 0.48, 5s +0.0% on $36k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T13:34:48.044Z", "message": "2026-10-08 13:34:48,044 INFO [v36b] FURIOUS KAPA at 1.1200: speed 0.48, 5s +0.0% on $36k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T13:34:49.212Z", "message": "2026-10-08 13:34:49,212 INFO [v36] ENTER KAPA 3750 @ 1.1600 (print 1.1200) = $4350 (25% of equity) | stop 1.0304 (11.17% away) | new-high trigger 1.1000"}
+{"timestamp": "2026-10-08T13:34:49.212Z", "message": "2026-10-08 13:34:49,212 INFO [v36]   KAPA tape 60s: buy 53% sell 47% between 0% of 245,423 sh (0% by quote) | 5m: buy 54% sell 46% between 0% of 297,141 sh (0% by quote) (buying)"}
+{"timestamp": "2026-10-08T13:34:49.219Z", "message": "2026-10-08 13:34:49,219 INFO [v36] KAPA FULL POSITION 3750 shares at once (furious), buy 1 today - stop 1.0600, line $1.00"}
+{"timestamp": "2026-10-08T13:34:50.429Z", "message": "2026-10-08 13:34:50,429 INFO [v36] TAPE KAPA held -0.9% | tape 60s: buy 53% sell 46% between 1% of 251,871 sh (2% by quote) | 5m: buy 54% sell 45% between 1% of 303,589 sh (1% by quote)"}
+{"timestamp": "2026-10-08T13:34:51.540Z", "message": "2026-10-08 13:34:51,540 INFO [v36b] ENTER KAPA 1386 @ 1.1600 (print 1.1200) = $1608 (25% of equity) | stop 1.0864 (6.34% away) | new-high trigger 1.1000"}
+{"timestamp": "2026-10-08T13:34:51.541Z", "message": "2026-10-08 13:34:51,541 INFO [v36b]   KAPA tape 60s: buy 53% sell 46% between 1% of 255,326 sh (3% by quote) | 5m: buy 54% sell 45% between 1% of 307,755 sh (3% by quote) (buying)"}
+{"timestamp": "2026-10-08T13:34:51.541Z", "message": "2026-10-08 13:34:51,541 INFO [v36b] KAPA FULL POSITION 1386 shares at once (furious), buy 1 today - stop 1.0864, line $1.00"}
+{"timestamp": "2026-10-08T13:34:52.051Z", "message": "2026-10-08 13:34:52,051 INFO [v36b] IGNORED KAPA print 1.1120 - the market is 1.1400 x 1.1600 (decides nothing)"}
+{"timestamp": "2026-10-08T13:34:56.865Z", "message": "2026-10-08 13:34:56,865 INFO [v36b] TAPE KAPA held +0.5% | tape 60s: buy 50% sell 45% between 5% of 260,592 sh (9% by quote) | 5m: buy 53% sell 43% between 4% of 324,275 sh (8% by quote)"}
+{"timestamp": "2026-10-08T13:34:56.957Z", "message": "2026-10-08 13:34:56,957 INFO [v36] IGNORED KAPA print 1.1700 - the market is 1.1100 x 1.1400 (decides nothing)"}
+{"timestamp": "2026-10-08T13:34:58.239Z", "message": "2026-10-08 13:34:58,239 INFO [v37] IGNORED KAPA print 1.1700 - the market is 1.1100 x 1.1400 (decides nothing)"}
+{"timestamp": "2026-10-08T13:35:22.443Z", "message": "  KAPA       3750    1.1600    1.1200    1.0600    -150.00    -3.4%     0m"}
+{"timestamp": "2026-10-08T13:35:22.444Z", "message": "  KAPA       1386    1.1600    1.1200    1.0864     -55.44    -3.4%     0m"}
+{"timestamp": "2026-10-08T13:35:52.137Z", "message": "2026-10-08 13:35:52,137 INFO [v36] TAPE KAPA held -2.6% | tape 60s: buy 25% sell 20% between 55% of 245,387 sh (97% by quote) | 5m: buy 41% sell 33% between 26% of 557,334 sh (45% by quote)"}
+{"timestamp": "2026-10-08T13:35:57.225Z", "message": "2026-10-08 13:35:57,225 INFO [v36b] TAPE KAPA held -3.0% | tape 60s: buy 26% sell 21% between 54% of 229,226 sh (97% by quote) | 5m: buy 41% sell 34% between 26% of 565,585 sh (46% by quote)"}
+{"timestamp": "2026-10-08T13:36:14.648Z", "message": "2026-10-08 13:36:14,648 INFO [v36]   KAPA tape 60s: buy 25% sell 21% between 55% of 204,044 sh (96% by quote) | 5m: buy 39% sell 33% between 28% of 613,412 sh (50% by quote) (selling: 10s)"}
+{"timestamp": "2026-10-08T13:36:16.256Z", "message": "2026-10-08 13:36:16,256 INFO [v36b]   KAPA tape 60s: buy 25% sell 20% between 55% of 202,484 sh (96% by quote) | 5m: buy 39% sell 33% between 28% of 615,721 sh (51% by quote) (selling: 10s)"}
+{"timestamp": "2026-10-08T13:36:16.400Z", "message": "2026-10-08 13:36:16,400 INFO [v36] KAPA SELL 3750 at MARKET"}
+{"timestamp": "2026-10-08T13:36:16.513Z", "message": "2026-10-08 13:36:16,513 INFO [v36b] KAPA SELL 1386 at MARKET"}
+{"timestamp": "2026-10-08T13:36:17.443Z", "message": "2026-10-08 13:36:17,443 INFO [v36] EXIT 10s KAPA 3750 @ 1.1000 | trigger print 1.1100 x 100 cond [' '], 7.1s old | entry 1.1600 peak 1.1800 stop 1.0600 | held 88s | P/L -225.00 (-5.17% of the trade, -1.33% of the account)"}
+{"timestamp": "2026-10-08T13:36:26.348Z", "message": "2026-10-08 13:36:26,348 INFO [v36b] EXIT 10s KAPA 1386 @ 1.1000 | trigger print 1.1096 x 833 cond [' '], 1.9s old | entry 1.1600 peak 1.1600 stop 1.0864 | held 95s | P/L -83.16 (-5.17% of the trade, -1.33% of the account)"}
+{"timestamp": "2026-10-08T13:37:34.724Z", "message": "2026-10-08 13:37:34,724 INFO [v36] FURIOUS KAPA at 1.2000: speed 0.31, 5s +1.7% on $61k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T13:37:34.728Z", "message": "2026-10-08 13:37:34,728 INFO [v36b] FURIOUS KAPA at 1.2000: speed 0.31, 5s +1.7% on $61k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T13:37:36.304Z", "message": "2026-10-08 13:37:36,304 WARNING [v37] cancelled 1 working order(s) on KAPA"}
+{"timestamp": "2026-10-08T13:37:36.376Z", "message": "2026-10-08 13:37:36,376 INFO [v36] KAPA BUY SHORT - wanted 3454, got 488 at a limit up to inf: filled at up to 1.4200 (the ask + 0.20)"}
+{"timestamp": "2026-10-08T13:37:36.448Z", "message": "2026-10-08 13:37:36,448 INFO [v36] ENTER KAPA 488 @ 1.2400 (print 1.2000) = $605 (4% of equity) | stop 1.1040 (10.97% away) | new-high trigger 1.1800"}
+{"timestamp": "2026-10-08T13:37:36.449Z", "message": "2026-10-08 13:37:36,449 INFO [v36]   KAPA tape 60s: buy 39% sell 15% between 46% of 512,230 sh (100% by quote) | 5m: buy 39% sell 24% between 37% of 1,139,360 sh (75% by quote) (buying)"}
+{"timestamp": "2026-10-08T13:37:36.450Z", "message": "2026-10-08 13:37:36,450 INFO [v36] KAPA FULL POSITION 488 shares at once (furious), buy 2 today - stop 1.1400, line $1.00"}
+{"timestamp": "2026-10-08T13:37:36.450Z", "message": "2026-10-08 13:37:36,450 INFO [v36] IGNORED KAPA print 1.2000 - the market is 1.2300 x 1.2400 (decides nothing)"}
+{"timestamp": "2026-10-08T13:37:37.026Z", "message": "2026-10-08 13:37:37,026 INFO [v36] TAPE KAPA held -0.8% | tape 60s: buy 39% sell 14% between 46% of 508,511 sh (100% by quote) | 5m: buy 39% sell 24% between 37% of 1,139,360 sh (75% by quote)"}
+{"timestamp": "2026-10-08T13:37:37.365Z", "message": "2026-10-08 13:37:37,365 INFO [v36b] KAPA BUY SHORT - wanted 1276, got 823 at a limit up to inf: filled at up to 1.4200 (the ask + 0.20)"}
+{"timestamp": "2026-10-08T13:37:37.365Z", "message": "2026-10-08 13:37:37,365 INFO [v37] KAPA BUY SHORT - wanted 2936, got 0 at a limit up to inf: filled at up to 1.4200 (the ask + 0.20)"}
+{"timestamp": "2026-10-08T13:37:37.545Z", "message": "2026-10-08 13:37:37,545 INFO [v36b] ENTER KAPA 823 @ 1.2400 (print 1.2000) = $1021 (16% of equity) | stop 1.1640 (6.13% away) | new-high trigger 1.1800"}
+{"timestamp": "2026-10-08T13:37:37.547Z", "message": "2026-10-08 13:37:37,547 INFO [v36b]   KAPA tape 60s: buy 40% sell 14% between 46% of 528,143 sh (100% by quote) | 5m: buy 39% sell 24% between 37% of 1,158,992 sh (75% by quote) (buying)"}
+{"timestamp": "2026-10-08T13:37:37.547Z", "message": "2026-10-08 13:37:37,547 INFO [v36b] KAPA FULL POSITION 823 shares at once (furious), buy 2 today - stop 1.1640, line $1.00"}
+{"timestamp": "2026-10-08T13:37:37.644Z", "message": "2026-10-08 13:37:37,644 INFO [v36b] IGNORED KAPA print 1.1950 - the market is 1.2200 x 1.2300 (decides nothing)"}
+{"timestamp": "2026-10-08T13:37:38.540Z", "message": "2026-10-08 13:37:38,540 INFO [v37] IGNORED KAPA print 1.2400 - the market is 1.2000 x 1.2100 (decides nothing)"}
+{"timestamp": "2026-10-08T13:37:42.029Z", "message": "2026-10-08 13:37:42,029 INFO [v36b] TAPE KAPA held -1.6% | tape 60s: buy 42% sell 14% between 45% of 581,029 sh (100% by quote) | 5m: buy 40% sell 23% between 37% of 1,227,404 sh (76% by quote)"}
+{"timestamp": "2026-10-08T13:37:56.764Z", "message": "2026-10-08 13:37:56,764 INFO [v36] KAPA the market 1.1100 x 1.1200 is at the stop 1.1400 - out"}
+{"timestamp": "2026-10-08T13:37:56.765Z", "message": "2026-10-08 13:37:56,765 INFO [v36]   KAPA tape 60s: buy 39% sell 17% between 44% of 680,085 sh (100% by quote) | 5m: buy 38% sell 24% between 38% of 1,423,747 sh (80% by quote) (selling: stop)"}
+{"timestamp": "2026-10-08T13:37:56.773Z", "message": "2026-10-08 13:37:56,773 INFO [v36b] KAPA the market 1.1100 x 1.1200 is at the stop 1.1640 - out"}
+{"timestamp": "2026-10-08T13:37:56.775Z", "message": "2026-10-08 13:37:56,775 INFO [v36b]   KAPA tape 60s: buy 39% sell 17% between 44% of 680,085 sh (100% by quote) | 5m: buy 38% sell 24% between 38% of 1,423,747 sh (80% by quote) (selling: stop)"}
+{"timestamp": "2026-10-08T13:37:57.000Z", "message": "2026-10-08 13:37:57,000 INFO [v36] KAPA SELL 488 at MARKET"}
+{"timestamp": "2026-10-08T13:37:57.035Z", "message": "2026-10-08 13:37:57,035 INFO [v36b] KAPA SELL 823 at MARKET"}
+{"timestamp": "2026-10-08T13:37:59.790Z", "message": "2026-10-08 13:37:59,790 INFO [v36b] EXIT stop KAPA 823 @ 1.1100 | trigger print 1.1900 x 205 cond [' '], 0.1s old | entry 1.2400 peak 1.2400 stop 1.1640 | held 22s | P/L -106.99 (-10.48% of the trade, -1.74% of the account)"}
+{"timestamp": "2026-10-08T13:38:00.565Z", "message": "2026-10-08 13:38:00,565 INFO [v36] EXIT stop KAPA 488 @ 1.1100 | trigger print 1.1900 x 205 cond [' '], 0.1s old | entry 1.2400 peak 1.2500 stop 1.1400 | held 24s | P/L -63.44 (-10.48% of the trade, -0.38% of the account)"}
+{"timestamp": "2026-10-08T13:38:10.874Z", "message": "2026-10-08 13:38:10,874 INFO [v36] IGNORED KAPA print 1.1495 - the market is 1.1100 x 1.1200 (decides nothing)"}
+{"timestamp": "2026-10-08T13:38:10.874Z", "message": "2026-10-08 13:38:10,874 INFO [v37] IGNORED KAPA print 1.1495 - the market is 1.1100 x 1.1200 (decides nothing)"}
+{"timestamp": "2026-10-08T13:38:10.874Z", "message": "2026-10-08 13:38:10,874 INFO [v36b] IGNORED KAPA print 1.1495 - the market is 1.1100 x 1.1200 (decides nothing)"}

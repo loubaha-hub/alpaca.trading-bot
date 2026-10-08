@@ -1,0 +1,587 @@
+{"timestamp": "2026-10-08T08:11:56.507Z", "message": "2026-10-08 08:11:56,507 INFO [v36] WHY-NOT DKI px 2.0004 | crowd #3 $28k, gainer #3 | NO CROWD: not top 2 held 2m, not ripping, not a top gainer with $1000k"}
+{"timestamp": "2026-10-08T08:11:56.507Z", "message": "2026-10-08 08:11:56,507 INFO [v36b] WHY-NOT DKI px 2.0004 | crowd #3 $28k, gainer #3 | NO CROWD: not top 2 held 2m, not ripping, not a top gainer with $1000k"}
+{"timestamp": "2026-10-08T08:13:00.008Z", "message": "2026-10-08 08:13:00,008 INFO [v36] WHY-NOT DKI px 2.1500 | crowd #3 $42k, gainer #3 | NO CROWD: not top 2 held 2m, not ripping, not a top gainer with $1000k"}
+{"timestamp": "2026-10-08T08:13:00.009Z", "message": "2026-10-08 08:13:00,009 INFO [v36b] WHY-NOT DKI px 2.1500 | crowd #3 $42k, gainer #3 | NO CROWD: not top 2 held 2m, not ripping, not a top gainer with $1000k"}
+{"timestamp": "2026-10-08T08:13:30.951Z", "message": "2026-10-08 08:13:30,951 INFO [v36] IGNORED DKI print 2.4300 - the market is 2.3800 x 2.4000 (decides nothing)"}
+{"timestamp": "2026-10-08T08:13:30.956Z", "message": "2026-10-08 08:13:30,956 INFO [v37] IGNORED DKI print 2.4300 - the market is 2.3800 x 2.4000 (decides nothing)"}
+{"timestamp": "2026-10-08T08:13:30.964Z", "message": "2026-10-08 08:13:30,964 INFO [v36b] IGNORED DKI print 2.4300 - the market is 2.3800 x 2.4000 (decides nothing)"}
+{"timestamp": "2026-10-08T08:13:36.342Z", "message": "2026-10-08 08:13:36,342 INFO [v36] FURIOUS DKI at 2.4700: speed 4.40, 5s +3.4% on $47k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:13:36.344Z", "message": "2026-10-08 08:13:36,344 INFO [v36b] FURIOUS DKI at 2.4700: speed 4.40, 5s +3.4% on $47k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:13:37.604Z", "message": "2026-10-08 08:13:37,604 INFO [v36b] DKI BUY SHORT - wanted 628, got 528 at a limit up to inf: filled at up to 2.6800 (the ask + 0.20)"}
+{"timestamp": "2026-10-08T08:13:37.675Z", "message": "2026-10-08 08:13:37,675 INFO [v36b] ENTER DKI 528 @ 2.4900 (print 2.4700) = $1315 (21% of equity) | stop 2.3959 (3.78% away) | new-high trigger 2.1500"}
+{"timestamp": "2026-10-08T08:13:37.676Z", "message": "2026-10-08 08:13:37,676 INFO [v36b]   DKI tape 60s: buy 51% sell 18% between 31% of 120,260 sh (100% by quote) | 5m: buy 51% sell 21% between 27% of 143,055 sh (95% by quote) (buying)"}
+{"timestamp": "2026-10-08T08:13:37.676Z", "message": "2026-10-08 08:13:37,676 INFO [v36b] DKI FULL POSITION 528 shares at once (furious), buy 1 today - stop 2.3959, line $2.00"}
+{"timestamp": "2026-10-08T08:13:37.789Z", "message": "2026-10-08 08:13:37,789 INFO [v36] ENTER DKI 1662 @ 2.5000 (print 2.4700) = $4155 (25% of equity) | stop 2.2724 (9.10% away) | new-high trigger 2.1500"}
+{"timestamp": "2026-10-08T08:13:37.789Z", "message": "2026-10-08 08:13:37,789 INFO [v36]   DKI tape 60s: buy 51% sell 18% between 31% of 120,404 sh (100% by quote) | 5m: buy 51% sell 21% between 28% of 143,199 sh (95% by quote) (buying)"}
+{"timestamp": "2026-10-08T08:13:37.789Z", "message": "2026-10-08 08:13:37,789 INFO [v36] DKI FULL POSITION 1662 shares at once (furious), buy 1 today - stop 2.4000, line $2.00"}
+{"timestamp": "2026-10-08T08:13:38.275Z", "message": "2026-10-08 08:13:38,275 WARNING [v37] cancelled 1 working order(s) on DKI"}
+{"timestamp": "2026-10-08T08:13:38.746Z", "message": "2026-10-08 08:13:38,746 INFO [v37] DKI BUY SHORT - wanted 1708, got 1107 at a limit up to inf: filled at up to 2.7000 (the ask + 0.20)"}
+{"timestamp": "2026-10-08T08:13:38.820Z", "message": "2026-10-08 08:13:38,820 INFO [v37] ENTER DKI 1107 @ 2.5000 (print 2.5000) = $2768 (19.5% of equity) - ACCELERATING 3.97, 35% of the account, buy 1 today | crowd #3, $80k in 5 min | stop 2.4750 | adds at 2.6000 and 2.7000 | speed 3.97 | score 13 (speed 4 candle 2 wicks 1 bodies 1 lows 0 volume 1 trend 2 macd 1 room 1)"}
+{"timestamp": "2026-10-08T08:13:38.820Z", "message": "2026-10-08 08:13:38,820 INFO [v37]   DKI tape 60s: buy 50% sell 18% between 32% of 122,851 sh (100% by quote) | 5m: buy 51% sell 21% between 28% of 145,646 sh (95% by quote) (selling: stop)"}
+{"timestamp": "2026-10-08T08:13:39.039Z", "message": "2026-10-08 08:13:39,039 INFO [v37] DKI SELL 1107 at a limit 2.21 (bid 2.4600)"}
+{"timestamp": "2026-10-08T08:13:39.842Z", "message": "2026-10-08 08:13:39,842 INFO [v37] DKI SELL 1083 at a limit 2.21 (bid 2.4600)"}
+{"timestamp": "2026-10-08T08:13:40.909Z", "message": "2026-10-08 08:13:40,909 INFO [v37] DKI SELL 915 at a limit 2.19 (bid 2.4300)"}
+{"timestamp": "2026-10-08T08:13:41.264Z", "message": "2026-10-08 08:13:41,264 INFO [v36] TAPE DKI held -2.0% | tape 60s: buy 50% sell 19% between 31% of 135,719 sh (100% by quote) | 5m: buy 50% sell 22% between 28% of 158,514 sh (95% by quote)"}
+{"timestamp": "2026-10-08T08:13:41.264Z", "message": "2026-10-08 08:13:41,264 INFO [v37] TAPE DKI held -1.2% | tape 60s: buy 50% sell 19% between 31% of 135,719 sh (100% by quote) | 5m: buy 50% sell 22% between 28% of 158,514 sh (95% by quote)"}
+{"timestamp": "2026-10-08T08:13:41.265Z", "message": "2026-10-08 08:13:41,265 INFO [v36b] TAPE DKI held -1.6% | tape 60s: buy 50% sell 19% between 31% of 135,719 sh (100% by quote) | 5m: buy 50% sell 22% between 28% of 158,514 sh (95% by quote)"}
+{"timestamp": "2026-10-08T08:13:41.551Z", "message": "2026-10-08 08:13:41,551 INFO [v37] EXIT stop DKI 1107 @ 2.4307 | trigger print 2.4700 x 100 cond ['@', 'F', 'T'], 1.6s old | entry 2.5000 peak 2.5000 stop 2.4750 | held 3s | P/L -76.77 (-2.77% of the trade, -0.54% of the account)"}
+{"timestamp": "2026-10-08T08:13:45.090Z", "message": "2026-10-08 08:13:45,090 WARNING [v37] cancelled 1 working order(s) on DKI"}
+{"timestamp": "2026-10-08T08:13:45.628Z", "message": "2026-10-08 08:13:45,628 INFO [v37] DKI BUY SHORT - wanted 1659, got 198 at a limit up to inf: filled at up to 2.7900 (the ask + 0.20)"}
+{"timestamp": "2026-10-08T08:13:45.701Z", "message": "2026-10-08 08:13:45,701 INFO [v37] ENTER DKI 198 @ 2.6000 (print 2.5700) = $515 (3.7% of equity) - ACCELERATING 7.03, 35% of the account, buy 2 today | crowd #3, $80k in 5 min | stop 2.5000 | adds at 2.7000 and 2.8000 | speed 7.03 | score 13 (speed 4 candle 2 wicks 1 bodies 1 lows 0 volume 1 trend 2 macd 1 room 1)"}
+{"timestamp": "2026-10-08T08:13:45.702Z", "message": "2026-10-08 08:13:45,702 INFO [v37]   DKI tape 60s: buy 54% sell 18% between 28% of 166,955 sh (100% by quote) | 5m: buy 53% sell 20% between 26% of 190,361 sh (96% by quote) (selling: giveback)"}
+{"timestamp": "2026-10-08T08:13:45.951Z", "message": "2026-10-08 08:13:45,951 INFO [v37] DKI SELL 198 at a limit 2.31 (bid 2.5700)"}
+{"timestamp": "2026-10-08T08:13:46.899Z", "message": "2026-10-08 08:13:46,899 INFO [v37] DKI SELL 37 at a limit 2.27 (bid 2.5200)"}
+{"timestamp": "2026-10-08T08:13:47.833Z", "message": "2026-10-08 08:13:47,833 WARNING [v37] cancelled 1 working order(s) on DKI"}
+{"timestamp": "2026-10-08T08:13:48.803Z", "message": "2026-10-08 08:13:48,803 INFO [v37] DKI SELL 12 at a limit 2.26 (bid 2.5100)"}
+{"timestamp": "2026-10-08T08:13:49.796Z", "message": "2026-10-08 08:13:49,796 INFO [v37] DKI SELL 9 at a limit 2.27 (bid 2.5200)"}
+{"timestamp": "2026-10-08T08:13:50.855Z", "message": "2026-10-08 08:13:50,855 INFO [v37] DKI SELL 2 at a limit 2.29 (bid 2.5400)"}
+{"timestamp": "2026-10-08T08:13:51.944Z", "message": "2026-10-08 08:13:51,944 INFO [v37] DKI SELL 1 at a limit 2.26 (bid 2.5100)"}
+{"timestamp": "2026-10-08T08:13:52.858Z", "message": "2026-10-08 08:13:52,858 INFO [v37] EXIT giveback DKI 198 @ 2.5362 | trigger print 2.5800 x 100 cond ['@', 'F', 'T'], 0.5s old | entry 2.6000 peak 2.6100 stop 2.5000 | held 7s | P/L -12.63 (-2.45% of the trade, -0.09% of the account)"}
+{"timestamp": "2026-10-08T08:14:04.594Z", "message": "2026-10-08 08:14:04,594 INFO [v36] IGNORED DKI print 2.5632 - the market is 2.5900 x 2.6200 (decides nothing)"}
+{"timestamp": "2026-10-08T08:14:04.594Z", "message": "2026-10-08 08:14:04,594 INFO [v37] IGNORED DKI print 2.5632 - the market is 2.5900 x 2.6200 (decides nothing)"}
+{"timestamp": "2026-10-08T08:14:04.594Z", "message": "2026-10-08 08:14:04,594 INFO [v36b] IGNORED DKI print 2.5632 - the market is 2.5900 x 2.6200 (decides nothing)"}
+{"timestamp": "2026-10-08T08:14:25.096Z", "message": "2026-10-08 08:14:25,096 INFO [v36] DKI held past $2.50: the stop up to 2.4900 (entry 2.5000)"}
+{"timestamp": "2026-10-08T08:14:25.097Z", "message": "2026-10-08 08:14:25,097 INFO [v36b] DKI held past $2.50: the stop up to 2.4900 (entry 2.4900)"}
+{"timestamp": "2026-10-08T08:14:41.337Z", "message": "2026-10-08 08:14:41,337 INFO [v36] TAPE DKI held +2.8% | tape 60s: buy 38% sell 28% between 34% of 303,417 sh (100% by quote) | 5m: buy 43% sell 25% between 32% of 458,049 sh (99% by quote)"}
+{"timestamp": "2026-10-08T08:14:41.338Z", "message": "2026-10-08 08:14:41,338 INFO [v36b] TAPE DKI held +3.2% | tape 60s: buy 38% sell 28% between 34% of 303,417 sh (100% by quote) | 5m: buy 43% sell 25% between 32% of 458,049 sh (99% by quote)"}
+{"timestamp": "2026-10-08T08:14:44.517Z", "message": "2026-10-08 08:14:44,517 INFO [v36] IGNORED DKI print 2.6900 - the market is 2.6300 x 2.6600 (decides nothing)"}
+{"timestamp": "2026-10-08T08:14:44.517Z", "message": "2026-10-08 08:14:44,517 INFO [v37] IGNORED DKI print 2.6900 - the market is 2.6300 x 2.6600 (decides nothing)"}
+{"timestamp": "2026-10-08T08:14:44.517Z", "message": "2026-10-08 08:14:44,517 INFO [v36b] IGNORED DKI print 2.6900 - the market is 2.6300 x 2.6600 (decides nothing)"}
+{"timestamp": "2026-10-08T08:15:00.433Z", "message": "2026-10-08 08:15:00,433 INFO [v36] DKI the market 2.4800 x 2.5000 is at the stop 2.4900 - out"}
+{"timestamp": "2026-10-08T08:15:00.434Z", "message": "2026-10-08 08:15:00,434 INFO [v36]   DKI tape 60s: buy 37% sell 27% between 36% of 298,100 sh (100% by quote) | 5m: buy 41% sell 26% between 33% of 566,102 sh (99% by quote) (selling: stop)"}
+{"timestamp": "2026-10-08T08:15:00.435Z", "message": "2026-10-08 08:15:00,435 INFO [v36b] DKI the market 2.4800 x 2.5000 is at the stop 2.4900 - out"}
+{"timestamp": "2026-10-08T08:15:00.436Z", "message": "2026-10-08 08:15:00,436 INFO [v36b]   DKI tape 60s: buy 37% sell 27% between 36% of 298,100 sh (100% by quote) | 5m: buy 41% sell 26% between 33% of 566,102 sh (99% by quote) (selling: stop)"}
+{"timestamp": "2026-10-08T08:15:00.653Z", "message": "2026-10-08 08:15:00,653 INFO [v36b] DKI SELL 528 at a limit 2.23 (bid 2.4800)"}
+{"timestamp": "2026-10-08T08:15:00.655Z", "message": "2026-10-08 08:15:00,655 INFO [v36] DKI SELL 1662 at a limit 2.23 (bid 2.4800)"}
+{"timestamp": "2026-10-08T08:15:01.722Z", "message": "2026-10-08 08:15:01,722 INFO [v36] DKI SELL 1064 at a limit 2.19 (bid 2.4300)"}
+{"timestamp": "2026-10-08T08:15:01.879Z", "message": "2026-10-08 08:15:01,879 INFO [v36b] DKI SELL 41 at a limit 2.19 (bid 2.4300)"}
+{"timestamp": "2026-10-08T08:15:02.521Z", "message": "2026-10-08 08:15:02,521 INFO [v36b] EXIT stop DKI 528 @ 2.4777 | trigger print 2.4900 x 100 cond ['@', 'T'], 0.1s old | entry 2.4900 peak 2.6900 stop 2.4900 | held 85s | P/L -6.51 (-0.50% of the trade, -0.10% of the account)"}
+{"timestamp": "2026-10-08T08:15:02.523Z", "message": "2026-10-08 08:15:02,523 INFO [v36b] WHY-NOT DKI px 2.4800 | crowd #3 $1721k, gainer #3 | NO CROWD: not top 2 held 2m, not ripping, not a top gainer with $1000k"}
+{"timestamp": "2026-10-08T08:15:02.809Z", "message": "2026-10-08 08:15:02,809 INFO [v36] DKI SELL 62 at a limit 2.19 (bid 2.4300)"}
+{"timestamp": "2026-10-08T08:15:03.879Z", "message": "2026-10-08 08:15:03,879 INFO [v36] DKI SELL 28 at a limit 2.21 (bid 2.4600)"}
+{"timestamp": "2026-10-08T08:15:04.980Z", "message": "2026-10-08 08:15:04,980 WARNING [v36] cancelled 1 working order(s) on DKI"}
+{"timestamp": "2026-10-08T08:15:05.927Z", "message": "2026-10-08 08:15:05,927 INFO [v36] DKI SELL 4 at a limit 2.23 (bid 2.4800)"}
+{"timestamp": "2026-10-08T08:15:06.867Z", "message": "2026-10-08 08:15:06,867 WARNING [v36] cancelled 1 working order(s) on DKI"}
+{"timestamp": "2026-10-08T08:15:07.821Z", "message": "2026-10-08 08:15:07,821 INFO [v36] DKI SELL 2 at a limit 2.28 (bid 2.5300)"}
+{"timestamp": "2026-10-08T08:15:08.932Z", "message": "2026-10-08 08:15:08,932 INFO [v36] DKI SELL 1 at a limit 2.29 (bid 2.5400)"}
+{"timestamp": "2026-10-08T08:15:09.889Z", "message": "2026-10-08 08:15:09,889 INFO [v36] EXIT stop DKI 1662 @ 2.4607 | trigger print 2.4900 x 100 cond ['@', 'T'], 0.1s old | entry 2.5000 peak 2.6900 stop 2.4900 | held 92s | P/L -65.34 (-1.57% of the trade, -0.39% of the account)"}
+{"timestamp": "2026-10-08T08:15:09.893Z", "message": "2026-10-08 08:15:09,893 INFO [v36] WHY-NOT DKI px 2.5300 | crowd #3 $1721k, gainer #3 | NO CROWD: not top 2 held 2m, not ripping, not a top gainer with $1000k"}
+{"timestamp": "2026-10-08T08:15:30.684Z", "message": "2026-10-08 08:15:30,684 INFO [v36] IGNORED DKI print 2.7400 - the market is 2.6800 x 2.7000 (decides nothing)"}
+{"timestamp": "2026-10-08T08:15:30.684Z", "message": "2026-10-08 08:15:30,684 INFO [v37] IGNORED DKI print 2.7400 - the market is 2.6800 x 2.7000 (decides nothing)"}
+{"timestamp": "2026-10-08T08:15:30.685Z", "message": "2026-10-08 08:15:30,685 INFO [v36b] IGNORED DKI print 2.7400 - the market is 2.6800 x 2.7000 (decides nothing)"}
+{"timestamp": "2026-10-08T08:16:00.032Z", "message": "2026-10-08 08:16:00,032 INFO [v36] WHY-NOT DKI px 2.7705 | crowd #2 $1710k held 0.0m, gainer #2 | NO SPEED for a re-entry: 0.09 under 0.10"}
+{"timestamp": "2026-10-08T08:16:00.041Z", "message": "2026-10-08 08:16:00,041 INFO [v36b] WHY-NOT DKI px 2.7789 | crowd #2 $1710k held 0.0m, gainer #2 | NO SPEED for a re-entry: 0.09 under 0.10"}
+{"timestamp": "2026-10-08T08:16:03.923Z", "message": "2026-10-08 08:16:03,923 INFO [v36] IGNORED DKI print 2.7100 - the market is 2.7400 x 2.7500 (decides nothing)"}
+{"timestamp": "2026-10-08T08:16:03.925Z", "message": "2026-10-08 08:16:03,925 INFO [v37] IGNORED DKI print 2.7100 - the market is 2.7400 x 2.7500 (decides nothing)"}
+{"timestamp": "2026-10-08T08:16:03.930Z", "message": "2026-10-08 08:16:03,930 INFO [v36b] IGNORED DKI print 2.7100 - the market is 2.7400 x 2.7500 (decides nothing)"}
+{"timestamp": "2026-10-08T08:16:08.108Z", "message": "2026-10-08 08:16:08,108 INFO [v37] SKIP DKI at 2.8200 - not running: score 11/15 under 12: speed 0 candle 2 wicks 1 bodies 1 lows 1 volume 2 trend 2 macd 1 room 1"}
+{"timestamp": "2026-10-08T08:16:08.718Z", "message": "2026-10-08 08:16:08,718 INFO [v36] WHY-NOT DKI px 2.8400 | crowd #2 $1710k held 0.1m, gainer #2 | NO SPEED for a re-entry: 0.09 under 0.10"}
+{"timestamp": "2026-10-08T08:16:08.722Z", "message": "2026-10-08 08:16:08,722 INFO [v36b] WHY-NOT DKI px 2.8400 | crowd #2 $1710k held 0.1m, gainer #2 | NO SPEED for a re-entry: 0.09 under 0.10"}
+{"timestamp": "2026-10-08T08:16:18.544Z", "message": "2026-10-08 08:16:18,544 INFO [v36] WHY-NOT DKI px 2.8400 | crowd #2 $1710k held 0.3m, gainer #2 | NO TAPE at the trigger 2.8400: 30s ask 29% bid 30% between 41% of 211979 sh (100% by quote)"}
+{"timestamp": "2026-10-08T08:16:18.619Z", "message": "2026-10-08 08:16:18,619 INFO [v36b] WHY-NOT DKI px 2.8400 | crowd #2 $1710k held 0.3m, gainer #2 | NO TAPE at the trigger 2.8400: 30s ask 29% bid 30% between 41% of 211531 sh (100% by quote)"}
+{"timestamp": "2026-10-08T08:16:23.546Z", "message": "2026-10-08 08:16:23,546 INFO [v36] WHY-NOT DKI px 2.9100 | crowd #2 $1710k held 0.4m, gainer #2 | NO TAPE at the trigger 2.8400: 30s ask 31% bid 27% between 41% of 228105 sh (100% by quote)"}
+{"timestamp": "2026-10-08T08:16:23.779Z", "message": "2026-10-08 08:16:23,779 INFO [v36b] WHY-NOT DKI px 2.9100 | crowd #2 $1710k held 0.4m, gainer #2 | NO TAPE at the trigger 2.8400: 30s ask 31% bid 27% between 41% of 228181 sh (100% by quote)"}
+{"timestamp": "2026-10-08T08:16:26.832Z", "message": "2026-10-08 08:16:26,832 INFO [v37] DKI BUY SHORT - wanted 174, got 11 at a limit up to 3.2209: the ask 2.9700 fell back to the high 2.9800 - no buy under it"}
+{"timestamp": "2026-10-08T08:16:26.974Z", "message": "2026-10-08 08:16:26,974 INFO [v37] ENTER DKI 11 @ 2.9800 (print 2.9900) = $33 (0.2% of equity) - a tenth of a position, buy 3 today | crowd #2, $2581k in 5 min | stop 2.8266 | adds at 3.0800 and 3.1800 | speed 0.21 | score 13 (speed 2 candle 2 wicks 1 bodies 1 lows 1 volume 2 trend 2 macd 1 room 1)"}
+{"timestamp": "2026-10-08T08:16:28.546Z", "message": "2026-10-08 08:16:28,546 INFO [v36] WHY-NOT DKI px 2.9864 | crowd #2 $1710k held 0.5m, gainer #2 | NO: 2.9864 is 5% over the trigger 2.8400 - the move already happened"}
+{"timestamp": "2026-10-08T08:16:28.857Z", "message": "2026-10-08 08:16:28,857 INFO [v36b] WHY-NOT DKI px 2.9700 | crowd #2 $1710k held 0.5m, gainer #2 | NO: at the $3.00 level - wait till it holds 5c past"}
+{"timestamp": "2026-10-08T08:16:29.850Z", "message": "2026-10-08 08:16:29,850 INFO [v37]   DKI tape 60s: buy 30% sell 28% between 42% of 380,916 sh (100% by quote) | 5m: buy 36% sell 27% between 37% of 1,033,865 sh (100% by quote) (selling: giveback)"}
+{"timestamp": "2026-10-08T08:16:30.067Z", "message": "2026-10-08 08:16:30,067 INFO [v37] DKI SELL 11 at a limit 2.96 (bid 2.9700)"}
+{"timestamp": "2026-10-08T08:16:31.366Z", "message": "2026-10-08 08:16:31,366 INFO [v37] TAPE DKI held -0.3% | tape 60s: buy 28% sell 28% between 44% of 380,528 sh (100% by quote) | 5m: buy 35% sell 27% between 38% of 1,047,700 sh (100% by quote)"}
+{"timestamp": "2026-10-08T08:16:33.224Z", "message": "2026-10-08 08:16:33,224 INFO [v37] EXIT giveback DKI 11 @ 2.9600 | trigger print 2.9720 x 143 cond ['@', 'T'], 0.0s old | entry 2.9800 peak 2.9900 stop 2.8266 | held 6s | P/L -0.22 (-0.67% of the trade, -0.00% of the account)"}
+{"timestamp": "2026-10-08T08:16:33.835Z", "message": "2026-10-08 08:16:33,835 INFO [v36] WHY-NOT DKI px 2.9100 | crowd #2 $1710k held 0.6m, gainer #2 | NO TAPE at the trigger 2.8400: 30s ask 27% bid 30% between 43% of 249080 sh (100% by quote)"}
+{"timestamp": "2026-10-08T08:16:33.863Z", "message": "2026-10-08 08:16:33,863 INFO [v36b] WHY-NOT DKI px 2.9100 | crowd #2 $1710k held 0.6m, gainer #2 | NO TAPE at the trigger 2.8400: 30s ask 28% bid 29% between 43% of 246434 sh (100% by quote)"}
+{"timestamp": "2026-10-08T08:16:38.839Z", "message": "2026-10-08 08:16:38,839 INFO [v36] WHY-NOT DKI px 2.9000 | crowd #2 $1710k held 0.6m, gainer #2 | NO TAPE at the trigger 2.8400: 30s ask 24% bid 27% between 49% of 223842 sh (100% by quote)"}
+{"timestamp": "2026-10-08T08:16:38.897Z", "message": "2026-10-08 08:16:38,897 INFO [v36b] WHY-NOT DKI px 2.9000 | crowd #2 $1710k held 0.6m, gainer #2 | NO TAPE at the trigger 2.8400: 30s ask 24% bid 27% between 49% of 224101 sh (100% by quote)"}
+{"timestamp": "2026-10-08T08:16:43.878Z", "message": "2026-10-08 08:16:43,878 INFO [v36] WHY-NOT DKI px 2.9600 | crowd #2 $1710k held 0.7m, gainer #2 | NO TAPE at the trigger 2.8400: 30s ask 30% bid 23% between 47% of 219215 sh (100% by quote)"}
+{"timestamp": "2026-10-08T08:16:44.046Z", "message": "2026-10-08 08:16:44,046 INFO [v36b] WHY-NOT DKI px 2.9588 | crowd #2 $1710k held 0.7m, gainer #2 | NO TAPE at the trigger 2.8400: 30s ask 30% bid 23% between 46% of 218399 sh (100% by quote)"}
+{"timestamp": "2026-10-08T08:16:48.899Z", "message": "2026-10-08 08:16:48,899 INFO [v36] WHY-NOT DKI px 2.9200 | crowd #2 $1710k held 0.8m, gainer #2 | NO TAPE at the trigger 2.8400: 30s ask 28% bid 25% between 48% of 207285 sh (100% by quote)"}
+{"timestamp": "2026-10-08T08:16:49.213Z", "message": "2026-10-08 08:16:49,213 INFO [v36b] WHY-NOT DKI px 2.9100 | crowd #2 $1710k held 0.8m, gainer #2 | NO TAPE at the trigger 2.8400: 30s ask 28% bid 25% between 48% of 206477 sh (100% by quote)"}
+{"timestamp": "2026-10-08T08:16:53.971Z", "message": "2026-10-08 08:16:53,971 INFO [v36] WHY-NOT DKI px 2.9288 | crowd #2 $1710k held 0.9m, gainer #2 | NO TAPE at the trigger 2.8400: 30s ask 24% bid 27% between 50% of 193394 sh (100% by quote)"}
+{"timestamp": "2026-10-08T08:16:54.269Z", "message": "2026-10-08 08:16:54,269 INFO [v36b] WHY-NOT DKI px 2.9283 | crowd #2 $1710k held 0.9m, gainer #2 | NO TAPE at the trigger 2.8400: 30s ask 24% bid 27% between 49% of 193022 sh (100% by quote)"}
+{"timestamp": "2026-10-08T08:16:59.002Z", "message": "2026-10-08 08:16:59,002 INFO [v36] WHY-NOT DKI px 2.9000 | crowd #2 $1710k held 1.0m, gainer #2 | NO SPEED for a re-entry: 0.09 under 0.10"}
+{"timestamp": "2026-10-08T08:16:59.491Z", "message": "2026-10-08 08:16:59,491 INFO [v36b] WHY-NOT DKI px 2.9000 | crowd #2 $1710k held 1.0m, gainer #2 | NO SPEED for a re-entry: 0.08 under 0.10"}
+{"timestamp": "2026-10-08T08:17:04.018Z", "message": "2026-10-08 08:17:04,018 INFO [v36] WHY-NOT DKI px 3.0500 | crowd #1 $2544k held 1.1m, gainer #1 | NO: at the $3.00 level - wait till it holds 5c past"}
+{"timestamp": "2026-10-08T08:17:04.114Z", "message": "2026-10-08 08:17:04,114 INFO [v36] IGNORED DKI print 2.9676 - the market is 3.0300 x 3.0600 (decides nothing)"}
+{"timestamp": "2026-10-08T08:17:04.114Z", "message": "2026-10-08 08:17:04,114 INFO [v37] IGNORED DKI print 2.9676 - the market is 3.0300 x 3.0600 (decides nothing)"}
+{"timestamp": "2026-10-08T08:17:04.114Z", "message": "2026-10-08 08:17:04,114 INFO [v36b] IGNORED DKI print 2.9676 - the market is 3.0300 x 3.0600 (decides nothing)"}
+{"timestamp": "2026-10-08T08:17:04.560Z", "message": "2026-10-08 08:17:04,560 INFO [v36b] WHY-NOT DKI px 3.0500 | crowd #1 $2544k held 1.1m, gainer #1 | NO: at the $3.00 level - wait till it holds 5c past"}
+{"timestamp": "2026-10-08T08:17:09.161Z", "message": "2026-10-08 08:17:09,161 INFO [v36] WHY-NOT DKI px 3.0400 | crowd #1 $2544k held 1.2m, gainer #1 | NO: at the $3.00 level - wait till it holds 5c past"}
+{"timestamp": "2026-10-08T08:17:09.906Z", "message": "2026-10-08 08:17:09,906 INFO [v36b] WHY-NOT DKI px 3.0600 | crowd #1 $2544k held 1.2m, gainer #1 | NO: at the $3.00 level - wait till it holds 5c past"}
+{"timestamp": "2026-10-08T08:17:14.228Z", "message": "2026-10-08 08:17:14,228 INFO [v36] WHY-NOT DKI px 3.0800 | crowd #1 $2544k held 1.2m, gainer #1 | NO: at the $3.00 level - wait till it holds 5c past"}
+{"timestamp": "2026-10-08T08:17:15.026Z", "message": "2026-10-08 08:17:15,026 INFO [v36b] WHY-NOT DKI px 3.0800 | crowd #1 $2544k held 1.2m, gainer #1 | NO: at the $3.00 level - wait till it holds 5c past"}
+{"timestamp": "2026-10-08T08:17:19.256Z", "message": "2026-10-08 08:17:19,256 INFO [v36] WHY-NOT DKI px 3.0609 | crowd #1 $2544k held 1.3m, gainer #1 | NO: at the $3.00 level - wait till it holds 5c past"}
+{"timestamp": "2026-10-08T08:17:20.057Z", "message": "2026-10-08 08:17:20,057 INFO [v36b] WHY-NOT DKI px 3.1500 | crowd #1 $2544k held 1.3m, gainer #1 | NO: at the $3.00 level - wait till it holds 5c past"}
+{"timestamp": "2026-10-08T08:17:24.403Z", "message": "2026-10-08 08:17:24,403 INFO [v36] WHY-NOT DKI px 3.1274 | crowd #1 $2544k held 1.4m, gainer #1 | NO SPEED for a re-entry: 0.09 under 0.10"}
+{"timestamp": "2026-10-08T08:17:25.117Z", "message": "2026-10-08 08:17:25,117 INFO [v36b] WHY-NOT DKI px 3.1110 | crowd #1 $2544k held 1.4m, gainer #1 | NO SPEED for a re-entry: 0.08 under 0.10"}
+{"timestamp": "2026-10-08T08:17:29.474Z", "message": "2026-10-08 08:17:29,474 INFO [v36] WHY-NOT DKI px 3.0600 | crowd #1 $2544k held 1.5m, gainer #1 | NO SPEED for a re-entry: 0.00 under 0.10"}
+{"timestamp": "2026-10-08T08:17:30.179Z", "message": "2026-10-08 08:17:30,179 INFO [v36b] WHY-NOT DKI px 3.0400 | crowd #1 $2544k held 1.5m, gainer #1 | NO: at the $3.00 level - wait till it holds 5c past"}
+{"timestamp": "2026-10-08T08:17:34.598Z", "message": "2026-10-08 08:17:34,598 INFO [v36] WHY-NOT DKI px 3.0900 | crowd #1 $2544k held 1.6m, gainer #1 | NO SPEED for a re-entry: 0.06 under 0.10"}
+{"timestamp": "2026-10-08T08:17:35.297Z", "message": "2026-10-08 08:17:35,297 INFO [v36b] WHY-NOT DKI px 3.1068 | crowd #1 $2544k held 1.6m, gainer #1 | NO SPEED for a re-entry: 0.08 under 0.10"}
+{"timestamp": "2026-10-08T08:17:39.622Z", "message": "2026-10-08 08:17:39,622 INFO [v36] WHY-NOT DKI px 3.1106 | crowd #1 $2544k held 1.7m, gainer #1 | NO SPEED for a re-entry: 0.06 under 0.10"}
+{"timestamp": "2026-10-08T08:17:40.350Z", "message": "2026-10-08 08:17:40,350 INFO [v36b] WHY-NOT DKI px 3.1100 | crowd #1 $2544k held 1.7m, gainer #1 | NO SPEED for a re-entry: 0.07 under 0.10"}
+{"timestamp": "2026-10-08T08:17:44.658Z", "message": "2026-10-08 08:17:44,658 INFO [v36] WHY-NOT DKI px 3.0900 | crowd #1 $2544k held 1.7m, gainer #1 | NO SPEED for a re-entry: 0.04 under 0.10"}
+{"timestamp": "2026-10-08T08:17:45.701Z", "message": "2026-10-08 08:17:45,701 INFO [v36b] WHY-NOT DKI px 3.1093 | crowd #1 $2544k held 1.8m, gainer #1 | NO SPEED for a re-entry: 0.06 under 0.10"}
+{"timestamp": "2026-10-08T08:17:49.701Z", "message": "2026-10-08 08:17:49,701 INFO [v36] WHY-NOT DKI px 3.1487 | crowd #1 $2544k held 1.8m, gainer #1 | NO SPEED for a re-entry: 0.06 under 0.10"}
+{"timestamp": "2026-10-08T08:17:50.784Z", "message": "2026-10-08 08:17:50,784 INFO [v36b] WHY-NOT DKI px 3.1500 | crowd #1 $2544k held 1.8m, gainer #1 | NO SPEED for a re-entry: 0.06 under 0.10"}
+{"timestamp": "2026-10-08T08:17:51.793Z", "message": "2026-10-08 08:17:51,793 INFO [v36] IGNORED DKI print 3.1406 - the market is 3.2000 x 3.2300 (decides nothing)"}
+{"timestamp": "2026-10-08T08:17:51.793Z", "message": "2026-10-08 08:17:51,793 INFO [v36b] IGNORED DKI print 3.1406 - the market is 3.2000 x 3.2300 (decides nothing)"}
+{"timestamp": "2026-10-08T08:17:51.837Z", "message": "2026-10-08 08:17:51,837 INFO [v37] IGNORED DKI print 3.1406 - the market is 3.2100 x 3.2400 (decides nothing)"}
+{"timestamp": "2026-10-08T08:17:54.809Z", "message": "2026-10-08 08:17:54,809 INFO [v36] WHY-NOT DKI px 3.2149 | crowd #1 $2544k held 1.9m, gainer #1 | NO: 3.2149 is 6% over the trigger 3.0400 - the move already happened"}
+{"timestamp": "2026-10-08T08:17:55.900Z", "message": "2026-10-08 08:17:55,900 INFO [v36b] WHY-NOT DKI px 3.2621 | crowd #1 $2544k held 1.9m, gainer #1 | NO: 3.2621 is 7% over the trigger 3.0400 - the move already happened"}
+{"timestamp": "2026-10-08T08:17:59.152Z", "message": "2026-10-08 08:17:59,152 INFO [v36] DKI STARTER sized for its stop: 126 -> 62 shares ($198) - the stop 2.9900 is 6.3% under 3.1900, $12 at risk"}
+{"timestamp": "2026-10-08T08:18:02.632Z", "message": "2026-10-08 08:18:02,632 WARNING [v36b] cancelled 1 working order(s) on DKI"}
+{"timestamp": "2026-10-08T08:18:03.178Z", "message": "2026-10-08 08:18:03,178 INFO [v36b] ENTER DKI 47 @ 3.1728 (print 3.1900) = $149 (2% of equity) | stop 3.0943 (2.47% away) | new-high trigger 3.0400"}
+{"timestamp": "2026-10-08T08:18:03.181Z", "message": "2026-10-08 08:18:03,181 INFO [v36b]   DKI tape 60s: buy 31% sell 30% between 39% of 495,920 sh (100% by quote) | 5m: buy 33% sell 27% between 40% of 1,696,691 sh (100% by quote) (buying)"}
+{"timestamp": "2026-10-08T08:18:03.181Z", "message": "2026-10-08 08:18:03,181 INFO [v36b] DKI STARTER 47 shares (a tenth of a full position), buy 2 today - adds at 3.3228 and 3.3728 on a new high"}
+{"timestamp": "2026-10-08T08:18:03.644Z", "message": "2026-10-08 08:18:03,644 INFO [v36] ENTER DKI 62 @ 3.1739 (print 3.1900) = $197 (1% of equity) | stop 2.9900 (5.79% away) | new-high trigger 3.0400"}
+{"timestamp": "2026-10-08T08:18:03.646Z", "message": "2026-10-08 08:18:03,646 INFO [v36]   DKI tape 60s: buy 31% sell 30% between 39% of 497,048 sh (100% by quote) | 5m: buy 33% sell 27% between 40% of 1,701,039 sh (100% by quote) (buying)"}
+{"timestamp": "2026-10-08T08:18:03.646Z", "message": "2026-10-08 08:18:03,646 INFO [v36] DKI STARTER 62 shares (a tenth of a full position), buy 2 today - adds at 3.3239 and 3.3739 on a new high"}
+{"timestamp": "2026-10-08T08:18:06.491Z", "message": "2026-10-08 08:18:06,491 INFO [v36] TAPE DKI held +2.1% | tape 60s: buy 31% sell 29% between 40% of 470,989 sh (100% by quote) | 5m: buy 33% sell 27% between 40% of 1,713,951 sh (100% by quote)"}
+{"timestamp": "2026-10-08T08:18:06.495Z", "message": "2026-10-08 08:18:06,495 INFO [v36b] TAPE DKI held +2.1% | tape 60s: buy 31% sell 29% between 40% of 470,989 sh (100% by quote) | 5m: buy 33% sell 27% between 40% of 1,713,951 sh (100% by quote)"}
+{"timestamp": "2026-10-08T08:18:28.295Z", "message": "2026-10-08 08:18:28,295 INFO [v36] IGNORED DKI print 3.1340 - the market is 3.1600 x 3.1900 (decides nothing)"}
+{"timestamp": "2026-10-08T08:18:28.295Z", "message": "2026-10-08 08:18:28,295 INFO [v37] IGNORED DKI print 3.1340 - the market is 3.1600 x 3.1900 (decides nothing)"}
+{"timestamp": "2026-10-08T08:18:28.295Z", "message": "2026-10-08 08:18:28,295 INFO [v36b] IGNORED DKI print 3.1340 - the market is 3.1600 x 3.1900 (decides nothing)"}
+{"timestamp": "2026-10-08T08:18:45.163Z", "message": "2026-10-08 08:18:45,163 INFO [v36b]   DKI tape 60s: buy 30% sell 32% between 38% of 442,063 sh (100% by quote) | 5m: buy 30% sell 29% between 41% of 1,826,590 sh (100% by quote) (selling: stop)"}
+{"timestamp": "2026-10-08T08:18:45.388Z", "message": "2026-10-08 08:18:45,388 INFO [v36b] DKI SELL 47 at a limit 3.03 (bid 3.0500)"}
+{"timestamp": "2026-10-08T08:18:46.045Z", "message": "2026-10-08 08:18:46,045 WARNING [v36b] cancelled 1 working order(s) on DKI"}
+{"timestamp": "2026-10-08T08:18:47.008Z", "message": "2026-10-08 08:18:47,008 INFO [v36b] DKI SELL 20 at a limit 3.06 (bid 3.0800)"}
+{"timestamp": "2026-10-08T08:18:48.235Z", "message": "2026-10-08 08:18:48,235 WARNING [v36b] cancelled 1 working order(s) on DKI"}
+{"timestamp": "2026-10-08T08:18:49.224Z", "message": "2026-10-08 08:18:49,224 INFO [v36b] DKI SELL 16 at a limit 3.07 (bid 3.0900)"}
+{"timestamp": "2026-10-08T08:18:50.203Z", "message": "2026-10-08 08:18:50,203 INFO [v36b] EXIT stop DKI 47 @ 3.0704 | trigger print 3.0900 x 200 cond ['@', 'T'], 0.0s old | entry 3.1728 peak 3.3400 stop 3.0943 | held 47s | P/L -4.81 (-3.23% of the trade, -0.08% of the account)"}
+{"timestamp": "2026-10-08T08:19:00.282Z", "message": "2026-10-08 08:19:00,282 INFO [v36b] WHY-NOT DKI px 3.1300 | crowd #1 $5531k held 3.0m, gainer #1 | WAIT: hod trigger 3.3900"}
+{"timestamp": "2026-10-08T08:19:06.513Z", "message": "2026-10-08 08:19:06,513 INFO [v36] TAPE DKI held -1.7% | tape 60s: buy 26% sell 35% between 39% of 325,357 sh (100% by quote) | 5m: buy 30% sell 29% between 41% of 1,770,660 sh (100% by quote)"}
+{"timestamp": "2026-10-08T08:19:16.909Z", "message": "  DKI          62    3.1739    3.2800    2.9900      +6.58    +3.3%     1m"}
+{"timestamp": "2026-10-08T08:19:24.448Z", "message": "2026-10-08 08:19:24,448 INFO [v36b] WHY-NOT DKI px 3.3900 | crowd #1 $5531k held 3.4m, gainer #1 | NO SPEED for a re-entry: 0.05 under 0.10"}
+{"timestamp": "2026-10-08T08:19:28.726Z", "message": "2026-10-08 08:19:28,726 INFO [v36] DKI ADD to 50% of a full position: +537 @ 3.3700 -> 599 shares, entry 3.3743, floor 3.3743 (what the starter paid)"}
+{"timestamp": "2026-10-08T08:19:28.727Z", "message": "2026-10-08 08:19:28,727 INFO [v36] IGNORED DKI print 3.3584 - the market is 3.3800 x 3.4100 (decides nothing)"}
+{"timestamp": "2026-10-08T08:19:28.731Z", "message": "2026-10-08 08:19:28,731 INFO [v36]   DKI tape 60s: buy 29% sell 30% between 41% of 324,808 sh (100% by quote) | 5m: buy 30% sell 29% between 41% of 1,837,956 sh (100% by quote) (selling: stop)"}
+{"timestamp": "2026-10-08T08:19:28.949Z", "message": "2026-10-08 08:19:28,949 INFO [v36] DKI SELL 599 at a limit 3.37 (bid 3.3900)"}
+{"timestamp": "2026-10-08T08:19:29.515Z", "message": "2026-10-08 08:19:29,515 INFO [v36b] WHY-NOT DKI px 3.4261 | crowd #1 $5531k held 3.5m, gainer #1 | NO SPEED for a re-entry: 0.05 under 0.10"}
+{"timestamp": "2026-10-08T08:19:29.597Z", "message": "2026-10-08 08:19:29,597 INFO [v36] EXIT stop DKI 599 @ 3.3900 | trigger print 3.3700 x 100 cond ['@', 'T'], 2.7s old | entry 3.3743 peak 3.4300 stop 3.3743 | held 86s | P/L +9.41 (+0.47% of the trade, +0.06% of the account)"}
+{"timestamp": "2026-10-08T08:19:29.599Z", "message": "2026-10-08 08:19:29,599 INFO [v36] WHY-NOT DKI px 3.3800 | crowd #1 $5531k held 3.5m, gainer #1 | WAIT: hod trigger 3.3900"}
+{"timestamp": "2026-10-08T08:19:34.519Z", "message": "2026-10-08 08:19:34,519 INFO [v36b] WHY-NOT DKI px 3.4000 | crowd #1 $5531k held 3.6m, gainer #1 | NO SPEED for a re-entry: 0.04 under 0.10"}
+{"timestamp": "2026-10-08T08:19:34.627Z", "message": "2026-10-08 08:19:34,627 INFO [v36] WHY-NOT DKI px 3.4000 | crowd #1 $5531k held 3.6m, gainer #1 | NO SPEED for a re-entry: 0.04 under 0.10"}
+{"timestamp": "2026-10-08T08:19:40.515Z", "message": "2026-10-08 08:19:40,515 INFO [v36] WHY-NOT DKI px 3.3900 | crowd #1 $5531k held 3.7m, gainer #1 | NO SPEED for a re-entry: 0.04 under 0.10"}
+{"timestamp": "2026-10-08T08:19:40.517Z", "message": "2026-10-08 08:19:40,517 INFO [v36b] WHY-NOT DKI px 3.3900 | crowd #1 $5531k held 3.7m, gainer #1 | NO SPEED for a re-entry: 0.04 under 0.10"}
+{"timestamp": "2026-10-08T08:19:45.568Z", "message": "2026-10-08 08:19:45,568 INFO [v36] WHY-NOT DKI px 3.4500 | crowd #1 $5531k held 3.8m, gainer #1 | NO SPEED for a re-entry: 0.09 under 0.10"}
+{"timestamp": "2026-10-08T08:19:45.578Z", "message": "2026-10-08 08:19:45,578 INFO [v36b] WHY-NOT DKI px 3.4500 | crowd #1 $5531k held 3.8m, gainer #1 | NO SPEED for a re-entry: 0.09 under 0.10"}
+{"timestamp": "2026-10-08T08:19:50.684Z", "message": "2026-10-08 08:19:50,684 INFO [v36] WHY-NOT DKI px 3.5200 | crowd #1 $5531k held 3.8m, gainer #1 | NO: at the $3.50 level - wait till it holds 5c past"}
+{"timestamp": "2026-10-08T08:19:50.688Z", "message": "2026-10-08 08:19:50,688 INFO [v36b] WHY-NOT DKI px 3.5200 | crowd #1 $5531k held 3.8m, gainer #1 | NO: at the $3.50 level - wait till it holds 5c past"}
+{"timestamp": "2026-10-08T08:19:55.715Z", "message": "2026-10-08 08:19:55,715 INFO [v36] WHY-NOT DKI px 3.5400 | crowd #1 $5531k held 3.9m, gainer #1 | NO: at the $3.50 level - wait till it holds 5c past"}
+{"timestamp": "2026-10-08T08:19:55.718Z", "message": "2026-10-08 08:19:55,718 INFO [v36b] WHY-NOT DKI px 3.5400 | crowd #1 $5531k held 3.9m, gainer #1 | NO: at the $3.50 level - wait till it holds 5c past"}
+{"timestamp": "2026-10-08T08:59:40.310Z", "message": "2026-10-08 08:59:40,310 INFO [v36] WHY-NOT DKI px 3.3200 | crowd #1 $3648k held 20.7m, gainer #1 | WAIT: hod trigger 3.7700"}
+{"timestamp": "2026-10-08T08:59:40.316Z", "message": "2026-10-08 08:59:40,316 INFO [v36b] WHY-NOT DKI px 3.3200 | crowd #1 $3648k held 20.7m, gainer #1 | WAIT: hod trigger 3.7700"}
+{"timestamp": "2026-10-08T09:00:18.381Z", "message": "2026-10-08 09:00:18,381 INFO [v36] IGNORED DKI print 3.3600 - the market is 3.4500 x 3.4600 (decides nothing)"}
+{"timestamp": "2026-10-08T09:00:18.390Z", "message": "2026-10-08 09:00:18,390 INFO [v37] IGNORED DKI print 3.3600 - the market is 3.4500 x 3.4600 (decides nothing)"}
+{"timestamp": "2026-10-08T09:00:18.392Z", "message": "2026-10-08 09:00:18,392 INFO [v36b] IGNORED DKI print 3.3600 - the market is 3.4500 x 3.4600 (decides nothing)"}
+{"timestamp": "2026-10-08T09:00:40.318Z", "message": "2026-10-08 09:00:40,318 INFO [v36] WHY-NOT DKI px 3.7200 | crowd #1 $3132k held 21.7m, gainer #1 | WAIT: hod trigger 3.7700"}
+{"timestamp": "2026-10-08T09:00:40.319Z", "message": "2026-10-08 09:00:40,319 INFO [v36b] WHY-NOT DKI px 3.7200 | crowd #1 $3132k held 21.7m, gainer #1 | WAIT: hod trigger 3.7700"}
+{"timestamp": "2026-10-08T09:00:40.609Z", "message": "2026-10-08 09:00:40,609 INFO [v36] FURIOUS DKI at 3.7300: speed 0.55, 5s +2.8% on $178k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:40.612Z", "message": "2026-10-08 09:00:40,612 INFO [v36b] FURIOUS DKI at 3.7300: speed 0.55, 5s +2.8% on $178k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:41.861Z", "message": "2026-10-08 09:00:41,861 INFO [v36b] DKI BUY SHORT - wanted 411, got 353 at a limit up to inf: filled at up to 3.9300 (the ask + 0.20)"}
+{"timestamp": "2026-10-08T09:00:41.932Z", "message": "2026-10-08 09:00:41,932 INFO [v36b] ENTER DKI 353 @ 3.7467 (print 3.7300) = $1323 (21% of equity) | stop 3.6181 (3.43% away) | new-high trigger 3.7200"}
+{"timestamp": "2026-10-08T09:00:41.935Z", "message": "2026-10-08 09:00:41,935 INFO [v36b]   DKI tape 60s: buy 53% sell 28% between 19% of 552,802 sh (100% by quote) | 5m: buy 52% sell 29% between 19% of 1,360,826 sh (100% by quote) (buying)"}
+{"timestamp": "2026-10-08T09:00:41.935Z", "message": "2026-10-08 09:00:41,935 INFO [v36b] DKI FULL POSITION 353 shares at once (furious), buy 3 today - stop 3.6467, line $3.50"}
+{"timestamp": "2026-10-08T09:00:42.028Z", "message": "2026-10-08 09:00:42,028 INFO [v36] DKI BUY SHORT - wanted 1088, got 0 at a limit up to inf: filled at up to 3.9600 (the ask + 0.20)"}
+{"timestamp": "2026-10-08T09:00:42.032Z", "message": "2026-10-08 09:00:42,032 INFO [v36] FURIOUS DKI at 3.7300: speed 0.48, 5s +2.8% on $179k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.035Z", "message": "2026-10-08 09:00:42,035 INFO [v36] FURIOUS DKI at 3.7300: speed 0.48, 5s +2.8% on $176k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.037Z", "message": "2026-10-08 09:00:42,037 INFO [v36] FURIOUS DKI at 3.7300: speed 0.48, 5s +2.8% on $178k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.039Z", "message": "2026-10-08 09:00:42,039 INFO [v36] FURIOUS DKI at 3.7300: speed 0.48, 5s +2.8% on $178k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.041Z", "message": "2026-10-08 09:00:42,041 INFO [v36] FURIOUS DKI at 3.7300: speed 0.48, 5s +2.8% on $179k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.043Z", "message": "2026-10-08 09:00:42,043 INFO [v36] FURIOUS DKI at 3.7300: speed 0.48, 5s +2.8% on $180k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.045Z", "message": "2026-10-08 09:00:42,045 INFO [v36] FURIOUS DKI at 3.7300: speed 0.48, 5s +2.8% on $182k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.047Z", "message": "2026-10-08 09:00:42,047 INFO [v36] FURIOUS DKI at 3.7300: speed 0.48, 5s +2.8% on $182k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.049Z", "message": "2026-10-08 09:00:42,049 INFO [v36] FURIOUS DKI at 3.7300: speed 0.48, 5s +2.8% on $183k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.051Z", "message": "2026-10-08 09:00:42,051 INFO [v36] FURIOUS DKI at 3.7300: speed 0.48, 5s +2.8% on $184k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.053Z", "message": "2026-10-08 09:00:42,053 INFO [v36] FURIOUS DKI at 3.7300: speed 0.48, 5s +2.8% on $184k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.055Z", "message": "2026-10-08 09:00:42,055 INFO [v36] FURIOUS DKI at 3.7400: speed 0.50, 5s +3.0% on $185k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.057Z", "message": "2026-10-08 09:00:42,057 INFO [v36] FURIOUS DKI at 3.7400: speed 0.50, 5s +3.0% on $188k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.059Z", "message": "2026-10-08 09:00:42,059 INFO [v36] FURIOUS DKI at 3.7400: speed 0.50, 5s +3.0% on $189k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.062Z", "message": "2026-10-08 09:00:42,062 INFO [v36] FURIOUS DKI at 3.7400: speed 0.50, 5s +3.0% on $190k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.064Z", "message": "2026-10-08 09:00:42,064 INFO [v36] FURIOUS DKI at 3.7400: speed 0.50, 5s +3.0% on $190k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.066Z", "message": "2026-10-08 09:00:42,066 INFO [v36] FURIOUS DKI at 3.7500: speed 0.51, 5s +3.3% on $190k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.067Z", "message": "2026-10-08 09:00:42,067 INFO [v36] FURIOUS DKI at 3.7500: speed 0.51, 5s +3.3% on $191k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.069Z", "message": "2026-10-08 09:00:42,069 INFO [v36] FURIOUS DKI at 3.7500: speed 0.51, 5s +3.3% on $191k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.071Z", "message": "2026-10-08 09:00:42,071 INFO [v36] FURIOUS DKI at 3.7500: speed 0.51, 5s +3.3% on $193k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.073Z", "message": "2026-10-08 09:00:42,073 INFO [v36] FURIOUS DKI at 3.7500: speed 0.51, 5s +3.3% on $193k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.075Z", "message": "2026-10-08 09:00:42,075 INFO [v36] FURIOUS DKI at 3.7600: speed 0.53, 5s +3.6% on $193k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.118Z", "message": "2026-10-08 09:00:42,118 INFO [v36] FURIOUS DKI at 3.7600: speed 0.53, 5s +3.6% on $194k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.121Z", "message": "2026-10-08 09:00:42,121 INFO [v36] FURIOUS DKI at 3.7600: speed 0.53, 5s +3.6% on $195k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.123Z", "message": "2026-10-08 09:00:42,123 INFO [v36] FURIOUS DKI at 3.7600: speed 0.53, 5s +3.6% on $196k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.125Z", "message": "2026-10-08 09:00:42,125 INFO [v36] FURIOUS DKI at 3.7405: speed 0.50, 5s +3.0% on $196k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.126Z", "message": "2026-10-08 09:00:42,126 INFO [v36] FURIOUS DKI at 3.7600: speed 0.53, 5s +3.0% on $195k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.128Z", "message": "2026-10-08 09:00:42,128 INFO [v36] FURIOUS DKI at 3.7500: speed 0.51, 5s +3.3% on $186k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.130Z", "message": "2026-10-08 09:00:42,130 INFO [v36] FURIOUS DKI at 3.7500: speed 0.51, 5s +3.3% on $183k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.132Z", "message": "2026-10-08 09:00:42,132 INFO [v36] FURIOUS DKI at 3.7500: speed 0.51, 5s +3.3% on $183k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.134Z", "message": "2026-10-08 09:00:42,134 INFO [v36] FURIOUS DKI at 3.7500: speed 0.51, 5s +3.3% on $184k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.136Z", "message": "2026-10-08 09:00:42,136 INFO [v36] FURIOUS DKI at 3.7500: speed 0.51, 5s +3.3% on $184k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.138Z", "message": "2026-10-08 09:00:42,138 INFO [v36] FURIOUS DKI at 3.7500: speed 0.51, 5s +3.3% on $185k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.140Z", "message": "2026-10-08 09:00:42,140 INFO [v36] FURIOUS DKI at 3.7600: speed 0.53, 5s +3.6% on $185k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.142Z", "message": "2026-10-08 09:00:42,142 INFO [v36] FURIOUS DKI at 3.7600: speed 0.53, 5s +3.6% on $186k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.143Z", "message": "2026-10-08 09:00:42,143 INFO [v36] FURIOUS DKI at 3.7600: speed 0.53, 5s +3.6% on $187k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.145Z", "message": "2026-10-08 09:00:42,145 INFO [v36] FURIOUS DKI at 3.7600: speed 0.53, 5s +3.6% on $187k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.147Z", "message": "2026-10-08 09:00:42,147 INFO [v36] FURIOUS DKI at 3.7500: speed 0.51, 5s +3.3% on $188k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.149Z", "message": "2026-10-08 09:00:42,149 INFO [v36] FURIOUS DKI at 3.7500: speed 0.51, 5s +3.3% on $189k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.151Z", "message": "2026-10-08 09:00:42,151 INFO [v36] FURIOUS DKI at 3.7500: speed 0.51, 5s +3.3% on $190k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.152Z", "message": "2026-10-08 09:00:42,152 INFO [v36] FURIOUS DKI at 3.7500: speed 0.51, 5s +3.3% on $190k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.154Z", "message": "2026-10-08 09:00:42,154 INFO [v36] FURIOUS DKI at 3.7400: speed 0.50, 5s +3.0% on $191k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.156Z", "message": "2026-10-08 09:00:42,156 INFO [v36] FURIOUS DKI at 3.7300: speed 0.49, 5s +2.8% on $192k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.158Z", "message": "2026-10-08 09:00:42,158 INFO [v36] FURIOUS DKI at 3.7300: speed 0.49, 5s +2.8% on $193k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.160Z", "message": "2026-10-08 09:00:42,160 INFO [v36] FURIOUS DKI at 3.7300: speed 0.49, 5s +2.8% on $193k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.161Z", "message": "2026-10-08 09:00:42,161 INFO [v36] FURIOUS DKI at 3.7300: speed 0.49, 5s +2.8% on $194k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.163Z", "message": "2026-10-08 09:00:42,163 INFO [v36] FURIOUS DKI at 3.7400: speed 0.50, 5s +3.0% on $194k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.165Z", "message": "2026-10-08 09:00:42,165 INFO [v36] FURIOUS DKI at 3.7300: speed 0.49, 5s +2.8% on $195k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.167Z", "message": "2026-10-08 09:00:42,167 INFO [v36] FURIOUS DKI at 3.7300: speed 0.49, 5s +2.8% on $197k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.221Z", "message": "2026-10-08 09:00:42,221 INFO [v36] FURIOUS DKI at 3.7300: speed 0.49, 5s +2.8% on $197k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.223Z", "message": "2026-10-08 09:00:42,223 INFO [v36] FURIOUS DKI at 3.7300: speed 0.49, 5s +2.8% on $200k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.225Z", "message": "2026-10-08 09:00:42,225 INFO [v36] FURIOUS DKI at 3.7300: speed 0.49, 5s +2.8% on $203k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.227Z", "message": "2026-10-08 09:00:42,227 INFO [v36] FURIOUS DKI at 3.7300: speed 0.49, 5s +2.8% on $204k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.228Z", "message": "2026-10-08 09:00:42,228 INFO [v36] FURIOUS DKI at 3.7300: speed 0.49, 5s +2.8% on $204k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.230Z", "message": "2026-10-08 09:00:42,230 INFO [v36] FURIOUS DKI at 3.7300: speed 0.49, 5s +2.8% on $204k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.232Z", "message": "2026-10-08 09:00:42,232 INFO [v36] FURIOUS DKI at 3.7300: speed 0.49, 5s +2.8% on $205k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.234Z", "message": "2026-10-08 09:00:42,234 INFO [v36] FURIOUS DKI at 3.7300: speed 0.49, 5s +2.8% on $205k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.235Z", "message": "2026-10-08 09:00:42,235 INFO [v36] FURIOUS DKI at 3.7300: speed 0.49, 5s +2.8% on $206k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.237Z", "message": "2026-10-08 09:00:42,237 INFO [v36] FURIOUS DKI at 3.7300: speed 0.49, 5s +2.8% on $206k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.240Z", "message": "2026-10-08 09:00:42,240 INFO [v36] FURIOUS DKI at 3.7300: speed 0.49, 5s +2.8% on $208k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.242Z", "message": "2026-10-08 09:00:42,242 INFO [v36] FURIOUS DKI at 3.7300: speed 0.49, 5s +2.8% on $208k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.243Z", "message": "2026-10-08 09:00:42,243 INFO [v36] FURIOUS DKI at 3.7300: speed 0.49, 5s +2.8% on $209k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.245Z", "message": "2026-10-08 09:00:42,245 INFO [v36] FURIOUS DKI at 3.7300: speed 0.49, 5s +2.8% on $209k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.247Z", "message": "2026-10-08 09:00:42,247 INFO [v36] FURIOUS DKI at 3.7300: speed 0.49, 5s +2.8% on $213k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.249Z", "message": "2026-10-08 09:00:42,249 INFO [v36] FURIOUS DKI at 3.7312: speed 0.50, 5s +2.8% on $213k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.251Z", "message": "2026-10-08 09:00:42,251 INFO [v36] FURIOUS DKI at 3.7400: speed 0.51, 5s +3.0% on $215k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.253Z", "message": "2026-10-08 09:00:42,253 INFO [v36] FURIOUS DKI at 3.7400: speed 0.51, 5s +3.0% on $215k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.255Z", "message": "2026-10-08 09:00:42,255 INFO [v36] FURIOUS DKI at 3.7400: speed 0.51, 5s +3.0% on $215k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.257Z", "message": "2026-10-08 09:00:42,257 INFO [v36] FURIOUS DKI at 3.7400: speed 0.51, 5s +3.0% on $216k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.259Z", "message": "2026-10-08 09:00:42,259 INFO [v36] FURIOUS DKI at 3.7400: speed 0.51, 5s +3.0% on $216k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.260Z", "message": "2026-10-08 09:00:42,260 INFO [v36] FURIOUS DKI at 3.7500: speed 0.52, 5s +3.3% on $216k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.262Z", "message": "2026-10-08 09:00:42,262 INFO [v36] FURIOUS DKI at 3.7400: speed 0.51, 5s +3.0% on $218k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.264Z", "message": "2026-10-08 09:00:42,264 INFO [v36] FURIOUS DKI at 3.7400: speed 0.51, 5s +3.0% on $218k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.266Z", "message": "2026-10-08 09:00:42,266 INFO [v36] FURIOUS DKI at 3.7400: speed 0.51, 5s +3.1% on $192k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.319Z", "message": "2026-10-08 09:00:42,319 INFO [v36] FURIOUS DKI at 3.7500: speed 0.52, 5s +3.3% on $194k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.321Z", "message": "2026-10-08 09:00:42,321 INFO [v36] FURIOUS DKI at 3.7500: speed 0.52, 5s +3.3% on $194k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.323Z", "message": "2026-10-08 09:00:42,323 INFO [v36] FURIOUS DKI at 3.7500: speed 0.52, 5s +3.6% on $193k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.325Z", "message": "2026-10-08 09:00:42,325 INFO [v36] FURIOUS DKI at 3.7500: speed 0.52, 5s +3.6% on $194k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.328Z", "message": "2026-10-08 09:00:42,328 INFO [v36] FURIOUS DKI at 3.7500: speed 0.52, 5s +3.6% on $195k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.329Z", "message": "2026-10-08 09:00:42,329 INFO [v36] FURIOUS DKI at 3.7500: speed 0.52, 5s +3.6% on $195k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.331Z", "message": "2026-10-08 09:00:42,331 INFO [v36] FURIOUS DKI at 3.7500: speed 0.52, 5s +3.6% on $196k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.334Z", "message": "2026-10-08 09:00:42,334 INFO [v36] FURIOUS DKI at 3.7500: speed 0.52, 5s +3.6% on $196k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.339Z", "message": "2026-10-08 09:00:42,339 INFO [v36] FURIOUS DKI at 3.7513: speed 0.53, 5s +3.6% on $197k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.341Z", "message": "2026-10-08 09:00:42,341 INFO [v36] FURIOUS DKI at 3.7600: speed 0.54, 5s +3.9% on $197k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.343Z", "message": "2026-10-08 09:00:42,343 INFO [v36] FURIOUS DKI at 3.7600: speed 0.54, 5s +3.9% on $198k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.345Z", "message": "2026-10-08 09:00:42,345 INFO [v36] FURIOUS DKI at 3.7600: speed 0.54, 5s +3.9% on $199k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.346Z", "message": "2026-10-08 09:00:42,346 INFO [v36] FURIOUS DKI at 3.7600: speed 0.54, 5s +3.9% on $199k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.348Z", "message": "2026-10-08 09:00:42,348 INFO [v36] FURIOUS DKI at 3.7800: speed 0.57, 5s +4.4% on $199k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.350Z", "message": "2026-10-08 09:00:42,350 INFO [v36] FURIOUS DKI at 3.7700: speed 0.55, 5s +4.1% on $200k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.352Z", "message": "2026-10-08 09:00:42,352 INFO [v36] FURIOUS DKI at 3.7700: speed 0.55, 5s +4.1% on $201k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.354Z", "message": "2026-10-08 09:00:42,354 INFO [v36] FURIOUS DKI at 3.7700: speed 0.55, 5s +4.1% on $202k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.356Z", "message": "2026-10-08 09:00:42,356 INFO [v36] FURIOUS DKI at 3.7689: speed 0.55, 5s +3.9% on $201k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.358Z", "message": "2026-10-08 09:00:42,358 INFO [v36] FURIOUS DKI at 3.7700: speed 0.55, 5s +3.9% on $202k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.360Z", "message": "2026-10-08 09:00:42,360 INFO [v36] FURIOUS DKI at 3.7600: speed 0.54, 5s +3.6% on $198k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.362Z", "message": "2026-10-08 09:00:42,362 INFO [v36] FURIOUS DKI at 3.7611: speed 0.54, 5s +3.6% on $198k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.364Z", "message": "2026-10-08 09:00:42,364 INFO [v36] FURIOUS DKI at 3.7611: speed 0.54, 5s +3.6% on $199k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.366Z", "message": "2026-10-08 09:00:42,366 INFO [v36] FURIOUS DKI at 3.7700: speed 0.55, 5s +3.9% on $193k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.431Z", "message": "2026-10-08 09:00:42,431 INFO [v36] FURIOUS DKI at 3.7611: speed 0.55, 5s +3.6% on $193k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.432Z", "message": "2026-10-08 09:00:42,432 INFO [v36] FURIOUS DKI at 3.7698: speed 0.56, 5s +3.9% on $194k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.472Z", "message": "2026-10-08 09:00:42,472 INFO [v36] FURIOUS DKI at 3.7600: speed 0.55, 5s +3.6% on $196k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.528Z", "message": "2026-10-08 09:00:42,528 INFO [v36] FURIOUS DKI at 3.7501: speed 0.54, 5s +3.0% on $196k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.673Z", "message": "2026-10-08 09:00:42,673 INFO [v36] FURIOUS DKI at 3.7500: speed 0.53, 5s +3.0% on $193k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T09:00:42.721Z", "message": "2026-10-08 09:00:42,721 INFO [v37] DKI BUY SHORT - wanted 1178, got 0 at a limit up to inf: the ask 3.7600 is back at the high 3.7700 - no buy under it"}
+{"timestamp": "2026-10-08T09:00:43.453Z", "message": "2026-10-08 09:00:43,453 INFO [v36b] TAPE DKI held -0.2% | tape 60s: buy 52% sell 29% between 19% of 554,517 sh (100% by quote) | 5m: buy 51% sell 29% between 19% of 1,366,484 sh (100% by quote)"}
+{"timestamp": "2026-10-08T09:00:43.561Z", "message": "2026-10-08 09:00:43,561 INFO [v36] ENTER DKI 1082 @ 3.7500 (print 3.7500) = $4058 (24% of equity) | stop 3.4900 (6.93% away) | new-high trigger 3.7200"}
+{"timestamp": "2026-10-08T09:00:43.563Z", "message": "2026-10-08 09:00:43,563 INFO [v36]   DKI tape 60s: buy 52% sell 29% between 19% of 553,026 sh (100% by quote) | 5m: buy 51% sell 29% between 19% of 1,368,185 sh (100% by quote) (buying)"}
+{"timestamp": "2026-10-08T09:00:43.564Z", "message": "2026-10-08 09:00:43,564 INFO [v36] DKI FULL POSITION 1082 shares at once (furious), buy 3 today - stop 3.6500, line $3.50"}
+{"timestamp": "2026-10-08T09:00:47.831Z", "message": "2026-10-08 09:00:47,831 INFO [v37] DKI BUY SHORT - wanted 1166, got 833 at a limit up to inf: filled at up to 4.1000 (the ask + 0.20)"}
+{"timestamp": "2026-10-08T09:00:47.903Z", "message": "2026-10-08 09:00:47,903 INFO [v37] ENTER DKI 833 @ 3.9000 (print 3.8200) = $3249 (23.1% of equity) - ACCELERATING 0.52, 35% of the account, buy 4 today | crowd #1, $3132k in 5 min | stop 3.8000 | adds at 4.0000 and 4.1000 | speed 0.52 | score 13 (speed 4 candle 2 wicks 1 bodies 1 lows 1 volume 0 trend 2 macd 1 room 1)"}
+{"timestamp": "2026-10-08T09:00:48.457Z", "message": "2026-10-08 09:00:48,457 INFO [v36] TAPE DKI held +3.7% | tape 60s: buy 49% sell 33% between 19% of 661,165 sh (100% by quote) | 5m: buy 50% sell 31% between 19% of 1,470,794 sh (100% by quote)"}
+{"timestamp": "2026-10-08T09:00:48.460Z", "message": "2026-10-08 09:00:48,460 INFO [v37] TAPE DKI held -0.3% | tape 60s: buy 49% sell 33% between 19% of 661,165 sh (100% by quote) | 5m: buy 50% sell 31% between 19% of 1,470,794 sh (100% by quote)"}
+{"timestamp": "2026-10-08T09:00:48.899Z", "message": "2026-10-08 09:00:48,899 INFO [v37]   DKI tape 60s: buy 49% sell 33% between 19% of 669,473 sh (100% by quote) | 5m: buy 50% sell 31% between 19% of 1,479,809 sh (100% by quote) (selling: giveback)"}
+{"timestamp": "2026-10-08T09:00:49.115Z", "message": "2026-10-08 09:00:49,115 INFO [v37] DKI SELL 833 at a limit 3.49 (bid 3.8800)"}
+{"timestamp": "2026-10-08T09:00:49.536Z", "message": "2026-10-08 09:00:49,536 INFO [v36] IGNORED DKI print 3.8897 - the market is 3.9100 x 3.9200 (decides nothing)"}
+{"timestamp": "2026-10-08T09:00:49.537Z", "message": "2026-10-08 09:00:49,537 INFO [v36b] IGNORED DKI print 3.8897 - the market is 3.9100 x 3.9200 (decides nothing)"}
+{"timestamp": "2026-10-08T09:00:49.902Z", "message": "2026-10-08 09:00:49,902 INFO [v37] DKI SELL 355 at a limit 3.49 (bid 3.8800)"}
+{"timestamp": "2026-10-08T09:00:50.967Z", "message": "2026-10-08 09:00:50,967 INFO [v37] DKI SELL 32 at a limit 3.50 (bid 3.8900)"}
+{"timestamp": "2026-10-08T09:00:52.032Z", "message": "2026-10-08 09:00:52,032 INFO [v37] DKI SELL 21 at a limit 3.50 (bid 3.8900)"}
+{"timestamp": "2026-10-08T09:00:52.948Z", "message": "2026-10-08 09:00:52,948 INFO [v37] EXIT giveback DKI 833 @ 3.8843 | trigger print 3.8900 x 225 cond ['@', 'T'], 0.0s old | entry 3.9000 peak 3.9112 stop 3.8000 | held 5s | P/L -13.11 (-0.40% of the trade, -0.09% of the account)"}
+{"timestamp": "2026-10-08T09:00:52.950Z", "message": "2026-10-08 09:00:52,950 INFO [v37] IGNORED DKI print 3.9199 - the market is 3.8800 x 3.8900 (decides nothing)"}
+{"timestamp": "2026-10-08T09:01:17.030Z", "message": "  DKI        1082    3.7500    3.8900    3.6500    +151.48    +3.7%     0m"}
+{"timestamp": "2026-10-08T09:01:17.102Z", "message": "  DKI         353    3.7467    3.8900    3.6467     +50.59    +3.8%     0m"}
+{"timestamp": "2026-10-08T09:01:23.259Z", "message": "2026-10-08 09:01:23,259 INFO [v36] IGNORED DKI print 3.9300 - the market is 3.9600 x 3.9600 (decides nothing)"}
+{"timestamp": "2026-10-08T09:01:23.260Z", "message": "2026-10-08 09:01:23,260 INFO [v37] IGNORED DKI print 3.9300 - the market is 3.9600 x 3.9600 (decides nothing)"}
+{"timestamp": "2026-10-08T09:01:23.260Z", "message": "2026-10-08 09:01:23,260 INFO [v36b] IGNORED DKI print 3.9300 - the market is 3.9600 x 3.9600 (decides nothing)"}
+{"timestamp": "2026-10-08T09:01:33.908Z", "message": "2026-10-08 09:01:33,908 INFO [v36]   DKI tape 60s: buy 55% sell 30% between 15% of 772,459 sh (100% by quote) | 5m: buy 52% sell 30% between 18% of 1,740,173 sh (100% by quote) (selling: giveback)"}
+{"timestamp": "2026-10-08T09:01:33.910Z", "message": "2026-10-08 09:01:33,910 INFO [v36b]   DKI tape 60s: buy 55% sell 30% between 15% of 772,459 sh (100% by quote) | 5m: buy 52% sell 30% between 18% of 1,739,873 sh (100% by quote) (selling: giveback)"}
+{"timestamp": "2026-10-08T09:01:34.126Z", "message": "2026-10-08 09:01:34,126 INFO [v36b] DKI SELL 353 at a limit 3.62 (bid 4.0200)"}
+{"timestamp": "2026-10-08T09:01:34.129Z", "message": "2026-10-08 09:01:34,129 INFO [v36] DKI SELL 1082 at a limit 3.62 (bid 4.0200)"}
+{"timestamp": "2026-10-08T09:01:34.762Z", "message": "2026-10-08 09:01:34,762 INFO [v36b] EXIT giveback DKI 353 @ 4.0200 | trigger print 3.9900 x 169 cond ['@', 'T'], 0.0s old | entry 3.7467 peak 4.1000 stop 3.6467 | held 53s | P/L +96.48 (+7.29% of the trade, +1.50% of the account)"}
+{"timestamp": "2026-10-08T09:01:34.768Z", "message": "2026-10-08 09:01:34,768 INFO [v36b] WHY-NOT DKI px 4.0000 | crowd #1 $5179k held 22.6m, gainer #1 | NO: at the $4.00 level - wait till it holds 5c past"}
+{"timestamp": "2026-10-08T09:01:34.837Z", "message": "2026-10-08 09:01:34,837 INFO [v36] EXIT giveback DKI 1082 @ 4.0100 | trigger print 3.9900 x 169 cond ['@', 'T'], 0.0s old | entry 3.7500 peak 4.1000 stop 3.6500 | held 51s | P/L +281.32 (+6.93% of the trade, +1.65% of the account)"}
+{"timestamp": "2026-10-08T09:01:34.839Z", "message": "2026-10-08 09:01:34,839 INFO [v36] WHY-NOT DKI px 4.0000 | crowd #1 $5179k held 22.6m, gainer #1 | NO: at the $4.00 level - wait till it holds 5c past"}
+{"timestamp": "2026-10-08T09:01:40.006Z", "message": "2026-10-08 09:01:40,006 INFO [v36] WHY-NOT DKI px 4.0300 | crowd #1 $5179k held 22.7m, gainer #1 | NO: at the $4.00 level - wait till it holds 5c past"}
+{"timestamp": "2026-10-08T09:01:40.009Z", "message": "2026-10-08 09:01:40,009 INFO [v36b] WHY-NOT DKI px 4.0300 | crowd #1 $5179k held 22.7m, gainer #1 | NO: at the $4.00 level - wait till it holds 5c past"}
+{"timestamp": "2026-10-08T09:01:45.124Z", "message": "2026-10-08 09:01:45,124 INFO [v36] WHY-NOT DKI px 3.9790 | crowd #1 $5179k held 22.7m, gainer #1 | NO: at the $4.00 level - wait till it holds 5c past"}
+{"timestamp": "2026-10-08T09:01:45.127Z", "message": "2026-10-08 09:01:45,127 INFO [v36b] WHY-NOT DKI px 3.9790 | crowd #1 $5179k held 22.7m, gainer #1 | NO: at the $4.00 level - wait till it holds 5c past"}
+{"timestamp": "2026-10-08T09:01:54.311Z", "message": "2026-10-08 09:01:54,311 INFO [v36] WHY-NOT DKI px 3.9700 | crowd #1 $5179k held 22.9m, gainer #1 | NO: at the $4.00 level - wait till it holds 5c past"}
+{"timestamp": "2026-10-08T09:01:54.339Z", "message": "2026-10-08 09:01:54,339 INFO [v36b] WHY-NOT DKI px 3.9700 | crowd #1 $5179k held 22.9m, gainer #1 | NO: at the $4.00 level - wait till it holds 5c past"}
+{"timestamp": "2026-10-08T09:01:59.542Z", "message": "2026-10-08 09:01:59,542 INFO [v36] WHY-NOT DKI px 4.0186 | crowd #1 $5179k held 23.0m, gainer #1 | NO: at the $4.00 level - wait till it holds 5c past"}
+{"timestamp": "2026-10-08T09:01:59.546Z", "message": "2026-10-08 09:01:59,546 INFO [v36b] WHY-NOT DKI px 4.0186 | crowd #1 $5179k held 23.0m, gainer #1 | NO: at the $4.00 level - wait till it holds 5c past"}
+{"timestamp": "2026-10-08T09:03:59.765Z", "message": "2026-10-08 09:03:59,765 INFO [v36] WHY-NOT DKI px 3.9800 | crowd #1 $8135k held 25.0m, gainer #1 | WAIT: hod trigger 4.1500"}
+{"timestamp": "2026-10-08T09:03:59.768Z", "message": "2026-10-08 09:03:59,768 INFO [v36b] WHY-NOT DKI px 3.9800 | crowd #1 $8135k held 25.0m, gainer #1 | WAIT: hod trigger 4.1500"}
+{"timestamp": "2026-10-08T09:04:49.868Z", "message": "2026-10-08 09:04:49,868 INFO [v36] IGNORED DKI print 4.0100 - the market is 4.0400 x 4.0500 (decides nothing)"}
+{"timestamp": "2026-10-08T09:04:49.876Z", "message": "2026-10-08 09:04:49,876 INFO [v37] IGNORED DKI print 4.0100 - the market is 4.0400 x 4.0500 (decides nothing)"}
+{"timestamp": "2026-10-08T09:04:49.877Z", "message": "2026-10-08 09:04:49,877 INFO [v36b] IGNORED DKI print 4.0100 - the market is 4.0400 x 4.0500 (decides nothing)"}
+{"timestamp": "2026-10-08T09:04:56.994Z", "message": "2026-10-08 09:04:56,994 INFO [v36] DKI STARTER sized for its stop: 99 -> 79 shares ($328) - the stop 3.9900 is 3.9% under 4.1500, $13 at risk"}
+{"timestamp": "2026-10-08T09:04:59.525Z", "message": "2026-10-08 09:04:59,525 INFO [v36b] ENTER DKI 37 @ 4.1638 (print 4.1500) = $154 (2% of equity) | stop 4.0255 (3.32% away) | new-high trigger 4.1500"}
+{"timestamp": "2026-10-08T09:04:59.528Z", "message": "2026-10-08 09:04:59,528 INFO [v36b]   DKI tape 60s: buy 49% sell 28% between 23% of 328,916 sh (100% by quote) | 5m: buy 52% sell 30% between 18% of 2,148,422 sh (100% by quote) (buying)"}
+{"timestamp": "2026-10-08T09:04:59.528Z", "message": "2026-10-08 09:04:59,528 INFO [v36b] DKI STARTER 37 shares (a tenth of a full position), buy 4 today - adds at 4.3138 and 4.3638 on a new high"}
+{"timestamp": "2026-10-08T09:05:02.679Z", "message": "2026-10-08 09:05:02,679 WARNING [v36] cancelled 1 working order(s) on DKI"}
+{"timestamp": "2026-10-08T09:05:03.240Z", "message": "2026-10-08 09:05:03,240 INFO [v36] ENTER DKI 79 @ 4.1686 (print 4.1500) = $329 (2% of equity) | stop 3.9900 (4.28% away) | new-high trigger 4.1500"}
+{"timestamp": "2026-10-08T09:05:03.243Z", "message": "2026-10-08 09:05:03,243 INFO [v36]   DKI tape 60s: buy 46% sell 29% between 25% of 318,782 sh (100% by quote) | 5m: buy 52% sell 30% between 18% of 2,179,908 sh (100% by quote) (buying)"}
+{"timestamp": "2026-10-08T09:05:03.243Z", "message": "2026-10-08 09:05:03,243 INFO [v36] DKI STARTER 79 shares (a tenth of a full position), buy 4 today - adds at 4.3186 and 4.3686 on a new high"}
+{"timestamp": "2026-10-08T09:05:03.627Z", "message": "2026-10-08 09:05:03,627 INFO [v36] TAPE DKI held +0.8% | tape 60s: buy 46% sell 28% between 26% of 314,898 sh (100% by quote) | 5m: buy 52% sell 30% between 18% of 2,181,196 sh (100% by quote)"}
+{"timestamp": "2026-10-08T09:05:03.630Z", "message": "2026-10-08 09:05:03,630 INFO [v36b] TAPE DKI held +0.9% | tape 60s: buy 46% sell 28% between 26% of 314,898 sh (100% by quote) | 5m: buy 52% sell 30% between 18% of 2,181,196 sh (100% by quote)"}
+{"timestamp": "2026-10-08T09:05:17.136Z", "message": "  DKI          79    4.1686    4.1500    3.9900      -1.47    -0.4%     0m"}
+{"timestamp": "2026-10-08T09:05:17.136Z", "message": "  DKI          37    4.1638    4.1500    4.0255      -0.51    -0.3%     0m"}
+{"timestamp": "2026-10-08T09:05:41.374Z", "message": "2026-10-08 09:05:41,374 INFO [v36b] DKI the market 4.0200 x 4.0300 is at the stop 4.0255 - out"}
+{"timestamp": "2026-10-08T09:05:41.378Z", "message": "2026-10-08 09:05:41,378 INFO [v36b]   DKI tape 60s: buy 41% sell 36% between 23% of 402,163 sh (100% by quote) | 5m: buy 50% sell 32% between 19% of 1,955,077 sh (100% by quote) (selling: stop)"}
+{"timestamp": "2026-10-08T09:05:41.614Z", "message": "2026-10-08 09:05:41,614 INFO [v36b] DKI SELL 37 at a limit 3.99 (bid 4.0100)"}
+{"timestamp": "2026-10-08T09:05:42.266Z", "message": "2026-10-08 09:05:42,266 WARNING [v36b] cancelled 1 working order(s) on DKI"}
+{"timestamp": "2026-10-08T09:05:42.422Z", "message": "2026-10-08 09:05:42,422 INFO [v36]   DKI tape 60s: buy 41% sell 36% between 23% of 410,945 sh (100% by quote) | 5m: buy 49% sell 32% between 19% of 1,951,466 sh (100% by quote) (selling: stop)"}
+{"timestamp": "2026-10-08T09:05:42.673Z", "message": "2026-10-08 09:05:42,673 INFO [v36] DKI SELL 79 at a limit 3.98 (bid 4.0000)"}
+{"timestamp": "2026-10-08T09:05:43.239Z", "message": "2026-10-08 09:05:43,239 INFO [v36b] DKI SELL 13 at a limit 3.96 (bid 3.9800)"}
+{"timestamp": "2026-10-08T09:05:43.902Z", "message": "2026-10-08 09:05:43,902 INFO [v36b] EXIT stop DKI 37 @ 3.9995 | trigger print 4.0300 x 175 cond ['@', 'T'], 0.0s old | entry 4.1638 peak 4.2400 stop 4.0255 | held 44s | P/L -6.08 (-3.95% of the trade, -0.09% of the account)"}
+{"timestamp": "2026-10-08T09:05:43.902Z", "message": "2026-10-08 09:05:43,902 INFO [v36b] IGNORED DKI print 4.0300 - the market is 3.9800 x 3.9900 (decides nothing)"}
+{"timestamp": "2026-10-08T09:05:43.906Z", "message": "2026-10-08 09:05:43,906 INFO [v36b] WHY-NOT DKI px 4.0100 | crowd #1 $6895k held 26.7m, gainer #1 | WAIT: hod trigger 4.2499"}
+{"timestamp": "2026-10-08T09:05:44.494Z", "message": "2026-10-08 09:05:44,494 INFO [v36] EXIT stop DKI 79 @ 3.9800 | trigger print 3.9900 x 340 cond ['@', 'T'], 0.1s old | entry 4.1686 peak 4.2400 stop 3.9900 | held 41s | P/L -14.90 (-4.52% of the trade, -0.09% of the account)"}
+{"timestamp": "2026-10-08T09:06:00.173Z", "message": "2026-10-08 09:06:00,173 INFO [v36] WHY-NOT DKI px 4.0017 | crowd #1 $5685k held 27.0m, gainer #1 | WAIT: hod trigger 4.2900"}
+{"timestamp": "2026-10-08T10:18:40.779Z", "message": "2026-10-08 10:18:40,779 INFO [v36] WHY-NOT DKI px 4.4000 | crowd #1 $1819k held 6.7m, gainer #1 | WAIT: hod trigger 4.6199"}
+{"timestamp": "2026-10-08T10:18:40.782Z", "message": "2026-10-08 10:18:40,782 INFO [v36b] WHY-NOT DKI px 4.4000 | crowd #1 $1819k held 6.7m, gainer #1 | WAIT: hod trigger 4.6199"}
+{"timestamp": "2026-10-08T10:19:42.128Z", "message": "2026-10-08 10:19:42,128 INFO [v36] WHY-NOT DKI px 4.4600 | crowd #1 $3728k held 7.7m, gainer #1 | WAIT: hod trigger 4.6199"}
+{"timestamp": "2026-10-08T10:19:42.129Z", "message": "2026-10-08 10:19:42,129 INFO [v36b] WHY-NOT DKI px 4.4600 | crowd #1 $3728k held 7.7m, gainer #1 | WAIT: hod trigger 4.6199"}
+{"timestamp": "2026-10-08T10:19:49.852Z", "message": "2026-10-08 10:19:49,852 INFO [v36] WHY-NOT DKI px 4.6199 | crowd #1 $3728k held 7.8m, gainer #1 | NO SPEED for a re-entry: 0.05 under 0.10"}
+{"timestamp": "2026-10-08T10:19:49.855Z", "message": "2026-10-08 10:19:49,855 INFO [v36b] WHY-NOT DKI px 4.6199 | crowd #1 $3728k held 7.8m, gainer #1 | NO SPEED for a re-entry: 0.05 under 0.10"}
+{"timestamp": "2026-10-08T10:19:54.341Z", "message": "2026-10-08 10:19:54,341 INFO [v36] IGNORED DKI print 4.5401 - the market is 4.5700 x 4.6000 (decides nothing)"}
+{"timestamp": "2026-10-08T10:19:54.342Z", "message": "2026-10-08 10:19:54,342 INFO [v37] IGNORED DKI print 4.5401 - the market is 4.5700 x 4.6000 (decides nothing)"}
+{"timestamp": "2026-10-08T10:19:54.344Z", "message": "2026-10-08 10:19:54,344 INFO [v36b] IGNORED DKI print 4.5401 - the market is 4.5700 x 4.6000 (decides nothing)"}
+{"timestamp": "2026-10-08T10:19:58.904Z", "message": "2026-10-08 10:19:58,904 INFO [v36] WHY-NOT DKI px 4.6200 | crowd #1 $3728k held 8.0m, gainer #1 | NO SPEED for a re-entry: 0.06 under 0.10"}
+{"timestamp": "2026-10-08T10:19:58.906Z", "message": "2026-10-08 10:19:58,906 INFO [v36b] WHY-NOT DKI px 4.6200 | crowd #1 $3728k held 8.0m, gainer #1 | NO SPEED for a re-entry: 0.06 under 0.10"}
+{"timestamp": "2026-10-08T10:20:20.969Z", "message": "2026-10-08 10:20:20,969 INFO [v36] DKI STARTER sized for its stop: 88 -> 61 shares ($287) - the stop 4.4900 is 4.5% under 4.7000, $13 at risk"}
+{"timestamp": "2026-10-08T10:20:22.648Z", "message": "2026-10-08 10:20:22,648 INFO [v36] ENTER DKI 61 @ 4.6872 (print 4.7000) = $286 (2% of equity) | stop 4.4900 (4.21% away) | new-high trigger 4.7000"}
+{"timestamp": "2026-10-08T10:20:22.650Z", "message": "2026-10-08 10:20:22,650 INFO [v36]   DKI tape 60s: buy 45% sell 23% between 32% of 234,964 sh (99% by quote) | 5m: buy 41% sell 24% between 35% of 915,166 sh (100% by quote) (buying)"}
+{"timestamp": "2026-10-08T10:20:22.650Z", "message": "2026-10-08 10:20:22,650 INFO [v36] DKI STARTER 61 shares (a tenth of a full position), buy 5 today - adds at 4.8372 and 4.8872 on a new high"}
+{"timestamp": "2026-10-08T10:20:23.033Z", "message": "2026-10-08 10:20:23,033 INFO [v36b] ENTER DKI 33 @ 4.6909 (print 4.7000) = $155 (2% of equity) | stop 4.5590 (2.81% away) | new-high trigger 4.7000"}
+{"timestamp": "2026-10-08T10:20:23.034Z", "message": "2026-10-08 10:20:23,034 INFO [v36b]   DKI tape 60s: buy 45% sell 23% between 32% of 235,124 sh (99% by quote) | 5m: buy 41% sell 24% between 35% of 916,086 sh (100% by quote) (buying)"}
+{"timestamp": "2026-10-08T10:20:23.034Z", "message": "2026-10-08 10:20:23,034 INFO [v36b] DKI STARTER 33 shares (a tenth of a full position), buy 5 today - adds at 4.8409 and 4.8909 on a new high"}
+{"timestamp": "2026-10-08T10:20:26.320Z", "message": "2026-10-08 10:20:26,320 INFO [v36] TAPE DKI held -1.2% | tape 60s: buy 44% sell 22% between 34% of 244,819 sh (100% by quote) | 5m: buy 40% sell 25% between 35% of 935,193 sh (100% by quote)"}
+{"timestamp": "2026-10-08T10:20:26.322Z", "message": "2026-10-08 10:20:26,322 INFO [v36b] TAPE DKI held -1.3% | tape 60s: buy 44% sell 22% between 34% of 244,819 sh (100% by quote) | 5m: buy 40% sell 25% between 35% of 935,193 sh (100% by quote)"}
+{"timestamp": "2026-10-08T10:20:30.954Z", "message": "2026-10-08 10:20:30,954 INFO [v36] IGNORED DKI print 4.6999 - the market is 4.6500 x 4.6700 (decides nothing)"}
+{"timestamp": "2026-10-08T10:20:30.954Z", "message": "2026-10-08 10:20:30,954 INFO [v37] IGNORED DKI print 4.6999 - the market is 4.6500 x 4.6700 (decides nothing)"}
+{"timestamp": "2026-10-08T10:20:30.954Z", "message": "2026-10-08 10:20:30,954 INFO [v36b] IGNORED DKI print 4.6999 - the market is 4.6500 x 4.6700 (decides nothing)"}
+{"timestamp": "2026-10-08T10:20:53.824Z", "message": "2026-10-08 10:20:53,824 INFO [v36b] DKI the market 4.5500 x 4.5600 is at the stop 4.5590 - out"}
+{"timestamp": "2026-10-08T10:20:53.826Z", "message": "2026-10-08 10:20:53,826 INFO [v36b]   DKI tape 60s: buy 29% sell 34% between 37% of 237,819 sh (100% by quote) | 5m: buy 37% sell 27% between 36% of 1,003,519 sh (100% by quote) (selling: stop)"}
+{"timestamp": "2026-10-08T10:20:54.040Z", "message": "2026-10-08 10:20:54,040 INFO [v36b] DKI SELL 33 at a limit 4.51 (bid 4.5300)"}
+{"timestamp": "2026-10-08T10:20:54.768Z", "message": "2026-10-08 10:20:54,768 INFO [v36]   DKI tape 60s: buy 27% sell 35% between 38% of 248,817 sh (100% by quote) | 5m: buy 37% sell 27% between 36% of 1,020,013 sh (100% by quote) (selling: stop)"}
+{"timestamp": "2026-10-08T10:20:54.947Z", "message": "2026-10-08 10:20:54,947 INFO [v36b] EXIT stop DKI 33 @ 4.5300 | trigger print 4.5600 x 172 cond ['@', 'T'], 0.0s old | entry 4.6909 peak 4.7000 stop 4.5590 | held 32s | P/L -5.31 (-3.43% of the trade, -0.08% of the account)"}
+{"timestamp": "2026-10-08T10:20:54.984Z", "message": "2026-10-08 10:20:54,984 INFO [v36] DKI SELL 61 at a limit 4.45 (bid 4.4700)"}
+{"timestamp": "2026-10-08T10:20:55.786Z", "message": "2026-10-08 10:20:55,786 WARNING [v36] cancelled 1 working order(s) on DKI"}
+{"timestamp": "2026-10-08T10:20:56.417Z", "message": "2026-10-08 10:20:56,417 INFO [v36] DKI SELL 2 at a limit 4.45 (bid 4.4700)"}
+{"timestamp": "2026-10-08T10:20:57.376Z", "message": "2026-10-08 10:20:57,376 WARNING [v36] cancelled 1 working order(s) on DKI"}
+{"timestamp": "2026-10-08T10:20:58.334Z", "message": "2026-10-08 10:20:58,334 INFO [v36] DKI SELL 1 at a limit 4.45 (bid 4.4700)"}
+{"timestamp": "2026-10-08T10:20:58.972Z", "message": "2026-10-08 10:20:58,972 INFO [v36] EXIT stop DKI 61 @ 4.4700 | trigger print 4.4900 x 100 cond ['@', 'F', 'T'], 0.0s old | entry 4.6872 peak 4.7000 stop 4.4900 | held 36s | P/L -13.25 (-4.63% of the trade, -0.08% of the account)"}
+{"timestamp": "2026-10-08T10:21:00.084Z", "message": "2026-10-08 10:21:00,084 INFO [v36] WHY-NOT DKI px 4.4400 | crowd #1 $4663k held 9.0m, gainer #1 | WAIT: hod trigger 4.7500"}
+{"timestamp": "2026-10-08T10:21:00.085Z", "message": "2026-10-08 10:21:00,085 INFO [v36b] WHY-NOT DKI px 4.4400 | crowd #1 $4663k held 9.0m, gainer #1 | WAIT: hod trigger 4.7500"}
+{"timestamp": "2026-10-08T10:38:11.244Z", "message": "2026-10-08 10:38:11,244 INFO [v36] IGNORED DKI print 4.5900 - the market is 4.5400 x 4.5500 (decides nothing)"}
+{"timestamp": "2026-10-08T10:38:11.257Z", "message": "2026-10-08 10:38:11,257 INFO [v37] IGNORED DKI print 4.5900 - the market is 4.5400 x 4.5500 (decides nothing)"}
+{"timestamp": "2026-10-08T10:38:11.258Z", "message": "2026-10-08 10:38:11,258 INFO [v36b] IGNORED DKI print 4.5900 - the market is 4.5400 x 4.5500 (decides nothing)"}
+{"timestamp": "2026-10-08T10:38:50.543Z", "message": "2026-10-08 10:38:50,543 INFO ROSTER ALL 10: AIOT 2.91 AIXI 2.15 ALIS 12.17 CMTL 1.39 DKI 4.60 IPW 1.35 MEDS 3.41 PROF 6.55 SVRE 1.20 WATR 1.99"}
+{"timestamp": "2026-10-08T10:39:06.432Z", "message": "2026-10-08 10:39:06,432 INFO [v36] WHY-NOT DKI px 4.6300 | crowd #1 $2939k held 27.1m, gainer #1 | WAIT: hod trigger 4.7600"}
+{"timestamp": "2026-10-08T10:39:06.433Z", "message": "2026-10-08 10:39:06,433 INFO [v36b] WHY-NOT DKI px 4.6300 | crowd #1 $2939k held 27.1m, gainer #1 | WAIT: hod trigger 4.7600"}
+{"timestamp": "2026-10-08T10:39:29.729Z", "message": "2026-10-08 10:39:29,729 INFO [v36] WHY-NOT DKI px 4.7600 | crowd #1 $2939k held 27.5m, gainer #1 | NO SPEED for a re-entry: 0.05 under 0.10"}
+{"timestamp": "2026-10-08T10:39:29.736Z", "message": "2026-10-08 10:39:29,736 INFO [v36b] WHY-NOT DKI px 4.7600 | crowd #1 $2939k held 27.5m, gainer #1 | NO SPEED for a re-entry: 0.05 under 0.10"}
+{"timestamp": "2026-10-08T10:39:34.854Z", "message": "2026-10-08 10:39:34,854 INFO [v36] WHY-NOT DKI px 4.7666 | crowd #1 $2939k held 27.6m, gainer #1 | NO SPEED for a re-entry: 0.05 under 0.10"}
+{"timestamp": "2026-10-08T10:39:34.855Z", "message": "2026-10-08 10:39:34,855 INFO [v36b] WHY-NOT DKI px 4.7666 | crowd #1 $2939k held 27.6m, gainer #1 | NO SPEED for a re-entry: 0.05 under 0.10"}
+{"timestamp": "2026-10-08T10:39:39.875Z", "message": "2026-10-08 10:39:39,875 INFO [v36] WHY-NOT DKI px 4.8100 | crowd #1 $2939k held 27.7m, gainer #1 | NO SPEED for a re-entry: 0.09 under 0.10"}
+{"timestamp": "2026-10-08T10:39:39.892Z", "message": "2026-10-08 10:39:39,892 INFO [v36b] WHY-NOT DKI px 4.8100 | crowd #1 $2939k held 27.7m, gainer #1 | NO SPEED for a re-entry: 0.09 under 0.10"}
+{"timestamp": "2026-10-08T10:39:44.889Z", "message": "2026-10-08 10:39:44,889 INFO [v36] WHY-NOT DKI px 4.7888 | crowd #1 $2939k held 27.7m, gainer #1 | NO SPEED for a re-entry: 0.08 under 0.10"}
+{"timestamp": "2026-10-08T10:39:44.931Z", "message": "2026-10-08 10:39:44,931 INFO [v36b] WHY-NOT DKI px 4.7800 | crowd #1 $2939k held 27.7m, gainer #1 | NO SPEED for a re-entry: 0.08 under 0.10"}
+{"timestamp": "2026-10-08T10:39:49.905Z", "message": "2026-10-08 10:39:49,905 INFO [v36] DKI STARTER sized for its stop: 86 -> 46 shares ($221) - the stop 4.5300 is 5.8% under 4.8100, $13 at risk"}
+{"timestamp": "2026-10-08T10:39:52.812Z", "message": "2026-10-08 10:39:52,812 INFO [v36b] ENTER DKI 32 @ 4.8178 (print 4.8100) = $154 (2% of equity) | stop 4.6657 (3.16% away) | new-high trigger 4.7600"}
+{"timestamp": "2026-10-08T10:39:52.814Z", "message": "2026-10-08 10:39:52,814 INFO [v36b]   DKI tape 60s: buy 50% sell 25% between 25% of 247,764 sh (100% by quote) | 5m: buy 46% sell 29% between 25% of 762,031 sh (100% by quote) (buying)"}
+{"timestamp": "2026-10-08T10:39:52.814Z", "message": "2026-10-08 10:39:52,814 INFO [v36b] DKI STARTER 32 shares (a tenth of a full position), buy 6 today - adds at 4.9678 and 5.0178 on a new high"}
+{"timestamp": "2026-10-08T10:39:53.468Z", "message": "2026-10-08 10:39:53,468 INFO [v36] ENTER DKI 46 @ 4.8148 (print 4.8100) = $221 (1% of equity) | stop 4.5300 (5.91% away) | new-high trigger 4.7600"}
+{"timestamp": "2026-10-08T10:39:53.470Z", "message": "2026-10-08 10:39:53,470 INFO [v36]   DKI tape 60s: buy 50% sell 25% between 25% of 247,981 sh (100% by quote) | 5m: buy 46% sell 29% between 25% of 758,464 sh (100% by quote) (buying)"}
+{"timestamp": "2026-10-08T10:39:53.470Z", "message": "2026-10-08 10:39:53,470 INFO [v36] DKI STARTER 46 shares (a tenth of a full position), buy 6 today - adds at 4.9648 and 5.0148 on a new high"}
+{"timestamp": "2026-10-08T10:39:56.980Z", "message": "2026-10-08 10:39:56,980 INFO [v36] TAPE DKI held +0.3% | tape 60s: buy 49% sell 24% between 26% of 249,578 sh (100% by quote) | 5m: buy 46% sell 29% between 26% of 760,598 sh (100% by quote)"}
+{"timestamp": "2026-10-08T10:39:56.982Z", "message": "2026-10-08 10:39:56,982 INFO [v36b] TAPE DKI held +0.3% | tape 60s: buy 49% sell 24% between 26% of 249,578 sh (100% by quote) | 5m: buy 46% sell 29% between 26% of 760,598 sh (100% by quote)"}
+{"timestamp": "2026-10-08T10:40:25.842Z", "message": "2026-10-08 10:40:25,842 INFO [v36] IGNORED DKI print 4.9099 - the market is 4.8500 x 4.8800 (decides nothing)"}
+{"timestamp": "2026-10-08T10:40:25.843Z", "message": "2026-10-08 10:40:25,843 INFO [v37] IGNORED DKI print 4.9099 - the market is 4.8500 x 4.8800 (decides nothing)"}
+{"timestamp": "2026-10-08T10:40:25.843Z", "message": "2026-10-08 10:40:25,843 INFO [v36b] IGNORED DKI print 4.9099 - the market is 4.8500 x 4.8800 (decides nothing)"}
+{"timestamp": "2026-10-08T10:40:56.995Z", "message": "2026-10-08 10:40:56,995 INFO [v36] TAPE DKI held -1.1% | tape 60s: buy 28% sell 34% between 37% of 230,429 sh (100% by quote) | 5m: buy 41% sell 31% between 28% of 843,551 sh (100% by quote)"}
+{"timestamp": "2026-10-08T10:40:56.996Z", "message": "2026-10-08 10:40:56,996 INFO [v36b] TAPE DKI held -1.2% | tape 60s: buy 28% sell 34% between 37% of 230,429 sh (100% by quote) | 5m: buy 41% sell 31% between 28% of 843,551 sh (100% by quote)"}
+{"timestamp": "2026-10-08T10:41:17.463Z", "message": "  DKI          46    4.8148    4.7800    4.5300      -1.60    -0.7%     1m"}
+{"timestamp": "2026-10-08T10:41:17.463Z", "message": "  DKI          32    4.8178    4.7800    4.6657      -1.21    -0.8%     1m"}
+{"timestamp": "2026-10-08T10:41:57.059Z", "message": "2026-10-08 10:41:57,059 INFO [v36] TAPE DKI held -0.9% | tape 60s: buy 25% sell 34% between 42% of 99,923 sh (100% by quote) | 5m: buy 38% sell 32% between 30% of 814,045 sh (100% by quote)"}
+{"timestamp": "2026-10-08T10:41:57.060Z", "message": "2026-10-08 10:41:57,060 INFO [v36b] TAPE DKI held -1.0% | tape 60s: buy 25% sell 34% between 42% of 99,923 sh (100% by quote) | 5m: buy 38% sell 32% between 30% of 814,045 sh (100% by quote)"}
+{"timestamp": "2026-10-08T10:42:57.073Z", "message": "2026-10-08 10:42:57,073 INFO [v36] TAPE DKI held -1.3% | tape 60s: buy 21% sell 31% between 47% of 74,812 sh (100% by quote) | 5m: buy 35% sell 31% between 34% of 758,157 sh (100% by quote)"}
+{"timestamp": "2026-10-08T10:42:57.074Z", "message": "2026-10-08 10:42:57,074 INFO [v36b] TAPE DKI held -1.4% | tape 60s: buy 21% sell 31% between 47% of 74,812 sh (100% by quote) | 5m: buy 35% sell 31% between 34% of 758,157 sh (100% by quote)"}
+{"timestamp": "2026-10-08T10:43:17.543Z", "message": "  DKI          46    4.8148    4.7100    4.5300      -4.82    -2.2%     3m"}
+{"timestamp": "2026-10-08T10:43:17.544Z", "message": "  DKI          32    4.8178    4.7100    4.6657      -3.45    -2.2%     3m"}
+{"timestamp": "2026-10-08T10:43:38.388Z", "message": "2026-10-08 10:43:38,388 INFO [v36b]   DKI tape 60s: buy 30% sell 34% between 36% of 103,950 sh (100% by quote) | 5m: buy 34% sell 31% between 35% of 748,296 sh (100% by quote) (selling: stop)"}
+{"timestamp": "2026-10-08T10:43:38.603Z", "message": "2026-10-08 10:43:38,603 INFO [v36b] DKI SELL 32 at a limit 4.63 (bid 4.6500)"}
+{"timestamp": "2026-10-08T10:43:40.190Z", "message": "2026-10-08 10:43:40,190 INFO [v36b] EXIT stop DKI 32 @ 4.6400 | trigger print 4.6600 x 100 cond ['@', 'F', 'T'], 0.0s old | entry 4.8178 peak 4.8800 stop 4.6657 | held 227s | P/L -5.69 (-3.69% of the trade, -0.09% of the account)"}
+{"timestamp": "2026-10-08T10:43:40.191Z", "message": "2026-10-08 10:43:40,191 INFO [v36b] WHY-NOT DKI px 4.6600 | crowd #1 $4074k held 31.7m, gainer #1 | NO: 6 buys today"}
+{"timestamp": "2026-10-08T10:43:40.192Z", "message": "2026-10-08 10:43:40,192 INFO [v36b] IGNORED DKI print 4.6800 - the market is 4.6200 x 4.6400 (decides nothing)"}
+{"timestamp": "2026-10-08T10:43:56.436Z", "message": "2026-10-08 10:43:56,436 INFO [v36]   DKI tape 60s: buy 23% sell 44% between 33% of 131,304 sh (100% by quote) | 5m: buy 33% sell 33% between 34% of 785,650 sh (100% by quote) (selling: stop)"}
+{"timestamp": "2026-10-08T10:43:56.652Z", "message": "2026-10-08 10:43:56,652 INFO [v36] DKI SELL 46 at a limit 4.51 (bid 4.5300)"}
+{"timestamp": "2026-10-08T10:43:57.094Z", "message": "2026-10-08 10:43:57,094 INFO [v36] TAPE DKI held -5.9% | tape 60s: buy 23% sell 45% between 33% of 130,683 sh (100% by quote) | 5m: buy 33% sell 33% between 35% of 785,425 sh (100% by quote)"}
+{"timestamp": "2026-10-08T10:43:57.984Z", "message": "2026-10-08 10:43:57,984 INFO [v36] DKI SELL 22 at a limit 4.51 (bid 4.5300)"}
+{"timestamp": "2026-10-08T10:43:59.179Z", "message": "2026-10-08 10:43:59,179 WARNING [v36] cancelled 1 working order(s) on DKI"}
+{"timestamp": "2026-10-08T10:44:00.126Z", "message": "2026-10-08 10:44:00,126 INFO [v36] DKI SELL 13 at a limit 4.55 (bid 4.5700)"}
+{"timestamp": "2026-10-08T10:44:00.770Z", "message": "2026-10-08 10:44:00,770 INFO [v36] EXIT stop DKI 46 @ 4.5452 | trigger print 4.5300 x 232 cond ['@', 'T'], 0.0s old | entry 4.8148 peak 4.8800 stop 4.5300 | held 247s | P/L -12.40 (-5.60% of the trade, -0.07% of the account)"}
+{"timestamp": "2026-10-08T10:44:00.770Z", "message": "2026-10-08 10:44:00,770 INFO [v36] IGNORED DKI print 4.5387 - the market is 4.5800 x 4.6100 (decides nothing)"}
+{"timestamp": "2026-10-08T10:44:00.771Z", "message": "2026-10-08 10:44:00,771 INFO [v36] WHY-NOT DKI px 4.5591 | crowd #1 $3323k held 32.0m, gainer #1 | NO: 6 buys today"}
+{"timestamp": "2026-10-08T10:44:40.355Z", "message": "2026-10-08 10:44:40,355 INFO [v36b] WHY-NOT DKI px 4.6901 | crowd #1 $3323k held 32.7m, gainer #1 | NO: 6 buys today"}
+{"timestamp": "2026-10-08T10:45:00.896Z", "message": "2026-10-08 10:45:00,896 INFO [v36] WHY-NOT DKI px 4.7011 | crowd #1 $2415k held 33.0m, gainer #1 | NO: 6 buys today"}
+{"timestamp": "2026-10-08T10:45:13.414Z", "message": "2026-10-08 10:45:13,414 INFO [v36] IGNORED DKI print 4.7400 - the market is 4.7700 x 4.7800 (decides nothing)"}
+{"timestamp": "2026-10-08T10:45:13.420Z", "message": "2026-10-08 10:45:13,420 INFO [v37] IGNORED DKI print 4.7400 - the market is 4.7700 x 4.7800 (decides nothing)"}
+{"timestamp": "2026-10-08T10:45:13.420Z", "message": "2026-10-08 10:45:13,420 INFO [v36b] IGNORED DKI print 4.7400 - the market is 4.7700 x 4.7800 (decides nothing)"}
+{"timestamp": "2026-10-08T10:45:40.720Z", "message": "2026-10-08 10:45:40,720 INFO [v36b] WHY-NOT DKI px 4.8000 | crowd #1 $2415k held 33.7m, gainer #1 | NO: 6 buys today"}
+{"timestamp": "2026-10-08T10:46:01.991Z", "message": "2026-10-08 10:46:01,991 INFO [v36] WHY-NOT DKI px 4.8400 | crowd #1 $1798k held 34.0m, gainer #1 | NO: 6 buys today"}
+{"timestamp": "2026-10-08T10:46:23.020Z", "message": "2026-10-08 10:46:23,020 INFO [v36] IGNORED DKI print 4.8200 - the market is 4.8700 x 4.8900 (decides nothing)"}
+{"timestamp": "2026-10-08T10:46:23.030Z", "message": "2026-10-08 10:46:23,030 INFO [v37] IGNORED DKI print 4.8200 - the market is 4.8700 x 4.8900 (decides nothing)"}
+{"timestamp": "2026-10-08T10:46:23.031Z", "message": "2026-10-08 10:46:23,031 INFO [v36b] IGNORED DKI print 4.8200 - the market is 4.8700 x 4.8900 (decides nothing)"}
+{"timestamp": "2026-10-08T10:46:23.298Z", "message": "2026-10-08 10:46:23,298 INFO [v36] WHY-NOT DKI px 4.9600 | crowd #1 $1798k held 34.4m, gainer #1 | NO SPEED for a re-entry: 0.00 under 0.10"}
+{"timestamp": "2026-10-08T10:46:23.302Z", "message": "2026-10-08 10:46:23,302 INFO [v36b] WHY-NOT DKI px 4.9600 | crowd #1 $1798k held 34.4m, gainer #1 | NO SPEED for a re-entry: 0.00 under 0.10"}
+{"timestamp": "2026-10-08T10:46:28.420Z", "message": "2026-10-08 10:46:28,420 INFO [v36] WHY-NOT DKI px 5.0000 | crowd #1 $1798k held 34.5m, gainer #1 | NO: at the $5.00 level - wait till it holds 5c past"}
+{"timestamp": "2026-10-08T10:46:28.422Z", "message": "2026-10-08 10:46:28,422 INFO [v36b] WHY-NOT DKI px 5.0000 | crowd #1 $1798k held 34.5m, gainer #1 | NO: at the $5.00 level - wait till it holds 5c past"}
+{"timestamp": "2026-10-08T10:46:33.469Z", "message": "2026-10-08 10:46:33,469 INFO [v36] WHY-NOT DKI px 5.0700 | crowd #1 $1798k held 34.6m, gainer #1 | NO: at the $5.00 level - wait till it holds 5c past"}
+{"timestamp": "2026-10-08T10:46:33.470Z", "message": "2026-10-08 10:46:33,470 INFO [v36b] WHY-NOT DKI px 5.0700 | crowd #1 $1798k held 34.6m, gainer #1 | NO: at the $5.00 level - wait till it holds 5c past"}
+{"timestamp": "2026-10-08T10:46:38.479Z", "message": "2026-10-08 10:46:38,479 INFO [v36] WHY-NOT DKI px 5.0498 | crowd #1 $1798k held 34.6m, gainer #1 | NO: at the $5.00 level - wait till it holds 5c past"}
+{"timestamp": "2026-10-08T10:46:38.480Z", "message": "2026-10-08 10:46:38,480 INFO [v36b] WHY-NOT DKI px 5.0498 | crowd #1 $1798k held 34.6m, gainer #1 | NO: at the $5.00 level - wait till it holds 5c past"}
+{"timestamp": "2026-10-08T10:46:43.518Z", "message": "2026-10-08 10:46:43,518 INFO [v36] WHY-NOT DKI px 5.1100 | crowd #1 $1798k held 34.7m, gainer #1 | NO: at the $5.00 level - wait till it holds 5c past"}
+{"timestamp": "2026-10-08T10:46:43.519Z", "message": "2026-10-08 10:46:43,519 INFO [v36b] WHY-NOT DKI px 5.1100 | crowd #1 $1798k held 34.7m, gainer #1 | NO: at the $5.00 level - wait till it holds 5c past"}
+{"timestamp": "2026-10-08T10:46:46.846Z", "message": "2026-10-08 10:46:46,846 WARNING [v36b] cancelled 1 working order(s) on DKI"}
+{"timestamp": "2026-10-08T10:46:47.388Z", "message": "2026-10-08 10:46:47,388 INFO [v36b] ENTER DKI 30 @ 5.1047 (print 5.1100) = $153 (2% of equity) | stop 4.9900 (2.25% away) | new-high trigger 4.9599"}
+{"timestamp": "2026-10-08T10:46:47.389Z", "message": "2026-10-08 10:46:47,389 INFO [v36b]   DKI tape 60s: buy 43% sell 24% between 33% of 312,858 sh (100% by quote) | 5m: buy 39% sell 27% between 34% of 772,122 sh (100% by quote) (buying)"}
+{"timestamp": "2026-10-08T10:46:47.389Z", "message": "2026-10-08 10:46:47,389 INFO [v36b] DKI STARTER 30 shares (a tenth of a full position), buy 7 today - adds at 5.2547 and 5.3047 on a new high"}
+{"timestamp": "2026-10-08T10:46:51.639Z", "message": "2026-10-08 10:46:51,639 INFO [v36] ENTER DKI 81 @ 5.0965 (print 5.1100) = $413 (2% of equity) | stop 4.9900 (2.09% away) | new-high trigger 4.9599"}
+{"timestamp": "2026-10-08T10:46:51.641Z", "message": "2026-10-08 10:46:51,641 INFO [v36]   DKI tape 60s: buy 38% sell 28% between 34% of 348,528 sh (100% by quote) | 5m: buy 37% sell 29% between 34% of 811,942 sh (100% by quote) (buying)"}
+{"timestamp": "2026-10-08T10:46:51.641Z", "message": "2026-10-08 10:46:51,641 INFO [v36] DKI STARTER 81 shares (a tenth of a full position), buy 7 today - adds at 5.2465 and 5.2965 on a new high"}
+{"timestamp": "2026-10-08T10:46:52.140Z", "message": "2026-10-08 10:46:52,140 INFO [v36] TAPE DKI held -1.5% | tape 60s: buy 38% sell 28% between 34% of 350,065 sh (100% by quote) | 5m: buy 37% sell 29% between 34% of 814,549 sh (100% by quote)"}
+{"timestamp": "2026-10-08T10:46:52.141Z", "message": "2026-10-08 10:46:52,141 INFO [v36b] TAPE DKI held -1.7% | tape 60s: buy 38% sell 28% between 34% of 350,065 sh (100% by quote) | 5m: buy 37% sell 29% between 34% of 814,549 sh (100% by quote)"}
+{"timestamp": "2026-10-08T10:46:56.465Z", "message": "2026-10-08 10:46:56,465 INFO [v37] SKIP DKI at 5.1600 - not running: score 10/15 under 12: speed 1 candle 2 wicks 1 bodies 1 lows 1 volume 0 trend 2 macd 1 room 1"}
+{"timestamp": "2026-10-08T10:47:17.546Z", "message": "  DKI          81    5.0965    5.2000    4.9900      +8.38    +2.0%     0m"}
+{"timestamp": "2026-10-08T10:47:17.547Z", "message": "  DKI          30    5.1047    5.2000    4.9900      +2.86    +1.9%     0m"}
+{"timestamp": "2026-10-08T10:47:18.836Z", "message": "2026-10-08 10:47:18,836 INFO [v36] IGNORED DKI print 5.1900 - the market is 5.2200 x 5.2200 (decides nothing)"}
+{"timestamp": "2026-10-08T10:47:18.836Z", "message": "2026-10-08 10:47:18,836 INFO [v37] IGNORED DKI print 5.1900 - the market is 5.2200 x 5.2200 (decides nothing)"}
+{"timestamp": "2026-10-08T10:47:18.837Z", "message": "2026-10-08 10:47:18,837 INFO [v36b] IGNORED DKI print 5.1900 - the market is 5.2200 x 5.2200 (decides nothing)"}
+{"timestamp": "2026-10-08T10:47:52.153Z", "message": "2026-10-08 10:47:52,153 INFO [v36] TAPE DKI held +1.9% | tape 60s: buy 44% sell 29% between 27% of 302,868 sh (100% by quote) | 5m: buy 40% sell 28% between 31% of 1,041,118 sh (100% by quote)"}
+{"timestamp": "2026-10-08T10:47:52.155Z", "message": "2026-10-08 10:47:52,155 INFO [v36b] TAPE DKI held +1.7% | tape 60s: buy 44% sell 29% between 27% of 302,868 sh (100% by quote) | 5m: buy 40% sell 28% between 31% of 1,041,118 sh (100% by quote)"}
+{"timestamp": "2026-10-08T10:48:52.169Z", "message": "2026-10-08 10:48:52,169 INFO [v36] TAPE DKI held +3.6% | tape 60s: buy 36% sell 35% between 30% of 249,208 sh (100% by quote) | 5m: buy 41% sell 29% between 30% of 1,172,453 sh (100% by quote)"}
+{"timestamp": "2026-10-08T10:48:52.171Z", "message": "2026-10-08 10:48:52,171 INFO [v36b] TAPE DKI held +3.4% | tape 60s: buy 36% sell 35% between 30% of 249,208 sh (100% by quote) | 5m: buy 41% sell 29% between 30% of 1,172,453 sh (100% by quote)"}
+{"timestamp": "2026-10-08T10:49:17.547Z", "message": "  DKI          81    5.0965    5.1908    4.9900      +7.63    +1.8%     2m"}
+{"timestamp": "2026-10-08T10:49:17.548Z", "message": "  DKI          30    5.1047    5.1908    4.9900      +2.58    +1.7%     2m"}
+{"timestamp": "2026-10-08T10:49:49.398Z", "message": "2026-10-08 10:49:49,398 INFO [v37] IGNORED DKI print 5.2901 - the market is 5.3200 x 5.3300 (decides nothing)"}
+{"timestamp": "2026-10-08T10:49:52.113Z", "message": "2026-10-08 10:49:52,113 INFO [v36] DKI ADD to 50% of a full position: +310 @ 5.3492 -> 391 shares, entry 5.2781, floor 5.2781 (what the starter paid)"}
+{"timestamp": "2026-10-08T10:49:52.114Z", "message": "2026-10-08 10:49:52,114 INFO [v36] IGNORED DKI print 5.3500 - the market is 5.2900 x 5.3100 (decides nothing)"}
+{"timestamp": "2026-10-08T10:49:52.242Z", "message": "2026-10-08 10:49:52,242 INFO [v36] TAPE DKI held +0.6% | tape 60s: buy 50% sell 24% between 25% of 214,708 sh (100% by quote) | 5m: buy 43% sell 28% between 29% of 1,292,145 sh (100% by quote)"}
+{"timestamp": "2026-10-08T10:49:52.244Z", "message": "2026-10-08 10:49:52,244 INFO [v36b] TAPE DKI held +4.8% | tape 60s: buy 50% sell 24% between 25% of 214,708 sh (100% by quote) | 5m: buy 43% sell 28% between 29% of 1,292,145 sh (100% by quote)"}
+{"timestamp": "2026-10-08T10:49:52.284Z", "message": "2026-10-08 10:49:52,284 INFO [v36b] DKI ADD to 50% of a full position: +117 @ 5.3492 -> 147 shares, entry 5.2840, floor 5.2840 (what the starter paid)"}
+{"timestamp": "2026-10-08T10:49:52.284Z", "message": "2026-10-08 10:49:52,284 INFO [v36b] IGNORED DKI print 5.3500 - the market is 5.2900 x 5.3100 (decides nothing)"}
+{"timestamp": "2026-10-08T10:50:07.562Z", "message": "2026-10-08 10:50:07,562 INFO [v36b]   DKI tape 60s: buy 40% sell 30% between 30% of 219,213 sh (100% by quote) | 5m: buy 42% sell 28% between 30% of 1,344,449 sh (100% by quote) (selling: stop)"}
+{"timestamp": "2026-10-08T10:50:07.565Z", "message": "2026-10-08 10:50:07,565 INFO [v36]   DKI tape 60s: buy 40% sell 30% between 30% of 219,513 sh (100% by quote) | 5m: buy 42% sell 28% between 30% of 1,344,749 sh (100% by quote) (selling: stop)"}
+{"timestamp": "2026-10-08T10:50:07.784Z", "message": "2026-10-08 10:50:07,784 INFO [v36] DKI SELL 391 at a limit 5.24 (bid 5.2700)"}
+{"timestamp": "2026-10-08T10:50:07.913Z", "message": "2026-10-08 10:50:07,913 INFO [v36b] DKI SELL 147 at a limit 5.24 (bid 5.2700)"}
+{"timestamp": "2026-10-08T10:50:08.419Z", "message": "2026-10-08 10:50:08,419 WARNING [v36] cancelled 1 working order(s) on DKI"}
+{"timestamp": "2026-10-08T10:50:08.555Z", "message": "2026-10-08 10:50:08,555 INFO [v36b] EXIT stop DKI 147 @ 5.2700 | trigger print 5.2800 x 100 cond ['@', 'T'], 0.0s old | entry 5.2840 peak 5.3700 stop 5.2840 | held 201s | P/L -2.06 (-0.27% of the trade, -0.03% of the account)"}
+{"timestamp": "2026-10-08T10:50:08.556Z", "message": "2026-10-08 10:50:08,556 INFO [v36b] WHY-NOT DKI px 5.2800 | crowd #1 $7527k held 38.1m, gainer #1 | NO: 7 buys today"}
+{"timestamp": "2026-10-08T10:50:09.357Z", "message": "2026-10-08 10:50:09,357 INFO [v36] DKI SELL 146 at a limit 5.25 (bid 5.2800)"}
+{"timestamp": "2026-10-08T10:50:09.993Z", "message": "2026-10-08 10:50:09,993 INFO [v36] EXIT stop DKI 391 @ 5.2737 | trigger print 5.2700 x 300 cond ['@', 'T'], 0.0s old | entry 5.2781 peak 5.3700 stop 5.2781 | held 198s | P/L -1.69 (-0.08% of the trade, -0.01% of the account)"}
+{"timestamp": "2026-10-08T10:50:09.995Z", "message": "2026-10-08 10:50:09,995 INFO [v36] WHY-NOT DKI px 5.2700 | crowd #1 $7527k held 38.2m, gainer #1 | NO: 7 buys today"}
+{"timestamp": "2026-10-08T10:53:09.329Z", "message": "2026-10-08 10:53:09,329 INFO [v36b] WHY-NOT DKI px 5.2527 | crowd #1 $5023k held 41.2m, gainer #1 | NO: 7 buys today"}
+{"timestamp": "2026-10-08T10:53:10.428Z", "message": "2026-10-08 10:53:10,428 INFO [v36] WHY-NOT DKI px 5.2700 | crowd #1 $5023k held 41.2m, gainer #1 | NO: 7 buys today"}
+{"timestamp": "2026-10-08T10:53:46.095Z", "message": "2026-10-08 10:53:46,095 INFO [v36] IGNORED DKI print 5.3800 - the market is 5.3400 x 5.3500 (decides nothing)"}
+{"timestamp": "2026-10-08T10:53:46.096Z", "message": "2026-10-08 10:53:46,096 INFO [v37] IGNORED DKI print 5.3800 - the market is 5.3400 x 5.3500 (decides nothing)"}
+{"timestamp": "2026-10-08T10:53:46.099Z", "message": "2026-10-08 10:53:46,099 INFO [v36b] IGNORED DKI print 5.3800 - the market is 5.3400 x 5.3500 (decides nothing)"}
+{"timestamp": "2026-10-08T10:53:46.808Z", "message": "2026-10-08 10:53:46,808 INFO [v36] WHY-NOT DKI px 5.4200 | crowd #1 $5023k held 41.8m, gainer #1 | NO SPEED for a re-entry: 0.03 under 0.10"}
+{"timestamp": "2026-10-08T10:53:46.855Z", "message": "2026-10-08 10:53:46,855 INFO [v36b] WHY-NOT DKI px 5.4200 | crowd #1 $5023k held 41.8m, gainer #1 | NO SPEED for a re-entry: 0.03 under 0.10"}
+{"timestamp": "2026-10-08T10:53:51.893Z", "message": "2026-10-08 10:53:51,893 INFO [v36] WHY-NOT DKI px 5.4200 | crowd #1 $5023k held 41.9m, gainer #1 | NO SPEED for a re-entry: 0.00 under 0.10"}
+{"timestamp": "2026-10-08T10:53:51.894Z", "message": "2026-10-08 10:53:51,894 INFO [v36b] WHY-NOT DKI px 5.4200 | crowd #1 $5023k held 41.9m, gainer #1 | NO SPEED for a re-entry: 0.00 under 0.10"}
+{"timestamp": "2026-10-08T10:53:57.131Z", "message": "2026-10-08 10:53:57,131 INFO [v36] WHY-NOT DKI px 5.4287 | crowd #1 $5023k held 42.0m, gainer #1 | NO SPEED for a re-entry: 0.04 under 0.10"}
+{"timestamp": "2026-10-08T10:53:57.133Z", "message": "2026-10-08 10:53:57,133 INFO [v36b] WHY-NOT DKI px 5.4287 | crowd #1 $5023k held 42.0m, gainer #1 | NO SPEED for a re-entry: 0.04 under 0.10"}
+{"timestamp": "2026-10-08T10:53:59.078Z", "message": "2026-10-08 10:53:59,078 INFO ROSTER ALL 9: AIOT 2.91 AIXI 2.07 ALIS 12.17 CMTL 1.39 DKI 5.45 IPW 1.39 PROF 6.52 SVRE 1.20 WATR 1.99"}
+{"timestamp": "2026-10-08T10:54:29.870Z", "message": "2026-10-08 10:54:29,870 INFO [v36] WHY-NOT DKI px 5.5300 | crowd #1 $5087k held 42.5m, gainer #1 | NO: at the $5.50 level - wait till it holds 5c past"}
+{"timestamp": "2026-10-08T10:54:29.873Z", "message": "2026-10-08 10:54:29,873 INFO [v36b] WHY-NOT DKI px 5.5300 | crowd #1 $5087k held 42.5m, gainer #1 | NO: at the $5.50 level - wait till it holds 5c past"}
+{"timestamp": "2026-10-08T10:54:32.259Z", "message": "2026-10-08 10:54:32,259 INFO [v37] SKIP DKI at 5.5500 - not running: score 10/15 under 12: speed 1 candle 2 wicks 1 bodies 1 lows 1 volume 0 trend 2 macd 1 room 1"}
+{"timestamp": "2026-10-08T10:54:34.874Z", "message": "2026-10-08 10:54:34,874 INFO [v36] WHY-NOT DKI px 5.5598 | crowd #1 $5087k held 42.6m, gainer #1 | NO: at the $5.50 level - wait till it holds 5c past"}
+{"timestamp": "2026-10-08T10:54:34.875Z", "message": "2026-10-08 10:54:34,875 INFO [v36b] WHY-NOT DKI px 5.5598 | crowd #1 $5087k held 42.6m, gainer #1 | NO: at the $5.50 level - wait till it holds 5c past"}
+{"timestamp": "2026-10-08T10:54:38.203Z", "message": "2026-10-08 10:54:38,203 INFO [v36] ENTER DKI 74 @ 5.5700 (print 5.5600) = $412 (2% of equity) | stop 5.4900 (1.44% away) | new-high trigger 5.5300"}
+{"timestamp": "2026-10-08T10:54:38.205Z", "message": "2026-10-08 10:54:38,205 INFO [v36]   DKI tape 60s: buy 53% sell 26% between 20% of 374,482 sh (100% by quote) | 5m: buy 39% sell 29% between 32% of 1,091,748 sh (100% by quote) (buying)"}
+{"timestamp": "2026-10-08T10:54:38.205Z", "message": "2026-10-08 10:54:38,205 INFO [v36] DKI STARTER 74 shares (a tenth of a full position), buy 8 today - adds at 5.7200 and 5.7700 on a new high"}
+{"timestamp": "2026-10-08T10:54:41.064Z", "message": "2026-10-08 10:54:41,064 WARNING [v36b] cancelled 1 working order(s) on DKI"}
+{"timestamp": "2026-10-08T10:54:41.614Z", "message": "2026-10-08 10:54:41,614 INFO [v36b] ENTER DKI 28 @ 5.5732 (print 5.5600) = $156 (2% of equity) | stop 5.4900 (1.49% away) | new-high trigger 5.5300"}
+{"timestamp": "2026-10-08T10:54:41.616Z", "message": "2026-10-08 10:54:41,616 INFO [v36b]   DKI tape 60s: buy 52% sell 28% between 20% of 392,064 sh (100% by quote) | 5m: buy 38% sell 30% between 32% of 1,086,426 sh (100% by quote) (buying)"}
+{"timestamp": "2026-10-08T10:54:41.616Z", "message": "2026-10-08 10:54:41,616 INFO [v36b] DKI STARTER 28 shares (a tenth of a full position), buy 8 today - adds at 5.7232 and 5.7732 on a new high"}
+{"timestamp": "2026-10-08T10:54:41.619Z", "message": "2026-10-08 10:54:41,619 INFO [v36b] IGNORED DKI print 5.6000 - the market is 5.5600 x 5.5700 (decides nothing)"}
+{"timestamp": "2026-10-08T10:54:42.391Z", "message": "2026-10-08 10:54:42,391 INFO [v36] TAPE DKI held +0.2% | tape 60s: buy 52% sell 28% between 20% of 392,950 sh (100% by quote) | 5m: buy 38% sell 30% between 32% of 1,078,146 sh (100% by quote)"}
+{"timestamp": "2026-10-08T10:54:42.392Z", "message": "2026-10-08 10:54:42,392 INFO [v36b] TAPE DKI held +0.1% | tape 60s: buy 52% sell 28% between 20% of 392,950 sh (100% by quote) | 5m: buy 38% sell 30% between 32% of 1,078,146 sh (100% by quote)"}
+{"timestamp": "2026-10-08T10:55:17.551Z", "message": "  DKI          74    5.5700    5.6083    5.4900      +2.83    +0.7%     0m"}
+{"timestamp": "2026-10-08T10:55:17.552Z", "message": "  DKI          28    5.5732    5.6083    5.4900      +0.98    +0.6%     0m"}
+{"timestamp": "2026-10-08T10:55:25.154Z", "message": "2026-10-08 10:55:25,154 INFO [v37] IGNORED DKI print 5.5900 - the market is 5.5400 x 5.5500 (decides nothing)"}
+{"timestamp": "2026-10-08T10:55:42.544Z", "message": "2026-10-08 10:55:42,544 INFO [v36] TAPE DKI held +0.5% | tape 60s: buy 45% sell 32% between 23% of 310,060 sh (100% by quote) | 5m: buy 42% sell 30% between 29% of 1,228,799 sh (100% by quote)"}
+{"timestamp": "2026-10-08T10:55:42.546Z", "message": "2026-10-08 10:55:42,546 INFO [v36b] TAPE DKI held +0.5% | tape 60s: buy 45% sell 32% between 23% of 310,060 sh (100% by quote) | 5m: buy 42% sell 30% between 29% of 1,228,799 sh (100% by quote)"}
+{"timestamp": "2026-10-08T10:56:19.974Z", "message": "2026-10-08 10:56:19,974 INFO [v36] IGNORED DKI print 5.6500 - the market is 5.7500 x 5.7800 (decides nothing)"}
+{"timestamp": "2026-10-08T10:56:19.974Z", "message": "2026-10-08 10:56:19,974 INFO [v37] IGNORED DKI print 5.6500 - the market is 5.7500 x 5.7800 (decides nothing)"}
+{"timestamp": "2026-10-08T10:56:19.975Z", "message": "2026-10-08 10:56:19,975 INFO [v36b] IGNORED DKI print 5.6500 - the market is 5.7500 x 5.7800 (decides nothing)"}
+{"timestamp": "2026-10-08T10:56:27.729Z", "message": "2026-10-08 10:56:27,729 INFO [v36b] DKI ADD to 50% of a full position: +104 @ 5.9600 -> 132 shares, entry 5.8622, floor 5.8622 (what the starter paid)"}
+{"timestamp": "2026-10-08T10:56:28.728Z", "message": "2026-10-08 10:56:28,728 INFO [v36] DKI ADD to 50% of a full position: +275 @ 5.9600 -> 349 shares, entry 5.8615, floor 5.8615 (what the starter paid)"}
+{"timestamp": "2026-10-08T10:56:34.598Z", "message": "2026-10-08 10:56:34,598 INFO [v36] DKI ADD to 100% of a full position: +340 @ 6.1400 -> 689 shares, entry 5.9940, floor 5.9940 (what the starter paid)"}
+{"timestamp": "2026-10-08T10:56:35.454Z", "message": "2026-10-08 10:56:35,454 INFO [v36b] DKI ADD to 100% of a full position: +128 @ 6.1400 -> 260 shares, entry 5.9957, floor 5.9957 (what the starter paid)"}
+{"timestamp": "2026-10-08T10:56:42.761Z", "message": "2026-10-08 10:56:42,761 INFO [v36] TAPE DKI held +2.6% | tape 60s: buy 46% sell 22% between 32% of 374,116 sh (100% by quote) | 5m: buy 46% sell 25% between 28% of 1,381,363 sh (100% by quote)"}
+{"timestamp": "2026-10-08T10:56:42.763Z", "message": "2026-10-08 10:56:42,763 INFO [v36b] TAPE DKI held +2.6% | tape 60s: buy 46% sell 22% between 32% of 374,116 sh (100% by quote) | 5m: buy 46% sell 25% between 28% of 1,381,363 sh (100% by quote)"}
+{"timestamp": "2026-10-08T10:57:17.555Z", "message": "  DKI         689    5.9940    6.4100    5.9940    +286.61    +6.9%     2m"}
+{"timestamp": "2026-10-08T10:57:17.556Z", "message": "  DKI         260    5.9957    6.4100    5.9957    +107.71    +6.9%     2m"}
+{"timestamp": "2026-10-08T10:57:18.082Z", "message": "2026-10-08 10:57:18,082 INFO [v36b] IGNORED DKI print 6.4000 - the market is 6.4500 x 6.4700 (decides nothing)"}
+{"timestamp": "2026-10-08T10:57:23.292Z", "message": "2026-10-08 10:57:23,292 INFO [v36] DKI held past $6.50: the stop up to 6.4900 (entry 5.9940)"}
+{"timestamp": "2026-10-08T10:57:23.292Z", "message": "2026-10-08 10:57:23,292 INFO [v36b] DKI held past $6.50: the stop up to 6.4900 (entry 5.9957)"}
+{"timestamp": "2026-10-08T10:57:25.801Z", "message": "2026-10-08 10:57:25,801 INFO [v36] IGNORED DKI print 6.9100 - the market is 6.9600 x 6.9900 (decides nothing)"}
+{"timestamp": "2026-10-08T10:57:25.801Z", "message": "2026-10-08 10:57:25,801 INFO [v37] IGNORED DKI print 6.9100 - the market is 6.9600 x 6.9900 (decides nothing)"}
+{"timestamp": "2026-10-08T10:57:26.101Z", "message": "2026-10-08 10:57:26,101 INFO [v37] DKI BUY SHORT - wanted 73, got 0 at a limit up to 7.6090: the ask 6.8900 fell back to the high 6.9500 - no buy under it"}
+{"timestamp": "2026-10-08T10:57:33.707Z", "message": "2026-10-08 10:57:33,707 INFO [v37] DKI BUY SHORT - wanted 646, got 0 at a limit up to inf: the ask 7.1400 is back at the high 7.1900 - no buy under it"}
+{"timestamp": "2026-10-08T10:57:34.888Z", "message": "2026-10-08 10:57:34,888 INFO [v36] DKI held past $7.00: the stop up to 6.9900 (entry 5.9940)"}
+{"timestamp": "2026-10-08T10:57:34.888Z", "message": "2026-10-08 10:57:34,888 INFO [v36b] DKI held past $7.00: the stop up to 6.9900 (entry 5.9957)"}
+{"timestamp": "2026-10-08T10:57:36.405Z", "message": "2026-10-08 10:57:36,405 INFO [v37] ENTER DKI 69 @ 7.3800 (print 7.2996) = $509 (3.6% of equity) - a tenth of a position, buy 5 today | crowd #1, $9866k in 5 min | stop 6.9900 | adds at 7.4800 and 7.5800 | speed 0.37 | score 15 (speed 4 candle 2 wicks 1 bodies 1 lows 1 volume 2 trend 2 macd 1 room 1)"}
+{"timestamp": "2026-10-08T10:57:36.409Z", "message": "2026-10-08 10:57:36,409 INFO [v37]   DKI tape 60s: buy 38% sell 25% between 37% of 628,950 sh (100% by quote) | 5m: buy 44% sell 26% between 30% of 1,808,029 sh (100% by quote) (selling: giveback)"}
+{"timestamp": "2026-10-08T10:57:36.625Z", "message": "2026-10-08 10:57:36,625 INFO [v37] DKI SELL 69 at a limit 7.30 (bid 7.3400)"}
+{"timestamp": "2026-10-08T10:57:37.780Z", "message": "2026-10-08 10:57:37,780 INFO [v37] TAPE DKI held -0.1% | tape 60s: buy 37% sell 25% between 39% of 635,645 sh (100% by quote) | 5m: buy 44% sell 26% between 31% of 1,834,305 sh (100% by quote)"}
+{"timestamp": "2026-10-08T10:57:40.072Z", "message": "2026-10-08 10:57:40,072 WARNING [v37] cancelled 1 working order(s) on DKI"}
+{"timestamp": "2026-10-08T10:57:40.821Z", "message": "2026-10-08 10:57:40,821 INFO [v37] DKI SELL 69 at a limit 7.04 (bid 7.0800)"}
+{"timestamp": "2026-10-08T10:57:41.477Z", "message": "2026-10-08 10:57:41,477 WARNING [v37] cancelled 1 working order(s) on DKI"}
+{"timestamp": "2026-10-08T10:57:42.455Z", "message": "2026-10-08 10:57:42,455 INFO [v37] DKI SELL 33 at a limit 7.00 (bid 7.0400)"}
+{"timestamp": "2026-10-08T10:57:42.785Z", "message": "2026-10-08 10:57:42,785 INFO [v36] TAPE DKI held +18.0% | tape 60s: buy 35% sell 27% between 38% of 673,300 sh (100% by quote) | 5m: buy 43% sell 26% between 31% of 1,885,948 sh (100% by quote)"}
+{"timestamp": "2026-10-08T10:57:42.789Z", "message": "2026-10-08 10:57:42,789 INFO [v36b] TAPE DKI held +17.9% | tape 60s: buy 35% sell 27% between 38% of 673,300 sh (100% by quote) | 5m: buy 43% sell 26% between 31% of 1,885,948 sh (100% by quote)"}
+{"timestamp": "2026-10-08T10:57:42.864Z", "message": "2026-10-08 10:57:42,864 INFO [v36]   DKI tape 60s: buy 35% sell 27% between 38% of 675,725 sh (100% by quote) | 5m: buy 43% sell 26% between 31% of 1,888,373 sh (100% by quote) (selling: stop)"}
+{"timestamp": "2026-10-08T10:57:42.868Z", "message": "2026-10-08 10:57:42,868 INFO [v36b]   DKI tape 60s: buy 35% sell 27% between 38% of 675,725 sh (100% by quote) | 5m: buy 43% sell 26% between 31% of 1,888,373 sh (100% by quote) (selling: stop)"}
+{"timestamp": "2026-10-08T10:57:43.113Z", "message": "2026-10-08 10:57:43,113 INFO [v36] DKI SELL 689 at a limit 6.94 (bid 6.9700)"}
+{"timestamp": "2026-10-08T10:57:43.264Z", "message": "2026-10-08 10:57:43,264 INFO [v36b] DKI SELL 260 at a limit 6.94 (bid 6.9700)"}
+{"timestamp": "2026-10-08T10:57:43.967Z", "message": "2026-10-08 10:57:43,967 INFO [v36] DKI SELL 324 at a limit 6.87 (bid 6.9000)"}
+{"timestamp": "2026-10-08T10:57:44.891Z", "message": "2026-10-08 10:57:44,891 WARNING [v36] cancelled 1 working order(s) on DKI"}
+{"timestamp": "2026-10-08T10:57:45.510Z", "message": "2026-10-08 10:57:45,510 INFO [v36] DKI SELL 73 at a limit 6.79 (bid 6.8200)"}
+{"timestamp": "2026-10-08T10:57:45.966Z", "message": "2026-10-08 10:57:45,966 WARNING [v37] cancelled 1 working order(s) on DKI"}
+{"timestamp": "2026-10-08T10:57:46.581Z", "message": "2026-10-08 10:57:46,581 INFO [v37] DKI SELL 33 at a limit 6.84 (bid 6.8700)"}
+{"timestamp": "2026-10-08T10:57:46.731Z", "message": "2026-10-08 10:57:46,731 WARNING [v36b] cancelled 1 working order(s) on DKI"}
+{"timestamp": "2026-10-08T10:57:47.346Z", "message": "2026-10-08 10:57:47,346 INFO [v36b] DKI SELL 260 at a limit 6.80 (bid 6.8300)"}
+{"timestamp": "2026-10-08T10:57:47.363Z", "message": "2026-10-08 10:57:47,363 INFO [v36] EXIT stop DKI 689 @ 6.9092 | trigger print 6.9900 x 100 cond ['@', 'F', 'T'], 0.0s old | entry 5.9940 peak 7.4400 stop 6.9900 | held 189s | P/L +630.56 (+15.27% of the trade, +3.54% of the account)"}
+{"timestamp": "2026-10-08T10:57:47.369Z", "message": "2026-10-08 10:57:47,369 INFO [v36] WHY-NOT DKI px 6.8700 | crowd #1 $9866k held 45.8m, gainer #1 | NO: 6.8700 is 8% over the trigger 6.3500 - the move already happened"}
+{"timestamp": "2026-10-08T10:57:47.625Z", "message": "2026-10-08 10:57:47,625 INFO [v37] DKI SELL 24 at a limit 6.78 (bid 6.8100)"}
+{"timestamp": "2026-10-08T10:57:48.336Z", "message": "2026-10-08 10:57:48,336 INFO [v36b] DKI SELL 215 at a limit 6.78 (bid 6.8100)"}
+{"timestamp": "2026-10-08T10:57:48.556Z", "message": "2026-10-08 10:57:48,556 INFO [v37] EXIT giveback DKI 69 @ 6.9470 | trigger print 7.3700 x 100 cond ['@', 'T'], 0.5s old | entry 7.3800 peak 7.3900 stop 6.9900 | held 12s | P/L -29.88 (-5.87% of the trade, -0.21% of the account)"}
+{"timestamp": "2026-10-08T10:57:49.248Z", "message": "2026-10-08 10:57:49,248 INFO [v36b] DKI SELL 14 at a limit 6.70 (bid 6.7300)"}
+{"timestamp": "2026-10-08T10:57:50.171Z", "message": "2026-10-08 10:57:50,171 INFO [v36b] EXIT stop DKI 260 @ 6.8350 | trigger print 6.9900 x 100 cond ['@', 'F', 'T'], 0.0s old | entry 5.9957 peak 7.4400 stop 6.9900 | held 189s | P/L +218.21 (+14.00% of the trade, +3.25% of the account)"}
+{"timestamp": "2026-10-08T10:57:50.171Z", "message": "2026-10-08 10:57:50,171 INFO [v36b] IGNORED DKI print 6.9900 - the market is 6.7000 x 6.7100 (decides nothing)"}
+{"timestamp": "2026-10-08T10:57:50.181Z", "message": "2026-10-08 10:57:50,181 INFO [v36b] WHY-NOT DKI px 6.7400 | crowd #1 $9866k held 45.8m, gainer #1 | NO: 6.7400 is 6% over the trigger 6.3500 - the move already happened"}
+{"timestamp": "2026-10-08T10:57:52.422Z", "message": "2026-10-08 10:57:52,422 INFO [v36] WHY-NOT DKI px 6.5815 | crowd #1 $9866k held 45.9m, gainer #1 | NO TAPE at the trigger 6.3500: 30s ask 33% bid 34% between 33% of 428648 sh (100% by quote)"}
+{"timestamp": "2026-10-08T10:57:55.227Z", "message": "2026-10-08 10:57:55,227 INFO [v36b] WHY-NOT DKI px 6.6200 | crowd #1 $9866k held 45.9m, gainer #1 | NO: at the $6.50 level - wait till it holds 5c past"}
+{"timestamp": "2026-10-08T10:57:57.572Z", "message": "2026-10-08 10:57:57,572 INFO [v36] WHY-NOT DKI px 6.7100 | crowd #1 $9866k held 46.0m, gainer #1 | NO: 6.7100 is 6% over the trigger 6.3500 - the move already happened"}
+{"timestamp": "2026-10-08T10:58:05.384Z", "message": "2026-10-08 10:58:05,384 INFO [v36] IGNORED DKI print 6.7000 - the market is 6.6500 x 6.6600 (decides nothing)"}
+{"timestamp": "2026-10-08T10:58:05.427Z", "message": "2026-10-08 10:58:05,427 INFO [v37] IGNORED DKI print 6.7000 - the market is 6.6500 x 6.6600 (decides nothing)"}

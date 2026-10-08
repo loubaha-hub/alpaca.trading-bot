@@ -1,0 +1,256 @@
+{"timestamp": "2026-10-08T08:01:01.114Z", "message": "2026-10-08 08:01:01,114 INFO [v36] WHY-NOT AIXI px 1.9500 | crowd #1 $301k held 0.0m, gainer #2 | NO CROWD: not top 2 held 2m, not ripping, not a top gainer with $1000k"}
+{"timestamp": "2026-10-08T08:01:01.114Z", "message": "2026-10-08 08:01:01,114 INFO [v36b] WHY-NOT AIXI px 1.9500 | crowd #1 $301k held 0.0m, gainer #2 | NO CROWD: not top 2 held 2m, not ripping, not a top gainer with $1000k"}
+{"timestamp": "2026-10-08T08:01:02.214Z", "message": "2026-10-08 08:01:02,214 INFO [v36] IGNORED AIXI print 2.0000 - the market is 1.9000 x 1.9500 (decides nothing)"}
+{"timestamp": "2026-10-08T08:01:02.214Z", "message": "2026-10-08 08:01:02,214 INFO [v37] IGNORED AIXI print 2.0000 - the market is 1.9000 x 1.9500 (decides nothing)"}
+{"timestamp": "2026-10-08T08:01:02.214Z", "message": "2026-10-08 08:01:02,214 INFO [v36b] IGNORED AIXI print 2.0000 - the market is 1.9000 x 1.9500 (decides nothing)"}
+{"timestamp": "2026-10-08T08:01:32.270Z", "message": "2026-10-08 08:01:32,270 INFO [v37] IGNORED AIXI print 2.0500 - the market is 2.1800 x 2.2000 (decides nothing)"}
+{"timestamp": "2026-10-08T08:01:32.270Z", "message": "2026-10-08 08:01:32,270 INFO [v36b] IGNORED AIXI print 2.0500 - the market is 2.1800 x 2.2000 (decides nothing)"}
+{"timestamp": "2026-10-08T08:01:32.283Z", "message": "2026-10-08 08:01:32,283 INFO [v36] IGNORED AIXI print 2.0500 - the market is 2.1800 x 2.2000 (decides nothing)"}
+{"timestamp": "2026-10-08T08:01:43.161Z", "message": "2026-10-08 08:01:43,161 INFO [v36] FURIOUS AIXI at 2.2400: speed 0.30, 5s +0.0% on $103k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:43.163Z", "message": "2026-10-08 08:01:43,163 INFO [v36b] FURIOUS AIXI at 2.2400: speed 0.30, 5s +0.0% on $103k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:52.752Z", "message": "2026-10-08 08:01:52,752 WARNING [v36b] cancelled 1 working order(s) on AIXI"}
+{"timestamp": "2026-10-08T08:01:52.752Z", "message": "2026-10-08 08:01:52,752 WARNING [v36] cancelled 1 working order(s) on AIXI"}
+{"timestamp": "2026-10-08T08:01:53.224Z", "message": "2026-10-08 08:01:53,224 INFO [v36] AIXI BUY SHORT - wanted 1804, got 0 at a limit up to inf: filled at up to 2.4300 (the ask + 0.20)"}
+{"timestamp": "2026-10-08T08:01:53.225Z", "message": "2026-10-08 08:01:53,225 INFO [v36] FURIOUS AIXI at 2.2400: speed 0.37, 5s +0.0% on $104k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.227Z", "message": "2026-10-08 08:01:53,227 INFO [v36] FURIOUS AIXI at 2.2200: speed 0.35, 5s -1.3% on $104k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.228Z", "message": "2026-10-08 08:01:53,228 INFO [v36] FURIOUS AIXI at 2.2500: speed 0.38, 5s +0.0% on $104k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.229Z", "message": "2026-10-08 08:01:53,229 INFO [v36] FURIOUS AIXI at 2.2500: speed 0.38, 5s +0.0% on $104k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.230Z", "message": "2026-10-08 08:01:53,230 INFO [v36] FURIOUS AIXI at 2.2400: speed 0.37, 5s -0.4% on $102k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.232Z", "message": "2026-10-08 08:01:53,232 INFO [v36] FURIOUS AIXI at 2.2134: speed 0.35, 5s -2.1% on $101k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.234Z", "message": "2026-10-08 08:01:53,234 INFO [v36] FURIOUS AIXI at 2.2101: speed 0.35, 5s -1.8% on $100k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.235Z", "message": "2026-10-08 08:01:53,235 INFO [v36] FURIOUS AIXI at 2.2294: speed 0.36, 5s -1.4% on $100k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.236Z", "message": "2026-10-08 08:01:53,236 INFO [v36] FURIOUS AIXI at 2.2200: speed 0.36, 5s -1.8% on $101k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.237Z", "message": "2026-10-08 08:01:53,237 INFO [v36] FURIOUS AIXI at 2.2250: speed 0.36, 5s -1.5% on $102k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.239Z", "message": "2026-10-08 08:01:53,239 INFO [v36] FURIOUS AIXI at 2.2300: speed 0.37, 5s -1.3% on $102k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.240Z", "message": "2026-10-08 08:01:53,240 INFO [v36] FURIOUS AIXI at 2.2200: speed 0.36, 5s -1.8% on $102k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.241Z", "message": "2026-10-08 08:01:53,241 INFO [v36] FURIOUS AIXI at 2.2100: speed 0.35, 5s -2.2% on $103k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.242Z", "message": "2026-10-08 08:01:53,242 INFO [v36] FURIOUS AIXI at 2.2100: speed 0.35, 5s -2.2% on $103k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.243Z", "message": "2026-10-08 08:01:53,243 INFO [v36] FURIOUS AIXI at 2.2100: speed 0.35, 5s -2.2% on $103k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.244Z", "message": "2026-10-08 08:01:53,244 INFO [v36] FURIOUS AIXI at 2.2100: speed 0.35, 5s -2.2% on $104k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.245Z", "message": "2026-10-08 08:01:53,245 INFO [v36] FURIOUS AIXI at 2.2000: speed 0.34, 5s -2.7% on $104k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.246Z", "message": "2026-10-08 08:01:53,246 INFO [v36] FURIOUS AIXI at 2.2000: speed 0.34, 5s -2.7% on $105k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.248Z", "message": "2026-10-08 08:01:53,248 INFO [v36] FURIOUS AIXI at 2.2000: speed 0.34, 5s -2.7% on $109k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.249Z", "message": "2026-10-08 08:01:53,249 INFO [v36] FURIOUS AIXI at 2.2100: speed 0.35, 5s -2.2% on $105k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.250Z", "message": "2026-10-08 08:01:53,250 INFO [v36] FURIOUS AIXI at 2.2100: speed 0.35, 5s -0.9% on $104k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.251Z", "message": "2026-10-08 08:01:53,251 INFO [v36] FURIOUS AIXI at 2.2000: speed 0.34, 5s -1.4% on $105k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.252Z", "message": "2026-10-08 08:01:53,252 INFO [v36] FURIOUS AIXI at 2.2000: speed 0.34, 5s -1.4% on $105k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.254Z", "message": "2026-10-08 08:01:53,254 INFO [v36] FURIOUS AIXI at 2.2000: speed 0.34, 5s -1.4% on $107k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.255Z", "message": "2026-10-08 08:01:53,255 INFO [v36] FURIOUS AIXI at 2.2000: speed 0.34, 5s -1.4% on $107k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.256Z", "message": "2026-10-08 08:01:53,256 INFO [v36] FURIOUS AIXI at 2.1900: speed 0.33, 5s -1.9% on $106k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.257Z", "message": "2026-10-08 08:01:53,257 INFO [v36] FURIOUS AIXI at 2.1900: speed 0.33, 5s -1.9% on $106k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.258Z", "message": "2026-10-08 08:01:53,258 INFO [v36] FURIOUS AIXI at 2.1900: speed 0.34, 5s -1.9% on $108k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.260Z", "message": "2026-10-08 08:01:53,260 INFO [v36] FURIOUS AIXI at 2.1900: speed 0.34, 5s -1.9% on $108k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.261Z", "message": "2026-10-08 08:01:53,261 INFO [v36] FURIOUS AIXI at 2.1900: speed 0.34, 5s -1.9% on $109k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.263Z", "message": "2026-10-08 08:01:53,263 INFO [v36] FURIOUS AIXI at 2.2100: speed 0.36, 5s -1.8% on $109k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.264Z", "message": "2026-10-08 08:01:53,264 INFO [v36] FURIOUS AIXI at 2.2000: speed 0.35, 5s -2.2% on $109k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.265Z", "message": "2026-10-08 08:01:53,265 INFO [v36] FURIOUS AIXI at 2.2000: speed 0.35, 5s -2.2% on $109k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.266Z", "message": "2026-10-08 08:01:53,266 INFO [v36] FURIOUS AIXI at 2.2000: speed 0.35, 5s -2.2% on $110k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.268Z", "message": "2026-10-08 08:01:53,268 INFO [v36] FURIOUS AIXI at 2.2000: speed 0.35, 5s -2.2% on $110k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.269Z", "message": "2026-10-08 08:01:53,269 INFO [v36] FURIOUS AIXI at 2.2000: speed 0.35, 5s -2.2% on $111k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.270Z", "message": "2026-10-08 08:01:53,270 INFO [v36] FURIOUS AIXI at 2.1900: speed 0.34, 5s -2.7% on $110k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.272Z", "message": "2026-10-08 08:01:53,272 INFO [v36] FURIOUS AIXI at 2.1900: speed 0.34, 5s -2.7% on $110k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.319Z", "message": "2026-10-08 08:01:53,319 INFO [v36] FURIOUS AIXI at 2.1900: speed 0.34, 5s -2.7% on $111k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.322Z", "message": "2026-10-08 08:01:53,322 INFO [v36] FURIOUS AIXI at 2.2000: speed 0.36, 5s -2.6% on $116k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.323Z", "message": "2026-10-08 08:01:53,323 INFO [v36] FURIOUS AIXI at 2.2000: speed 0.36, 5s -2.6% on $118k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.324Z", "message": "2026-10-08 08:01:53,324 INFO [v36] FURIOUS AIXI at 2.1900: speed 0.35, 5s -3.1% on $118k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.326Z", "message": "2026-10-08 08:01:53,326 INFO [v36] FURIOUS AIXI at 2.2000: speed 0.36, 5s -2.6% on $119k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.327Z", "message": "2026-10-08 08:01:53,327 INFO [v36] FURIOUS AIXI at 2.2000: speed 0.36, 5s -2.6% on $119k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.328Z", "message": "2026-10-08 08:01:53,328 INFO [v36] FURIOUS AIXI at 2.2000: speed 0.36, 5s -2.6% on $120k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.329Z", "message": "2026-10-08 08:01:53,329 INFO [v36] FURIOUS AIXI at 2.2100: speed 0.37, 5s -2.2% on $122k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.331Z", "message": "2026-10-08 08:01:53,331 INFO [v36] FURIOUS AIXI at 2.2060: speed 0.37, 5s -2.4% on $122k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.333Z", "message": "2026-10-08 08:01:53,333 INFO [v36] FURIOUS AIXI at 2.1900: speed 0.35, 5s -2.2% on $120k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.334Z", "message": "2026-10-08 08:01:53,334 INFO [v36] FURIOUS AIXI at 2.1900: speed 0.36, 5s -2.2% on $121k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.339Z", "message": "2026-10-08 08:01:53,339 INFO [v36] FURIOUS AIXI at 2.1900: speed 0.37, 5s -2.7% on $132k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.341Z", "message": "2026-10-08 08:01:53,341 INFO [v36] FURIOUS AIXI at 2.1900: speed 0.37, 5s -2.7% on $133k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.343Z", "message": "2026-10-08 08:01:53,343 INFO [v36] FURIOUS AIXI at 2.1900: speed 0.38, 5s -2.2% on $122k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.344Z", "message": "2026-10-08 08:01:53,344 INFO [v36] FURIOUS AIXI at 2.1900: speed 0.38, 5s -2.2% on $123k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.346Z", "message": "2026-10-08 08:01:53,346 INFO [v36] FURIOUS AIXI at 2.1900: speed 0.38, 5s -1.8% on $112k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.348Z", "message": "2026-10-08 08:01:53,348 INFO [v36] FURIOUS AIXI at 2.2000: speed 0.39, 5s -0.9% on $116k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.351Z", "message": "2026-10-08 08:01:53,351 INFO [v36] FURIOUS AIXI at 2.1900: speed 0.38, 5s -2.7% on $98k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.353Z", "message": "2026-10-08 08:01:53,353 INFO [v36] FURIOUS AIXI at 2.2000: speed 0.40, 5s -0.5% on $94k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.354Z", "message": "2026-10-08 08:01:53,354 INFO [v36] FURIOUS AIXI at 2.2000: speed 0.40, 5s -0.5% on $94k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.356Z", "message": "2026-10-08 08:01:53,356 INFO [v36] FURIOUS AIXI at 2.1900: speed 0.39, 5s -0.5% on $82k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.357Z", "message": "2026-10-08 08:01:53,357 INFO [v36] FURIOUS AIXI at 2.1900: speed 0.39, 5s -0.5% on $82k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.359Z", "message": "2026-10-08 08:01:53,359 INFO [v36] FURIOUS AIXI at 2.1900: speed 0.39, 5s -0.5% on $83k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.360Z", "message": "2026-10-08 08:01:53,360 INFO [v36] FURIOUS AIXI at 2.1900: speed 0.39, 5s -0.5% on $83k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.361Z", "message": "2026-10-08 08:01:53,361 INFO [v36] FURIOUS AIXI at 2.2000: speed 0.40, 5s +0.0% on $86k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.362Z", "message": "2026-10-08 08:01:53,362 INFO [v36] FURIOUS AIXI at 2.2000: speed 0.40, 5s +0.5% on $83k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.364Z", "message": "2026-10-08 08:01:53,364 INFO [v36] FURIOUS AIXI at 2.1996: speed 0.40, 5s +1.4% on $81k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.365Z", "message": "2026-10-08 08:01:53,365 INFO [v36] FURIOUS AIXI at 2.1950: speed 0.40, 5s +1.2% on $82k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.366Z", "message": "2026-10-08 08:01:53,366 INFO [v36] FURIOUS AIXI at 2.1900: speed 0.39, 5s +0.9% on $83k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.418Z", "message": "2026-10-08 08:01:53,418 INFO [v36] FURIOUS AIXI at 2.1997: speed 0.32, 5s +1.4% on $84k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.422Z", "message": "2026-10-08 08:01:53,422 INFO [v36] FURIOUS AIXI at 2.2000: speed 0.32, 5s +1.9% on $80k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.424Z", "message": "2026-10-08 08:01:53,424 INFO [v36] FURIOUS AIXI at 2.1942: speed 0.32, 5s +8.6% on $80k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.425Z", "message": "2026-10-08 08:01:53,425 INFO [v36] FURIOUS AIXI at 2.2000: speed 0.32, 5s +2.3% on $78k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.428Z", "message": "2026-10-08 08:01:53,428 INFO [v36] FURIOUS AIXI at 2.2000: speed 0.32, 5s +1.9% on $75k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.429Z", "message": "2026-10-08 08:01:53,429 INFO [v36] FURIOUS AIXI at 2.2000: speed 0.33, 5s +2.3% on $76k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.431Z", "message": "2026-10-08 08:01:53,431 INFO [v36] FURIOUS AIXI at 2.1990: speed 0.32, 5s -0.5% on $69k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.433Z", "message": "2026-10-08 08:01:53,433 INFO [v36] FURIOUS AIXI at 2.2000: speed 0.33, 5s +10.0% on $67k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.435Z", "message": "2026-10-08 08:01:53,435 INFO [v36] FURIOUS AIXI at 2.1904: speed 0.32, 5s +0.9% on $64k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.437Z", "message": "2026-10-08 08:01:53,437 INFO [v36] FURIOUS AIXI at 2.1900: speed 0.32, 5s +0.9% on $65k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.439Z", "message": "2026-10-08 08:01:53,439 INFO [v36] FURIOUS AIXI at 2.2000: speed 0.33, 5s +0.9% on $61k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.440Z", "message": "2026-10-08 08:01:53,440 INFO [v36] FURIOUS AIXI at 2.1996: speed 0.33, 5s +0.9% on $62k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.443Z", "message": "2026-10-08 08:01:53,443 INFO [v36] FURIOUS AIXI at 2.2000: speed 0.33, 5s +1.8% on $61k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.445Z", "message": "2026-10-08 08:01:53,445 INFO [v36] FURIOUS AIXI at 2.2000: speed 0.34, 5s +1.0% on $61k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.447Z", "message": "2026-10-08 08:01:53,447 INFO [v36] FURIOUS AIXI at 2.2004: speed 0.34, 5s +1.4% on $50k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.449Z", "message": "2026-10-08 08:01:53,449 INFO [v36] FURIOUS AIXI at 2.2096: speed 0.35, 5s +1.8% on $50k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.452Z", "message": "2026-10-08 08:01:53,452 INFO [v36] FURIOUS AIXI at 2.2096: speed 0.35, 5s +11.6% on $51k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.453Z", "message": "2026-10-08 08:01:53,453 INFO [v36] FURIOUS AIXI at 2.2100: speed 0.35, 5s +11.6% on $52k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.455Z", "message": "2026-10-08 08:01:53,455 INFO [v36] FURIOUS AIXI at 2.2100: speed 0.35, 5s +0.9% on $52k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.456Z", "message": "2026-10-08 08:01:53,456 INFO [v36] FURIOUS AIXI at 2.2100: speed 0.35, 5s +0.9% on $52k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.458Z", "message": "2026-10-08 08:01:53,458 INFO [v36] FURIOUS AIXI at 2.2100: speed 0.35, 5s +0.9% on $53k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.460Z", "message": "2026-10-08 08:01:53,460 INFO [v36] FURIOUS AIXI at 2.2100: speed 0.35, 5s +0.9% on $54k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.461Z", "message": "2026-10-08 08:01:53,461 INFO [v36] FURIOUS AIXI at 2.2200: speed 0.36, 5s +3.3% on $47k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.463Z", "message": "2026-10-08 08:01:53,463 INFO [v36] FURIOUS AIXI at 2.2100: speed 0.35, 5s +2.8% on $49k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.466Z", "message": "2026-10-08 08:01:53,466 INFO [v36] FURIOUS AIXI at 2.2300: speed 0.38, 5s +3.7% on $50k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.519Z", "message": "2026-10-08 08:01:53,519 INFO [v36] FURIOUS AIXI at 2.2300: speed 0.38, 5s +2.1% on $52k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.521Z", "message": "2026-10-08 08:01:53,521 INFO [v36] FURIOUS AIXI at 2.2300: speed 0.38, 5s +2.0% on $53k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.522Z", "message": "2026-10-08 08:01:53,522 INFO [v36] FURIOUS AIXI at 2.2100: speed 0.36, 5s +1.1% on $57k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.524Z", "message": "2026-10-08 08:01:53,524 INFO [v36] FURIOUS AIXI at 2.2200: speed 0.37, 5s +12.1% on $56k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.525Z", "message": "2026-10-08 08:01:53,525 INFO [v36b] AIXI BUY SHORT - wanted 698, got 0 at a limit up to inf: filled at up to 2.4300 (the ask + 0.20)"}
+{"timestamp": "2026-10-08T08:01:53.527Z", "message": "2026-10-08 08:01:53,527 INFO [v36b] FURIOUS AIXI at 2.2400: speed 0.30, 5s +0.0% on $104k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.529Z", "message": "2026-10-08 08:01:53,529 INFO [v36b] FURIOUS AIXI at 2.2500: speed 0.31, 5s +0.0% on $104k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.531Z", "message": "2026-10-08 08:01:53,531 INFO [v36b] FURIOUS AIXI at 2.2500: speed 0.31, 5s +0.0% on $104k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.534Z", "message": "2026-10-08 08:01:53,534 INFO [v36b] FURIOUS AIXI at 2.2400: speed 0.30, 5s -0.4% on $102k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.558Z", "message": "2026-10-08 08:01:53,558 INFO [v36b] FURIOUS AIXI at 2.1900: speed 0.30, 5s -2.2% on $122k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.559Z", "message": "2026-10-08 08:01:53,559 INFO [v36b] FURIOUS AIXI at 2.1900: speed 0.30, 5s -2.2% on $123k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.562Z", "message": "2026-10-08 08:01:53,562 INFO [v36b] FURIOUS AIXI at 2.1900: speed 0.30, 5s -1.8% on $112k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.563Z", "message": "2026-10-08 08:01:53,563 INFO [v36b] FURIOUS AIXI at 2.2000: speed 0.31, 5s -0.9% on $116k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.619Z", "message": "2026-10-08 08:01:53,619 INFO [v36b] FURIOUS AIXI at 2.1900: speed 0.30, 5s -2.7% on $98k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.622Z", "message": "2026-10-08 08:01:53,622 INFO [v36b] FURIOUS AIXI at 2.2000: speed 0.32, 5s -0.5% on $94k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.623Z", "message": "2026-10-08 08:01:53,623 INFO [v36b] FURIOUS AIXI at 2.2000: speed 0.32, 5s -0.5% on $94k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.625Z", "message": "2026-10-08 08:01:53,625 INFO [v36b] FURIOUS AIXI at 2.1900: speed 0.31, 5s -0.5% on $82k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.626Z", "message": "2026-10-08 08:01:53,626 INFO [v36b] FURIOUS AIXI at 2.1900: speed 0.31, 5s -0.5% on $82k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.628Z", "message": "2026-10-08 08:01:53,628 INFO [v36b] FURIOUS AIXI at 2.1900: speed 0.31, 5s -0.5% on $83k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.629Z", "message": "2026-10-08 08:01:53,629 INFO [v36b] FURIOUS AIXI at 2.1900: speed 0.31, 5s -0.5% on $83k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.630Z", "message": "2026-10-08 08:01:53,630 INFO [v36b] FURIOUS AIXI at 2.2000: speed 0.32, 5s +0.0% on $86k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.632Z", "message": "2026-10-08 08:01:53,632 INFO [v36b] FURIOUS AIXI at 2.2000: speed 0.32, 5s +0.5% on $83k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.633Z", "message": "2026-10-08 08:01:53,633 INFO [v36b] FURIOUS AIXI at 2.1996: speed 0.32, 5s +1.4% on $81k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.634Z", "message": "2026-10-08 08:01:53,634 INFO [v36b] FURIOUS AIXI at 2.1950: speed 0.31, 5s +1.2% on $82k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.636Z", "message": "2026-10-08 08:01:53,636 INFO [v36b] FURIOUS AIXI at 2.1900: speed 0.31, 5s +0.9% on $83k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.638Z", "message": "2026-10-08 08:01:53,638 INFO [v36b] FURIOUS AIXI at 2.1997: speed 0.32, 5s +1.4% on $84k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.641Z", "message": "2026-10-08 08:01:53,641 INFO [v36b] FURIOUS AIXI at 2.2000: speed 0.32, 5s +1.9% on $80k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.642Z", "message": "2026-10-08 08:01:53,642 INFO [v36b] FURIOUS AIXI at 2.1942: speed 0.32, 5s +8.6% on $80k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.644Z", "message": "2026-10-08 08:01:53,644 INFO [v36b] FURIOUS AIXI at 2.2000: speed 0.32, 5s +2.3% on $78k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.646Z", "message": "2026-10-08 08:01:53,646 INFO [v36b] FURIOUS AIXI at 2.2000: speed 0.32, 5s +1.9% on $75k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.648Z", "message": "2026-10-08 08:01:53,648 INFO [v36b] FURIOUS AIXI at 2.2000: speed 0.32, 5s +2.3% on $76k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.650Z", "message": "2026-10-08 08:01:53,650 INFO [v36b] FURIOUS AIXI at 2.1990: speed 0.32, 5s -0.5% on $69k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.652Z", "message": "2026-10-08 08:01:53,652 INFO [v36b] FURIOUS AIXI at 2.2000: speed 0.33, 5s +10.0% on $67k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.654Z", "message": "2026-10-08 08:01:53,654 INFO [v36b] FURIOUS AIXI at 2.1904: speed 0.31, 5s +0.9% on $64k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.656Z", "message": "2026-10-08 08:01:53,656 INFO [v36b] FURIOUS AIXI at 2.1900: speed 0.31, 5s +0.9% on $65k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.658Z", "message": "2026-10-08 08:01:53,658 INFO [v36b] FURIOUS AIXI at 2.2000: speed 0.33, 5s +0.9% on $61k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.659Z", "message": "2026-10-08 08:01:53,659 INFO [v36b] FURIOUS AIXI at 2.1996: speed 0.33, 5s +0.9% on $62k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.662Z", "message": "2026-10-08 08:01:53,662 INFO [v36b] FURIOUS AIXI at 2.2000: speed 0.33, 5s +1.8% on $61k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.665Z", "message": "2026-10-08 08:01:53,665 INFO [v36b] FURIOUS AIXI at 2.2000: speed 0.33, 5s +1.0% on $61k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.718Z", "message": "2026-10-08 08:01:53,718 INFO [v36b] FURIOUS AIXI at 2.2004: speed 0.34, 5s +1.4% on $50k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.720Z", "message": "2026-10-08 08:01:53,720 INFO [v36b] FURIOUS AIXI at 2.2096: speed 0.35, 5s +1.8% on $50k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.724Z", "message": "2026-10-08 08:01:53,724 INFO [v36b] FURIOUS AIXI at 2.2096: speed 0.35, 5s +11.6% on $51k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.726Z", "message": "2026-10-08 08:01:53,726 INFO [v36b] FURIOUS AIXI at 2.2100: speed 0.35, 5s +11.6% on $52k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.727Z", "message": "2026-10-08 08:01:53,727 INFO [v36b] FURIOUS AIXI at 2.2100: speed 0.35, 5s +0.9% on $52k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.729Z", "message": "2026-10-08 08:01:53,729 INFO [v36b] FURIOUS AIXI at 2.2100: speed 0.35, 5s +0.9% on $52k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.731Z", "message": "2026-10-08 08:01:53,731 INFO [v36b] FURIOUS AIXI at 2.2100: speed 0.35, 5s +0.9% on $53k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.732Z", "message": "2026-10-08 08:01:53,732 INFO [v36b] FURIOUS AIXI at 2.2100: speed 0.35, 5s +0.9% on $54k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.734Z", "message": "2026-10-08 08:01:53,734 INFO [v36b] FURIOUS AIXI at 2.2200: speed 0.36, 5s +3.3% on $47k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.735Z", "message": "2026-10-08 08:01:53,735 INFO [v36b] FURIOUS AIXI at 2.2100: speed 0.35, 5s +2.8% on $49k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.737Z", "message": "2026-10-08 08:01:53,737 INFO [v36b] FURIOUS AIXI at 2.2300: speed 0.38, 5s +3.7% on $50k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.739Z", "message": "2026-10-08 08:01:53,739 INFO [v36b] FURIOUS AIXI at 2.2300: speed 0.38, 5s +2.1% on $52k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.742Z", "message": "2026-10-08 08:01:53,742 INFO [v36b] FURIOUS AIXI at 2.2300: speed 0.38, 5s +2.0% on $53k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.743Z", "message": "2026-10-08 08:01:53,743 INFO [v36b] FURIOUS AIXI at 2.2100: speed 0.36, 5s +1.1% on $57k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.745Z", "message": "2026-10-08 08:01:53,745 INFO [v36b] FURIOUS AIXI at 2.2200: speed 0.37, 5s +12.1% on $56k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.762Z", "message": "2026-10-08 08:01:53,762 INFO [v36] FURIOUS AIXI at 2.2300: speed 0.38, 5s +2.8% on $58k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.822Z", "message": "2026-10-08 08:01:53,822 INFO [v36b] FURIOUS AIXI at 2.2300: speed 0.38, 5s +2.8% on $58k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.824Z", "message": "2026-10-08 08:01:53,824 INFO [v36b] FURIOUS AIXI at 2.2200: speed 0.37, 5s +2.3% on $58k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.826Z", "message": "2026-10-08 08:01:53,826 INFO [v36b] FURIOUS AIXI at 2.2200: speed 0.37, 5s +2.3% on $58k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.827Z", "message": "2026-10-08 08:01:53,827 INFO [v36b] FURIOUS AIXI at 2.2300: speed 0.38, 5s +2.8% on $59k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:53.939Z", "message": "2026-10-08 08:01:53,939 INFO [v36b] FURIOUS AIXI at 2.2300: speed 0.38, 5s +1.4% on $54k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:54.014Z", "message": "2026-10-08 08:01:54,014 INFO [v36b] FURIOUS AIXI at 2.2300: speed 0.40, 5s +1.4% on $54k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:54.123Z", "message": "2026-10-08 08:01:54,123 INFO [v36b] FURIOUS AIXI at 2.2296: speed 0.40, 5s +1.4% on $51k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:01:54.774Z", "message": "2026-10-08 08:01:54,774 INFO [v36] ENTER AIXI 1812 @ 2.2400 (print 2.2300) = $4059 (25% of equity) | stop 2.0516 (8.41% away) | new-high trigger 2.1700"}
+{"timestamp": "2026-10-08T08:01:54.775Z", "message": "2026-10-08 08:01:54,775 INFO [v36]   AIXI tape 60s: buy 46% sell 31% between 23% of 311,548 sh (100% by quote) | 5m: buy 53% sell 25% between 21% of 446,369 sh (100% by quote) (buying)"}
+{"timestamp": "2026-10-08T08:01:54.775Z", "message": "2026-10-08 08:01:54,775 INFO [v36] AIXI FULL POSITION 1812 shares at once (furious), buy 1 today - stop 2.1400, line $2.00"}
+{"timestamp": "2026-10-08T08:01:55.361Z", "message": "2026-10-08 08:01:55,361 INFO [v36b] ENTER AIXI 701 @ 2.2400 (print 2.2296) = $1570 (25% of equity) | stop 2.1627 (3.45% away) | new-high trigger 2.1700"}
+{"timestamp": "2026-10-08T08:01:55.361Z", "message": "2026-10-08 08:01:55,361 INFO [v36b]   AIXI tape 60s: buy 46% sell 31% between 23% of 320,720 sh (100% by quote) | 5m: buy 53% sell 25% between 22% of 455,670 sh (100% by quote) (buying)"}
+{"timestamp": "2026-10-08T08:01:55.361Z", "message": "2026-10-08 08:01:55,361 INFO [v36b] AIXI FULL POSITION 701 shares at once (furious), buy 1 today - stop 2.1627, line $2.00"}
+{"timestamp": "2026-10-08T08:01:58.750Z", "message": "2026-10-08 08:01:58,750 INFO [v36] TAPE AIXI held -0.4% | tape 60s: buy 44% sell 33% between 23% of 350,946 sh (100% by quote) | 5m: buy 51% sell 28% between 21% of 486,772 sh (100% by quote)"}
+{"timestamp": "2026-10-08T08:01:58.751Z", "message": "2026-10-08 08:01:58,751 INFO [v36b] TAPE AIXI held -0.4% | tape 60s: buy 44% sell 33% between 23% of 350,946 sh (100% by quote) | 5m: buy 51% sell 28% between 21% of 486,772 sh (100% by quote)"}
+{"timestamp": "2026-10-08T08:02:02.291Z", "message": "2026-10-08 08:02:02,291 INFO [v36] IGNORED AIXI print 1.9100 - the market is 2.3400 x 2.3500 (decides nothing)"}
+{"timestamp": "2026-10-08T08:02:02.291Z", "message": "2026-10-08 08:02:02,291 INFO [v37] IGNORED AIXI print 1.9100 - the market is 2.3400 x 2.3500 (decides nothing)"}
+{"timestamp": "2026-10-08T08:02:02.292Z", "message": "2026-10-08 08:02:02,292 INFO [v36b] IGNORED AIXI print 1.9100 - the market is 2.3400 x 2.3500 (decides nothing)"}
+{"timestamp": "2026-10-08T08:02:29.847Z", "message": "2026-10-08 08:02:29,847 INFO [v36]   AIXI tape 60s: buy 31% sell 45% between 24% of 673,583 sh (100% by quote) | 5m: buy 40% sell 38% between 22% of 904,995 sh (100% by quote) (selling: trail)"}
+{"timestamp": "2026-10-08T08:02:29.849Z", "message": "2026-10-08 08:02:29,849 INFO [v36b]   AIXI tape 60s: buy 31% sell 45% between 24% of 673,583 sh (100% by quote) | 5m: buy 40% sell 38% between 22% of 904,995 sh (100% by quote) (selling: trail)"}
+{"timestamp": "2026-10-08T08:02:30.100Z", "message": "2026-10-08 08:02:30,100 INFO [v36b] AIXI SELL 701 at a limit 2.21 (bid 2.4500)"}
+{"timestamp": "2026-10-08T08:02:30.100Z", "message": "2026-10-08 08:02:30,100 INFO [v36] AIXI SELL 1812 at a limit 2.21 (bid 2.4500)"}
+{"timestamp": "2026-10-08T08:02:31.026Z", "message": "2026-10-08 08:02:31,026 WARNING [v36b] cancelled 1 working order(s) on AIXI"}
+{"timestamp": "2026-10-08T08:02:31.027Z", "message": "2026-10-08 08:02:31,027 WARNING [v36] cancelled 1 working order(s) on AIXI"}
+{"timestamp": "2026-10-08T08:02:31.123Z", "message": "2026-10-08 08:02:31,123 INFO [v37] ENTER AIXI 210 @ 2.4320 (print 2.4600) = $511 (3.6% of equity) - a tenth of a position, buy 1 today | crowd #1, $1169k in 5 min | stop 2.2374 | adds at 2.5320 and 2.6320 | speed 0.98 | score 15 (too few candles to judge)"}
+{"timestamp": "2026-10-08T08:02:31.645Z", "message": "2026-10-08 08:02:31,645 INFO [v36b] AIXI SELL 129 at a limit 2.16 (bid 2.4000)"}
+{"timestamp": "2026-10-08T08:02:31.647Z", "message": "2026-10-08 08:02:31,647 INFO [v36] AIXI SELL 831 at a limit 2.16 (bid 2.4000)"}
+{"timestamp": "2026-10-08T08:02:32.296Z", "message": "2026-10-08 08:02:32,296 INFO [v37] IGNORED AIXI print 1.9600 - the market is 2.4000 x 2.4200 (decides nothing)"}
+{"timestamp": "2026-10-08T08:02:32.444Z", "message": "2026-10-08 08:02:32,444 INFO [v36] AIXI SELL 392 at a limit 2.14 (bid 2.3800)"}
+{"timestamp": "2026-10-08T08:02:32.555Z", "message": "2026-10-08 08:02:32,555 WARNING [v36b] cancelled 1 working order(s) on AIXI"}
+{"timestamp": "2026-10-08T08:02:33.255Z", "message": "2026-10-08 08:02:33,255 INFO [v36] AIXI SELL 313 at a limit 2.14 (bid 2.3800)"}
+{"timestamp": "2026-10-08T08:02:33.494Z", "message": "2026-10-08 08:02:33,494 INFO [v36b] AIXI SELL 25 at a limit 2.13 (bid 2.3700)"}
+{"timestamp": "2026-10-08T08:02:33.773Z", "message": "2026-10-08 08:02:33,773 INFO [v37] TAPE AIXI held -1.7% | tape 60s: buy 28% sell 49% between 23% of 705,315 sh (100% by quote) | 5m: buy 38% sell 40% between 22% of 968,651 sh (100% by quote)"}
+{"timestamp": "2026-10-08T08:02:34.406Z", "message": "2026-10-08 08:02:34,406 INFO [v36b] EXIT trail AIXI 701 @ 2.4297 | trigger print 2.4400 x 500 cond ['@', 'T'], 0.0s old | entry 2.2400 peak 2.4900 stop 2.1627 | held 39s | P/L +132.96 (+8.47% of the trade, +2.04% of the account)"}
+{"timestamp": "2026-10-08T08:02:34.411Z", "message": "2026-10-08 08:02:34,411 INFO [v36b] FURIOUS AIXI at 2.4400: speed 0.37, 5s +23.2% on $184k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:02:34.582Z", "message": "2026-10-08 08:02:34,582 INFO [v36] AIXI SELL 300 at a limit 2.16 (bid 2.4000)"}
+{"timestamp": "2026-10-08T08:02:35.318Z", "message": "2026-10-08 08:02:35,318 INFO [v36b] AIXI BUY SHORT - wanted 654, got 239 at a limit up to inf: filled at up to 2.6200 (the ask + 0.20)"}
+{"timestamp": "2026-10-08T08:02:35.394Z", "message": "2026-10-08 08:02:35,394 INFO [v36b] ENTER AIXI 239 @ 2.4300 (print 2.4400) = $581 (9% of equity) | stop 2.3668 (2.60% away) | new-high trigger 2.3400"}
+{"timestamp": "2026-10-08T08:02:35.396Z", "message": "2026-10-08 08:02:35,396 INFO [v36b]   AIXI tape 60s: buy 28% sell 50% between 23% of 712,737 sh (100% by quote) | 5m: buy 38% sell 41% between 22% of 987,935 sh (100% by quote) (buying)"}
+{"timestamp": "2026-10-08T08:02:35.396Z", "message": "2026-10-08 08:02:35,396 INFO [v36b] AIXI FULL POSITION 239 shares at once (furious), buy 2 today - stop 2.3668, line $2.00"}
+{"timestamp": "2026-10-08T08:02:35.397Z", "message": "2026-10-08 08:02:35,397 INFO [v36b] IGNORED AIXI print 2.4400 - the market is 2.3900 x 2.4000 (decides nothing)"}
+{"timestamp": "2026-10-08T08:02:35.535Z", "message": "2026-10-08 08:02:35,535 WARNING [v36] cancelled 1 working order(s) on AIXI"}
+{"timestamp": "2026-10-08T08:02:36.480Z", "message": "2026-10-08 08:02:36,480 INFO [v36] AIXI SELL 290 at a limit 2.16 (bid 2.4000)"}
+{"timestamp": "2026-10-08T08:02:37.265Z", "message": "2026-10-08 08:02:37,265 INFO [v36] AIXI SELL 257 at a limit 2.17 (bid 2.4100)"}
+{"timestamp": "2026-10-08T08:02:38.331Z", "message": "2026-10-08 08:02:38,331 INFO [v36] AIXI SELL 8 at a limit 2.19 (bid 2.4300)"}
+{"timestamp": "2026-10-08T08:02:38.755Z", "message": "2026-10-08 08:02:38,755 INFO [v36] EXIT trail AIXI 1812 @ 2.4214 | trigger print 2.4400 x 500 cond ['@', 'T'], 0.0s old | entry 2.2400 peak 2.4900 stop 2.1400 | held 44s | P/L +328.75 (+8.10% of the trade, +1.95% of the account)"}
+{"timestamp": "2026-10-08T08:02:38.759Z", "message": "2026-10-08 08:02:38,759 INFO [v36] WHY-NOT AIXI px 2.4400 | crowd #1 $1169k held 1.6m, gainer #1 | NO TAPE at the trigger 2.3400: 30s ask 20% bid 58% between 21% of 381127 sh (100% by quote)"}
+{"timestamp": "2026-10-08T08:02:38.774Z", "message": "2026-10-08 08:02:38,774 INFO [v36] IGNORED AIXI print 2.0100 - the market is 2.4300 x 2.4400 (decides nothing)"}
+{"timestamp": "2026-10-08T08:02:39.724Z", "message": "2026-10-08 08:02:39,724 INFO [v36] FURIOUS AIXI at 2.4400: speed 0.61, 5s +20.2% on $109k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:02:39.731Z", "message": "2026-10-08 08:02:39,731 INFO [v37]   AIXI tape 60s: buy 25% sell 52% between 23% of 696,035 sh (100% by quote) | 5m: buy 37% sell 42% between 22% of 1,029,717 sh (100% by quote) (selling: giveback)"}
+{"timestamp": "2026-10-08T08:02:39.952Z", "message": "2026-10-08 08:02:39,952 INFO [v37] AIXI SELL 210 at a limit 2.42 (bid 2.4300)"}
+{"timestamp": "2026-10-08T08:02:40.813Z", "message": "2026-10-08 08:02:40,813 INFO [v36] ENTER AIXI 1689 @ 2.4300 (print 2.4400) = $4104 (24% of equity) | stop 2.2448 (7.62% away) | new-high trigger 2.3400"}
+{"timestamp": "2026-10-08T08:02:40.815Z", "message": "2026-10-08 08:02:40,815 INFO [v36]   AIXI tape 60s: buy 25% sell 53% between 23% of 696,717 sh (100% by quote) | 5m: buy 37% sell 42% between 22% of 1,037,912 sh (100% by quote) (buying)"}
+{"timestamp": "2026-10-08T08:02:40.815Z", "message": "2026-10-08 08:02:40,815 INFO [v36] AIXI FULL POSITION 1689 shares at once (furious), buy 2 today - stop 2.3300, line $2.00"}
+{"timestamp": "2026-10-08T08:02:41.091Z", "message": "2026-10-08 08:02:41,091 WARNING [v37] cancelled 1 working order(s) on AIXI"}
+{"timestamp": "2026-10-08T08:02:41.714Z", "message": "2026-10-08 08:02:41,714 INFO [v37] AIXI SELL 50 at a limit 2.40 (bid 2.4100)"}
+{"timestamp": "2026-10-08T08:02:42.661Z", "message": "2026-10-08 08:02:42,661 INFO [v37] EXIT giveback AIXI 210 @ 2.4176 | trigger print 2.4300 x 300 cond ['@', 'T'], 0.1s old | entry 2.4320 peak 2.4497 stop 2.2374 | held 12s | P/L -3.02 (-0.59% of the trade, -0.02% of the account)"}
+{"timestamp": "2026-10-08T08:02:51.247Z", "message": "2026-10-08 08:02:51,247 INFO [v36b]   AIXI tape 60s: buy 23% sell 56% between 21% of 706,080 sh (100% by quote) | 5m: buy 35% sell 43% between 22% of 1,134,322 sh (100% by quote) (selling: stop)"}
+{"timestamp": "2026-10-08T08:02:51.469Z", "message": "2026-10-08 08:02:51,469 INFO [v36b] AIXI SELL 239 at a limit 2.12 (bid 2.3600)"}
+{"timestamp": "2026-10-08T08:02:52.613Z", "message": "2026-10-08 08:02:52,613 INFO [v36b] AIXI SELL 89 at a limit 2.13 (bid 2.3700)"}
+{"timestamp": "2026-10-08T08:02:53.589Z", "message": "2026-10-08 08:02:53,589 WARNING [v36b] cancelled 1 working order(s) on AIXI"}
+{"timestamp": "2026-10-08T08:02:54.552Z", "message": "2026-10-08 08:02:54,552 INFO [v36b] AIXI SELL 19 at a limit 2.13 (bid 2.3700)"}
+{"timestamp": "2026-10-08T08:02:55.790Z", "message": "2026-10-08 08:02:55,790 WARNING [v36b] cancelled 1 working order(s) on AIXI"}
+{"timestamp": "2026-10-08T08:02:56.426Z", "message": "2026-10-08 08:02:56,426 INFO [v36b] AIXI SELL 13 at a limit 2.17 (bid 2.4100)"}
+{"timestamp": "2026-10-08T08:02:57.348Z", "message": "2026-10-08 08:02:57,348 INFO [v36b] EXIT stop AIXI 239 @ 2.3730 | trigger print 2.3600 x 100 cond ['@', 'T'], 0.0s old | entry 2.4300 peak 2.4497 stop 2.3668 | held 22s | P/L -13.63 (-2.35% of the trade, -0.21% of the account)"}
+{"timestamp": "2026-10-08T08:02:59.631Z", "message": "2026-10-08 08:02:59,631 INFO [v36] TAPE AIXI held -0.8% | tape 60s: buy 25% sell 53% between 22% of 694,640 sh (100% by quote) | 5m: buy 36% sell 42% between 22% of 1,184,773 sh (100% by quote)"}
+{"timestamp": "2026-10-08T08:03:00.184Z", "message": "2026-10-08 08:03:00,184 INFO [v36b] WHY-NOT AIXI px 2.4300 | crowd #1 $3272k held 2.0m, gainer #1 | WAIT: hod trigger 2.5400"}
+{"timestamp": "2026-10-08T08:03:01.071Z", "message": "2026-10-08 08:03:01,071 INFO [v36b] FURIOUS AIXI at 2.5000: speed 0.47, 5s +3.3% on $102k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T08:03:02.306Z", "message": "2026-10-08 08:03:02,306 INFO [v36b] AIXI BUY SHORT - wanted 619, got 613 at a limit up to inf: filled at up to 2.7000 (the ask + 0.20)"}
+{"timestamp": "2026-10-08T08:03:02.380Z", "message": "2026-10-08 08:03:02,380 INFO [v36b] ENTER AIXI 613 @ 2.5010 (print 2.5000) = $1533 (24% of equity) | stop 2.4760 (1.00% away) | new-high trigger 2.4900"}
+{"timestamp": "2026-10-08T08:03:02.382Z", "message": "2026-10-08 08:03:02,382 INFO [v36b]   AIXI tape 60s: buy 27% sell 51% between 22% of 687,948 sh (100% by quote) | 5m: buy 37% sell 41% between 21% of 1,226,550 sh (100% by quote) (buying)"}
+{"timestamp": "2026-10-08T08:03:02.382Z", "message": "2026-10-08 08:03:02,382 INFO [v36b] AIXI FULL POSITION 613 shares at once (furious), buy 3 today - stop 2.4760, line $2.50"}
+{"timestamp": "2026-10-08T08:03:04.635Z", "message": "2026-10-08 08:03:04,635 INFO [v36b] TAPE AIXI held +0.7% | tape 60s: buy 26% sell 51% between 22% of 684,942 sh (100% by quote) | 5m: buy 37% sell 41% between 22% of 1,258,942 sh (100% by quote)"}
+{"timestamp": "2026-10-08T08:03:04.854Z", "message": "2026-10-08 08:03:04,854 INFO [v36b] AIXI the market 2.4500 x 2.4900 is at the stop 2.4760 - out"}
+{"timestamp": "2026-10-08T08:03:04.856Z", "message": "2026-10-08 08:03:04,856 INFO [v36b]   AIXI tape 60s: buy 26% sell 52% between 22% of 689,489 sh (100% by quote) | 5m: buy 37% sell 41% between 22% of 1,264,386 sh (100% by quote) (selling: stop)"}
+{"timestamp": "2026-10-08T08:03:05.134Z", "message": "2026-10-08 08:03:05,134 INFO [v36b] AIXI SELL 613 at a limit 2.18 (bid 2.4200)"}
+{"timestamp": "2026-10-08T08:03:06.509Z", "message": "2026-10-08 08:03:06,509 INFO [v36b] AIXI SELL 492 at a limit 2.17 (bid 2.4100)"}
+{"timestamp": "2026-10-08T08:03:07.654Z", "message": "2026-10-08 08:03:07,654 INFO [v36b] AIXI SELL 235 at a limit 2.19 (bid 2.4300)"}
+{"timestamp": "2026-10-08T08:03:08.146Z", "message": "2026-10-08 08:03:08,146 INFO [v37] IGNORED AIXI print 2.4495 - the market is 2.3800 x 2.4000 (decides nothing)"}
+{"timestamp": "2026-10-08T08:03:08.576Z", "message": "2026-10-08 08:03:08,576 WARNING [v36b] cancelled 1 working order(s) on AIXI"}
+{"timestamp": "2026-10-08T08:03:09.518Z", "message": "2026-10-08 08:03:09,518 INFO [v36b] AIXI SELL 86 at a limit 2.14 (bid 2.3800)"}
+{"timestamp": "2026-10-08T08:03:10.159Z", "message": "2026-10-08 08:03:10,159 INFO [v36b] EXIT stop AIXI 613 @ 2.4111 | trigger print 2.4700 x 150 cond ['@', 'T'], 0.0s old | entry 2.5010 peak 2.5400 stop 2.4760 | held 8s | P/L -55.09 (-3.59% of the trade, -0.85% of the account)"}
+{"timestamp": "2026-10-08T08:03:10.160Z", "message": "2026-10-08 08:03:10,160 INFO [v36b] IGNORED AIXI print 2.4700 - the market is 2.3900 x 2.4000 (decides nothing)"}
+{"timestamp": "2026-10-08T08:03:16.893Z", "message": "  AIXI       1689    2.4300    2.3900    2.3300     -67.56    -1.6%     0m"}
+{"timestamp": "2026-10-08T08:03:30.397Z", "message": "2026-10-08 08:03:30,397 INFO [v36]   AIXI tape 60s: buy 33% sell 44% between 23% of 560,304 sh (100% by quote) | 5m: buy 37% sell 41% between 22% of 1,473,305 sh (100% by quote) (selling: 10s)"}
+{"timestamp": "2026-10-08T08:03:30.622Z", "message": "2026-10-08 08:03:30,622 INFO [v36] AIXI SELL 1689 at a limit 2.12 (bid 2.3600)"}
+{"timestamp": "2026-10-08T08:03:31.552Z", "message": "2026-10-08 08:03:31,552 WARNING [v36] cancelled 1 working order(s) on AIXI"}
+{"timestamp": "2026-10-08T08:03:32.494Z", "message": "2026-10-08 08:03:32,494 INFO [v36] AIXI SELL 1231 at a limit 2.12 (bid 2.3500)"}
+{"timestamp": "2026-10-08T08:03:33.279Z", "message": "2026-10-08 08:03:33,279 INFO [v36] AIXI SELL 1214 at a limit 2.12 (bid 2.3500)"}
+{"timestamp": "2026-10-08T08:03:34.061Z", "message": "2026-10-08 08:03:34,061 INFO [v36] AIXI SELL 680 at a limit 2.12 (bid 2.3500)"}
+{"timestamp": "2026-10-08T08:03:35.698Z", "message": "2026-10-08 08:03:35,698 INFO [v36] EXIT 10s AIXI 1689 @ 2.3527 | trigger print 2.3600 x 100 cond ['@', 'T'], 0.0s old | entry 2.4300 peak 2.5400 stop 2.3300 | held 55s | P/L -130.54 (-3.18% of the trade, -0.78% of the account)"}
+{"timestamp": "2026-10-08T08:03:38.913Z", "message": "2026-10-08 08:03:38,913 INFO [v36] WHY-NOT AIXI px 2.3600 | crowd #1 $3272k held 2.6m, gainer #1 | WAIT: hod trigger 2.5400"}
+{"timestamp": "2026-10-08T08:04:00.292Z", "message": "2026-10-08 08:04:00,292 INFO [v36b] WHY-NOT AIXI px 2.3400 | crowd #1 $4258k held 3.0m, gainer #1 | WAIT: hod trigger 2.5900"}
+{"timestamp": "2026-10-08T08:04:04.744Z", "message": "2026-10-08 08:04:04,744 INFO [v37] IGNORED AIXI print 2.2596 - the market is 2.3200 x 2.3300 (decides nothing)"}
+{"timestamp": "2026-10-08T08:04:04.826Z", "message": "2026-10-08 08:04:04,826 INFO [v36] IGNORED AIXI print 2.2900 - the market is 2.3200 x 2.3300 (decides nothing)"}
+{"timestamp": "2026-10-08T08:04:04.846Z", "message": "2026-10-08 08:04:04,846 INFO [v36b] IGNORED AIXI print 2.2900 - the market is 2.3200 x 2.3300 (decides nothing)"}

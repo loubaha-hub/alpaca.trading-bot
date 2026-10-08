@@ -1,0 +1,8 @@
+[
+ {"time_utc": "2026-10-08T13:27:18.659Z", "strategy": "v36",  "trades": 24, "up": 9, "down": 15, "realised": 647.51,  "line": "  CLOSED 24 trades, 9 up / 15 down                 +647.51"},
+ {"time_utc": "2026-10-08T13:27:18.659Z", "strategy": "v37",  "trades": 18, "up": 0, "down": 18, "realised": -739.95, "line": "  CLOSED 18 trades, 0 up / 18 down                 -739.95"},
+ {"time_utc": "2026-10-08T13:27:18.659Z", "strategy": "v36b", "trades": 28, "up": 6, "down": 22, "realised": -49.76,  "line": "  CLOSED 28 trades, 6 up / 22 down                  -49.76"},
+ {"time_utc": "2026-10-08T13:47:22.728Z", "strategy": "v36",  "trades": 26, "up": 9, "down": 17, "realised": 359.07,  "line": "  CLOSED 26 trades, 9 up / 17 down                 +359.07"},
+ {"time_utc": "2026-10-08T13:47:22.729Z", "strategy": "v37",  "trades": 18, "up": 0, "down": 18, "realised": -739.95, "line": "  CLOSED 18 trades, 0 up / 18 down                 -739.95"},
+ {"time_utc": "2026-10-08T13:47:22.729Z", "strategy": "v36b", "trades": 30, "up": 6, "down": 24, "realised": -239.91, "line": "  CLOSED 30 trades, 6 up / 24 down                 -239.91"}
+]

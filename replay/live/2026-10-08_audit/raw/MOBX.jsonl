@@ -1,0 +1,35 @@
+{"timestamp": "2026-10-08T11:01:10.733Z", "message": "2026-10-08 11:01:10,733 INFO ROSTER 9 names | in: MOBX 1.38 | out: SBFM"}
+{"timestamp": "2026-10-08T11:01:10.814Z", "message": "2026-10-08 11:01:10,814 INFO day highs from today's bars: 1 name(s) seeded, e.g. MOBX 1.3600"}
+{"timestamp": "2026-10-08T11:01:32.783Z", "message": "2026-10-08 11:01:32,783 INFO [v36] FURIOUS MOBX at 1.4300: speed 1.08, 5s +2.1% on $82k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T11:01:32.784Z", "message": "2026-10-08 11:01:32,784 INFO [v36b] FURIOUS MOBX at 1.4300: speed 1.08, 5s +2.1% on $82k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T11:01:33.943Z", "message": "2026-10-08 11:01:33,943 INFO [v36] ENTER MOBX 3053 @ 1.4300 (print 1.4300) = $4366 (25% of equity) | stop 1.3400 (6.29% away) | new-high trigger 1.3600"}
+{"timestamp": "2026-10-08T11:01:33.944Z", "message": "2026-10-08 11:01:33,944 INFO [v36]   MOBX tape 60s: buy 78% sell 13% between 9% of 183,025 sh (90% by quote) | 5m: buy 77% sell 15% between 8% of 211,766 sh (83% by quote) (buying)"}
+{"timestamp": "2026-10-08T11:01:33.944Z", "message": "2026-10-08 11:01:33,944 INFO [v36] MOBX FULL POSITION 3053 shares at once (furious), buy 1 today - stop 1.3400, line $1.00"}
+{"timestamp": "2026-10-08T11:01:34.030Z", "message": "2026-10-08 11:01:34,030 INFO [v36b] MOBX BUY SHORT - wanted 1150, got 858 at a limit up to inf: filled at up to 1.6300 (the ask + 0.20)"}
+{"timestamp": "2026-10-08T11:01:34.103Z", "message": "2026-10-08 11:01:34,103 INFO [v36b] ENTER MOBX 858 @ 1.4300 (print 1.4300) = $1227 (18% of equity) | stop 1.3871 (3.00% away) | new-high trigger 1.3600"}
+{"timestamp": "2026-10-08T11:01:34.103Z", "message": "2026-10-08 11:01:34,103 INFO [v36b]   MOBX tape 60s: buy 78% sell 13% between 9% of 180,530 sh (90% by quote) | 5m: buy 77% sell 15% between 8% of 211,766 sh (83% by quote) (buying)"}
+{"timestamp": "2026-10-08T11:01:34.103Z", "message": "2026-10-08 11:01:34,103 INFO [v36b] MOBX FULL POSITION 858 shares at once (furious), buy 1 today - stop 1.3871, line $1.00"}
+{"timestamp": "2026-10-08T11:01:38.135Z", "message": "2026-10-08 11:01:38,135 INFO [v36] TAPE MOBX held +0.7% | tape 60s: buy 77% sell 13% between 10% of 196,533 sh (91% by quote) | 5m: buy 76% sell 15% between 9% of 227,976 sh (84% by quote)"}
+{"timestamp": "2026-10-08T11:01:38.135Z", "message": "2026-10-08 11:01:38,135 INFO [v36b] TAPE MOBX held +0.7% | tape 60s: buy 77% sell 13% between 10% of 196,533 sh (91% by quote) | 5m: buy 76% sell 15% between 9% of 227,976 sh (84% by quote)"}
+{"timestamp": "2026-10-08T11:01:49.271Z", "message": "2026-10-08 11:01:49,271 INFO [v37] MOBX BUY SHORT - wanted 2636, got 1371 at a limit up to inf: filled at up to 1.6600 (the ask + 0.20)"}
+{"timestamp": "2026-10-08T11:01:49.343Z", "message": "2026-10-08 11:01:49,343 INFO [v37] ENTER MOBX 1371 @ 1.4600 (print 1.4599) = $2002 (14.3% of equity) - ACCELERATING 1.77, 35% of the account, buy 1 today | crowd #8, $58k in 5 min | stop 1.4162 | adds at 1.5600 and 1.6600 | speed 1.77 | score 14 (speed 4 candle 2 wicks 1 bodies 1 lows 0 volume 2 trend 2 macd 1 room 1)"}
+{"timestamp": "2026-10-08T11:01:51.157Z", "message": "2026-10-08 11:01:51,157 INFO [v37]   MOBX tape 60s: buy 71% sell 11% between 18% of 261,477 sh (93% by quote) | 5m: buy 71% sell 13% between 17% of 292,860 sh (88% by quote) (selling: giveback)"}
+{"timestamp": "2026-10-08T11:01:51.371Z", "message": "2026-10-08 11:01:51,371 INFO [v37] MOBX SELL 1371 at a limit 1.31 (bid 1.4600)"}
+{"timestamp": "2026-10-08T11:01:52.426Z", "message": "2026-10-08 11:01:52,426 INFO [v37] MOBX SELL 932 at a limit 1.31 (bid 1.4600)"}
+{"timestamp": "2026-10-08T11:01:53.138Z", "message": "2026-10-08 11:01:53,138 INFO [v37] TAPE MOBX held +0.0% | tape 60s: buy 70% sell 11% between 19% of 272,591 sh (93% by quote) | 5m: buy 70% sell 13% between 18% of 303,974 sh (88% by quote)"}
+{"timestamp": "2026-10-08T11:01:53.338Z", "message": "2026-10-08 11:01:53,338 INFO [v37] EXIT giveback MOBX 1371 @ 1.4600 | trigger print 1.4600 x 100 cond ['@', 'T'], 0.0s old | entry 1.4600 peak 1.4700 stop 1.4162 | held 4s | P/L +0.00 (+0.00% of the trade, +0.00% of the account)"}
+{"timestamp": "2026-10-08T11:02:19.879Z", "message": "2026-10-08 11:02:19,879 INFO [v37] MOBX BUY SHORT - wanted 2566, got 0 at a limit up to inf: the ask 1.5000 is back at the high 1.5000 - no buy under it"}
+{"timestamp": "2026-10-08T11:02:38.166Z", "message": "2026-10-08 11:02:38,166 INFO [v36] TAPE MOBX held +7.0% | tape 60s: buy 38% sell 28% between 35% of 821,107 sh (100% by quote) | 5m: buy 46% sell 25% between 29% of 1,047,083 sh (97% by quote)"}
+{"timestamp": "2026-10-08T11:02:38.167Z", "message": "2026-10-08 11:02:38,167 INFO [v36b] TAPE MOBX held +7.0% | tape 60s: buy 38% sell 28% between 35% of 821,107 sh (100% by quote) | 5m: buy 46% sell 25% between 29% of 1,047,083 sh (97% by quote)"}
+{"timestamp": "2026-10-08T11:03:10.485Z", "message": "2026-10-08 11:03:10,485 INFO [v36]   MOBX tape 60s: buy 22% sell 37% between 41% of 828,532 sh (100% by quote) | 5m: buy 37% sell 29% between 34% of 1,370,785 sh (97% by quote) (selling: 10s)"}
+{"timestamp": "2026-10-08T11:03:10.486Z", "message": "2026-10-08 11:03:10,486 INFO [v36b]   MOBX tape 60s: buy 22% sell 37% between 41% of 828,532 sh (100% by quote) | 5m: buy 37% sell 29% between 34% of 1,370,785 sh (97% by quote) (selling: 10s)"}
+{"timestamp": "2026-10-08T11:03:10.713Z", "message": "2026-10-08 11:03:10,713 INFO [v36b] MOBX SELL 858 at a limit 1.35 (bid 1.5000)"}
+{"timestamp": "2026-10-08T11:03:10.714Z", "message": "2026-10-08 11:03:10,714 INFO [v36] MOBX SELL 3053 at a limit 1.35 (bid 1.5000)"}
+{"timestamp": "2026-10-08T11:03:11.665Z", "message": "2026-10-08 11:03:11,665 INFO [v36b] EXIT 10s MOBX 858 @ 1.5000 | trigger print 1.5002 x 197 cond ['@', 'T'], 0.0s old | entry 1.4300 peak 1.5400 stop 1.3871 | held 98s | P/L +60.06 (+4.90% of the trade, +0.89% of the account)"}
+{"timestamp": "2026-10-08T11:03:11.756Z", "message": "2026-10-08 11:03:11,756 WARNING [v36] cancelled 1 working order(s) on MOBX"}
+{"timestamp": "2026-10-08T11:03:12.703Z", "message": "2026-10-08 11:03:12,703 INFO [v36] MOBX SELL 2228 at a limit 1.31 (bid 1.4600)"}
+{"timestamp": "2026-10-08T11:03:13.482Z", "message": "2026-10-08 11:03:13,482 INFO [v36] MOBX SELL 259 at a limit 1.30 (bid 1.4400)"}
+{"timestamp": "2026-10-08T11:03:14.486Z", "message": "2026-10-08 11:03:14,486 INFO [v36] MOBX SELL 95 at a limit 1.29 (bid 1.4300)"}
+{"timestamp": "2026-10-08T11:03:15.275Z", "message": "2026-10-08 11:03:15,275 INFO [v36] MOBX SELL 52 at a limit 1.29 (bid 1.4300)"}
+{"timestamp": "2026-10-08T11:03:15.917Z", "message": "2026-10-08 11:03:15,917 INFO [v36] EXIT 10s MOBX 3053 @ 1.4688 | trigger print 1.5002 x 197 cond ['@', 'T'], 0.0s old | entry 1.4300 peak 1.5400 stop 1.3400 | held 102s | P/L +118.46 (+2.71% of the trade, +0.66% of the account)"}
+{"timestamp": "2026-10-08T11:03:15.922Z", "message": "2026-10-08 11:03:15,922 INFO [v36] IGNORED MOBX print 1.5077 - the market is 1.4300 x 1.4400 (decides nothing)"}

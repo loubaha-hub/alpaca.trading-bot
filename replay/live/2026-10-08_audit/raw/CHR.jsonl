@@ -1,0 +1,34 @@
+{"timestamp": "2026-10-08T12:00:41.475Z", "message": "2026-10-08 12:00:41,475 INFO ROSTER 9 names | in: - | out: CHR"}
+{"timestamp": "2026-10-08T12:01:05.931Z", "message": "2026-10-08 12:01:05,931 INFO ROSTER 10 names | in: CHR 1.72 | out: -"}
+{"timestamp": "2026-10-08T12:02:08.790Z", "message": "2026-10-08 12:02:08,790 INFO [v36] FURIOUS CHR at 1.9000: speed 0.31, 5s +7.9% on $107k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T12:02:08.794Z", "message": "2026-10-08 12:02:08,794 INFO [v36b] FURIOUS CHR at 1.9000: speed 0.31, 5s +7.9% on $107k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T12:02:09.967Z", "message": "2026-10-08 12:02:09,967 INFO [v36b] ENTER CHR 836 @ 1.8900 (print 1.9000) = $1580 (24% of equity) | stop 1.8430 (2.49% away) | new-high trigger 1.8700"}
+{"timestamp": "2026-10-08T12:02:09.968Z", "message": "2026-10-08 12:02:09,968 INFO [v36b]   CHR tape 60s: buy 53% sell 47% between 0% of 329,385 sh (0% by quote) | 5m: buy 54% sell 46% between 0% of 426,501 sh (0% by quote) (buying)"}
+{"timestamp": "2026-10-08T12:02:09.968Z", "message": "2026-10-08 12:02:09,968 INFO [v36b] CHR FULL POSITION 836 shares at once (furious), buy 1 today - stop 1.8430, line $1.50"}
+{"timestamp": "2026-10-08T12:02:10.133Z", "message": "2026-10-08 12:02:10,133 INFO [v36] ENTER CHR 2319 @ 1.9200 (print 1.9000) = $4452 (25% of equity) | stop 1.7480 (8.96% away) | new-high trigger 1.8700"}
+{"timestamp": "2026-10-08T12:02:10.134Z", "message": "2026-10-08 12:02:10,134 INFO [v36]   CHR tape 60s: buy 53% sell 47% between 0% of 328,326 sh (1% by quote) | 5m: buy 54% sell 46% between 0% of 428,899 sh (1% by quote) (buying)"}
+{"timestamp": "2026-10-08T12:02:10.134Z", "message": "2026-10-08 12:02:10,134 INFO [v36] CHR FULL POSITION 2319 shares at once (furious), buy 1 today - stop 1.8200, line $1.50"}
+{"timestamp": "2026-10-08T12:02:10.142Z", "message": "2026-10-08 12:02:10,142 INFO [v36] IGNORED CHR print 1.8700 - the market is 1.9000 x 1.9100 (decides nothing)"}
+{"timestamp": "2026-10-08T12:02:14.450Z", "message": "2026-10-08 12:02:14,450 INFO [v36] TAPE CHR held +1.6% | tape 60s: buy 51% sell 40% between 8% of 404,286 sh (25% by quote) | 5m: buy 53% sell 41% between 6% of 528,674 sh (19% by quote)"}
+{"timestamp": "2026-10-08T12:02:14.451Z", "message": "2026-10-08 12:02:14,451 INFO [v36b] TAPE CHR held +3.2% | tape 60s: buy 51% sell 40% between 8% of 404,286 sh (25% by quote) | 5m: buy 53% sell 41% between 6% of 528,674 sh (19% by quote)"}
+{"timestamp": "2026-10-08T12:02:18.670Z", "message": "2026-10-08 12:02:18,670 INFO [v37] ENTER CHR 1983 @ 2.0600 (print 2.0200) = $4085 (29.8% of equity) - ACCELERATING 0.54, 35% of the account, buy 1 today | crowd #4, $640k in 5 min | stop 1.9900 | adds at 2.1600 and 2.2600 | speed 0.54 | score 13 (speed 4 candle 1 wicks 1 bodies 1 lows 0 volume 2 trend 2 macd 1 room 1)"}
+{"timestamp": "2026-10-08T12:02:18.670Z", "message": "2026-10-08 12:02:18,670 INFO [v37] IGNORED CHR print 2.0100 - the market is 2.0400 x 2.0400 (decides nothing)"}
+{"timestamp": "2026-10-08T12:02:19.453Z", "message": "2026-10-08 12:02:19,453 INFO [v37] TAPE CHR held -1.9% | tape 60s: buy 50% sell 34% between 16% of 504,291 sh (45% by quote) | 5m: buy 51% sell 37% between 12% of 651,255 sh (34% by quote)"}
+{"timestamp": "2026-10-08T12:02:20.934Z", "message": "2026-10-08 12:02:20,934 INFO [v37] CHR the market 1.9900 x 1.9900 is at the stop 1.9900 - out"}
+{"timestamp": "2026-10-08T12:02:20.935Z", "message": "2026-10-08 12:02:20,935 INFO [v37]   CHR tape 60s: buy 50% sell 34% between 17% of 546,040 sh (49% by quote) | 5m: buy 50% sell 37% between 13% of 696,572 sh (39% by quote) (selling: stop)"}
+{"timestamp": "2026-10-08T12:02:21.150Z", "message": "2026-10-08 12:02:21,150 INFO [v37] CHR SELL 1983 at a limit 1.78 (bid 1.9800)"}
+{"timestamp": "2026-10-08T12:02:22.070Z", "message": "2026-10-08 12:02:22,070 INFO [v37] EXIT stop CHR 1983 @ 1.9900 | trigger print 2.0000 x 100 cond ['@', 'F', 'T'], 0.1s old | entry 2.0600 peak 2.0600 stop 1.9900 | held 3s | P/L -138.81 (-3.40% of the trade, -1.02% of the account)"}
+{"timestamp": "2026-10-08T12:02:25.015Z", "message": "2026-10-08 12:02:25,015 INFO [v36b] IGNORED CHR print 2.0500 - the market is 2.0100 x 2.0200 (decides nothing)"}
+{"timestamp": "2026-10-08T12:02:32.839Z", "message": "2026-10-08 12:02:32,839 INFO [v36b]   CHR tape 60s: buy 46% sell 29% between 24% of 743,765 sh (72% by quote) | 5m: buy 48% sell 33% between 19% of 961,406 sh (56% by quote) (selling: stop)"}
+{"timestamp": "2026-10-08T12:02:33.001Z", "message": "2026-10-08 12:02:33,001 INFO [v36] CHR the market 1.8100 x 1.8200 is at the stop 1.8200 - out"}
+{"timestamp": "2026-10-08T12:02:33.004Z", "message": "2026-10-08 12:02:33,004 INFO [v36]   CHR tape 60s: buy 46% sell 29% between 25% of 747,746 sh (72% by quote) | 5m: buy 48% sell 33% between 19% of 967,282 sh (56% by quote) (selling: stop)"}
+{"timestamp": "2026-10-08T12:02:33.054Z", "message": "2026-10-08 12:02:33,054 INFO [v36b] CHR SELL 836 at a limit 1.63 (bid 1.8100)"}
+{"timestamp": "2026-10-08T12:02:33.216Z", "message": "2026-10-08 12:02:33,216 INFO [v36] CHR SELL 2319 at a limit 1.60 (bid 1.7800)"}
+{"timestamp": "2026-10-08T12:02:33.980Z", "message": "2026-10-08 12:02:33,980 INFO [v36b] EXIT stop CHR 836 @ 1.7900 | trigger print 1.8400 x 1249 cond ['@', 'T'], 0.0s old | entry 1.8900 peak 2.0600 stop 1.8430 | held 24s | P/L -83.60 (-5.29% of the trade, -1.30% of the account)"}
+{"timestamp": "2026-10-08T12:02:34.134Z", "message": "2026-10-08 12:02:34,134 INFO [v36] EXIT stop CHR 2319 @ 1.7700 | trigger print 1.8100 x 200 cond ['@', 'T'], 0.0s old | entry 1.9200 peak 2.0600 stop 1.8200 | held 24s | P/L -347.85 (-7.81% of the trade, -1.94% of the account)"}
+{"timestamp": "2026-10-08T12:02:40.428Z", "message": "2026-10-08 12:02:40,428 INFO [v36] IGNORED CHR print 1.4300 - the market is 1.4600 x 1.4700 (decides nothing)"}
+{"timestamp": "2026-10-08T12:02:41.109Z", "message": "2026-10-08 12:02:41,109 INFO ROSTER 9 names | in: - | out: CHR"}
+{"timestamp": "2026-10-08T12:02:51.861Z", "message": "2026-10-08 12:02:51,861 INFO [v37] IGNORED CHR print 1.5300 - the market is 1.6100 x 1.6200 (decides nothing)"}
+{"timestamp": "2026-10-08T12:02:59.705Z", "message": "2026-10-08 12:02:59,705 INFO [v36b] IGNORED CHR print 1.5400 - the market is 1.5700 x 1.5900 (decides nothing)"}
+{"timestamp": "2026-10-08T12:03:00.187Z", "message": "2026-10-08 12:03:00,187 INFO [v36] WHY-NOT CHR px 1.5800 | crowd #3 $2560k, gainer #14 | NO CROWD: not top 2 held 2m, not ripping, not a top gainer with $1000k"}
+{"timestamp": "2026-10-08T12:03:00.192Z", "message": "2026-10-08 12:03:00,192 INFO [v36b] WHY-NOT CHR px 1.5800 | crowd #3 $2560k, gainer #14 | NO CROWD: not top 2 held 2m, not ripping, not a top gainer with $1000k"}

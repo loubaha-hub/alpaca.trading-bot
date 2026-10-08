@@ -1,0 +1,74 @@
+# Alpaca trading bot - read this first
+
+This file loads automatically at the start of every Claude Code session in this
+repository. Before doing anything else, also read:
+
+- `memory/now.md` - where things stand right now: the working branch, what is
+  live, what is waiting on the owner, the next steps.
+- `memory/journal.md` - decisions, instructions and results worth keeping,
+  newest first.
+- `memory/playbook.md` - how the owner traded by hand, profitably. The bot
+  is meant to follow it.
+- `memory/rules.md` - the playbook turned into numbers: the rule sheet for
+  the new strategy, with what is built and what is not.
+
+THIS REPOSITORY IS PUBLIC. Never write keys, secrets, passwords or account
+numbers into any file here - memory files included.
+
+## Standing rules from the owner
+
+- **Nothing goes to `main` without the owner's explicit OK.** Render deploys
+  every commit to `main`, and a deploy restarts the bot, which wipes its watch
+  list and per-symbol state. Restart only when all three accounts are flat, or
+  after hours (after 8pm ET). Work on the branch named in `memory/now.md`.
+  The owner, 2026-10-07 ~11am: every fix the owner has agreed goes to `main`
+  as soon as it is built and its tests pass, at the next moment all three
+  accounts are flat - "push them in". A fix the owner has not agreed still
+  waits for the owner's OK.
+- Never ask for keys or secrets in the chat; the owner types them only into
+  settings screens. Do not regenerate Alpaca keys.
+- Claude's access to Alpaca is read-only unless the owner explicitly says
+  otherwise. Never approve Webull order tools ("place ... instruction",
+  "revoke instruction").
+- `watchman.py` stays off `main` until the real-money account opens.
+- Accounts are identified by number, not by the names Alpaca shows. The
+  account ending **T6HH** runs v36, **P28T** ("V30-100k") runs v37,
+  **AUES** runs v35 (the owner, from 2026-10-06; v31 and v34 are off, v32
+  stays off). SLOT_V31 / SLOT_V34 / SLOT_V35 in Render's environment switch
+  an account's strategy; "off" turns it off.
+- Judging a change: all the days, never one stock. Show the gains and the
+  costs and the trade counts, test on days that were not used to design it,
+  check it holds across a range of settings, and give a market reason.
+  **Live results outrank replays.**
+- Premarket (4:00-9:30 ET) is prime time and gets its own design; regular
+  hours (9:30-4:00, with LULD halts) get a separate one.
+- The day's #1 and #2 leaders come first, and a stock is never banned for
+  ripping (2026-10-05; replaces "the no-chase rule stays"). The owner's
+  method is in `memory/playbook.md`; the bot is to follow it point by point.
+- **Words before code** (the owner, 2026-10-07): every new rule or change is
+  first written in plain sentences and answered against
+  `memory/checklist.md` - every contingency, every hole - and the owner
+  reads it before any code is written. "Every hole plugged and every
+  contingency accounted for." A loss from the market's randomness is
+  accepted; a loss from something known and predictable is a defect - it
+  belongs in the code.
+
+## Memory
+
+- When the owner says "remember", "memorize", "save this" or "note this",
+  use the `/remember` skill (`.claude/skills/remember/SKILL.md`): a short dated
+  entry in `memory/journal.md`, committed and pushed to the working branch.
+- At the end of a block of work, bring `memory/now.md` up to date.
+- Record a decision as a decision only when the owner made it; otherwise it
+  is a proposal.
+
+## Where things are
+
+- `r34.py` - the live bot: v31 is the base class, V34 and V35 subclass it.
+  One process, one Alpaca SIP data connection shared by the strategies.
+- `replay/replay.py` - replays recorded 1-minute bars through the bot's code.
+  Its fills and spreads are invented, and kinder than the live market (see the
+  journal, 2026-10-05). `replay/data/` holds the recorded bars; `replay/out/`
+  is not kept in git; `replay/live/` holds live log lines saved from Render.
+- `tests/` - `cd tests && python -m pytest -q`.
+- Render keeps the bot's logs for about 7 days only - save what matters.

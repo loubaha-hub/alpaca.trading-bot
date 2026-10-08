@@ -1,0 +1,236 @@
+{"timestamp": "2026-10-08T11:21:13.193Z", "message": "2026-10-08 11:21:13,193 INFO ROSTER 11 names | in: - | out: FLYE"}
+{"timestamp": "2026-10-08T11:21:25.193Z", "message": "2026-10-08 11:21:25,193 INFO ROSTER 13 names | in: AAOZ 9.50 FLYE 1.46 | out: -"}
+{"timestamp": "2026-10-08T11:22:06.922Z", "message": "2026-10-08 11:22:06,922 INFO [v36] FURIOUS FLYE at 1.6500: speed 0.33, 5s +7.1% on $43k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T11:22:06.924Z", "message": "2026-10-08 11:22:06,924 INFO [v36b] FURIOUS FLYE at 1.6500: speed 0.33, 5s +7.1% on $43k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T11:22:07.925Z", "message": "2026-10-08 11:22:07,925 INFO [v36b] ENTER FLYE 986 @ 1.6400 (print 1.6500) = $1617 (24% of equity) | stop 1.6005 (2.41% away) | new-high trigger 1.5800"}
+{"timestamp": "2026-10-08T11:22:07.925Z", "message": "2026-10-08 11:22:07,925 INFO [v36b]   FLYE tape 60s: buy 54% sell 46% between 0% of 176,477 sh (0% by quote) | 5m: buy 57% sell 43% between 0% of 320,495 sh (0% by quote) (buying)"}
+{"timestamp": "2026-10-08T11:22:07.926Z", "message": "2026-10-08 11:22:07,926 INFO [v36b] FLYE FULL POSITION 986 shares at once (furious), buy 1 today - stop 1.6005, line $1.50"}
+{"timestamp": "2026-10-08T11:22:08.176Z", "message": "2026-10-08 11:22:08,176 WARNING [v36] cancelled 1 working order(s) on FLYE"}
+{"timestamp": "2026-10-08T11:22:08.651Z", "message": "2026-10-08 11:22:08,651 INFO [v36] FLYE BUY SHORT - wanted 2614, got 1849 at a limit up to inf: filled at up to 1.8500 (the ask + 0.20)"}
+{"timestamp": "2026-10-08T11:22:08.726Z", "message": "2026-10-08 11:22:08,726 INFO [v36] ENTER FLYE 1849 @ 1.6399 (print 1.6500) = $3032 (17% of equity) | stop 1.5180 (7.43% away) | new-high trigger 1.5800"}
+{"timestamp": "2026-10-08T11:22:08.727Z", "message": "2026-10-08 11:22:08,727 INFO [v36]   FLYE tape 60s: buy 55% sell 44% between 1% of 186,280 sh (4% by quote) | 5m: buy 57% sell 43% between 1% of 331,272 sh (3% by quote) (buying)"}
+{"timestamp": "2026-10-08T11:22:08.727Z", "message": "2026-10-08 11:22:08,727 INFO [v36] FLYE FULL POSITION 1849 shares at once (furious), buy 1 today - stop 1.5399, line $1.50"}
+{"timestamp": "2026-10-08T11:22:08.825Z", "message": "2026-10-08 11:22:08,825 INFO [v36] IGNORED FLYE print 1.6300 - the market is 1.6600 x 1.6700 (decides nothing)"}
+{"timestamp": "2026-10-08T11:22:10.133Z", "message": "2026-10-08 11:22:10,133 INFO [v37] IGNORED FLYE print 1.6900 - the market is 1.7200 x 1.7400 (decides nothing)"}
+{"timestamp": "2026-10-08T11:22:10.133Z", "message": "2026-10-08 11:22:10,133 INFO [v36b] IGNORED FLYE print 1.6900 - the market is 1.7200 x 1.7400 (decides nothing)"}
+{"timestamp": "2026-10-08T11:22:11.158Z", "message": "2026-10-08 11:22:11,158 INFO [v36] TAPE FLYE held +3.7% | tape 60s: buy 49% sell 44% between 7% of 212,790 sh (20% by quote) | 5m: buy 54% sell 42% between 4% of 365,459 sh (12% by quote)"}
+{"timestamp": "2026-10-08T11:22:11.159Z", "message": "2026-10-08 11:22:11,159 INFO [v36b] TAPE FLYE held +3.7% | tape 60s: buy 49% sell 44% between 7% of 212,790 sh (20% by quote) | 5m: buy 54% sell 42% between 4% of 365,459 sh (12% by quote)"}
+{"timestamp": "2026-10-08T11:22:14.104Z", "message": "2026-10-08 11:22:14,104 INFO [v36b]   FLYE tape 60s: buy 42% sell 43% between 15% of 251,652 sh (36% by quote) | 5m: buy 50% sell 41% between 9% of 414,737 sh (22% by quote) (selling: stop)"}
+{"timestamp": "2026-10-08T11:22:14.328Z", "message": "2026-10-08 11:22:14,328 INFO [v36b] FLYE SELL 986 at a limit 1.46 (bid 1.6200)"}
+{"timestamp": "2026-10-08T11:22:15.265Z", "message": "2026-10-08 11:22:15,265 WARNING [v36b] cancelled 1 working order(s) on FLYE"}
+{"timestamp": "2026-10-08T11:22:16.237Z", "message": "2026-10-08 11:22:16,237 INFO [v36b] FLYE SELL 646 at a limit 1.41 (bid 1.5700)"}
+{"timestamp": "2026-10-08T11:22:17.434Z", "message": "2026-10-08 11:22:17,434 WARNING [v36b] cancelled 1 working order(s) on FLYE"}
+{"timestamp": "2026-10-08T11:22:17.963Z", "message": "2026-10-08 11:22:17,963 INFO [v36]   FLYE tape 60s: buy 41% sell 41% between 18% of 264,347 sh (42% by quote) | 5m: buy 49% sell 40% between 11% of 433,868 sh (26% by quote) (selling: stop)"}
+{"timestamp": "2026-10-08T11:22:18.051Z", "message": "2026-10-08 11:22:18,051 INFO [v36b] FLYE SELL 244 at a limit 1.38 (bid 1.5300)"}
+{"timestamp": "2026-10-08T11:22:18.182Z", "message": "2026-10-08 11:22:18,182 INFO [v36] FLYE SELL 1849 at a limit 1.34 (bid 1.4900)"}
+{"timestamp": "2026-10-08T11:22:18.776Z", "message": "2026-10-08 11:22:18,776 INFO [v36b] EXIT stop FLYE 986 @ 1.5674 | trigger print 1.6000 x 100 cond ['@', 'F', 'T'], 0.0s old | entry 1.6400 peak 1.7502 stop 1.6005 | held 11s | P/L -71.54 (-4.42% of the trade, -1.07% of the account)"}
+{"timestamp": "2026-10-08T11:22:19.834Z", "message": "2026-10-08 11:22:19,834 WARNING [v36] cancelled 1 working order(s) on FLYE"}
+{"timestamp": "2026-10-08T11:22:20.452Z", "message": "2026-10-08 11:22:20,452 INFO [v36] FLYE SELL 732 at a limit 1.33 (bid 1.4800)"}
+{"timestamp": "2026-10-08T11:22:21.105Z", "message": "2026-10-08 11:22:21,105 WARNING [v36] cancelled 1 working order(s) on FLYE"}
+{"timestamp": "2026-10-08T11:22:22.051Z", "message": "2026-10-08 11:22:22,051 INFO [v36] FLYE SELL 559 at a limit 1.34 (bid 1.4900)"}
+{"timestamp": "2026-10-08T11:22:23.325Z", "message": "2026-10-08 11:22:23,325 WARNING [v36] cancelled 1 working order(s) on FLYE"}
+{"timestamp": "2026-10-08T11:22:24.300Z", "message": "2026-10-08 11:22:24,300 INFO [v36] FLYE SELL 544 at a limit 1.40 (bid 1.5600)"}
+{"timestamp": "2026-10-08T11:22:25.233Z", "message": "2026-10-08 11:22:25,233 WARNING [v36] cancelled 1 working order(s) on FLYE"}
+{"timestamp": "2026-10-08T11:22:26.178Z", "message": "2026-10-08 11:22:26,178 INFO [v36] FLYE SELL 116 at a limit 1.42 (bid 1.5800)"}
+{"timestamp": "2026-10-08T11:22:26.824Z", "message": "2026-10-08 11:22:26,824 INFO [v36] EXIT stop FLYE 1849 @ 1.5333 | trigger print 1.5300 x 186 cond ['@', 'F', 'T'], 0.1s old | entry 1.6399 peak 1.7502 stop 1.5399 | held 18s | P/L -197.07 (-6.50% of the trade, -1.11% of the account)"}
+{"timestamp": "2026-10-08T11:22:34.995Z", "message": "2026-10-08 11:22:34,995 INFO [v36] FURIOUS FLYE at 1.7600: speed 0.47, 5s +6.7% on $130k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T11:22:34.999Z", "message": "2026-10-08 11:22:34,999 INFO [v36b] FURIOUS FLYE at 1.7600: speed 0.47, 5s +6.7% on $130k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T11:22:36.172Z", "message": "2026-10-08 11:22:36,172 WARNING [v36] cancelled 1 working order(s) on FLYE"}
+{"timestamp": "2026-10-08T11:22:36.263Z", "message": "2026-10-08 11:22:36,263 WARNING [v36b] cancelled 1 working order(s) on FLYE"}
+{"timestamp": "2026-10-08T11:22:36.670Z", "message": "2026-10-08 11:22:36,670 INFO [v36] FLYE BUY SHORT - wanted 2430, got 1669 at a limit up to inf: filled at up to 1.9800 (the ask + 0.20)"}
+{"timestamp": "2026-10-08T11:22:36.735Z", "message": "2026-10-08 11:22:36,735 INFO [v36b] FLYE BUY SHORT - wanted 917, got 809 at a limit up to inf: filled at up to 1.9800 (the ask + 0.20)"}
+{"timestamp": "2026-10-08T11:22:36.740Z", "message": "2026-10-08 11:22:36,740 INFO [v36] ENTER FLYE 1669 @ 1.7800 (print 1.7600) = $2971 (17% of equity) | stop 1.6192 (9.03% away) | new-high trigger 1.6300"}
+{"timestamp": "2026-10-08T11:22:36.741Z", "message": "2026-10-08 11:22:36,741 INFO [v36]   FLYE tape 60s: buy 33% sell 29% between 38% of 431,678 sh (75% by quote) | 5m: buy 42% sell 33% between 26% of 648,011 sh (50% by quote) (buying)"}
+{"timestamp": "2026-10-08T11:22:36.741Z", "message": "2026-10-08 11:22:36,741 INFO [v36] FLYE FULL POSITION 1669 shares at once (furious), buy 2 today - stop 1.6800, line $1.50"}
+{"timestamp": "2026-10-08T11:22:36.806Z", "message": "2026-10-08 11:22:36,806 INFO [v36b] ENTER FLYE 809 @ 1.7800 (print 1.7600) = $1440 (21% of equity) | stop 1.7072 (4.09% away) | new-high trigger 1.6300"}
+{"timestamp": "2026-10-08T11:22:36.818Z", "message": "2026-10-08 11:22:36,818 INFO [v36b]   FLYE tape 60s: buy 33% sell 28% between 39% of 431,788 sh (75% by quote) | 5m: buy 42% sell 33% between 26% of 648,513 sh (50% by quote) (buying)"}
+{"timestamp": "2026-10-08T11:22:36.818Z", "message": "2026-10-08 11:22:36,818 INFO [v36b] FLYE FULL POSITION 809 shares at once (furious), buy 2 today - stop 1.7072, line $1.50"}
+{"timestamp": "2026-10-08T11:22:42.160Z", "message": "2026-10-08 11:22:42,160 INFO [v36b]   FLYE tape 60s: buy 32% sell 26% between 42% of 486,416 sh (81% by quote) | 5m: buy 40% sell 31% between 28% of 717,881 sh (55% by quote) (selling: stop)"}
+{"timestamp": "2026-10-08T11:22:42.376Z", "message": "2026-10-08 11:22:42,376 INFO [v36b] FLYE SELL 809 at a limit 1.52 (bid 1.6900)"}
+{"timestamp": "2026-10-08T11:22:44.078Z", "message": "2026-10-08 11:22:44,078 INFO [v36b] EXIT stop FLYE 809 @ 1.6900 | trigger print 1.7000 x 149 cond ['@', 'T'], 0.0s old | entry 1.7800 peak 1.7800 stop 1.7072 | held 7s | P/L -72.81 (-5.06% of the trade, -1.10% of the account)"}
+{"timestamp": "2026-10-08T11:22:46.872Z", "message": "2026-10-08 11:22:46,872 INFO [v36]   FLYE tape 60s: buy 31% sell 26% between 43% of 524,178 sh (84% by quote) | 5m: buy 39% sell 31% between 30% of 751,256 sh (58% by quote) (selling: stop)"}
+{"timestamp": "2026-10-08T11:22:47.084Z", "message": "2026-10-08 11:22:47,084 INFO [v36] FLYE SELL 1669 at a limit 1.51 (bid 1.6800)"}
+{"timestamp": "2026-10-08T11:22:48.232Z", "message": "2026-10-08 11:22:48,232 INFO [v36] FLYE SELL 739 at a limit 1.53 (bid 1.7000)"}
+{"timestamp": "2026-10-08T11:22:50.119Z", "message": "2026-10-08 11:22:50,119 INFO [v36] EXIT stop FLYE 1669 @ 1.6732 | trigger print 1.6800 x 436 cond ['@', 'T'], 0.0s old | entry 1.7800 peak 1.7800 stop 1.6800 | held 13s | P/L -178.23 (-6.00% of the trade, -1.01% of the account)"}
+{"timestamp": "2026-10-08T11:22:50.121Z", "message": "2026-10-08 11:22:50,121 INFO [v36] IGNORED FLYE print 1.6800 - the market is 1.7300 x 1.7400 (decides nothing)"}
+{"timestamp": "2026-10-08T11:22:51.500Z", "message": "2026-10-08 11:22:51,500 INFO [v37] IGNORED FLYE print 1.7200 - the market is 1.7500 x 1.7500 (decides nothing)"}
+{"timestamp": "2026-10-08T11:22:51.501Z", "message": "2026-10-08 11:22:51,501 INFO [v36b] IGNORED FLYE print 1.7200 - the market is 1.7500 x 1.7500 (decides nothing)"}
+{"timestamp": "2026-10-08T11:22:51.949Z", "message": "2026-10-08 11:22:51,949 INFO [v36] FURIOUS FLYE at 1.7900: speed 0.54, 5s +6.5% on $90k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T11:22:51.959Z", "message": "2026-10-08 11:22:51,959 INFO [v36b] FURIOUS FLYE at 1.7900: speed 0.54, 5s +6.5% on $90k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T11:22:53.116Z", "message": "2026-10-08 11:22:53,116 INFO [v36] ENTER FLYE 2366 @ 1.7700 (print 1.7900) = $4188 (24% of equity) | stop 1.6468 (6.96% away) | new-high trigger 1.6300"}
+{"timestamp": "2026-10-08T11:22:53.118Z", "message": "2026-10-08 11:22:53,118 INFO [v36]   FLYE tape 60s: buy 29% sell 27% between 44% of 578,350 sh (90% by quote) | 5m: buy 38% sell 32% between 31% of 830,832 sh (62% by quote) (buying)"}
+{"timestamp": "2026-10-08T11:22:53.118Z", "message": "2026-10-08 11:22:53,118 INFO [v36] FLYE FULL POSITION 2366 shares at once (furious), buy 3 today - stop 1.6700, line $1.50"}
+{"timestamp": "2026-10-08T11:22:53.228Z", "message": "2026-10-08 11:22:53,228 INFO [v36b] ENTER FLYE 893 @ 1.8000 (print 1.7900) = $1607 (24% of equity) | stop 1.7363 (3.54% away) | new-high trigger 1.6300"}
+{"timestamp": "2026-10-08T11:22:53.230Z", "message": "2026-10-08 11:22:53,230 INFO [v36b]   FLYE tape 60s: buy 29% sell 27% between 44% of 578,225 sh (90% by quote) | 5m: buy 38% sell 32% between 31% of 830,832 sh (62% by quote) (buying)"}
+{"timestamp": "2026-10-08T11:22:53.230Z", "message": "2026-10-08 11:22:53,230 INFO [v36b] FLYE FULL POSITION 893 shares at once (furious), buy 3 today - stop 1.7363, line $1.50"}
+{"timestamp": "2026-10-08T11:22:53.929Z", "message": "2026-10-08 11:22:53,929 INFO [v36b] FLYE the market 1.7200 x 1.7300 is at the stop 1.7363 - out"}
+{"timestamp": "2026-10-08T11:22:53.930Z", "message": "2026-10-08 11:22:53,930 INFO [v36b]   FLYE tape 60s: buy 29% sell 28% between 43% of 596,330 sh (91% by quote) | 5m: buy 37% sell 33% between 30% of 852,674 sh (63% by quote) (selling: stop)"}
+{"timestamp": "2026-10-08T11:22:54.146Z", "message": "2026-10-08 11:22:54,146 INFO [v36b] FLYE SELL 893 at a limit 1.55 (bid 1.7200)"}
+{"timestamp": "2026-10-08T11:22:55.055Z", "message": "2026-10-08 11:22:55,055 WARNING [v36b] cancelled 1 working order(s) on FLYE"}
+{"timestamp": "2026-10-08T11:22:56.021Z", "message": "2026-10-08 11:22:56,021 INFO [v36b] FLYE SELL 14 at a limit 1.53 (bid 1.7000)"}
+{"timestamp": "2026-10-08T11:22:57.099Z", "message": "2026-10-08 11:22:57,099 INFO [v36b] FLYE SELL 4 at a limit 1.52 (bid 1.6900)"}
+{"timestamp": "2026-10-08T11:22:58.160Z", "message": "2026-10-08 11:22:58,160 INFO [v36b] FLYE SELL 3 at a limit 1.52 (bid 1.6900)"}
+{"timestamp": "2026-10-08T11:22:58.963Z", "message": "2026-10-08 11:22:58,963 INFO [v36b] EXIT stop FLYE 893 @ 1.6999 | trigger print 1.7400 x 1102 cond ['@', 'T'], 0.0s old | entry 1.8000 peak 1.8100 stop 1.7363 | held 6s | P/L -89.42 (-5.56% of the trade, -1.37% of the account)"}
+{"timestamp": "2026-10-08T11:23:00.056Z", "message": "2026-10-08 11:23:00,056 INFO [v36b] WHY-NOT FLYE px 1.7300 | crowd #3 $1743k, gainer #4 | WAIT: hod trigger 1.8600"}
+{"timestamp": "2026-10-08T11:23:11.171Z", "message": "2026-10-08 11:23:11,171 INFO [v36] TAPE FLYE held +0.6% | tape 60s: buy 28% sell 25% between 46% of 718,126 sh (100% by quote) | 5m: buy 36% sell 31% between 33% of 1,073,261 sh (71% by quote)"}
+{"timestamp": "2026-10-08T11:23:15.562Z", "message": "2026-10-08 11:23:15,562 INFO [v36b] FURIOUS FLYE at 1.8200: speed 0.35, 5s +1.1% on $154k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T11:23:16.790Z", "message": "2026-10-08 11:23:16,790 INFO [v36b] FLYE BUY SHORT - wanted 855, got 823 at a limit up to inf: filled at up to 2.0300 (the ask + 0.20)"}
+{"timestamp": "2026-10-08T11:23:16.864Z", "message": "2026-10-08 11:23:16,864 INFO [v36b] ENTER FLYE 823 @ 1.8300 (print 1.8200) = $1506 (23% of equity) | stop 1.7654 (3.53% away) | new-high trigger 1.8100"}
+{"timestamp": "2026-10-08T11:23:16.866Z", "message": "2026-10-08 11:23:16,866 INFO [v36b]   FLYE tape 60s: buy 29% sell 25% between 46% of 750,881 sh (100% by quote) | 5m: buy 36% sell 31% between 33% of 1,167,775 sh (73% by quote) (buying)"}
+{"timestamp": "2026-10-08T11:23:16.866Z", "message": "2026-10-08 11:23:16,866 INFO [v36b] FLYE FULL POSITION 823 shares at once (furious), buy 4 today - stop 1.7654, line $1.50"}
+{"timestamp": "2026-10-08T11:23:17.574Z", "message": "  FLYE       2366    1.7700    1.7900    1.6700     +47.32    +1.1%     0m"}
+{"timestamp": "2026-10-08T11:23:17.574Z", "message": "  FLYE        823    1.8300    1.7900    1.7654     -32.92    -2.2%     0m"}
+{"timestamp": "2026-10-08T11:23:18.060Z", "message": "2026-10-08 11:23:18,060 INFO [v36b] FLYE the market 1.7600 x 1.7700 is at the stop 1.7654 - out"}
+{"timestamp": "2026-10-08T11:23:18.062Z", "message": "2026-10-08 11:23:18,062 INFO [v36b]   FLYE tape 60s: buy 29% sell 26% between 46% of 765,144 sh (100% by quote) | 5m: buy 36% sell 31% between 33% of 1,191,085 sh (74% by quote) (selling: stop)"}
+{"timestamp": "2026-10-08T11:23:18.280Z", "message": "2026-10-08 11:23:18,280 INFO [v36b] FLYE SELL 823 at a limit 1.57 (bid 1.7500)"}
+{"timestamp": "2026-10-08T11:23:18.923Z", "message": "2026-10-08 11:23:18,923 INFO [v36b] EXIT stop FLYE 823 @ 1.7500 | trigger print 1.7700 x 100 cond ['@', 'T'], 0.0s old | entry 1.8300 peak 1.8300 stop 1.7654 | held 2s | P/L -65.84 (-4.37% of the trade, -1.01% of the account)"}
+{"timestamp": "2026-10-08T11:23:22.879Z", "message": "2026-10-08 11:23:22,879 INFO [v36b] FURIOUS FLYE at 1.8400: speed 0.50, 5s +2.8% on $78k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T11:23:23.736Z", "message": "2026-10-08 11:23:23,736 INFO [v36b] ENTER FLYE 838 @ 1.8700 (print 1.8400) = $1567 (24% of equity) | stop 1.7848 (4.56% away) | new-high trigger 1.8100"}
+{"timestamp": "2026-10-08T11:23:23.739Z", "message": "2026-10-08 11:23:23,739 INFO [v36b]   FLYE tape 60s: buy 31% sell 25% between 44% of 759,774 sh (100% by quote) | 5m: buy 36% sell 30% between 34% of 1,244,495 sh (75% by quote) (buying)"}
+{"timestamp": "2026-10-08T11:23:23.739Z", "message": "2026-10-08 11:23:23,739 INFO [v36b] FLYE FULL POSITION 838 shares at once (furious), buy 5 today - stop 1.7848, line $1.50"}
+{"timestamp": "2026-10-08T11:23:23.739Z", "message": "2026-10-08 11:23:23,739 INFO [v36b] IGNORED FLYE print 1.8400 - the market is 1.8800 x 1.9000 (decides nothing)"}
+{"timestamp": "2026-10-08T11:23:24.742Z", "message": "2026-10-08 11:23:24,742 INFO [v37] IGNORED FLYE print 1.8701 - the market is 1.8400 x 1.8500 (decides nothing)"}
+{"timestamp": "2026-10-08T11:23:26.175Z", "message": "2026-10-08 11:23:26,175 INFO [v36b] TAPE FLYE held -0.6% | tape 60s: buy 31% sell 26% between 43% of 801,654 sh (100% by quote) | 5m: buy 36% sell 30% between 34% of 1,301,567 sh (76% by quote)"}
+{"timestamp": "2026-10-08T11:23:30.474Z", "message": "2026-10-08 11:23:30,474 INFO [v37] ENTER FLYE 2130 @ 1.9000 (print 1.9015) = $4047 (28.9% of equity) - ACCELERATING 0.45, 35% of the account, buy 1 today | crowd #3, $1743k in 5 min | stop 1.8000 | adds at 2.0000 and 2.1000 | speed 0.45 | score 14 (speed 4 candle 2 wicks 1 bodies 1 lows 0 volume 2 trend 2 macd 1 room 1)"}
+{"timestamp": "2026-10-08T11:23:30.553Z", "message": "2026-10-08 11:23:30,553 INFO [v37]   FLYE tape 60s: buy 31% sell 26% between 43% of 809,161 sh (100% by quote) | 5m: buy 35% sell 30% between 35% of 1,335,133 sh (78% by quote) (selling: giveback)"}
+{"timestamp": "2026-10-08T11:23:30.844Z", "message": "2026-10-08 11:23:30,844 INFO [v37] FLYE SELL 2130 at a limit 1.69 (bid 1.8800)"}
+{"timestamp": "2026-10-08T11:23:31.178Z", "message": "2026-10-08 11:23:31,178 INFO [v37] TAPE FLYE held +0.5% | tape 60s: buy 30% sell 26% between 43% of 813,845 sh (100% by quote) | 5m: buy 35% sell 30% between 35% of 1,349,004 sh (78% by quote)"}
+{"timestamp": "2026-10-08T11:23:31.905Z", "message": "2026-10-08 11:23:31,905 INFO [v37] FLYE SELL 142 at a limit 1.69 (bid 1.8800)"}
+{"timestamp": "2026-10-08T11:23:32.962Z", "message": "2026-10-08 11:23:32,962 INFO [v37] FLYE SELL 109 at a limit 1.71 (bid 1.9000)"}
+{"timestamp": "2026-10-08T11:23:33.310Z", "message": "2026-10-08 11:23:33,310 INFO [v36] IGNORED FLYE print 1.9099 - the market is 1.9300 x 1.9400 (decides nothing)"}
+{"timestamp": "2026-10-08T11:23:34.018Z", "message": "2026-10-08 11:23:34,018 INFO [v37] FLYE SELL 4 at a limit 1.74 (bid 1.9300)"}
+{"timestamp": "2026-10-08T11:23:35.151Z", "message": "2026-10-08 11:23:35,151 INFO [v37] FLYE SELL 2 at a limit 1.78 (bid 1.9800)"}
+{"timestamp": "2026-10-08T11:23:36.377Z", "message": "2026-10-08 11:23:36,377 INFO [v37] FLYE SELL 1 at a limit 1.84 (bid 2.0400)"}
+{"timestamp": "2026-10-08T11:23:37.029Z", "message": "2026-10-08 11:23:37,029 INFO [v37] EXIT giveback FLYE 2130 @ 1.8832 | trigger print 1.9100 x 100 cond ['@', 'T'], 0.0s old | entry 1.9000 peak 1.9200 stop 1.8000 | held 7s | P/L -35.86 (-0.89% of the trade, -0.26% of the account)"}
+{"timestamp": "2026-10-08T11:23:39.411Z", "message": "2026-10-08 11:23:39,411 INFO [v36b]   FLYE tape 60s: buy 32% sell 29% between 39% of 908,679 sh (100% by quote) | 5m: buy 35% sell 30% between 34% of 1,566,947 sh (81% by quote) (selling: giveback)"}
+{"timestamp": "2026-10-08T11:23:39.417Z", "message": "2026-10-08 11:23:39,417 INFO [v36]   FLYE tape 60s: buy 32% sell 29% between 39% of 914,566 sh (100% by quote) | 5m: buy 35% sell 31% between 34% of 1,573,084 sh (81% by quote) (selling: giveback)"}
+{"timestamp": "2026-10-08T11:23:39.627Z", "message": "2026-10-08 11:23:39,627 INFO [v36b] FLYE SELL 838 at a limit 1.88 (bid 2.0900)"}
+{"timestamp": "2026-10-08T11:23:39.644Z", "message": "2026-10-08 11:23:39,644 INFO [v36] FLYE SELL 2366 at a limit 1.88 (bid 2.0900)"}
+{"timestamp": "2026-10-08T11:23:41.264Z", "message": "2026-10-08 11:23:41,264 INFO [v36b] EXIT giveback FLYE 838 @ 2.0800 | trigger print 2.1000 x 270 cond ['@', 'T'], 0.0s old | entry 1.8700 peak 2.2100 stop 1.7848 | held 18s | P/L +175.98 (+11.23% of the trade, +2.65% of the account)"}
+{"timestamp": "2026-10-08T11:23:41.294Z", "message": "2026-10-08 11:23:41,294 INFO [v36] EXIT giveback FLYE 2366 @ 2.0800 | trigger print 2.0700 x 100 cond ['@', 'T'], 0.0s old | entry 1.7700 peak 2.2100 stop 1.6700 | held 48s | P/L +733.46 (+17.51% of the trade, +4.01% of the account)"}
+{"timestamp": "2026-10-08T11:23:41.302Z", "message": "2026-10-08 11:23:41,302 INFO [v36] FURIOUS FLYE at 2.0200: speed 0.30, 5s +2.8% on $363k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T11:23:42.549Z", "message": "2026-10-08 11:23:42,549 INFO [v36] ENTER FLYE 2167 @ 2.0100 (print 2.0200) = $4356 (24% of equity) | stop 1.9899 (1.00% away) | new-high trigger 1.8600"}
+{"timestamp": "2026-10-08T11:23:42.552Z", "message": "2026-10-08 11:23:42,552 INFO [v36]   FLYE tape 60s: buy 32% sell 30% between 38% of 1,018,515 sh (100% by quote) | 5m: buy 34% sell 31% between 35% of 1,709,477 sh (83% by quote) (buying)"}
+{"timestamp": "2026-10-08T11:23:42.553Z", "message": "2026-10-08 11:23:42,553 INFO [v36] FLYE FULL POSITION 2167 shares at once (furious), buy 4 today - stop 1.9899, line $2.00"}
+{"timestamp": "2026-10-08T11:23:55.618Z", "message": "2026-10-08 11:23:55,618 INFO [v37] IGNORED FLYE print 2.0080 - the market is 2.0800 x 2.0900 (decides nothing)"}
+{"timestamp": "2026-10-08T11:23:55.870Z", "message": "2026-10-08 11:23:55,870 INFO [v36b] IGNORED FLYE print 2.0600 - the market is 2.0100 x 2.0300 (decides nothing)"}
+{"timestamp": "2026-10-08T11:23:56.283Z", "message": "2026-10-08 11:23:56,283 INFO [v36]   FLYE tape 60s: buy 32% sell 29% between 39% of 1,129,752 sh (100% by quote) | 5m: buy 34% sell 31% between 36% of 1,990,256 sh (85% by quote) (selling: stop)"}
+{"timestamp": "2026-10-08T11:23:56.512Z", "message": "2026-10-08 11:23:56,512 INFO [v36] FLYE SELL 2167 at a limit 1.78 (bid 1.9800)"}
+{"timestamp": "2026-10-08T11:23:57.440Z", "message": "2026-10-08 11:23:57,440 WARNING [v36] cancelled 1 working order(s) on FLYE"}
+{"timestamp": "2026-10-08T11:23:58.061Z", "message": "2026-10-08 11:23:58,061 INFO [v36] FLYE SELL 1361 at a limit 1.81 (bid 2.0100)"}
+{"timestamp": "2026-10-08T11:24:00.058Z", "message": "2026-10-08 11:24:00,058 INFO [v36b] WHY-NOT FLYE px 2.0200 | crowd #1 $4585k held 0.0m, gainer #3 | WAIT: hod trigger 2.3000"}
+{"timestamp": "2026-10-08T11:24:00.565Z", "message": "2026-10-08 11:24:00,565 INFO [v36] EXIT stop FLYE 2167 @ 2.0251 | trigger print 1.9810 x 100 cond ['@', 'T'], 0.0s old | entry 2.0100 peak 2.1000 stop 1.9899 | held 18s | P/L +32.77 (+0.75% of the trade, +0.18% of the account)"}
+{"timestamp": "2026-10-08T11:24:00.624Z", "message": "2026-10-08 11:24:00,624 INFO [v36] WHY-NOT FLYE px 1.9900 | crowd #1 $4585k held 0.0m, gainer #3 | WAIT: hod trigger 2.3000"}
+{"timestamp": "2026-10-08T11:24:05.360Z", "message": "2026-10-08 11:24:05,360 INFO [v36] IGNORED FLYE print 1.9900 - the market is 2.0200 x 2.0300 (decides nothing)"}
+{"timestamp": "2026-10-08T11:24:12.337Z", "message": "2026-10-08 11:24:12,337 INFO [v36] FURIOUS FLYE at 2.2900: speed 0.51, 5s +13.4% on $212k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T11:24:12.353Z", "message": "2026-10-08 11:24:12,353 INFO [v37] SKIP FLYE at 2.3400 - the ask 2.3200 is not above the high 2.3300: that print was not the market"}
+{"timestamp": "2026-10-08T11:24:12.419Z", "message": "2026-10-08 11:24:12,419 INFO [v36b] FURIOUS FLYE at 2.2900: speed 0.51, 5s +13.4% on $212k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T11:24:13.561Z", "message": "2026-10-08 11:24:13,561 INFO [v36b] FLYE BUY SHORT - wanted 693, got 437 at a limit up to inf: filled at up to 2.4900 (the ask + 0.20)"}
+{"timestamp": "2026-10-08T11:24:13.579Z", "message": "2026-10-08 11:24:13,579 INFO ROSTER ALL 12: AIXI 2.13 ALIS 12.70 CMTL 1.39 DKI 5.00 FLYE 2.07 IPW 1.26 PROF 6.79 RNA 9.01 SBFM 1.05 SVRE 1.20 UONE 4.61 WATR 1.99"}
+{"timestamp": "2026-10-08T11:24:13.651Z", "message": "2026-10-08 11:24:13,651 INFO [v36b] ENTER FLYE 437 @ 2.3300 (print 2.2900) = $1018 (15% of equity) | stop 2.2213 (4.67% away) | new-high trigger 2.2500"}
+{"timestamp": "2026-10-08T11:24:13.655Z", "message": "2026-10-08 11:24:13,655 INFO [v36b]   FLYE tape 60s: buy 33% sell 28% between 39% of 1,300,517 sh (100% by quote) | 5m: buy 34% sell 30% between 37% of 2,399,712 sh (88% by quote) (buying)"}
+{"timestamp": "2026-10-08T11:24:13.655Z", "message": "2026-10-08 11:24:13,655 INFO [v36b] FLYE FULL POSITION 437 shares at once (furious), buy 6 today - stop 2.2300, line $2.00"}
+{"timestamp": "2026-10-08T11:24:13.656Z", "message": "2026-10-08 11:24:13,656 INFO [v36] ENTER FLYE 1913 @ 2.3300 (print 2.2900) = $4457 (24% of equity) | stop 2.1068 (9.58% away) | new-high trigger 2.2500"}
+{"timestamp": "2026-10-08T11:24:13.661Z", "message": "2026-10-08 11:24:13,661 INFO [v36]   FLYE tape 60s: buy 33% sell 28% between 39% of 1,300,517 sh (100% by quote) | 5m: buy 34% sell 30% between 37% of 2,399,712 sh (88% by quote) (buying)"}
+{"timestamp": "2026-10-08T11:24:13.661Z", "message": "2026-10-08 11:24:13,661 INFO [v36] FLYE FULL POSITION 1913 shares at once (furious), buy 5 today - stop 2.2300, line $2.00"}
+{"timestamp": "2026-10-08T11:24:13.661Z", "message": "2026-10-08 11:24:13,661 INFO [v36] FLYE the market 2.2200 x 2.2300 is at the stop 2.2300 - out"}
+{"timestamp": "2026-10-08T11:24:13.664Z", "message": "2026-10-08 11:24:13,664 INFO [v36]   FLYE tape 60s: buy 33% sell 28% between 39% of 1,300,517 sh (100% by quote) | 5m: buy 34% sell 30% between 37% of 2,399,712 sh (88% by quote) (selling: stop)"}
+{"timestamp": "2026-10-08T11:24:13.759Z", "message": "2026-10-08 11:24:13,759 INFO [v36b]   FLYE tape 60s: buy 33% sell 28% between 39% of 1,302,164 sh (100% by quote) | 5m: buy 34% sell 30% between 37% of 2,401,359 sh (88% by quote) (selling: stop)"}
+{"timestamp": "2026-10-08T11:24:13.974Z", "message": "2026-10-08 11:24:13,974 INFO [v36b] FLYE SELL 437 at a limit 1.98 (bid 2.2000)"}
+{"timestamp": "2026-10-08T11:24:13.979Z", "message": "2026-10-08 11:24:13,979 INFO [v36] FLYE SELL 1913 at a limit 1.98 (bid 2.2000)"}
+{"timestamp": "2026-10-08T11:24:14.759Z", "message": "2026-10-08 11:24:14,759 INFO [v36b] FLYE SELL 424 at a limit 1.98 (bid 2.2000)"}
+{"timestamp": "2026-10-08T11:24:14.766Z", "message": "2026-10-08 11:24:14,766 INFO [v36] FLYE SELL 273 at a limit 1.98 (bid 2.2000)"}
+{"timestamp": "2026-10-08T11:24:15.402Z", "message": "2026-10-08 11:24:15,402 WARNING [v36b] cancelled 1 working order(s) on FLYE"}
+{"timestamp": "2026-10-08T11:24:16.016Z", "message": "2026-10-08 11:24:16,016 INFO [v36b] FLYE SELL 247 at a limit 2.00 (bid 2.2200)"}
+{"timestamp": "2026-10-08T11:24:16.210Z", "message": "2026-10-08 11:24:16,210 INFO [v36] EXIT stop FLYE 1913 @ 2.2157 | trigger print 2.3100 x 100 cond ['@', 'F', 'T'], 2.2s old | entry 2.3300 peak 2.3300 stop 2.2300 | held 2s | P/L -218.62 (-4.90% of the trade, -1.21% of the account)"}
+{"timestamp": "2026-10-08T11:24:17.199Z", "message": "2026-10-08 11:24:17,199 WARNING [v36b] cancelled 1 working order(s) on FLYE"}
+{"timestamp": "2026-10-08T11:24:18.142Z", "message": "2026-10-08 11:24:18,142 INFO [v36b] FLYE SELL 148 at a limit 2.02 (bid 2.2500)"}
+{"timestamp": "2026-10-08T11:24:19.199Z", "message": "2026-10-08 11:24:19,199 INFO [v36b] FLYE SELL 53 at a limit 2.02 (bid 2.2500)"}
+{"timestamp": "2026-10-08T11:24:20.135Z", "message": "2026-10-08 11:24:20,135 WARNING [v36b] cancelled 1 working order(s) on FLYE"}
+{"timestamp": "2026-10-08T11:24:21.083Z", "message": "2026-10-08 11:24:21,083 INFO [v36b] FLYE SELL 10 at a limit 2.07 (bid 2.3000)"}
+{"timestamp": "2026-10-08T11:24:22.064Z", "message": "2026-10-08 11:24:22,064 INFO [v36b] EXIT stop FLYE 437 @ 2.2199 | trigger print 2.2300 x 100 cond ['@', 'F', 'T'], 0.2s old | entry 2.3300 peak 2.3300 stop 2.2300 | held 8s | P/L -48.10 (-4.72% of the trade, -0.73% of the account)"}
+{"timestamp": "2026-10-08T11:24:27.026Z", "message": "2026-10-08 11:24:27,026 INFO [v37] IGNORED FLYE print 2.2200 - the market is 2.1800 x 2.1900 (decides nothing)"}
+{"timestamp": "2026-10-08T11:24:27.092Z", "message": "2026-10-08 11:24:27,092 INFO [v36b] IGNORED FLYE print 2.2240 - the market is 2.1800 x 2.2000 (decides nothing)"}
+{"timestamp": "2026-10-08T11:24:50.233Z", "message": "2026-10-08 11:24:50,233 INFO [v36] IGNORED FLYE print 2.2200 - the market is 2.2500 x 2.2800 (decides nothing)"}
+{"timestamp": "2026-10-08T11:24:59.371Z", "message": "2026-10-08 11:24:59,371 INFO [v37] IGNORED FLYE print 2.0300 - the market is 2.0800 x 2.1000 (decides nothing)"}
+{"timestamp": "2026-10-08T11:24:59.384Z", "message": "2026-10-08 11:24:59,384 INFO [v36b] IGNORED FLYE print 2.0300 - the market is 2.0800 x 2.1000 (decides nothing)"}
+{"timestamp": "2026-10-08T11:25:00.081Z", "message": "2026-10-08 11:25:00,081 INFO [v36b] WHY-NOT FLYE px 2.1100 | crowd #1 $4439k held 1.0m, gainer #2 | NO: 6 buys today"}
+{"timestamp": "2026-10-08T11:25:00.638Z", "message": "2026-10-08 11:25:00,638 INFO [v36] WHY-NOT FLYE px 2.0985 | crowd #1 $7490k held 1.0m, gainer #2 | WAIT: hod trigger 2.4900"}
+{"timestamp": "2026-10-08T11:25:20.637Z", "message": "2026-10-08 11:25:20,637 INFO [v36] IGNORED FLYE print 2.0899 - the market is 2.1100 x 2.1200 (decides nothing)"}
+{"timestamp": "2026-10-08T11:25:35.444Z", "message": "2026-10-08 11:25:35,444 INFO [v37] IGNORED FLYE print 2.3100 - the market is 2.3400 x 2.3500 (decides nothing)"}
+{"timestamp": "2026-10-08T11:25:35.456Z", "message": "2026-10-08 11:25:35,456 INFO [v36b] IGNORED FLYE print 2.3100 - the market is 2.3400 x 2.3500 (decides nothing)"}
+{"timestamp": "2026-10-08T11:25:54.331Z", "message": "2026-10-08 11:25:54,331 INFO [v36] IGNORED FLYE print 2.4165 - the market is 2.4400 x 2.4600 (decides nothing)"}
+{"timestamp": "2026-10-08T11:25:54.722Z", "message": "2026-10-08 11:25:54,722 INFO [v36] WHY-NOT FLYE px 2.5400 | crowd #1 $7490k held 1.9m, gainer #2 | NO: at the $2.50 level - wait till it holds 5c past"}
+{"timestamp": "2026-10-08T11:25:54.926Z", "message": "2026-10-08 11:25:54,926 INFO [v37] SKIP FLYE at 2.5400 - not running: a huge top wick on the last candle (67% of it)"}
+{"timestamp": "2026-10-08T11:25:54.937Z", "message": "2026-10-08 11:25:54,937 INFO [v36b] WHY-NOT FLYE px 2.5400 | crowd #1 $4439k held 1.9m, gainer #2 | NO: at the $2.50 level - wait till it holds 5c past"}
+{"timestamp": "2026-10-08T11:25:55.165Z", "message": "2026-10-08 11:25:55,165 INFO [v36] FURIOUS FLYE at 2.9000: speed 0.36, 5s +20.8% on $407k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T11:25:55.253Z", "message": "2026-10-08 11:25:55,253 INFO [v36b] FURIOUS FLYE at 2.9000: speed 0.36, 5s +20.8% on $407k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T11:25:56.262Z", "message": "2026-10-08 11:25:56,262 WARNING [v37] cancelled 1 working order(s) on FLYE"}
+{"timestamp": "2026-10-08T11:25:56.652Z", "message": "2026-10-08 11:25:56,652 INFO [v36b] ENTER FLYE 541 @ 2.7300 (print 2.9000) = $1477 (22% of equity) | stop 2.7027 (1.00% away) | new-high trigger 2.4900"}
+{"timestamp": "2026-10-08T11:25:56.658Z", "message": "2026-10-08 11:25:56,658 INFO [v36b]   FLYE tape 60s: buy 31% sell 23% between 46% of 1,196,764 sh (100% by quote) | 5m: buy 31% sell 27% between 43% of 4,367,226 sh (95% by quote) (buying)"}
+{"timestamp": "2026-10-08T11:25:56.658Z", "message": "2026-10-08 11:25:56,658 INFO [v36b] FLYE FULL POSITION 541 shares at once (furious), buy 7 today - stop 2.7027, line $2.50"}
+{"timestamp": "2026-10-08T11:25:56.674Z", "message": "2026-10-08 11:25:56,674 WARNING [v36] cancelled 1 working order(s) on FLYE"}
+{"timestamp": "2026-10-08T11:25:56.676Z", "message": "2026-10-08 11:25:56,676 INFO [v36b] FLYE the market 2.6700 x 2.6900 is at the stop 2.7027 - out"}
+{"timestamp": "2026-10-08T11:25:56.682Z", "message": "2026-10-08 11:25:56,682 INFO [v36b]   FLYE tape 60s: buy 31% sell 23% between 46% of 1,200,602 sh (100% by quote) | 5m: buy 31% sell 27% between 43% of 4,372,764 sh (95% by quote) (selling: stop)"}
+{"timestamp": "2026-10-08T11:25:56.752Z", "message": "2026-10-08 11:25:56,752 INFO [v37] FLYE BUY SHORT - wanted 1464, got 647 at a limit up to inf: filled at up to 3.1500 (the ask + 0.20)"}
+{"timestamp": "2026-10-08T11:25:56.835Z", "message": "2026-10-08 11:25:56,835 INFO [v37] ENTER FLYE 647 @ 2.9100 (print 2.9400) = $1883 (13.5% of equity) - ACCELERATING 0.40, 35% of the account, buy 2 today | crowd #1, $7490k in 5 min | stop 2.8100 | adds at 3.0100 and 3.1100 | speed 0.38 | score None (a huge top wick on the last candle (67% of it))"}
+{"timestamp": "2026-10-08T11:25:56.835Z", "message": "2026-10-08 11:25:56,835 INFO [v37] FLYE the market 2.6400 x 2.6800 is at the stop 2.8100 - out"}
+{"timestamp": "2026-10-08T11:25:56.842Z", "message": "2026-10-08 11:25:56,842 INFO [v37]   FLYE tape 60s: buy 31% sell 24% between 46% of 1,196,723 sh (100% by quote) | 5m: buy 31% sell 27% between 43% of 4,374,089 sh (95% by quote) (selling: stop)"}
+{"timestamp": "2026-10-08T11:25:56.990Z", "message": "2026-10-08 11:25:56,990 INFO [v36b] FLYE SELL 541 at a limit 2.35 (bid 2.6100)"}
+{"timestamp": "2026-10-08T11:25:56.992Z", "message": "2026-10-08 11:25:56,992 WARNING [v37] cancelled 1 working order(s) on FLYE"}
+{"timestamp": "2026-10-08T11:25:57.146Z", "message": "2026-10-08 11:25:57,146 INFO [v36] FLYE BUY SHORT - wanted 1486, got 530 at a limit up to inf: filled at up to 3.1100 (the ask + 0.20)"}
+{"timestamp": "2026-10-08T11:25:57.221Z", "message": "2026-10-08 11:25:57,221 INFO [v36] ENTER FLYE 530 @ 2.7500 (print 2.9000) = $1458 (8% of equity) | stop 2.6680 (2.98% away) | new-high trigger 2.4900"}
+{"timestamp": "2026-10-08T11:25:57.227Z", "message": "2026-10-08 11:25:57,227 INFO [v36]   FLYE tape 60s: buy 31% sell 24% between 46% of 1,197,044 sh (100% by quote) | 5m: buy 31% sell 26% between 43% of 4,380,914 sh (95% by quote) (buying)"}
+{"timestamp": "2026-10-08T11:25:57.227Z", "message": "2026-10-08 11:25:57,227 INFO [v36] FLYE FULL POSITION 530 shares at once (furious), buy 6 today - stop 2.6680, line $2.50"}
+{"timestamp": "2026-10-08T11:25:57.318Z", "message": "2026-10-08 11:25:57,318 INFO [v36] FLYE the market 2.5700 x 2.5800 is at the stop 2.6680 - out"}
+{"timestamp": "2026-10-08T11:25:57.324Z", "message": "2026-10-08 11:25:57,324 INFO [v36]   FLYE tape 60s: buy 31% sell 24% between 45% of 1,199,056 sh (100% by quote) | 5m: buy 31% sell 26% between 43% of 4,380,874 sh (95% by quote) (selling: stop)"}
+{"timestamp": "2026-10-08T11:25:57.574Z", "message": "2026-10-08 11:25:57,574 INFO [v36] FLYE SELL 530 at a limit 2.29 (bid 2.5500)"}
+{"timestamp": "2026-10-08T11:25:57.795Z", "message": "2026-10-08 11:25:57,795 INFO [v37] FLYE SELL 647 at a limit 2.29 (bid 2.5500)"}
+{"timestamp": "2026-10-08T11:25:58.109Z", "message": "2026-10-08 11:25:58,109 INFO [v36b] FLYE SELL 178 at a limit 2.26 (bid 2.5100)"}
+{"timestamp": "2026-10-08T11:25:58.709Z", "message": "2026-10-08 11:25:58,709 WARNING [v37] cancelled 1 working order(s) on FLYE"}
+{"timestamp": "2026-10-08T11:25:59.173Z", "message": "2026-10-08 11:25:59,173 INFO [v36b] FLYE SELL 114 at a limit 2.23 (bid 2.4800)"}
+{"timestamp": "2026-10-08T11:25:59.245Z", "message": "2026-10-08 11:25:59,245 INFO [v36] EXIT stop FLYE 530 @ 2.5700 | trigger print 2.9200 x 100 cond ['@', 'T'], 2.4s old | entry 2.7500 peak 2.7500 stop 2.6680 | held 2s | P/L -95.40 (-6.55% of the trade, -0.53% of the account)"}
+{"timestamp": "2026-10-08T11:25:59.336Z", "message": "2026-10-08 11:25:59,336 INFO [v37] TAPE FLYE held -0.3% | tape 60s: buy 31% sell 24% between 45% of 1,239,383 sh (100% by quote) | 5m: buy 31% sell 26% between 43% of 4,457,398 sh (96% by quote)"}
+{"timestamp": "2026-10-08T11:25:59.341Z", "message": "2026-10-08 11:25:59,341 INFO [v36b] TAPE FLYE held -0.4% | tape 60s: buy 31% sell 24% between 45% of 1,239,383 sh (100% by quote) | 5m: buy 31% sell 26% between 43% of 4,457,398 sh (96% by quote)"}
+{"timestamp": "2026-10-08T11:25:59.345Z", "message": "2026-10-08 11:25:59,345 INFO [v37] FLYE SELL 227 at a limit 2.23 (bid 2.4800)"}
+{"timestamp": "2026-10-08T11:26:00.511Z", "message": "2026-10-08 11:26:00,511 INFO [v36b] FLYE SELL 16 at a limit 2.18 (bid 2.4200)"}
+{"timestamp": "2026-10-08T11:26:01.310Z", "message": "2026-10-08 11:26:01,310 INFO [v37] EXIT stop FLYE 647 @ 2.5065 | trigger print 2.9000 x 100 cond ['@', 'T'], 1.9s old | entry 2.9100 peak 2.9100 stop 2.8100 | held 4s | P/L -261.07 (-13.87% of the trade, -1.90% of the account)"}
+{"timestamp": "2026-10-08T11:26:02.365Z", "message": "2026-10-08 11:26:02,365 INFO [v36b] EXIT stop FLYE 541 @ 2.5425 | trigger print 2.7200 x 300 cond ['@', 'T'], 0.1s old | entry 2.7300 peak 2.7500 stop 2.7027 | held 6s | P/L -101.46 (-6.87% of the trade, -1.56% of the account)"}
+{"timestamp": "2026-10-08T11:26:05.726Z", "message": "2026-10-08 11:26:05,726 INFO [v37] IGNORED FLYE print 2.3700 - the market is 2.4000 x 2.4100 (decides nothing)"}
+{"timestamp": "2026-10-08T11:26:05.733Z", "message": "2026-10-08 11:26:05,733 INFO [v36b] IGNORED FLYE print 2.4307 - the market is 2.4000 x 2.4100 (decides nothing)"}
+{"timestamp": "2026-10-08T11:26:30.526Z", "message": "2026-10-08 11:26:30,526 INFO [v36] IGNORED FLYE print 2.4900 - the market is 2.5200 x 2.5400 (decides nothing)"}
+{"timestamp": "2026-10-08T11:39:18.691Z", "message": "2026-10-08 11:39:18,691 INFO ROSTER ALL 12: AIXI 2.07 ALIS 12.50 DKI 4.36 DPU 1.68 FLYE 2.77 INLF 3.72 IPW 1.28 PROF 6.73 SBFM 1.05 SVRE 1.20 UONE 4.61 WATR 1.99"}
+{"timestamp": "2026-10-08T11:39:36.326Z", "message": "2026-10-08 11:39:36,326 INFO [v36] IGNORED FLYE print 2.8801 - the market is 2.9100 x 2.9300 (decides nothing)"}
+{"timestamp": "2026-10-08T11:39:36.327Z", "message": "2026-10-08 11:39:36,327 INFO [v37] IGNORED FLYE print 2.8801 - the market is 2.9100 x 2.9300 (decides nothing)"}
+{"timestamp": "2026-10-08T11:39:36.329Z", "message": "2026-10-08 11:39:36,329 INFO [v36b] IGNORED FLYE print 2.8801 - the market is 2.9100 x 2.9300 (decides nothing)"}
+{"timestamp": "2026-10-08T11:39:55.931Z", "message": "2026-10-08 11:39:55,931 INFO [v36] WHY-NOT FLYE px 2.8700 | crowd #1 $6458k held 15.9m, gainer #2 | NO: 6 buys today"}
+{"timestamp": "2026-10-08T11:39:56.147Z", "message": "2026-10-08 11:39:56,147 INFO [v36b] WHY-NOT FLYE px 2.8700 | crowd #1 $6458k held 15.9m, gainer #2 | NO: 7 buys today"}
+{"timestamp": "2026-10-08T11:40:19.137Z", "message": "2026-10-08 11:40:19,137 INFO [v36] IGNORED FLYE print 3.1670 - the market is 3.0900 x 3.1100 (decides nothing)"}
+{"timestamp": "2026-10-08T11:40:19.220Z", "message": "2026-10-08 11:40:19,220 INFO [v37] IGNORED FLYE print 3.1670 - the market is 3.0900 x 3.1100 (decides nothing)"}
+{"timestamp": "2026-10-08T11:40:19.221Z", "message": "2026-10-08 11:40:19,221 INFO [v36b] IGNORED FLYE print 3.1670 - the market is 3.0900 x 3.1100 (decides nothing)"}
+{"timestamp": "2026-10-08T11:40:39.145Z", "message": "2026-10-08 11:40:39,145 INFO [v36] WHY-NOT FLYE px 3.3400 | crowd #1 $5916k held 16.6m, gainer #2 | NO TAPE at the trigger 3.3400: 30s ask 34% bid 23% between 43% of 746603 sh (100% by quote)"}
+{"timestamp": "2026-10-08T11:40:39.451Z", "message": "2026-10-08 11:40:39,451 INFO [v36b] WHY-NOT FLYE px 3.3400 | crowd #1 $5916k held 16.7m, gainer #2 | NO TAPE at the trigger 3.3400: 30s ask 34% bid 23% between 43% of 744522 sh (100% by quote)"}
+{"timestamp": "2026-10-08T11:40:39.661Z", "message": "2026-10-08 11:40:39,661 INFO [v36] FLYE STARTER sized for its stop: 127 -> 36 shares ($121) - the stop 2.9900 is 11.0% under 3.3600, $13 at risk"}
+{"timestamp": "2026-10-08T11:40:43.785Z", "message": "2026-10-08 11:40:43,785 INFO [v36] ENTER FLYE 36 @ 3.3619 (print 3.3600) = $121 (1% of equity) | stop 2.9900 (11.06% away) | new-high trigger 3.3400"}
+{"timestamp": "2026-10-08T11:40:43.791Z", "message": "2026-10-08 11:40:43,791 INFO [v36]   FLYE tape 60s: buy 34% sell 20% between 46% of 1,351,415 sh (100% by quote) | 5m: buy 28% sell 24% between 48% of 3,899,661 sh (100% by quote) (buying)"}
+{"timestamp": "2026-10-08T11:40:43.791Z", "message": "2026-10-08 11:40:43,791 INFO [v36] FLYE STARTER 36 shares (a tenth of a full position), buy 7 today - adds at 3.5119 and 3.5619 on a new high"}
+{"timestamp": "2026-10-08T11:40:45.995Z", "message": "2026-10-08 11:40:45,995 INFO [v36b] ENTER FLYE 46 @ 3.3887 (print 3.3600) = $156 (2% of equity) | stop 3.2592 (3.82% away) | new-high trigger 3.3400"}
+{"timestamp": "2026-10-08T11:40:46.001Z", "message": "2026-10-08 11:40:46,001 INFO [v36b]   FLYE tape 60s: buy 34% sell 20% between 46% of 1,440,377 sh (100% by quote) | 5m: buy 28% sell 24% between 48% of 4,004,529 sh (100% by quote) (buying)"}
+{"timestamp": "2026-10-08T11:40:46.001Z", "message": "2026-10-08 11:40:46,001 INFO [v36b] FLYE STARTER 46 shares (a tenth of a full position), buy 8 today - adds at 3.5387 and 3.5887 on a new high"}
+{"timestamp": "2026-10-08T11:40:48.147Z", "message": "2026-10-08 11:40:48,147 INFO [v36] TAPE FLYE held -0.1% | tape 60s: buy 34% sell 21% between 45% of 1,528,588 sh (100% by quote) | 5m: buy 28% sell 24% between 48% of 4,099,735 sh (100% by quote)"}
+{"timestamp": "2026-10-08T11:40:48.152Z", "message": "2026-10-08 11:40:48,152 INFO [v36b] TAPE FLYE held -0.8% | tape 60s: buy 34% sell 21% between 45% of 1,528,588 sh (100% by quote) | 5m: buy 28% sell 24% between 48% of 4,099,735 sh (100% by quote)"}
+{"timestamp": "2026-10-08T11:40:50.574Z", "message": "2026-10-08 11:40:50,574 INFO [v36] IGNORED FLYE print 3.3300 - the market is 3.3600 x 3.4000 (decides nothing)"}
+{"timestamp": "2026-10-08T11:40:50.574Z", "message": "2026-10-08 11:40:50,574 INFO [v37] IGNORED FLYE print 3.3300 - the market is 3.3600 x 3.4000 (decides nothing)"}
+{"timestamp": "2026-10-08T11:40:50.574Z", "message": "2026-10-08 11:40:50,574 INFO [v36b] IGNORED FLYE print 3.3300 - the market is 3.3600 x 3.4000 (decides nothing)"}
+{"timestamp": "2026-10-08T11:40:52.218Z", "message": "2026-10-08 11:40:52,218 INFO [v36b]   FLYE tape 60s: buy 33% sell 22% between 46% of 1,615,327 sh (100% by quote) | 5m: buy 27% sell 24% between 49% of 4,193,480 sh (100% by quote) (selling: stop)"}
+{"timestamp": "2026-10-08T11:40:52.444Z", "message": "2026-10-08 11:40:52,444 INFO [v36b] FLYE SELL 46 at a limit 3.28 (bid 3.3000)"}
+{"timestamp": "2026-10-08T11:40:53.361Z", "message": "2026-10-08 11:40:53,361 INFO [v36b] EXIT stop FLYE 46 @ 3.3000 | trigger print 3.2500 x 100 cond ['@', 'F', 'T'], 0.0s old | entry 3.3887 peak 3.4700 stop 3.2592 | held 7s | P/L -4.08 (-2.62% of the trade, -0.06% of the account)"}
+{"timestamp": "2026-10-08T11:41:18.548Z", "message": "  FLYE         36    3.3619    3.1000    2.9900      -9.43    -7.8%     0m"}
+{"timestamp": "2026-10-08T11:41:19.739Z", "message": "2026-10-08 11:41:19,739 INFO [v36]   FLYE tape 60s: buy 29% sell 25% between 46% of 1,764,741 sh (100% by quote) | 5m: buy 27% sell 25% between 48% of 4,253,657 sh (100% by quote) (selling: stop)"}
+{"timestamp": "2026-10-08T11:41:20.363Z", "message": "2026-10-08 11:41:20,363 INFO [v36] FLYE SELL 36 at a limit 2.95 (bid 2.9600)"}
+{"timestamp": "2026-10-08T11:41:21.415Z", "message": "2026-10-08 11:41:21,415 INFO [v36] EXIT stop FLYE 36 @ 3.0200 | trigger print 2.9900 x 938 cond ['@', 'T'], 0.0s old | entry 3.3619 peak 3.6000 stop 2.9900 | held 38s | P/L -12.31 (-10.17% of the trade, -0.07% of the account)"}
+{"timestamp": "2026-10-08T11:41:21.415Z", "message": "2026-10-08 11:41:21,415 INFO [v36] IGNORED FLYE print 3.0000 - the market is 3.0300 x 3.0600 (decides nothing)"}
+{"timestamp": "2026-10-08T11:41:32.923Z", "message": "2026-10-08 11:41:32,923 INFO [v37] IGNORED FLYE print 3.0700 - the market is 2.9900 x 3.0400 (decides nothing)"}
+{"timestamp": "2026-10-08T11:41:32.929Z", "message": "2026-10-08 11:41:32,929 INFO [v36b] IGNORED FLYE print 3.0700 - the market is 2.9900 x 3.0400 (decides nothing)"}
+{"timestamp": "2026-10-08T11:41:39.211Z", "message": "2026-10-08 11:41:39,211 INFO [v36] WHY-NOT FLYE px 3.0160 | crowd #1 $12060k held 17.6m, gainer #1 | NO: 7 buys today"}
+{"timestamp": "2026-10-08T11:41:39.452Z", "message": "2026-10-08 11:41:39,452 INFO [v36b] WHY-NOT FLYE px 3.0400 | crowd #1 $5611k held 17.7m, gainer #1 | NO: 8 buys today"}

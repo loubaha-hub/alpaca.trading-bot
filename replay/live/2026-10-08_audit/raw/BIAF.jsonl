@@ -1,0 +1,108 @@
+{"timestamp": "2026-10-08T12:05:39.702Z", "message": "2026-10-08 12:05:39,702 INFO ROSTER 10 names | in: BIAF 6.79 | out: -"}
+{"timestamp": "2026-10-08T12:05:39.778Z", "message": "2026-10-08 12:05:39,778 INFO day highs from today's bars: 1 name(s) seeded, e.g. BIAF 6.5000"}
+{"timestamp": "2026-10-08T12:06:43.644Z", "message": "2026-10-08 12:06:43,644 INFO [v36] FURIOUS BIAF at 7.4580: speed 2.47, 5s -0.7% on $135k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T12:06:43.645Z", "message": "2026-10-08 12:06:43,645 INFO [v36b] FURIOUS BIAF at 7.4580: speed 2.47, 5s -0.7% on $135k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T12:06:44.525Z", "message": "2026-10-08 12:06:44,525 INFO [v36] TAPE BIAF held +0.0% | tape 60s: buy 55% sell 45% between 0% of 46,992 sh (0% by quote) | 5m: buy 55% sell 44% between 0% of 48,318 sh (0% by quote)"}
+{"timestamp": "2026-10-08T12:06:44.547Z", "message": "2026-10-08 12:06:44,547 INFO [v36] ENTER BIAF 580 @ 7.4900 (print 7.4580) = $4344 (25% of equity) | stop 6.9900 (6.68% away) | new-high trigger 6.8900"}
+{"timestamp": "2026-10-08T12:06:44.547Z", "message": "2026-10-08 12:06:44,547 INFO [v36]   BIAF tape 60s: buy 55% sell 45% between 0% of 46,992 sh (0% by quote) | 5m: buy 55% sell 44% between 0% of 48,318 sh (0% by quote) (buying)"}
+{"timestamp": "2026-10-08T12:06:44.547Z", "message": "2026-10-08 12:06:44,547 INFO [v36] BIAF FULL POSITION 580 shares at once (furious), buy 1 today - stop 7.3900, line $7.00"}
+{"timestamp": "2026-10-08T12:06:44.555Z", "message": "2026-10-08 12:06:44,555 INFO [v36]   BIAF tape 60s: buy 55% sell 45% between 0% of 46,992 sh (0% by quote) | 5m: buy 55% sell 44% between 0% of 48,318 sh (0% by quote) (selling: stop)"}
+{"timestamp": "2026-10-08T12:06:44.842Z", "message": "2026-10-08 12:06:44,842 INFO [v36] BIAF SELL 580 at a limit 6.14 (bid 6.8200)"}
+{"timestamp": "2026-10-08T12:06:45.066Z", "message": "2026-10-08 12:06:45,066 INFO [v36b] ENTER BIAF 210 @ 7.0900 (print 7.4580) = $1489 (23% of equity) | stop 7.0191 (1.00% away) | new-high trigger 6.8900"}
+{"timestamp": "2026-10-08T12:06:45.066Z", "message": "2026-10-08 12:06:45,066 INFO [v36b]   BIAF tape 60s: buy 54% sell 44% between 2% of 48,194 sh (2% by quote) | 5m: buy 54% sell 43% between 3% of 49,520 sh (2% by quote) (buying)"}
+{"timestamp": "2026-10-08T12:06:45.066Z", "message": "2026-10-08 12:06:45,066 INFO [v36b] BIAF FULL POSITION 210 shares at once (furious), buy 1 today - stop 7.0191, line $7.00"}
+{"timestamp": "2026-10-08T12:06:45.070Z", "message": "2026-10-08 12:06:45,070 INFO [v36b] BIAF the market 6.8200 x 7.0800 is at the stop 7.0191 - out"}
+{"timestamp": "2026-10-08T12:06:45.070Z", "message": "2026-10-08 12:06:45,070 INFO [v36b]   BIAF tape 60s: buy 54% sell 44% between 2% of 48,194 sh (2% by quote) | 5m: buy 54% sell 43% between 3% of 49,520 sh (2% by quote) (selling: stop)"}
+{"timestamp": "2026-10-08T12:06:45.290Z", "message": "2026-10-08 12:06:45,290 INFO [v36b] BIAF SELL 210 at a limit 6.13 (bid 6.8100)"}
+{"timestamp": "2026-10-08T12:06:46.022Z", "message": "2026-10-08 12:06:46,022 WARNING [v36] cancelled 1 working order(s) on BIAF"}
+{"timestamp": "2026-10-08T12:06:46.363Z", "message": "2026-10-08 12:06:46,363 INFO [v36b] BIAF SELL 10 at a limit 6.12 (bid 6.8000)"}
+{"timestamp": "2026-10-08T12:06:46.507Z", "message": "2026-10-08 12:06:46,507 INFO [v37] IGNORED BIAF print 7.0000 - the market is 7.1300 x 7.2400 (decides nothing)"}
+{"timestamp": "2026-10-08T12:06:46.637Z", "message": "2026-10-08 12:06:46,637 INFO [v36] BIAF SELL 44 at a limit 6.25 (bid 6.9500)"}
+{"timestamp": "2026-10-08T12:06:47.159Z", "message": "2026-10-08 12:06:47,159 INFO [v36b] BIAF SELL 9 at a limit 6.03 (bid 6.7000)"}
+{"timestamp": "2026-10-08T12:06:47.538Z", "message": "2026-10-08 12:06:47,538 WARNING [v36] cancelled 1 working order(s) on BIAF"}
+{"timestamp": "2026-10-08T12:06:48.282Z", "message": "2026-10-08 12:06:48,282 INFO [v36b] EXIT stop BIAF 210 @ 6.7964 | trigger print 7.4820 x 100 cond ['@', 'T'], 1.2s old | entry 7.0900 peak 7.0900 stop 7.0191 | held 3s | P/L -61.65 (-4.14% of the trade, -0.97% of the account)"}
+{"timestamp": "2026-10-08T12:06:48.282Z", "message": "2026-10-08 12:06:48,282 INFO [v36b] IGNORED BIAF print 7.4500 - the market is 6.8300 x 7.1500 (decides nothing)"}
+{"timestamp": "2026-10-08T12:06:48.612Z", "message": "2026-10-08 12:06:48,612 INFO [v36] BIAF SELL 43 at a limit 6.15 (bid 6.8300)"}
+{"timestamp": "2026-10-08T12:06:50.684Z", "message": "2026-10-08 12:06:50,684 INFO [v36] EXIT stop BIAF 580 @ 6.8307 | trigger print 7.3800 x 100 cond ['@', 'T'], 0.4s old | entry 7.4900 peak 7.4900 stop 7.3900 | held 6s | P/L -382.37 (-8.80% of the trade, -2.21% of the account)"}
+{"timestamp": "2026-10-08T12:06:50.684Z", "message": "2026-10-08 12:06:50,684 INFO [v36] IGNORED BIAF print 7.3600 - the market is 6.8200 x 7.2400 (decides nothing)"}
+{"timestamp": "2026-10-08T12:07:37.695Z", "message": "2026-10-08 12:07:37,695 INFO [v36] IGNORED BIAF print 6.6500 - the market is 6.7000 x 6.8000 (decides nothing)"}
+{"timestamp": "2026-10-08T12:07:37.696Z", "message": "2026-10-08 12:07:37,696 INFO [v37] IGNORED BIAF print 6.6500 - the market is 6.7000 x 6.8000 (decides nothing)"}
+{"timestamp": "2026-10-08T12:07:37.719Z", "message": "2026-10-08 12:07:37,719 INFO [v36b] IGNORED BIAF print 6.6500 - the market is 6.7000 x 6.8000 (decides nothing)"}
+{"timestamp": "2026-10-08T12:08:55.923Z", "message": "2026-10-08 12:08:55,923 INFO [v36] IGNORED BIAF print 7.1614 - the market is 7.2000 x 7.2100 (decides nothing)"}
+{"timestamp": "2026-10-08T12:08:55.923Z", "message": "2026-10-08 12:08:55,923 INFO [v37] IGNORED BIAF print 7.1614 - the market is 7.2000 x 7.2100 (decides nothing)"}
+{"timestamp": "2026-10-08T12:08:55.923Z", "message": "2026-10-08 12:08:55,923 INFO [v36b] IGNORED BIAF print 7.1614 - the market is 7.2000 x 7.2100 (decides nothing)"}
+{"timestamp": "2026-10-08T12:09:00.335Z", "message": "2026-10-08 12:09:00,335 INFO [v36] WHY-NOT BIAF px 7.3124 | crowd #2 $2433k held 0.0m, gainer #6 | NO CROWD: not top 2 held 2m, not ripping, not a top gainer with $1000k"}
+{"timestamp": "2026-10-08T12:09:00.336Z", "message": "2026-10-08 12:09:00,336 INFO [v36b] WHY-NOT BIAF px 7.3124 | crowd #3 $1692k, gainer #6 | NO CROWD: not top 2 held 2m, not ripping, not a top gainer with $1000k"}
+{"timestamp": "2026-10-08T12:09:27.262Z", "message": "2026-10-08 12:09:27,262 INFO ROSTER ALL 10: AAOZ 9.52 AIXI 2.10 BIAF 7.39 DKI 4.51 FLYE 2.25 IFRX 1.73 IPW 1.37 PROF 6.75 SVRE 1.20 UONE 4.70"}
+{"timestamp": "2026-10-08T12:09:38.704Z", "message": "2026-10-08 12:09:38,704 INFO [v36] FURIOUS BIAF at 7.9400: speed 0.32, 5s +4.9% on $311k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T12:09:38.707Z", "message": "2026-10-08 12:09:38,707 INFO [v36b] FURIOUS BIAF at 7.9400: speed 0.32, 5s +4.9% on $311k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T12:09:38.793Z", "message": "2026-10-08 12:09:38,793 INFO [v37] IGNORED BIAF print 7.8900 - the market is 7.9400 x 7.9700 (decides nothing)"}
+{"timestamp": "2026-10-08T12:09:39.852Z", "message": "2026-10-08 12:09:39,852 WARNING [v36b] cancelled 1 working order(s) on BIAF"}
+{"timestamp": "2026-10-08T12:09:40.262Z", "message": "2026-10-08 12:09:40,262 INFO [v36] ENTER BIAF 517 @ 7.9000 (print 7.9400) = $4084 (24% of equity) | stop 7.4900 (5.19% away) | new-high trigger 7.7000"}
+{"timestamp": "2026-10-08T12:09:40.263Z", "message": "2026-10-08 12:09:40,263 INFO [v36]   BIAF tape 60s: buy 27% sell 19% between 54% of 212,601 sh (100% by quote) | 5m: buy 27% sell 26% between 48% of 435,407 sh (89% by quote) (buying)"}
+{"timestamp": "2026-10-08T12:09:40.263Z", "message": "2026-10-08 12:09:40,263 INFO [v36] BIAF FULL POSITION 517 shares at once (furious), buy 2 today - stop 7.8000, line $7.50"}
+{"timestamp": "2026-10-08T12:09:40.275Z", "message": "2026-10-08 12:09:40,275 INFO [v36] IGNORED BIAF print 7.8300 - the market is 7.8700 x 7.9600 (decides nothing)"}
+{"timestamp": "2026-10-08T12:09:40.326Z", "message": "2026-10-08 12:09:40,326 INFO [v36b] BIAF BUY SHORT - wanted 190, got 15 at a limit up to inf: filled at up to 8.1700 (the ask + 0.20)"}
+{"timestamp": "2026-10-08T12:09:40.402Z", "message": "2026-10-08 12:09:40,402 INFO [v36b] ENTER BIAF 15 @ 7.9700 (print 7.9400) = $120 (2% of equity) | stop 7.7018 (3.37% away) | new-high trigger 7.7000"}
+{"timestamp": "2026-10-08T12:09:40.403Z", "message": "2026-10-08 12:09:40,403 INFO [v36b]   BIAF tape 60s: buy 27% sell 19% between 54% of 215,173 sh (100% by quote) | 5m: buy 27% sell 26% between 48% of 437,979 sh (89% by quote) (buying)"}
+{"timestamp": "2026-10-08T12:09:40.403Z", "message": "2026-10-08 12:09:40,403 INFO [v36b] BIAF FULL POSITION 15 shares at once (furious), buy 2 today - stop 7.8700, line $7.50"}
+{"timestamp": "2026-10-08T12:09:40.405Z", "message": "2026-10-08 12:09:40,405 INFO [v36b] IGNORED BIAF print 7.8724 - the market is 7.9200 x 8.0000 (decides nothing)"}
+{"timestamp": "2026-10-08T12:09:41.610Z", "message": "2026-10-08 12:09:41,610 INFO [v37] ENTER BIAF 566 @ 7.9900 (print 7.9900) = $4522 (33.3% of equity) - ACCELERATING 0.34, 35% of the account, buy 1 today | crowd #2, $2433k in 5 min | stop 7.8900 | adds at 8.0900 and 8.1900 | speed 0.34 | score 13 (speed 4 candle 2 wicks 1 bodies 1 lows 1 volume 0 trend 2 macd 1 room 1)"}
+{"timestamp": "2026-10-08T12:09:41.611Z", "message": "2026-10-08 12:09:41,611 INFO [v37]   BIAF tape 60s: buy 27% sell 19% between 54% of 219,915 sh (100% by quote) | 5m: buy 27% sell 26% between 48% of 444,000 sh (89% by quote) (selling: giveback)"}
+{"timestamp": "2026-10-08T12:09:41.829Z", "message": "2026-10-08 12:09:41,829 INFO [v37] BIAF SELL 566 at a limit 7.12 (bid 7.9100)"}
+{"timestamp": "2026-10-08T12:09:42.743Z", "message": "2026-10-08 12:09:42,743 WARNING [v37] cancelled 1 working order(s) on BIAF"}
+{"timestamp": "2026-10-08T12:09:43.684Z", "message": "2026-10-08 12:09:43,684 INFO [v37] BIAF SELL 517 at a limit 7.16 (bid 7.9500)"}
+{"timestamp": "2026-10-08T12:09:44.574Z", "message": "2026-10-08 12:09:44,574 INFO [v36] TAPE BIAF held +0.8% | tape 60s: buy 27% sell 19% between 54% of 236,752 sh (100% by quote) | 5m: buy 27% sell 25% between 48% of 462,662 sh (89% by quote)"}
+{"timestamp": "2026-10-08T12:09:44.575Z", "message": "2026-10-08 12:09:44,575 INFO [v37] TAPE BIAF held -0.8% | tape 60s: buy 27% sell 19% between 54% of 236,752 sh (100% by quote) | 5m: buy 27% sell 25% between 48% of 462,662 sh (89% by quote)"}
+{"timestamp": "2026-10-08T12:09:44.576Z", "message": "2026-10-08 12:09:44,576 INFO [v36b] TAPE BIAF held -0.1% | tape 60s: buy 27% sell 19% between 54% of 236,752 sh (100% by quote) | 5m: buy 27% sell 25% between 48% of 462,662 sh (89% by quote)"}
+{"timestamp": "2026-10-08T12:09:44.608Z", "message": "2026-10-08 12:09:44,608 WARNING [v37] cancelled 1 working order(s) on BIAF"}
+{"timestamp": "2026-10-08T12:09:45.589Z", "message": "2026-10-08 12:09:45,589 INFO [v37] BIAF SELL 213 at a limit 7.12 (bid 7.9100)"}
+{"timestamp": "2026-10-08T12:09:46.387Z", "message": "2026-10-08 12:09:46,387 INFO [v37] BIAF SELL 156 at a limit 7.10 (bid 7.8900)"}
+{"timestamp": "2026-10-08T12:09:46.604Z", "message": "2026-10-08 12:09:46,604 INFO [v36b]   BIAF tape 60s: buy 27% sell 20% between 54% of 245,983 sh (100% by quote) | 5m: buy 27% sell 26% between 48% of 471,893 sh (90% by quote) (selling: stop)"}
+{"timestamp": "2026-10-08T12:09:46.824Z", "message": "2026-10-08 12:09:46,824 INFO [v36b] BIAF SELL 15 at a limit 7.04 (bid 7.8200)"}
+{"timestamp": "2026-10-08T12:09:47.033Z", "message": "2026-10-08 12:09:47,033 INFO [v36]   BIAF tape 60s: buy 27% sell 20% between 54% of 248,761 sh (100% by quote) | 5m: buy 26% sell 26% between 48% of 474,671 sh (90% by quote) (selling: stop)"}
+{"timestamp": "2026-10-08T12:09:47.246Z", "message": "2026-10-08 12:09:47,246 INFO [v36] BIAF SELL 517 at a limit 7.02 (bid 7.8000)"}
+{"timestamp": "2026-10-08T12:09:47.449Z", "message": "2026-10-08 12:09:47,449 INFO [v37] BIAF SELL 21 at a limit 7.04 (bid 7.8200)"}
+{"timestamp": "2026-10-08T12:09:47.475Z", "message": "2026-10-08 12:09:47,475 INFO [v36b] EXIT stop BIAF 15 @ 7.7800 | trigger print 7.8600 x 315 cond ['@', 'F', 'T'], 0.0s old | entry 7.9700 peak 8.0500 stop 7.8700 | held 7s | P/L -2.85 (-2.38% of the trade, -0.04% of the account)"}
+{"timestamp": "2026-10-08T12:09:48.433Z", "message": "2026-10-08 12:09:48,433 INFO [v36] BIAF SELL 323 at a limit 7.06 (bid 7.8500)"}
+{"timestamp": "2026-10-08T12:09:48.493Z", "message": "2026-10-08 12:09:48,493 INFO [v37] EXIT giveback BIAF 566 @ 7.9075 | trigger print 7.9287 x 118 cond ['@', 'T'], 1.1s old | entry 7.9900 peak 8.0000 stop 7.8900 | held 7s | P/L -46.67 (-1.03% of the trade, -0.34% of the account)"}
+{"timestamp": "2026-10-08T12:09:49.428Z", "message": "2026-10-08 12:09:49,428 INFO [v36] EXIT stop BIAF 517 @ 7.8500 | trigger print 7.7800 x 606 cond ['@', 'F', 'T'], 0.0s old | entry 7.9000 peak 8.0500 stop 7.8000 | held 9s | P/L -25.85 (-0.63% of the trade, -0.15% of the account)"}
+{"timestamp": "2026-10-08T12:09:49.967Z", "message": "2026-10-08 12:09:49,967 INFO [v36] FURIOUS BIAF at 8.0700: speed 0.54, 5s +1.9% on $185k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T12:09:49.976Z", "message": "2026-10-08 12:09:49,976 INFO [v36b] FURIOUS BIAF at 8.0700: speed 0.54, 5s +1.9% on $185k - trend, tape and room set aside"}
+{"timestamp": "2026-10-08T12:09:51.259Z", "message": "2026-10-08 12:09:51,259 INFO [v37] ENTER BIAF 61 @ 8.1900 (print 8.0700) = $500 (3.7% of equity) - a tenth of a position, buy 2 today | crowd #2, $2433k in 5 min | stop 7.9900 | adds at 8.2900 and 8.3900 | speed 0.54 | score 13 (speed 4 candle 2 wicks 1 bodies 1 lows 1 volume 0 trend 2 macd 1 room 1)"}
+{"timestamp": "2026-10-08T12:09:51.261Z", "message": "2026-10-08 12:09:51,261 INFO [v36] BIAF BUY SHORT - wanted 509, got 468 at a limit up to inf: filled at up to 8.3900 (the ask + 0.20)"}
+{"timestamp": "2026-10-08T12:09:51.335Z", "message": "2026-10-08 12:09:51,335 INFO [v36] ENTER BIAF 468 @ 8.1800 (print 8.0700) = $3828 (22% of equity) | stop 7.9900 (2.32% away) | new-high trigger 7.7000"}
+{"timestamp": "2026-10-08T12:09:51.337Z", "message": "2026-10-08 12:09:51,337 INFO [v36]   BIAF tape 60s: buy 26% sell 19% between 55% of 278,154 sh (100% by quote) | 5m: buy 26% sell 25% between 49% of 507,008 sh (90% by quote) (buying)"}
+{"timestamp": "2026-10-08T12:09:51.337Z", "message": "2026-10-08 12:09:51,337 INFO [v36] BIAF FULL POSITION 468 shares at once (furious), buy 3 today - stop 8.0800, line $8.00"}
+{"timestamp": "2026-10-08T12:09:51.338Z", "message": "2026-10-08 12:09:51,338 INFO [v36]   BIAF tape 60s: buy 26% sell 19% between 55% of 278,154 sh (100% by quote) | 5m: buy 26% sell 25% between 49% of 507,008 sh (90% by quote) (selling: stop)"}
+{"timestamp": "2026-10-08T12:09:51.338Z", "message": "2026-10-08 12:09:51,338 INFO [v36b] BIAF BUY SHORT - wanted 187, got 32 at a limit up to inf: filled at up to 8.3900 (the ask + 0.20)"}
+{"timestamp": "2026-10-08T12:09:51.412Z", "message": "2026-10-08 12:09:51,412 INFO [v36b] ENTER BIAF 32 @ 8.1900 (print 8.0700) = $262 (4% of equity) | stop 7.9900 (2.44% away) | new-high trigger 7.7000"}
+{"timestamp": "2026-10-08T12:09:51.413Z", "message": "2026-10-08 12:09:51,413 INFO [v36b]   BIAF tape 60s: buy 26% sell 19% between 56% of 278,435 sh (100% by quote) | 5m: buy 26% sell 25% between 49% of 507,389 sh (90% by quote) (buying)"}
+{"timestamp": "2026-10-08T12:09:51.414Z", "message": "2026-10-08 12:09:51,414 INFO [v36b] BIAF FULL POSITION 32 shares at once (furious), buy 3 today - stop 8.0900, line $8.00"}
+{"timestamp": "2026-10-08T12:09:51.414Z", "message": "2026-10-08 12:09:51,414 INFO [v36b] BIAF the market 8.0500 x 8.1300 is at the stop 8.0900 - out"}
+{"timestamp": "2026-10-08T12:09:51.415Z", "message": "2026-10-08 12:09:51,415 INFO [v36b]   BIAF tape 60s: buy 26% sell 19% between 56% of 278,435 sh (100% by quote) | 5m: buy 26% sell 25% between 49% of 507,389 sh (90% by quote) (selling: stop)"}
+{"timestamp": "2026-10-08T12:09:51.567Z", "message": "2026-10-08 12:09:51,567 INFO [v36] BIAF SELL 468 at a limit 7.21 (bid 8.0100)"}
+{"timestamp": "2026-10-08T12:09:51.641Z", "message": "2026-10-08 12:09:51,641 INFO [v36b] BIAF SELL 32 at a limit 7.21 (bid 8.0100)"}
+{"timestamp": "2026-10-08T12:09:51.697Z", "message": "2026-10-08 12:09:51,697 INFO [v37]   BIAF tape 60s: buy 26% sell 19% between 56% of 280,907 sh (100% by quote) | 5m: buy 26% sell 25% between 49% of 510,004 sh (90% by quote) (selling: stop)"}
+{"timestamp": "2026-10-08T12:09:51.913Z", "message": "2026-10-08 12:09:51,913 INFO [v37] BIAF SELL 61 at a limit 7.91 (bid 7.9500)"}
+{"timestamp": "2026-10-08T12:09:52.566Z", "message": "2026-10-08 12:09:52,566 WARNING [v36b] cancelled 1 working order(s) on BIAF"}
+{"timestamp": "2026-10-08T12:09:53.096Z", "message": "2026-10-08 12:09:53,096 WARNING [v37] cancelled 1 working order(s) on BIAF"}
+{"timestamp": "2026-10-08T12:09:53.511Z", "message": "2026-10-08 12:09:53,511 INFO [v36b] BIAF SELL 23 at a limit 7.10 (bid 7.8900)"}
+{"timestamp": "2026-10-08T12:09:53.541Z", "message": "2026-10-08 12:09:53,541 INFO [v36] EXIT stop BIAF 468 @ 7.9500 | trigger print 8.0700 x 300 cond ['@', 'F', 'T'], 1.4s old | entry 8.1800 peak 8.1800 stop 8.0800 | held 2s | P/L -107.64 (-2.81% of the trade, -0.63% of the account)"}
+{"timestamp": "2026-10-08T12:09:53.723Z", "message": "2026-10-08 12:09:53,723 INFO [v37] BIAF SELL 43 at a limit 7.85 (bid 7.8900)"}
+{"timestamp": "2026-10-08T12:09:54.436Z", "message": "2026-10-08 12:09:54,436 WARNING [v36b] cancelled 1 working order(s) on BIAF"}
+{"timestamp": "2026-10-08T12:09:54.634Z", "message": "2026-10-08 12:09:54,634 INFO [v37] EXIT stop BIAF 61 @ 7.9113 | trigger print 7.9800 x 100 cond ['@', 'T'], 0.0s old | entry 8.1900 peak 8.1900 stop 7.9900 | held 3s | P/L -17.00 (-3.40% of the trade, -0.13% of the account)"}
+{"timestamp": "2026-10-08T12:09:55.382Z", "message": "2026-10-08 12:09:55,382 INFO [v36b] BIAF SELL 22 at a limit 7.06 (bid 7.8400)"}
+{"timestamp": "2026-10-08T12:09:56.585Z", "message": "2026-10-08 12:09:56,585 WARNING [v36b] cancelled 1 working order(s) on BIAF"}
+{"timestamp": "2026-10-08T12:09:57.534Z", "message": "2026-10-08 12:09:57,534 INFO [v36b] BIAF SELL 17 at a limit 7.00 (bid 7.7800)"}
+{"timestamp": "2026-10-08T12:09:58.736Z", "message": "2026-10-08 12:09:58,736 WARNING [v36b] cancelled 1 working order(s) on BIAF"}
+{"timestamp": "2026-10-08T12:09:59.697Z", "message": "2026-10-08 12:09:59,697 INFO [v36b] BIAF SELL 3 at a limit 6.98 (bid 7.7500)"}
+{"timestamp": "2026-10-08T12:10:00.447Z", "message": "2026-10-08 12:10:00,447 INFO [v36] WHY-NOT BIAF px 7.7900 | crowd #1 $5843k held 1.0m, gainer #5 | WAIT: hod trigger 8.2400"}
+{"timestamp": "2026-10-08T12:10:00.827Z", "message": "2026-10-08 12:10:00,827 WARNING [v36b] cancelled 1 working order(s) on BIAF"}
+{"timestamp": "2026-10-08T12:10:01.464Z", "message": "2026-10-08 12:10:01,464 INFO [v36b] BIAF SELL 2 at a limit 7.04 (bid 7.8200)"}
+{"timestamp": "2026-10-08T12:10:02.601Z", "message": "2026-10-08 12:10:02,601 INFO [v36b] BIAF SELL 1 at a limit 7.09 (bid 7.8800)"}
+{"timestamp": "2026-10-08T12:10:04.543Z", "message": "2026-10-08 12:10:04,543 INFO [v36b] EXIT stop BIAF 32 @ 7.8459 | trigger print 8.0700 x 300 cond ['@', 'F', 'T'], 1.4s old | entry 8.1900 peak 8.1900 stop 8.0900 | held 13s | P/L -11.01 (-4.20% of the trade, -0.17% of the account)"}
+{"timestamp": "2026-10-08T12:10:04.548Z", "message": "2026-10-08 12:10:04,548 INFO [v36b] WHY-NOT BIAF px 7.9700 | crowd #1 $5843k held 0.0m, gainer #5 | WAIT: hod trigger 8.2400"}
+{"timestamp": "2026-10-08T12:10:14.995Z", "message": "2026-10-08 12:10:14,995 INFO [v36] IGNORED BIAF print 7.8700 - the market is 7.8000 x 7.8200 (decides nothing)"}
+{"timestamp": "2026-10-08T12:10:15.006Z", "message": "2026-10-08 12:10:15,006 INFO [v37] IGNORED BIAF print 7.8700 - the market is 7.8000 x 7.8200 (decides nothing)"}
+{"timestamp": "2026-10-08T12:10:15.007Z", "message": "2026-10-08 12:10:15,007 INFO [v36b] IGNORED BIAF print 7.8700 - the market is 7.8000 x 7.8200 (decides nothing)"}
