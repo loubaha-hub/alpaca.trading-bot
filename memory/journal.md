@@ -5,6 +5,27 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-08
 
+### r34.31 live (pushed 2:17:50pm, all three flat); a standing rule
+- The owner (decision): v37 buys back within 60s of a sale only once the
+  price is 20c over it - not 30c, and no 10% ("just 20 cents higher").
+  V37_REBUY_JUMP 0.20, V37_REBUY_JUMP_PCT 0 (not used). On a $1 stock that is
+  now 20% (was 10c); on $2+ it is easier than before. A furious new high
+  still buys back at once.
+- Standing rule (CLAUDE.md): no overfitting - few rules, each with a market
+  reason and results over many entries; every change checked against the
+  rules already there, naming what it touches or overrides, conflicts
+  resolved in words first.
+- Check of today's three releases against the existing rules:
+  - r34.29's fast-buy checks are new never-rules for furious buys; the
+    V36_FURIOUS_ALL comment ("every entry check set aside") should list them
+    - comment to fix with the next release.
+  - r34.30 makes V36_LEADER_NO_CAP and the speed exception to the cap moot
+    (no cap left). With no cap, the brakes on repeated full-size whipsaws on
+    one stock are: one buy a minute (a furious new high exempt), r34.29's
+    5-second and spread checks, re-entries over the day's high + 5c at speed
+    0.10, and the day's -10% halt.
+  - r34.31 is consistent with the furious new-high re-buy.
+
 ### r34.30 live (pushed 1:26:03pm, all three flat): no limit on buys of a stock a day
 - The owner (decision, ~1:20pm): "they can go there as many times as
   possible... we cannot limit the number of entries for the day" - removed

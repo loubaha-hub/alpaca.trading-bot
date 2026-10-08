@@ -52,6 +52,13 @@ numbers into any file here - memory files included.
   contingency accounted for." A loss from the market's randomness is
   accepted; a loss from something known and predictable is a defect - it
   belongs in the code.
+- **No overfitting, no contradictions** (the owner, 2026-10-08): keep the
+  rules few - a rule earns its place with a market reason and results over
+  many entries, not one stock or one day. Every change is checked against
+  the rules already there before it is built: say which existing rules it
+  touches, overrides or makes moot, and resolve any conflict in words first,
+  "so the bots don't get mixed up". Judge win rates and averages per entry
+  (trade), added up over days.
 
 ## Memory
 
