@@ -28,6 +28,8 @@ def v36(broker, data, clock, monkeypatch):
     monkeypatch.setattr(bot, "V36_TAPE_GREEN", 0.0)
     monkeypatch.setattr(bot, "V36_CROWD_HOLD_MIN", 0)
     monkeypatch.setattr(bot, "V36_ADD_HOLD_SEC", 0.0)    # the hold: tested below
+    monkeypatch.setattr(bot, "FAST_BUY_5S_UP", False)    # the fast-buy checks:
+    monkeypatch.setattr(bot, "FAST_BUY_MAX_SPREAD", 0.0)  # tested on their own below
     strat = bot.V36(broker, data)
     strat.day_start_equity = broker.eq
     return strat
@@ -606,6 +608,8 @@ def v36b(data, clock, monkeypatch):
     from helpers import FakeBroker
     monkeypatch.setattr(bot, "V36_TAPE_GREEN", 0.0)
     monkeypatch.setattr(bot, "V36_CROWD_HOLD_MIN", 0)
+    monkeypatch.setattr(bot, "FAST_BUY_5S_UP", False)
+    monkeypatch.setattr(bot, "FAST_BUY_MAX_SPREAD", 0.0)
     strat = bot.V36B(FakeBroker(equity=100_000.0), data)
     strat.day_start_equity = strat.broker.eq
     return strat
@@ -1234,3 +1238,114 @@ def test_no_v36_buys_9_30_to_4_on_the_owner_s_days(v36, clock, monkeypatch):
     monkeypatch.setattr(bot, "V36_NO_RTH_BUYS_ON", ())
     tick(v36, s, TRIGGER)
     assert entered(v36, s)
+
+
+# ---- 10-08: a fast buy only while rising, and only with the market there ----------
+
+def fast_checks_on(v36, monkeypatch, move, quote=None, data=None):
+    """Furious, with the two fast-buy checks on: the last 5 seconds moved
+    `move`; `quote` (bid, ask) is the live market, or None for none."""
+    monkeypatch.setattr(bot, "FAST_BUY_5S_UP", True)
+    monkeypatch.setattr(bot, "FAST_BUY_MAX_SPREAD", 0.10)
+    monkeypatch.setattr(v36, "speeding", lambda s, p: True)
+    monkeypatch.setattr(v36, "five_sec", lambda s, p: (move, 135_000.0))
+
+
+def test_biaf_806_no_furious_buy_with_the_last_5_seconds_down(v36, clock, monkeypatch,
+                                                              caplog):
+    """BIAF 10-08 8:06:43: "furious" on a $7.46 print with the last 5 seconds
+    -0.7% - it bought the top at $7.49 and was sold at $6.83, -$382."""
+    fast_checks_on(v36, monkeypatch, -0.007)
+    s = ripping(v36, clock)
+    s.quote = (round(TRIGGER - 0.02, 2), round(TRIGGER + 0.01, 2), time.time())
+    tick(v36, s, TRIGGER)
+    assert not entered(v36, s)
+    assert "FAST BUY NO" in caplog.text and "the last 5 seconds are not up" in caplog.text
+
+
+def test_kapa_934_flat_5_seconds_is_not_up(v36, clock, monkeypatch):
+    """KAPA 10-08 9:34:48: 5s +0.0% - flat is not rising, -$225."""
+    fast_checks_on(v36, monkeypatch, 0.0)
+    s = ripping(v36, clock)
+    s.quote = (round(TRIGGER - 0.02, 2), round(TRIGGER + 0.01, 2), time.time())
+    tick(v36, s, TRIGGER)
+    assert not entered(v36, s)
+
+
+def test_rising_with_a_tight_market_buys_and_logs_it(v36, clock, monkeypatch, caplog):
+    fast_checks_on(v36, monkeypatch, 0.049)
+    s = ripping(v36, clock)
+    s.quote = (round(TRIGGER - 0.03, 2), round(TRIGGER + 0.01, 2), time.time())
+    tick(v36, s, TRIGGER)
+    assert entered(v36, s)
+    assert "FAST BUY OK ABCD" in caplog.text and "(4c)" in caplog.text
+
+
+def test_biaf_806_no_fast_buy_when_the_ask_is_past_the_stop(v36, clock, monkeypatch,
+                                                           caplog):
+    """BIAF 8:06:45: the market $6.82 x $7.08 - 26c, wider than the 10c stop:
+    what we pay is past the stop the moment we own it."""
+    fast_checks_on(v36, monkeypatch, 0.02)
+    s = ripping(v36, clock)
+    s.quote = (round(TRIGGER - 0.25, 2), round(TRIGGER + 0.01, 2), time.time())
+    tick(v36, s, TRIGGER)
+    assert not entered(v36, s)
+    assert "the ask is 26c over the bid, more than the 10c stop" in caplog.text
+
+
+def test_a_10c_spread_still_buys(v36, clock, monkeypatch):
+    fast_checks_on(v36, monkeypatch, 0.02)
+    s = ripping(v36, clock)
+    s.quote = (round(TRIGGER - 0.09, 2), round(TRIGGER + 0.01, 2), time.time())
+    tick(v36, s, TRIGGER)
+    assert entered(v36, s)
+
+
+def test_no_quote_no_fast_buy(v36, clock, monkeypatch):
+    """Nothing to check the spread with: no fast buy."""
+    fast_checks_on(v36, monkeypatch, 0.02)
+    s = ripping(v36, clock)
+    tick(v36, s, TRIGGER)
+    assert not entered(v36, s)
+
+
+def test_the_rest_quote_stands_in_for_the_stream(v36, clock, monkeypatch, data):
+    fast_checks_on(v36, monkeypatch, 0.02)
+    s = ripping(v36, clock)
+    data.quotes[("ABCD", "bid")] = round(TRIGGER - 0.02, 2)
+    data.quotes[("ABCD", "ask")] = round(TRIGGER + 0.01, 2)
+    tick(v36, s, TRIGGER)
+    assert entered(v36, s)
+
+
+def test_a_refusal_is_checked_again_after_the_retry_gap(v36, clock, monkeypatch):
+    """Down now, up half a second later: the next print buys."""
+    now = [5_000.0]
+    monkeypatch.setattr(bot.time, "time", lambda: now[0])
+    move = [-0.01]
+    fast_checks_on(v36, monkeypatch, 0.0)
+    monkeypatch.setattr(v36, "five_sec", lambda s, p: (move[0], 135_000.0))
+    s = ripping(v36, clock)
+    s.quote = (round(TRIGGER - 0.02, 2), round(TRIGGER + 0.01, 2), now[0])
+    tick(v36, s, TRIGGER)
+    assert not entered(v36, s)
+    move[0] = 0.02
+    now[0] += 0.2
+    s.quote = (s.quote[0], s.quote[1], now[0])
+    tick(v36, s, TRIGGER)                                 # 0.2s: the refusal stands
+    assert not entered(v36, s)
+    now[0] += 0.4
+    s.quote = (s.quote[0], s.quote[1], now[0])
+    tick(v36, s, TRIGGER)
+    assert entered(v36, s)
+
+
+def test_the_checks_leave_a_normal_buy_alone(v36, clock, monkeypatch):
+    """Not furious: the rip-pullback buy is not a fast buy."""
+    monkeypatch.setattr(bot, "FAST_BUY_5S_UP", True)
+    monkeypatch.setattr(bot, "FAST_BUY_MAX_SPREAD", 0.10)
+    monkeypatch.setattr(v36, "speeding", lambda s, p: False)
+    monkeypatch.setattr(v36, "five_sec", lambda s, p: (-0.01, 0.0))
+    s = ripping(v36, clock)
+    tick(v36, s, TRIGGER)
+    assert entered(v36, s) and not s.v36_furious

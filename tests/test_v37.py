@@ -32,6 +32,8 @@ def v37(broker, data, clock, now, monkeypatch):
     monkeypatch.setattr(bot, "V37_ACCEL_TAPE", False)
     monkeypatch.setattr(bot, "V36_CROWD_TRADING", False)  # its candles are dated oddly;
                                                           # the halt rule is tested below
+    monkeypatch.setattr(bot, "FAST_BUY_5S_UP", False)     # the fast-buy checks:
+    monkeypatch.setattr(bot, "FAST_BUY_MAX_SPREAD", 0.0)  # tested on their own below
     strat = bot.V37(broker, data)
     strat.day_start_equity = broker.eq
     return strat
@@ -1738,3 +1740,40 @@ def test_v37_furious_new_high_is_not_too_soon(v37, monkeypatch):
     monkeypatch.setattr(v37, "speeding", lambda s, p: True)
     assert not v37.too_soon(s, 5.12)                      # furious, a new high: go
     assert v37.too_soon(s, 5.05)                          # under the high: wait
+
+
+# ---- 10-08: a fast buy only while rising, and only with the market there ----------
+
+def accel_setup(v37, clock, now, monkeypatch, move, quote):
+    monkeypatch.setattr(bot, "FAST_BUY_5S_UP", True)
+    monkeypatch.setattr(bot, "FAST_BUY_MAX_SPREAD", 0.10)
+    monkeypatch.setattr(bot, "V37_ACCEL", True)
+    monkeypatch.setattr(v37, "real_speed", lambda s, p: 0.40)
+    monkeypatch.setattr(v37, "five_sec", lambda s, p: (move, 300_000.0))
+    s = v37.st("WXYZ")
+    v37.qualified.add("WXYZ")
+    candles(s, STAIRS)
+    s.day_high = 10.32
+    prints(v37, s, now, 10.00, 10.35, size=30_000)
+    if quote:
+        s.quote = (quote[0], quote[1], now[0] + 1)
+    return s
+
+
+def test_v37_no_fast_buy_with_the_last_5_seconds_down(v37, clock, now, monkeypatch):
+    s = accel_setup(v37, clock, now, monkeypatch, -0.004, (10.38, 10.41))
+    tick(v37, s, now, 10.40)
+    assert not s.in_position
+
+
+def test_v37_no_fast_buy_when_the_ask_is_past_the_stop(v37, clock, now, monkeypatch):
+    """FLYE 10-08 7:25:56: v37 paid $2.91, the bid $2.64 - out 7 ms later, -$261."""
+    s = accel_setup(v37, clock, now, monkeypatch, 0.02, (10.20, 10.41))
+    tick(v37, s, now, 10.40)
+    assert not s.in_position
+
+
+def test_v37_rising_with_a_tight_market_buys(v37, clock, now, monkeypatch):
+    s = accel_setup(v37, clock, now, monkeypatch, 0.02, (10.38, 10.41))
+    tick(v37, s, now, 10.40)
+    assert s.in_position and s.entry_kind == "accel"

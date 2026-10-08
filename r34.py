@@ -140,7 +140,7 @@ RISK_CHECK_SECONDS = 5                      # the halt runs on a CLOCK, not tick
 # The file name and this string are changed together, every single time. The
 # log then answers "which code is actually running?" without anyone guessing
 # from line numbers or from behaviour that only shows up once a trade is on.
-VERSION = "v31-r34.28"
+VERSION = "v31-r34.29"
 
 # WHERE THE DAY'S HALT BASELINE COMES FROM.
 #   "last_equity" - equity at the PREVIOUS session's close, read from the broker.
@@ -4155,6 +4155,20 @@ V36_FURIOUS_ALL = True          # furious: EVERY entry check set aside - the lev
                                 # the last minute is the trigger). The never-rules stay:
                                 # hours, 9:29-9:31, the quote backing the trigger, the
                                 # account and position caps, the day's loss halt
+FAST_BUY_5S_UP = True           # a fast buy - v36/v36b furious, v37 accelerating - goes
+                                # out only while the price is higher than 5 seconds ago
+                                # (the owner, 10-08: "to buy in five seconds when the
+                                # market went down - make sure that does not happen").
+                                # BIAF 8:06:43 went furious at 5s -0.7% and bought the
+                                # top, -$382; KAPA 9:34:48 at 5s +0.0%, -$225. Flat or
+                                # down, or no print 5 seconds back: no buy - the next
+                                # print tries again
+FAST_BUY_MAX_SPREAD = 0.10      # ...and only while the ask is no more than this over the
+                                # bid - the furious stop's 10 cents. Wider, and what we
+                                # pay is past the stop the moment we own it: BIAF 8:06:44
+                                # paid $7.49 with the bid $6.82 and was sold 8 ms later;
+                                # 12 trades like it on 10-08, -$1,519. No quote: no buy.
+                                # 0 = off
 # To judge in the replay (the owner: "once it runs, don't cut it until it has
 # given back half of its gain"; "the speed was not respected"):
 # SXTC 8:17: both v36s bought @ $4.83 / $4.78 on a new-high trigger of $2.77 -
@@ -4582,6 +4596,44 @@ class V36(_Restore, _Momentum, V35):
                                   floor=floor, sweep=self.sweep_cents(price),
                                   keep=True)
         return await super().entry_buy(s, shares, price, cap)
+
+    async def fast_buy_no(self, s, price) -> str:
+        """FAST_BUY_5S_UP / FAST_BUY_MAX_SPREAD: why a fast buy may not go out
+        now - "" when it may. Each answer is logged with the 5-second move and
+        the bid and ask at that moment, so every fast buy's market is on record
+        (a refusal at most every 5 seconds a name). A refusal stands for
+        V37_RETRY_GAP: the next print after that checks again."""
+        now = time.time()
+        if now - getattr(s, "fast_no_at", 0.0) < V37_RETRY_GAP:
+            return getattr(s, "fast_no_why", "")
+        move, _ = self.five_sec(s, price)
+        q = self.live_quote(s)
+        if q:
+            bid, ask = q
+        else:
+            bid = await self.data.quote(s.symbol, "bid")
+            ask = await self.data.quote(s.symbol, "ask")
+        quoted = bool(bid and ask and bid > 0 and ask > 0)
+        why = ""
+        if FAST_BUY_5S_UP and move <= 0:
+            why = "the last 5 seconds are not up"
+        elif FAST_BUY_MAX_SPREAD and not quoted:
+            why = "no bid and ask to check"
+        elif FAST_BUY_MAX_SPREAD and ask - bid > FAST_BUY_MAX_SPREAD + 1e-9:
+            why = "the ask is %.0fc over the bid, more than the %.0fc stop" % (
+                100 * (ask - bid), 100 * FAST_BUY_MAX_SPREAD)
+        market = ("bid %.4f ask %.4f (%.0fc)" % (bid, ask, 100 * (ask - bid))
+                  if quoted else "no quote")
+        if why:
+            s.fast_no_at, s.fast_no_why = now, why
+            if now - getattr(s, "fast_no_logged", 0.0) >= 5:
+                s.fast_no_logged = now
+                self.log.info("[%s] FAST BUY NO %s at %.4f | 5s %+.1f%% | %s | %s",
+                              self.name, s.symbol, price, 100 * move, market, why)
+        else:
+            self.log.info("[%s] FAST BUY OK %s at %.4f | 5s %+.1f%% | %s",
+                          self.name, s.symbol, price, 100 * move, market)
+        return why
 
     def furious_new_high(self, s, price) -> bool:
         """Furious and over the high of the day as it stood before this print:
@@ -5044,6 +5096,8 @@ class V36(_Restore, _Momentum, V35):
             if (rush and V36_FURIOUS_SWEEP      # a missed fast buy: the next furious
                     and time.time() - getattr(s, "v36_try_at", 0.0) < V37_RETRY_GAP):
                 return                          # print tries again, this far apart
+            if rush and await self.fast_buy_no(s, price):
+                return                          # falling, or the market not there
             s.v36_adds = 0
             s.ten_break = False
             s.setup_level = trigger
@@ -5859,6 +5913,8 @@ class V37(V36):
             ask = q[1] if q else await self.data.quote(s.symbol, "ask")
             if ask is not None and ask <= s.bars[-1].h:
                 return
+        if await self.fast_buy_no(s, price):
+            return                              # falling, or the market not there
         speed = max(accel, self.real_speed(s, price))
         share = 0.0
         for at, frac in V37_ACCEL_SIZE:
