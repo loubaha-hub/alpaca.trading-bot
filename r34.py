@@ -72,7 +72,7 @@ SESSION = ((4, 0), (20, 0))                 # the session WE trade, ET
 FLATTEN_AT = (19, 0)                        # start closing at 7:00pm ET - a full
                                             # hour to work out of thin after-hours
                                             # books, flat well before 8:00pm
-NO_BUYS_FROM = (("2026-10-08", (18, 0)),)   # (ET date, (hour, minute)): no new buys
+NO_BUYS_FROM = ()                           # (ET date, (hour, minute)): no new buys
                                             # by any strategy from then to the day's end -
                                             # the owner, 10-08 6pm: "flatten them; we'll
                                             # start them later" (the next day trades as usual)
@@ -148,7 +148,7 @@ RISK_CHECK_SECONDS = 5                      # the halt runs on a CLOCK, not tick
 # The file name and this string are changed together, every single time. The
 # log then answers "which code is actually running?" without anyone guessing
 # from line numbers or from behaviour that only shows up once a trade is on.
-VERSION = "v31-r34.35"
+VERSION = "v31-r34.36"
 
 # WHERE THE DAY'S HALT BASELINE COMES FROM.
 #   "last_equity" - equity at the PREVIOUS session's close, read from the broker.
@@ -4436,7 +4436,8 @@ TICK_DUMP_CHARS = 3500          # characters of rows in one log line
 # and ask at the second's end, the second's lowest bid). zlib + base64, one
 # SECDUMP line per TICK_DUMP_CHARS (replay/research/secread.py reads them back).
 # No orders, no trading state touched. () = off.
-SEC_DUMP_DAYS = ("2026-10-06", "2026-10-07", "2026-10-08")
+SEC_DUMP_DAYS = ()              # read once by r34.35 (10-08 6:03-7:29pm, 76 windows,
+                                # none lost); saved in replay/live/2026-10-08_secdump
 SEC_DUMP_BEFORE = 300           # one row a second from 5 minutes before a buy (how
                                 # early it could have got in: BIAF 10-08 ran 8:05-8:14,
                                 # v37 bought 8:09:41) ...

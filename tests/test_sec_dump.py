@@ -117,6 +117,7 @@ async def _no_sleep(*a, **k):
 
 
 def test_engine_reads_every_accounts_buys_on_the_days(caplog, monkeypatch):
+    monkeypatch.setattr(bot, "SEC_DUMP_DAYS", ("2026-10-06", "2026-10-07", "2026-10-08"))
     seen = []
 
     class Data:
