@@ -5,6 +5,57 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-07
 
+### Tonight's review (memory/review_1007.md) - findings, not decisions
+- **The day was worse than I reported at 4:10pm.** "All flat" was true at
+  4:06, but the session runs to 8pm. From 4:22 to 5:00pm, v36/v36b bought
+  IRIX, AIXI, NCPL and ERNA as furious full positions. r34.28's block covered
+  9:30-4 only. All 8 trades lost: v36 -$289, v36b -$204; v37 made +$2 on 2.
+- **Final, from the 7pm summary:**
+  - v36 -$1,722 (-9.45%), $99 above its daily halt;
+  - v36b -$602 (-8.62%), $96 above its halt;
+  - v37 -$293 (-2.01%).
+- **Every losing trade, tagged** (premarket from the morning audit):
+  - market -$360;
+  - rule -$1,377;
+  - code -$571;
+  - release (the deploy overlap) -$508.
+
+  87% of the money lost on losing trades came from things known or
+  knowable. From 9:29 to 8pm, v36 and v36b: 40 trades, all losers but one
+  break-even.
+- **v37 SXTC 1:40, -$290:**
+  - $62 was the plan (10c);
+  - $100 was the stop decided on a print 16c through it (the stop is checked
+    only on prints);
+  - $128 was the slow sale (cancel and resend, fixed in r34.24).
+
+  The buy was the top tick of a spike: 7.5% over the prior 3-minute high;
+  SXTC then fell to $5.13 by 1:47 and was back over $7.75 only at 1:55. 13 of the 23 buys from 1:35pm on filled in the top 15%
+  of their minute.
+- **The 10c furious stop sits inside the noise.** SXTC's 1-minute ranges 1:30-2:00
+  were 24c to $1.50, typically 74c (11%). The 1:55 buys were stopped in 2-5 seconds, then SXTC ran
+  +$1.67.
+- **A sale: 0.2-0.8s to send** (three broker calls, one of them an unused bid
+  snapshot), then 0.9-3.9s to fill on paper.
+- **The replay of 10-07 (r34.28) says v36 +$50,060 and v37 +$127,977** on
+  $15k. Almost all of it is two premarket squeezes bought at full size:
+  - BIYA 8:20, $2.54 to $28.54 in one minute on the bars;
+  - SXTC 8:16.
+
+  Live, the code running then did not hold either. Even the replay loses
+  9:30-4 on 10-07 (v36 -$2,022 at 0.2% worse fills).
+- **Proposals in the review (none chosen):**
+  - v36/v36b premarket only, until a regular-hours design exists;
+  - releases after 8pm only + D;
+  - furious size from a dollar risk, with the stop sized to the stock's
+    swing;
+  - C;
+  - the stop checked on quotes, and no unused bid read before a market
+    sell;
+  - cents to percent on cheap stocks;
+  - the scorecard;
+  - a halt rule.
+
 ### The owner near the close (~3:55pm): sizing by speed; the v37 bite; slow sales
 - "If the stock is moving furiously fast it's okay to enter with a bigger
   position; if it is moving fast but moderately, always enter with a small

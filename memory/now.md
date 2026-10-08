@@ -1,18 +1,42 @@
 # Where things stand
 
-Updated 2026-10-07, 4:10pm ET.
+Updated 2026-10-07, ~9pm ET.
 
 ## Code
 - Working branch: `claude/zealous-ramanujan-br3gay`. New work goes here;
   nothing goes to `main` without the owner's OK.
-- The close, 10-07: no trades 2:55-4:06pm; all flat. Day: v36 -7.9%
-  ($16,780), v36b -5.7% ($6,588), v37 -2.0% ($14,247). Tonight (scheduled
-  8:05pm ET): save today's logs to replay/live/, record the 10-07 bars, then
-  the analysis in words first (memory/checklist.md) - the v37 SXTC bite and
-  buy timing, where the seconds go in a sale, the live rules against the
-  checklist (holes, contradictions, stacked conditions), the scorecard
-  proposal. Waiting on the owner: furious full size premarket only?
-  releases after 8pm only + 60s no-buy start? the scorecard?
+- **The day, final (7pm summary):**
+  - v36 -$1,722 (-9.45%, $16,491), $99 above its halt;
+  - v36b -$602 (-8.62%, $6,385), $96 above its halt;
+  - v37 -$293 (-2.01%, $14,249).
+
+  The 4:10pm figures were not final. After hours, 4:22-5:00pm, v36/v36b made
+  8 furious full-size buys and lost them all (-$289 / -$204). r34.28's block
+  is 9:30-4 only.
+- **Tonight, done:**
+  - the 10-07 bars (replay/data/2026-10-07, 132 names, aa15f03);
+  - the logs (replay/live/2026-10-07_roster / _trades / _whynot, f8e23bf);
+  - the review in words, memory/review_1007.md: the live rules, the
+    checklist answered (H1-H29), contradictions (C1-C8), every loss tagged,
+    the v37 SXTC bite, sale timing, the replay of 10-07, the scorecard
+    proposal.
+- **WAITING ON THE OWNER BEFORE 4AM 10-08:** V36_NO_RTH_BUYS_ON covers 10-07
+  only. From 9:30 on 10-08, v36/v36b furious full-size buys come back, and
+  after hours was never blocked. Options in the review, section 10:
+  - (a) v36/v36b premarket only, every day (recommended);
+  - (b) a starter + adds outside premarket;
+  - (c) as is.
+
+  Any choice needs a release while flat after 8pm.
+- **Other open decisions:**
+  - releases after 8pm only, plus D (no buys 60s after a start);
+  - furious size from a dollar risk, with the stop sized to the stock's
+    swing;
+  - C (buy-back waits);
+  - S1-S4 (faster sales);
+  - cents to percent on cheap stocks;
+  - the scorecard;
+  - a halt rule.
 - Live on `main` (Render): VERSION v31-r34.28 (pushed 3:32:22pm ET 10-07 on
   the owner's "stop v36/v36b buys until 4pm"; flat since 2:55): no new
   v36/v36b buys 9:30-4 on 2026-10-07 only (V36_NO_RTH_BUYS_ON); v37,
