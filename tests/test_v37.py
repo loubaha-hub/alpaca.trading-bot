@@ -1846,3 +1846,15 @@ def test_trail_cents_sells_3c_under_the_best(v37, clock, now, monkeypatch):
 
 def test_trail_cents_off_as_today(v37):
     assert bot.V37_TRAIL_CENTS == 0.0
+
+
+def test_trail_beside_half_the_gain(v37, clock, now, monkeypatch):
+    """Both: half the gain from 2c, and out 5c under the best."""
+    monkeypatch.setattr(bot, "V37_TRAIL_CENTS", 0.05)
+    monkeypatch.setattr(bot, "V37_TRAIL_KEEPS_HALF", True)
+    monkeypatch.setattr(bot, "V37_GIVEBACK_ARM_CENTS", 0.02)
+    s = bought(v37, clock, now)
+    e = s.entry
+    tick(v37, s, now, round(e + 0.04, 2))                 # up 4c: the line +2c
+    tick(v37, s, now, round(e + 0.02, 2))                 # back to it: half the gain
+    assert not s.in_position and v37.closed_today[-1][5] == "giveback"

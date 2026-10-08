@@ -5451,6 +5451,7 @@ V37_GIVEBACK_ARM = 0.0          # "half the gain" only once the best gain reache
 V37_TRAIL_CENTS = 0.0           # PROPOSAL (the owner, 10-08, off until decided): in place
                                 # of "half the gain", out once the price is this many dollars
                                 # under its best since the buy (the stop stays under it)
+V37_TRAIL_KEEPS_HALF = False     # ...True: beside "half the gain", not in place of it
 V37_GIVEBACK_FROM_BID = False   # PROPOSAL (10-08, fix 3, off until the owner decides):
                                 # "half the gain" arms only once the live bid has been
                                 # over what we paid - a gain we could sell at. 10-08: 15
@@ -6219,7 +6220,8 @@ class V37(V36):
                 if not (q and q[0] > tline):    # the bid agrees
                     await self.exit(s, "trail")
                     return
-            armed = False                       # "half the gain" set aside
+            if not V37_TRAIL_KEEPS_HALF:
+                armed = False                   # "half the gain" set aside
         back = V37_GIVEBACK
         if (getattr(s, "v37_accel", 0.0) and V37_SPIKE_AT
                 and top >= s.entry * (1 + V37_SPIKE_AT)):
