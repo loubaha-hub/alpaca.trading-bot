@@ -25,6 +25,14 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   bought 12 times and lost 11 (-$543). With no delay it looked good
   (-$378): the delay decides it.
 - One day, 19 entries, v37 only. The real test is the three-day read.
+- The full tiers were on in every run; today they hardly came into play:
+  14 of the 19 buys never got more than 3c over the buy; SBFM +10c / +8c,
+  MOBX +8c, DKI +6c reached tier 2 (the break-even zone gave SBFM's +$89
+  and +$22 back to $0); FLYE 7:23 +35c reached tier 3 (sold by v37's
+  furious exit, +$383). Nothing reached 50c. With "a buy at a line waits
+  for the line + 5c" (ask 1s later; replay/research/tiers_lines_1008.py):
+  within 3c of a line -$321, 5c -$320, 10c -$175 (FLYE 7:25 at $2.91 never
+  crossed $3.05 in the data: -$233 skipped) vs tiers alone -$273.
 
 ### Whole and half dollars (the owner, ~4:45pm; words to write, then the owner reads)
 - The owner: incorporate the lines ($x.00, $x.50) as resistance and
