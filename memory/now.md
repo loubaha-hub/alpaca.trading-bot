@@ -1,6 +1,6 @@
 # Where things stand
 
-Updated 2026-10-08, ~3:30pm ET.
+Updated 2026-10-08, ~4pm ET.
 
 ## Now (10-08)
 - Working branch: `claude/happy-ride-o56nlz` (this session). The memory
@@ -13,6 +13,10 @@ Updated 2026-10-08, ~3:30pm ET.
   fast buy unless the price is up over the last 5 seconds; no fast buy when
   the ask is more than 10c over the bid. Everything else as r34.28.
 - Judge rules per entry, added up over days (the owner, 10-08).
+- **Waiting for after 8pm 10-08:** r34.33 (branch c08b67b) - v37 sells 5c
+  under its best since the buy, in place of half the gain (a trial); the
+  one-off TICK_DUMP off. Built off on the branch, not chosen: the 10c-under-$2
+  re-buy, fix 3 (gain from the bid), V37_TRAIL_KEEPS_HALF.
 - The owner chose at ~3:40am: v36, v36b and v37 on the full schedule
   (4am-8pm), not premarket only.
 - The day at 1:05pm: v36 +$288, v36b -$326 ($312 above its halt), v37 -$743.

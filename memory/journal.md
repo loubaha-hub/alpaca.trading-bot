@@ -5,6 +5,22 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-08
 
+### The uptick idea, measured (finding); r34.33 waiting for 8pm
+- The owner: buy only on an uptick (one, two or three in a row) - "an uptick
+  is more likely followed by an uptick". Measured on 10-08's time and sales
+  (the TICK_DUMP windows): after an uptick the next print is up 21.8%, the
+  same 30.6%, down 47.7% (rising stocks: 21.2 / 32.1 / 46.6) - the bid-ask
+  bounce; the middle of bid/ask a second later is only ~0.4c better after an
+  uptick than after a downtick. On v37's 19 trades: uptick-only + 5c cut
+  -$91 vs -$290, but the result flips with half a second of timing, and 2-3
+  upticks in a row skip the winners. Not built (no-overfitting rule).
+- The owner chose to try the 5c cut ("something we'd like to try"):
+  r34.33 on the branch (c08b67b) - V37_TRAIL_CENTS 0.05, TICK_DUMP off, the
+  furious comment lists the never-rules. To push after 8pm ET 10-08 (a
+  reminder is set for 8:05pm), all three flat.
+- Correction kept for the record: v37's trigger is NOT always an uptick - 7
+  of 19 trigger prints on 10-08 came right after a higher print.
+
 ### v37 exit tested print by print on 10-08's own trades (findings; the owner decides)
 - Data: TICK_DUMP's 353k trades / 47k quotes, saved in
   replay/live/2026-10-08_ticks/tickdump_v37.txt.gz; tool
