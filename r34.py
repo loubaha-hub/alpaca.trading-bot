@@ -140,7 +140,7 @@ RISK_CHECK_SECONDS = 5                      # the halt runs on a CLOCK, not tick
 # The file name and this string are changed together, every single time. The
 # log then answers "which code is actually running?" without anyone guessing
 # from line numbers or from behaviour that only shows up once a trade is on.
-VERSION = "v31-r34.30"
+VERSION = "v31-r34.31"
 
 # WHERE THE DAY'S HALT BASELINE COMES FROM.
 #   "last_equity" - equity at the PREVIOUS session's close, read from the broker.
@@ -5563,11 +5563,12 @@ V37_EXTRAORDINARY = True
 # A RE-BUY RIGHT AFTER A SALE (the owner, 2026-10-06: 65 of the day's trades
 # were bought back within 15 seconds of selling): not within V37_REBUY_WAIT
 # seconds of the sale unless the price is already V37_REBUY_JUMP above what
-# the sale got - for a cheap stock V37_REBUY_JUMP_PCT of the price, whichever
-# is smaller ("on a one-dollar stock thirty cents is a lot"). 0 = off.
+# the sale got (V37_REBUY_JUMP_PCT of the price instead, if smaller; 0 = not
+# used). 0 = off. The owner, 10-08: 20 cents, not 30 - and no 10%: "just 20
+# cents higher".
 V37_REBUY_WAIT = 60.0
-V37_REBUY_JUMP = 0.30
-V37_REBUY_JUMP_PCT = 0.10
+V37_REBUY_JUMP = 0.20
+V37_REBUY_JUMP_PCT = 0.0
 V37_FRESH_EXITS = True          # sells, stops and adds decide only on prints under
                                 # V37_FRESH_SECONDS old. 2026-10-06: 76 sales were
                                 # decided on older prices (up to 59s), 13 of them
@@ -5658,7 +5659,9 @@ class V37(V36):
             return False                        # furious, a new high: back on it
         if time.time() - s.v37_sold_ts >= V37_REBUY_WAIT:
             return False
-        jump = min(V37_REBUY_JUMP, V37_REBUY_JUMP_PCT * s.v37_sold_px)
+        jump = V37_REBUY_JUMP
+        if V37_REBUY_JUMP_PCT:
+            jump = min(jump, V37_REBUY_JUMP_PCT * s.v37_sold_px)
         return price < s.v37_sold_px + jump
 
     def note_high(self, s, price, t):

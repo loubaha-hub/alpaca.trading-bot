@@ -734,23 +734,32 @@ def test_no_re_buy_within_a_minute_of_the_sale(v37, clock, now, rebuy_wait, monk
     assert sold > 0
 
 
-def test_a_30_cent_jump_buys_back_at_once(v37, clock, now, rebuy_wait, monkeypatch):
+def test_a_20_cent_jump_buys_back_at_once(v37, clock, now, rebuy_wait, monkeypatch):
+    """The owner, 10-08: 20 cents, not 30."""
     monkeypatch.setattr(v37, "fast", lambda s, p: True)
     s = bought(v37, clock, now)
     tick(v37, s, now, 10.30)
-    tick(v37, s, now, round(s.v37_sold_px + 0.29, 2))     # not yet 30c
+    tick(v37, s, now, round(s.v37_sold_px + 0.19, 2))     # not yet 20c
     assert not s.in_position
-    tick(v37, s, now, round(s.v37_sold_px + 0.31, 2))     # "really cruising"
+    tick(v37, s, now, round(s.v37_sold_px + 0.21, 2))     # "really cruising"
     assert s.in_position
 
 
-def test_on_a_cheap_stock_the_jump_is_10_percent(v37, clock, now, rebuy_wait):
+def test_the_jump_is_20_cents_at_any_price(v37, clock, now, rebuy_wait):
+    """The owner, 10-08: "remove that 10% - just 20 cents higher"."""
     s = bought(v37, clock, now)
     s.v37_sold_ts, s.v37_sold_px = now[0], 1.00
-    assert v37.too_soon(s, 1.09)                          # 9c on a $1 stock: wait
-    assert not v37.too_soon(s, 1.11)                      # 11c: 10% - buy
+    assert v37.too_soon(s, 1.11)                          # 11c on a $1 stock: wait
+    assert v37.too_soon(s, 1.19) and not v37.too_soon(s, 1.21)
     s.v37_sold_px = 6.00
-    assert v37.too_soon(s, 6.29) and not v37.too_soon(s, 6.31)   # $6: 30c
+    assert v37.too_soon(s, 6.19) and not v37.too_soon(s, 6.21)   # $6: 20c too
+
+
+def test_a_percent_jump_still_works_when_set(v37, clock, now, rebuy_wait, monkeypatch):
+    monkeypatch.setattr(bot, "V37_REBUY_JUMP_PCT", 0.10)
+    s = bought(v37, clock, now)
+    s.v37_sold_ts, s.v37_sold_px = now[0], 1.00
+    assert v37.too_soon(s, 1.09) and not v37.too_soon(s, 1.11)   # 10% < 20c
 
 
 def test_a_stop_never_fires_on_an_old_print(v37, clock, now):
@@ -1734,12 +1743,12 @@ def test_v37_a_furious_buy_s_stop_is_10c_under(v37, clock, now, monkeypatch):
 def test_v37_furious_new_high_is_not_too_soon(v37, monkeypatch):
     monkeypatch.setattr(bot, "V37_REBUY_WAIT", 60.0)      # off in the fixture
     s = v37.st("ABCD")
-    s.v37_sold_ts, s.v37_sold_px, s.day_high = bot.time.time(), 4.90, 5.10
+    s.v37_sold_ts, s.v37_sold_px, s.day_high = bot.time.time(), 4.90, 5.05
     monkeypatch.setattr(v37, "speeding", lambda s, p: False)
-    assert v37.too_soon(s, 5.12)                          # 22c over the sale: wait
+    assert v37.too_soon(s, 5.08)                          # 18c over the sale: wait
     monkeypatch.setattr(v37, "speeding", lambda s, p: True)
-    assert not v37.too_soon(s, 5.12)                      # furious, a new high: go
-    assert v37.too_soon(s, 5.05)                          # under the high: wait
+    assert not v37.too_soon(s, 5.08)                      # furious, a new high: go
+    assert v37.too_soon(s, 5.04)                          # under the high: wait
 
 
 # ---- 10-08: a fast buy only while rising, and only with the market there ----------
