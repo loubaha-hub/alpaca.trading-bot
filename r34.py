@@ -140,7 +140,7 @@ RISK_CHECK_SECONDS = 5                      # the halt runs on a CLOCK, not tick
 # The file name and this string are changed together, every single time. The
 # log then answers "which code is actually running?" without anyone guessing
 # from line numbers or from behaviour that only shows up once a trade is on.
-VERSION = "v31-r34.29"
+VERSION = "v31-r34.30"
 
 # WHERE THE DAY'S HALT BASELINE COMES FROM.
 #   "last_equity" - equity at the PREVIOUS session's close, read from the broker.
@@ -4191,7 +4191,11 @@ V36_TEN_SEC = 10                # the short leash's candles, in seconds
 V36_TEN_GRACE = 10              # seconds after an add before the short leash acts
 V36_LEASH_AT = 0.10             # up this much: the long leash instead
 V36_LEASH_ABR = 2.0             # long leash: this many ABRs under the high
-V36_MAX_ENTRIES = 6             # buys per name per day - each one small
+V36_MAX_ENTRIES = 0             # buys per name per day; 0 = no limit (the owner, 10-08:
+                                # "they can go there as many times as possible" - FLYE
+                                # 7:22-7:25 spent the six on whipsaws, then 7:26-7:40
+                                # "NO: 6 buys today" as the #1 name ran $2.23 -> $3.60;
+                                # as V37_MAX_ENTRIES since 10-06)
 # THE BIG MOVES (the owner, 10-07: "the other fixes are small potatoes - if we
 # miss these moves the program will not advance"):
 V36_TREND_LIVE = True           # trend checks with the forming candle at the live
@@ -4983,7 +4987,8 @@ class V36(_Restore, _Momentum, V35):
         if len(self.open_positions()) >= V36_MAX_POSITIONS:
             self.why_not(s, price, "NO: %d positions open" % len(self.open_positions()))
             return
-        if (s.v36_entries >= V36_MAX_ENTRIES and not self.leader_new_high(s, price)
+        if (V36_MAX_ENTRIES and s.v36_entries >= V36_MAX_ENTRIES
+                and not self.leader_new_high(s, price)
                 and not (V36_FURIOUS and self.speeding(s, price))):
             self.why_not(s, price, "NO: %d buys today" % s.v36_entries)
             return

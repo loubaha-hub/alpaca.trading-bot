@@ -313,11 +313,30 @@ def test_one_buy_a_minute(v36, clock):
     assert not s.in_position                            # same minute, same setup
 
 
-def test_no_more_than_the_days_entries(v36, clock, monkeypatch):
+def test_no_more_than_the_days_entries_when_a_cap_is_set(v36, clock, monkeypatch):
+    monkeypatch.setattr(bot, "V36_MAX_ENTRIES", 6)
     s = ripping(v36, clock)
-    s.v36_entries = bot.V36_MAX_ENTRIES
+    s.v36_entries = 6
     tick(v36, s, TRIGGER)
     assert not entered(v36, s)
+
+
+@pytest.mark.parametrize("cap, buys", [(None, True), (6, False)])
+def test_no_cap_on_the_days_entries(v36, clock, monkeypatch, cap, buys):
+    """The owner, 10-08: "they can go there as many times as possible" - FLYE
+    7:26-7:40, "NO: 6 buys today" while the #1 name ran $2.23 -> $3.60. Not
+    the leader, not speeding: the 41st buy of the day goes (6 = as it was)."""
+    if cap is None:
+        assert bot.V36_MAX_ENTRIES == 0
+    else:
+        monkeypatch.setattr(bot, "V36_MAX_ENTRIES", cap)
+    monkeypatch.setattr(bot, "V36_LEADER_NO_CAP", False)
+    monkeypatch.setattr(bot, "V36_REENTRY_SPEED", 0.0)
+    monkeypatch.setattr(v36, "speeding", lambda s, p: False)
+    s = ripping(v36, clock)
+    s.v36_entries = 40
+    tick(v36, s, round(s.hod_closed + bot.V36_HOD_PLUS + 0.12, 2))
+    assert entered(v36, s) == buys
 
 
 # ---- which account -----------------------------------------------------------------
@@ -690,6 +709,7 @@ def test_the_leader_making_a_new_high_is_not_capped(v36, clock, monkeypatch,
     through $3.50 to $3.99. False = as it was."""
     monkeypatch.setattr(bot, "V36_LEADER_NO_CAP", no_cap)
     monkeypatch.setattr(bot, "V36_REENTRY_SPEED", 0.0)    # the speed has its own test
+    monkeypatch.setattr(bot, "V36_MAX_ENTRIES", 6)        # a cap, to test its exception
     s = ripping(v36, clock)
     s.v36_entries = bot.V36_MAX_ENTRIES
     tick(v36, s, round(s.hod_closed + bot.V36_HOD_PLUS + 0.12, 2))   # clear of $10.50
@@ -868,6 +888,7 @@ def test_biya_820_speed_lifts_the_buy_cap(v36, clock, monkeypatch, fast, buys):
     monkeypatch.setattr(bot, "V36_LEADER_NO_CAP", False)
     monkeypatch.setattr(bot, "V36_REENTRY_SPEED", 0.0)
     monkeypatch.setattr(v36, "speeding", lambda s, p: fast)
+    monkeypatch.setattr(bot, "V36_MAX_ENTRIES", 6)        # a cap, to test its exception
     s = ripping(v36, clock)
     s.v36_entries = bot.V36_MAX_ENTRIES
     tick(v36, s, round(s.hod_closed + bot.V36_HOD_PLUS + 0.12, 2))
