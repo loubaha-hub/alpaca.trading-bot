@@ -5,6 +5,17 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-08
 
+### The green-tape idea, measured (finding)
+- The owner: buy only when the time and sales is green (trades at the ask).
+  10-08's tape, while rising, last 5s >=70% at the ask: the mid +0.41c 1s
+  later, -0.24c at 5s, -1.32c at 30s; a red tape: +0.27 / +0.94 / +0.41c.
+  No lasting edge (replay/research/green_test.py). On v37's 19 buys with the
+  5c cut: green >=50% -$231, >=60% -$57, >=70% +$44 (4 kept) vs -$290 all -
+  hangs on single trades (FLYE 7:23 +$256 and 7:25 -$233 both 63% green).
+  Not built. v37's fast buy already needs a 60/40 tape (V37_ACCEL_TAPE).
+- Next question if v37 still loses with the 5c cut: its buy - one-second
+  bursts that snap back.
+
 ### The uptick idea, measured (finding); r34.33 waiting for 8pm
 - The owner: buy only on an uptick (one, two or three in a row) - "an uptick
   is more likely followed by an uptick". Measured on 10-08's time and sales
