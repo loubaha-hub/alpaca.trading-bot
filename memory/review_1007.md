@@ -477,7 +477,10 @@ Each item is **covered**, **partly**, or a **hole**, with today's example.
     minutes) and none per rule (furious lost 6 in a row and kept going).
   - **Hole.**
 - **H23. Alpaca's ~200 requests a minute.** Buys are capped at 35 orders a
-  minute an account. The CPHI zero-share loop is fixed. **Covered.**
+  minute an account. The CPHI zero-share loop is fixed. A starter that B cuts
+  under $100 is worked out again on every print (CPHI 2:21: 272 times in 12
+  seconds). The account read is cached, so that is log noise, not broker
+  calls. **Covered.**
 - **H24. The tick queue backing up.**
   - A sale runs inside that strategy's print handler, so no other stock is
     read while it sells.
@@ -549,6 +552,12 @@ Each item is **covered**, **partly**, or a **hole**, with today's example.
     - about 0.3% on a $7.75 stock (4x);
     - about 2% on a $1 stock (27x; CPHI: $355).
   - Slippage comes on top. v36's SXTC at 1:40 planned $55 and lost $228.
+  - CPHI at 2:21 shows both sides within seconds.
+    - From 2:21:22 to 2:21:34, B cut v36's starter to $100 of stock with a
+      12.6% stop, $13 at risk. That was under the $100 minimum, so on every
+      print, 272 times, it bought nothing.
+    - At 2:21:46 the speed read 0.31: a full position, 3,406 shares, with a
+      7.2% stop, $286 at risk.
   - The owner's sizing words (10-07, near the close): "furiously fast:
     bigger position OK; fast but moderate: always a small starter, ease in".
     Bigger is the owner's call. How much bigger, and with what stop, is

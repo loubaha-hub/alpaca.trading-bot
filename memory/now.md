@@ -19,7 +19,7 @@ Updated 2026-10-07, ~9pm ET.
   - the review in words, memory/review_1007.md: the live rules, the
     checklist answered (H1-H29), contradictions (C1-C8), every loss tagged,
     the v37 SXTC bite, sale timing, the replay of 10-07, the scorecard
-    proposal.
+    proposal. The page: https://claude.ai/artifact/8YT1dAn77Nt346gUUUDgT7
 - **WAITING ON THE OWNER BEFORE 4AM 10-08:** V36_NO_RTH_BUYS_ON covers 10-07
   only. From 9:30 on 10-08, v36/v36b furious full-size buys come back, and
   after hours was never blocked. Options in the review, section 10:
