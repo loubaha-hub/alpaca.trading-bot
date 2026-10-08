@@ -34,6 +34,21 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   within 3c of a line -$321, 5c -$320, 10c -$175 (FLYE 7:25 at $2.91 never
   crossed $3.05 in the data: -$233 skipped) vs tiers alone -$273.
 
+### The owner on rules working against each other (~5:50pm)
+- "Some of the rules are working against each other, even though they are
+  not completely contradictory ... as a human I would have said this takes
+  priority and those other rules do not apply here. But the bot checks every
+  single one of them." (WORX: after the furious stop it fell back to the
+  slow route - the 2-minute wait, the high + 5c, a tenth of a position.)
+- Confirmed live, nothing dropped: furious = speed 0.30 with the price up 3%
+  in the minute (inside real_speed), $250k in the minute, last candle not
+  red; at the buy, up over 5 seconds and the ask within 10c of the bid.
+- Proposed: a map of situations, each with the rules that apply and the
+  ones set aside (furious; back on after a furious stop; the leader's new
+  high; the regular setups), written from the code for the owner to read;
+  and from the three-day read, every rule's blocked buys and what the stock
+  did next.
+
 ### DECISION (the owner, ~5:35pm): the scanner's 10% baseline stays as it is
 - "The rules we are working under now, we'll keep those ... not moving the
   goalposts" - all that has been measured would stop counting. So: 4:00-9:30
