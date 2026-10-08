@@ -5,6 +5,23 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-08
 
+### v37 exit tested print by print on 10-08's own trades (findings; the owner decides)
+- Data: TICK_DUMP's 353k trades / 47k quotes, saved in
+  replay/live/2026-10-08_ticks/tickdump_v37.txt.gz; tool
+  replay/research/tickreplay.py (v37's own exit code on the real prints,
+  sold at the real bid 0.5s after the decision; adds off; each trade alone).
+  Check: "half the gain from 1c" gives -$752, 0 won - live was -$742, 0 won.
+- "Half the gain" armed from 1/2/3/4/5/10c: -$752 / -$756 / -$620 / -$738 /
+  -$738 / -$617 - the arming is not the main problem; 8 of 19 trades lose the
+  same at every setting (-$560), straight to the stop.
+- The owner's idea - out once the price is X cents under its best since the
+  buy, in place of half the gain: 2c -$664, 3c -$569, 4c -$532, **5c -$290**
+  (3 won), 6c -$339, 8c -$471. Built as V37_TRAIL_CENTS, OFF; proposed at 5c
+  for a live (paper) trial. Half the gain from 2/4/6c: -$756 / -$738 / -$738.
+- r34.29's buy checks would have let every v37 buy through (rising, spreads
+  1-8c). A buy cap was looked at and dropped - the owner: the buy stays as is
+  (pays up on flying stocks, the ask otherwise).
+
 ### r34.32 live (pushed 3:25:13pm, flat): a one-off read of v37's trades, print by print
 - The owner: the 1-minute replay "gives a sense of false hope" - it cannot
   judge rules that act in seconds (v37's exits; replay 69% won vs live 0/19).
