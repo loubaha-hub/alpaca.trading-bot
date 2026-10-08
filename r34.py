@@ -4133,6 +4133,15 @@ V36_FURIOUS_EVEN_AT = 0.30      # ...once up this much (dollars) over the buy, n
 V36_FURIOUS_GIVEBACK = 0.30     # ...and from there out on giving back this share of the
                                 # gain from its high ("thirty percent of the gain").
                                 # 0 = off. Replaces r34.22's "up 30%, a third back".
+GIVEBACK_TIERS = False          # the share of the gain given back grows smaller as the
+GIVEBACK_TIER_TABLE = ((0.50, 1 / 2), (1.00, 1 / 3), (float("inf"), 0.10))
+                                # gain grows: under +50% from the average cost, out on
+                                # giving back half of it; +50% to +100%, a third; over
+                                # +100%, a tenth - "for those really gangbusters we can
+                                # capture a little bit more" (the owner, 10-08). v36,
+                                # v36b and v37: in place of V36_FURIOUS_GIVEBACK (still
+                                # from up V36_FURIOUS_EVEN_AT), V37_GIVEBACK and
+                                # V37_SPIKE_GIVEBACK. False = those, as before
 V37_FURIOUS_EXIT = True         # v37's furious buys (speed >= V37_FURIOUS_SPEED): the same
 BID_STOP = True                 # a position's stop also fires when the live market -
                                 # the middle of the bid and ask - is at or under it, not
@@ -4597,9 +4606,21 @@ class V36(_Restore, _Momentum, V35):
         10-second leash only)."""
         if not V36_FURIOUS_EVEN_AT or not s.entry or top < s.entry + V36_FURIOUS_EVEN_AT - 1e-9:
             return 0.0
-        if not V36_FURIOUS_GIVEBACK:
+        back = self.giveback_share(s, top, V36_FURIOUS_GIVEBACK)
+        if not back:
             return s.entry
-        return max(s.entry, s.entry + (1 - V36_FURIOUS_GIVEBACK) * (top - s.entry))
+        return max(s.entry, s.entry + (1 - back) * (top - s.entry))
+
+    def giveback_share(self, s, top, share) -> float:
+        """GIVEBACK_TIERS: the share of the gain that may be given back, by how
+        far the best price `top` is over the average cost; `share` when off."""
+        if not GIVEBACK_TIERS or not s.entry or top <= s.entry:
+            return share
+        up = top / s.entry - 1
+        for upto, back in GIVEBACK_TIER_TABLE:
+            if up < upto:
+                return back
+        return GIVEBACK_TIER_TABLE[-1][1]
 
     # ---- the whole / half dollar under the stop (V36_LEVEL_STOP) ---------------
 
@@ -6058,6 +6079,8 @@ class V37(V36):
         if (getattr(s, "v37_accel", 0.0) and V37_SPIKE_AT
                 and top >= s.entry * (1 + V37_SPIKE_AT)):
             back = V37_SPIKE_GIVEBACK           # a spike: keep two thirds of it
+        if GIVEBACK_TIERS:
+            back = self.giveback_share(s, top, back)
         line = s.entry + (1 - back) * gain
         if gain > 0 and armed and price <= line:
             q = self.live_quote(s) if V37_GIVEBACK_BID else None

@@ -1077,6 +1077,36 @@ def test_furious_up_30c_never_back_under_the_buy(v36, clock, monkeypatch):
     assert not s.in_position
 
 
+@pytest.mark.parametrize("top, back", [(2.80, 1 / 2), (3.50, 1 / 3), (5.00, 0.10)])
+def test_the_giveback_shrinks_as_the_gain_grows(v36, monkeypatch, top, back):
+    """The owner, 10-08: half the gain back under +50%, a third from +50% to
+    +100%, a tenth over +100% - from the average cost."""
+    monkeypatch.setattr(bot, "GIVEBACK_TIERS", True)
+    s = v36.st("ABCD")
+    s.entry = 2.00
+    assert v36.giveback_share(s, top, 0.30) == pytest.approx(back)
+    assert v36.furious_line(s, top) == pytest.approx(2.00 + (1 - back) * (top - 2.00))
+
+
+def test_the_giveback_tiers_off_keep_30_percent(v36, monkeypatch):
+    monkeypatch.setattr(bot, "GIVEBACK_TIERS", False)
+    s = v36.st("ABCD")
+    s.entry = 2.00
+    assert v36.furious_line(s, 5.00) == pytest.approx(2.00 + 0.70 * 3.00)
+
+
+def test_furious_with_the_tiers_half_the_gain_back_is_out(v36, clock, monkeypatch):
+    monkeypatch.setattr(bot, "GIVEBACK_TIERS", True)
+    s = furious_bought(v36, clock, monkeypatch)
+    entry = s.entry
+    tick(v36, s, round(entry + 0.50, 2))                  # the high: +50c, about +5%
+    tick(v36, s, round(entry + 0.30, 2))                  # 40% of it back: held
+    assert s.in_position
+    tick(v36, s, round(entry + 0.24, 2))                  # 52% back: out
+    assert not s.in_position
+    assert v36.closed_today[-1][5] == "giveback"
+
+
 def test_furious_under_30c_only_the_stop_and_the_leash(v36, clock, monkeypatch):
     s = furious_bought(v36, clock, monkeypatch)
     entry = s.entry

@@ -130,6 +130,21 @@ def bought(v37, clock, now):
     return s
 
 
+def test_with_the_tiers_a_double_gives_back_a_tenth(v37, clock, now, monkeypatch):
+    """The owner, 10-08: over +100% from the average cost, out on giving back a
+    tenth of the gain - not half of it."""
+    monkeypatch.setattr(bot, "GIVEBACK_TIERS", True)
+    s = bought(v37, clock, now)
+    top = round(s.entry * 2.5, 2)                         # up 150%
+    s.peak = s.v37_peak_after = top
+    line = s.entry + 0.90 * (top - s.entry)
+    tick(v37, s, now, round(line + 0.05, 2))
+    assert s.in_position
+    tick(v37, s, now, round(line - 0.05, 2))
+    assert not s.in_position
+    assert v37.closed_today[-1][5] == "giveback"
+
+
 def test_no_tolerance_for_loss(v37, clock, now):
     s = bought(v37, clock, now)
     tick(v37, s, now, round(s.entry - 0.02, 2))
