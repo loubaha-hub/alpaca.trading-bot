@@ -36,12 +36,14 @@ ENVIRONMENT VARIABLES
 """
 
 import asyncio
+import base64
 import csv
 import logging
 import json
 import os
 import statistics
 import time
+import zlib
 from collections import deque
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
@@ -142,7 +144,7 @@ RISK_CHECK_SECONDS = 5                      # the halt runs on a CLOCK, not tick
 # The file name and this string are changed together, every single time. The
 # log then answers "which code is actually running?" without anyone guessing
 # from line numbers or from behaviour that only shows up once a trade is on.
-VERSION = "v31-r34.33"
+VERSION = "v31-r34.34"
 
 # WHERE THE DAY'S HALT BASELINE COMES FROM.
 #   "last_equity" - equity at the PREVIOUS session's close, read from the broker.
@@ -1162,10 +1164,75 @@ def _pack_ticks(tr, qr, sym, t0):
     return lines(trades), lines(quotes), len(trades), len(quotes)
 
 
+_EPOCH_CACHE = {}
+
+
+def _epoch(t) -> float:
+    """A raw data-service time ("2026-10-08T08:01:53.762123456Z") or a datetime,
+    as seconds since the epoch."""
+    if not isinstance(t, str):
+        return t.timestamp()
+    head, _, frac = t.rstrip("Z").partition(".")
+    base = _EPOCH_CACHE.get(head)
+    if base is None:
+        if len(_EPOCH_CACHE) > 5000:
+            _EPOCH_CACHE.clear()
+        base = _EPOCH_CACHE[head] = datetime.fromisoformat(head).replace(
+            tzinfo=timezone.utc).timestamp()
+    return base + (float("0." + frac) if frac else 0.0)
+
+
+def _pack_seconds(tr, qr, sym, a, m, spans):
+    """SEC_DUMP's rows for one minute of one window that starts at `a` (epoch
+    seconds), as zlib + base64 text in TICK_DUMP_CHARS pieces: (pieces, trades,
+    quotes, seconds). In `spans` [(from, to)]: T [ms after a, price, size,
+    conditions] for every trade and Q [ms, bid, ask, bid size, ask size] for each
+    change of the bid / ask. Everywhere: S [second after a, open, high, low,
+    close, volume, prints, bid, ask, lowest bid] - the prices from the prints
+    that count (qualifies), the bid / ask as the second ended."""
+    inside = lambda x: any(p <= x < q for p, q in spans)
+    T, Q, S = [], [], {}
+    for x in (tr or {}).get(sym, []):
+        ts, p, sz, conds = _epoch(x["t"]), x["p"], x["s"], x.get("c") or []
+        if inside(ts):
+            T.append([int(round((ts - a) * 1000)), p, sz, "".join(conds)])
+        if not qualifies(conds):
+            continue
+        k = int(ts - a)
+        r = S.get(k)
+        if r is None:
+            S[k] = [k, p, p, p, p, sz, 1, 0, 0, 0]
+        else:
+            r[2], r[3], r[4] = max(r[2], p), min(r[3], p), p
+            r[5] += sz
+            r[6] += 1
+    last = None
+    for x in (qr or {}).get(sym, []):
+        bid, ask = x["bp"], x["ap"]
+        if (bid, ask) == last:
+            continue
+        last = (bid, ask)
+        ts = _epoch(x["t"])
+        if inside(ts):
+            Q.append([int(round((ts - a) * 1000)), bid, ask, x.get("bs", 0), x.get("as", 0)])
+        k = int(ts - a)
+        r = S.get(k)
+        if r is None:
+            r = S[k] = [k, 0, 0, 0, 0, 0, 0, 0, 0, bid]
+        r[7], r[8] = bid, ask
+        r[9] = min(r[9], bid) if r[9] else bid
+    rows = [S[k] for k in sorted(S)]
+    blob = json.dumps({"m": int(m - a), "T": T, "Q": Q, "S": rows}, separators=(",", ":"))
+    text = base64.b64encode(zlib.compress(blob.encode(), 9)).decode()
+    pieces = [text[i:i + TICK_DUMP_CHARS] for i in range(0, len(text), TICK_DUMP_CHARS)]
+    return pieces, len(T), len(Q), len(rows)
+
+
 class MarketData:
 
     def __init__(self, key: str, secret: str, feed: DataFeed):
         self.hist = StockHistoricalDataClient(key, secret)
+        self.hist_raw = StockHistoricalDataClient(key, secret, raw_data=True)  # SEC_DUMP
         self.stream = StockDataStream(key, secret, feed=feed)
         self.feed = feed
         self.subscribed: set[str] = set()
@@ -1314,6 +1381,64 @@ class MarketData:
             log.info("TICKDUMP %s %s %s-%s: %d trades, %d quotes", day, sym, a, b,
                      packed[2], packed[3])
         log.info("TICKDUMP done: %d windows", len(windows))
+
+    async def dump_seconds(self, buys):
+        """SEC_DUMP: read-only. `buys` [(epoch seconds, symbol)]. Per day and
+        symbol, the buys' windows (SEC_DUMP_BEFORE before to SEC_DUMP_AFTER after)
+        joined where they overlap; each read a minute at a time - every trade and
+        quote change near a buy, one row a second throughout (_pack_seconds) - and
+        written to SECDUMP lines."""
+        by = {}
+        for t, sym in sorted(set(buys)):
+            by.setdefault((datetime.fromtimestamp(t, ET).date().isoformat(), sym), []).append(t)
+        windows = []
+        for (day, sym), times in sorted(by.items()):
+            for t in times:
+                a, b = int(t - SEC_DUMP_BEFORE), t + SEC_DUMP_AFTER
+                if windows and windows[-1][1] == sym and a <= windows[-1][3]:
+                    windows[-1][3] = max(windows[-1][3], b)
+                    windows[-1][4].append(t)
+                else:
+                    windows.append([day, sym, a, b, [t]])
+        hms = lambda x: datetime.fromtimestamp(x, ET).strftime("%H:%M:%S")
+        log.info("SECDUMP plan: %d buys, %d windows, %d minutes to read", len(buys),
+                 len(windows), sum(int((b - a + 59) // 60) for _, _, a, b, _ in windows))
+        gap = 60.0 / SEC_DUMP_RPM if SEC_DUMP_RPM else 0.0
+        for day, sym, a, b, times in windows:
+            spans = [(t - SEC_DUMP_BEFORE, t + SEC_DUMP_TICKS) for t in times]
+            nt = nq = ns = lost = 0
+            m = a
+            while m < b:
+                e = min(m + 60, b)
+                req = dict(symbol_or_symbols=sym, feed=self.feed,
+                           start=datetime.fromtimestamp(m, timezone.utc),
+                           end=datetime.fromtimestamp(e, timezone.utc))
+                try:
+                    tr = await asyncio.to_thread(self.hist_raw.get_stock_trades,
+                                                 StockTradesRequest(**req))
+                    await asyncio.sleep(gap)
+                    qr = await asyncio.to_thread(self.hist_raw.get_stock_quotes,
+                                                 StockQuotesRequest(**req))
+                    await asyncio.sleep(gap)
+                    packed = await asyncio.to_thread(_pack_seconds, tr, qr, sym, a, m, spans)
+                except Exception as ex:
+                    log.error("SECDUMP %s %s %s minute %d: %s", day, sym, hms(a), (m - a) // 60, ex)
+                    lost += 1
+                    m = e
+                    await asyncio.sleep(max(gap, 1.0))
+                    continue
+                tr = qr = None
+                pieces = packed[0]
+                for i, part in enumerate(pieces):
+                    log.info("SECDUMP %s %s %s %d %d/%d %s", day, sym, hms(a), int(m - a),
+                             i + 1, len(pieces), part)
+                nt, nq, ns = nt + packed[1], nq + packed[2], ns + packed[3]
+                m = e
+            log.info("SECDUMP %s %s %s-%s: %d buys (%s), %d trades, %d quotes, %d seconds, "
+                     "%d minutes lost", day, sym, hms(a), hms(b), len(times),
+                     " ".join(datetime.fromtimestamp(t, ET).strftime("%H:%M:%S.%f")[:12]
+                              for t in times), nt, nq, ns, lost)
+        log.info("SECDUMP done: %d windows", len(windows))
 
     async def bars_between(self, symbol: str, start, end):
         """[(bar start, close, volume, high)] of the one-minute bars that
@@ -1523,6 +1648,7 @@ class Strategy:
                              datetime.fromtimestamp(t, ET).strftime("%H:%M:%S"),
                              side[0].upper(), sym, q, px)
                              for t, sym, side, q, px in rows[k:k + HISTORY_PER_LINE]))
+        return fills
     log_as = None           # a copy of another strategy: its "[vNN]" lines say our name
 
     def __init__(self, broker: Broker, data: MarketData):
@@ -4291,6 +4417,23 @@ TICK_DUMP_DAY = "2026-10-08"
 TICK_DUMP = ()                  # read once by r34.32 (10-08 3:26pm); saved in
                                 # replay/live/2026-10-08_ticks/tickdump_v37.txt.gz
 TICK_DUMP_CHARS = 3500          # characters of rows in one log line
+# READ-ONLY, ONE-OFF (the owner, 10-08: run the exit table "on today and the
+# last two days" for v36, v36b and v37 - second by second, not minute bars): at
+# start-up each account writes its fills on SEC_DUMP_DAYS into the log (as
+# HISTORY_DUMP); then, around every buy of the three, SEC_DUMP_BEFORE seconds
+# before to SEC_DUMP_AFTER after, the market is read from the data service a
+# minute at a time (SEC_DUMP_RPM requests a minute at most) and written to the
+# log: every trade and every change of the bid / ask from SEC_DUMP_BEFORE before
+# each buy to SEC_DUMP_TICKS after it, and for the whole window one row a second
+# (open, high, low, close, volume and count of the prints that count, the bid
+# and ask at the second's end, the second's lowest bid). zlib + base64, one
+# SECDUMP line per TICK_DUMP_CHARS (replay/research/secread.py reads them back).
+# No orders, no trading state touched. () = off.
+SEC_DUMP_DAYS = ("2026-10-06", "2026-10-07", "2026-10-08")
+SEC_DUMP_BEFORE = 30
+SEC_DUMP_AFTER = 1800
+SEC_DUMP_TICKS = 60
+SEC_DUMP_RPM = 100
 HISTORY_PAGES = 40              # 500 orders a page
 HISTORY_PER_LINE = 25           # fills per log line
 
@@ -6328,6 +6471,25 @@ class Engine:
         except Exception as e:
             log.error("[%s] history %s..%s: %s", strat.name, first, last, e)
 
+    async def sec_dump(self):
+        """SEC_DUMP_DAYS: read-only. Each account's fills on those days into the
+        log, then the market around every buy of the three (MarketData.dump_seconds)."""
+        first = SEC_DUMP_DAYS[0]
+        last = (datetime.fromisoformat(SEC_DUMP_DAYS[-1]) + timedelta(days=1)).date().isoformat()
+        buys = []
+        for strat in self.strategies:
+            try:
+                fills = await strat.dump_history(first, last) or []
+            except Exception as e:
+                log.error("[%s] SECDUMP fills %s..%s: %s", strat.name, first, last, e)
+                continue
+            buys += [(t, sym) for t, sym, side, q, px in fills if side == "buy"
+                     and datetime.fromtimestamp(t, ET).date().isoformat() in SEC_DUMP_DAYS]
+        try:
+            await self.data.dump_seconds(buys)
+        except Exception as e:
+            log.error("SECDUMP: %s", e)
+
     def add_strategy(self, cls, key, secret):
         if not key or not secret:
             log.warning("%s has no keys - NOT running. Set %s_API_KEY and "
@@ -6777,6 +6939,8 @@ class Engine:
         if TICK_DUMP:                           # read-only, once, in the background
             self.history_tasks.append(asyncio.create_task(
                 self.data.dump_ticks(TICK_DUMP_DAY, TICK_DUMP)))
+        if SEC_DUMP_DAYS:                       # read-only, once, in the background
+            self.history_tasks.append(asyncio.create_task(self.sec_dump()))
 
         log.info("engine up: VERSION %s | %s | one data connection | "
                  "orphan mode %s | baseline " + DAY_BASELINE + " | "
