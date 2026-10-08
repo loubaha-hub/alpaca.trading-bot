@@ -34,6 +34,13 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   within 3c of a line -$321, 5c -$320, 10c -$175 (FLYE 7:25 at $2.91 never
   crossed $3.05 in the data: -$233 skipped) vs tiers alone -$273.
 
+### DECISION (the owner, ~5:35pm): the scanner's 10% baseline stays as it is
+- "The rules we are working under now, we'll keep those ... not moving the
+  goalposts" - all that has been measured would stop counting. So: 4:00-9:30
+  10% over yesterday's close; from 9:30 10% over today's open (unchanged).
+  The 4am-baseline idea below is dropped. The 2-minute crowd look-back is
+  still a question to the owner.
+
 ### The scanner's baseline and the 2-minute crowd wait (the owner, ~5:30pm; words sent, to confirm)
 - The owner: "fix right away" - a stock goes on the list when it is up 10%
   FOR THE DAY, measured from 4:00am of the same day: not yesterday's close,
