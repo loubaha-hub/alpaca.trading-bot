@@ -38,6 +38,7 @@ ENVIRONMENT VARIABLES
 import asyncio
 import csv
 import logging
+import json
 import os
 import statistics
 import time
@@ -49,7 +50,8 @@ from zoneinfo import ZoneInfo
 
 from alpaca.data.historical import StockHistoricalDataClient
 from alpaca.data.live import StockDataStream
-from alpaca.data.requests import StockBarsRequest, StockSnapshotRequest
+from alpaca.data.requests import (StockBarsRequest, StockSnapshotRequest,
+                                   StockTradesRequest, StockQuotesRequest)
 from alpaca.data.timeframe import TimeFrame
 from alpaca.trading.client import TradingClient
 from alpaca.trading.requests import (GetAssetsRequest, GetOrdersRequest,
@@ -140,7 +142,7 @@ RISK_CHECK_SECONDS = 5                      # the halt runs on a CLOCK, not tick
 # The file name and this string are changed together, every single time. The
 # log then answers "which code is actually running?" without anyone guessing
 # from line numbers or from behaviour that only shows up once a trade is on.
-VERSION = "v31-r34.31"
+VERSION = "v31-r34.32"
 
 # WHERE THE DAY'S HALT BASELINE COMES FROM.
 #   "last_equity" - equity at the PREVIOUS session's close, read from the broker.
@@ -1131,6 +1133,35 @@ class Broker:
 # MARKET DATA - ONE connection, shared by every strategy
 # ----------------------------------------------------------------------------
 
+def _pack_ticks(tr, qr, sym, t0):
+    """TICK_DUMP's rows as JSON text lines of about TICK_DUMP_CHARS each:
+    (trade lines, quote lines, trade count, quote count)."""
+    ms = lambda ts: int(round((ts.timestamp() - t0) * 1000))
+    trades = [[ms(x.timestamp), float(x.price), float(x.size), "".join(x.conditions or [])]
+              for x in (getattr(tr, "data", None) or {}).get(sym, [])]
+    quotes, last = [], None
+    for x in (getattr(qr, "data", None) or {}).get(sym, []):
+        key = (float(x.bid_price), float(x.ask_price))
+        if key != last:
+            last = key
+            quotes.append([ms(x.timestamp), key[0], key[1], float(x.bid_size),
+                           float(x.ask_size)])
+
+    def lines(rows):
+        out, cur, size = [], [], 0
+        for r in rows:
+            s = json.dumps(r, separators=(",", ":"))
+            if cur and size + len(s) + 1 > TICK_DUMP_CHARS:
+                out.append("[" + ",".join(cur) + "]")
+                cur, size = [], 0
+            cur.append(s)
+            size += len(s) + 1
+        if cur:
+            out.append("[" + ",".join(cur) + "]")
+        return out
+    return lines(trades), lines(quotes), len(trades), len(quotes)
+
+
 class MarketData:
 
     def __init__(self, key: str, secret: str, feed: DataFeed):
@@ -1255,6 +1286,34 @@ class MarketData:
         return await asyncio.to_thread(
             self.hist.get_stock_snapshot,
             StockSnapshotRequest(symbol_or_symbols=symbols))
+
+    async def dump_ticks(self, day, windows):
+        """TICK_DUMP: read-only. Each window's trades [ms after the window's
+        start, price, size, conditions] and its quotes [ms, bid, ask, bid size,
+        ask size] - a quote only when the bid or ask changed - into the log,
+        TICK_DUMP_CHARS of rows to a TICKDUMP line."""
+        for sym, a, b in windows:
+            start = datetime.fromisoformat("%sT%s" % (day, a)).replace(tzinfo=ET)
+            end = datetime.fromisoformat("%sT%s" % (day, b)).replace(tzinfo=ET)
+            try:
+                tr = await asyncio.to_thread(self.hist.get_stock_trades, StockTradesRequest(
+                    symbol_or_symbols=sym, start=start, end=end, feed=self.feed))
+                qr = await asyncio.to_thread(self.hist.get_stock_quotes, StockQuotesRequest(
+                    symbol_or_symbols=sym, start=start, end=end, feed=self.feed))
+            except Exception as e:
+                log.error("TICKDUMP %s %s-%s: %s", sym, a, b, e)
+                continue
+            packed = await asyncio.to_thread(_pack_ticks, tr, qr, sym,
+                                             start.timestamp())  # off the event loop
+            for kind, lines in (("T", packed[0]), ("Q", packed[1])):
+                for i, part in enumerate(lines):
+                    log.info("TICKDUMP %s %s %s %s %d/%d %s", day, sym, a, kind, i + 1,
+                             len(lines), part)
+                    if i % 20 == 19:
+                        await asyncio.sleep(0)  # never hold up the trading
+            log.info("TICKDUMP %s %s %s-%s: %d trades, %d quotes", day, sym, a, b,
+                     packed[2], packed[3])
+        log.info("TICKDUMP done: %d windows", len(windows))
 
     async def bars_between(self, symbol: str, start, end):
         """[(bar start, close, volume, high)] of the one-minute bars that
@@ -4219,6 +4278,20 @@ V36_CONFIRM_TOLERANCE = 0.01    # the ask may sit this far under the trigger
 # the background - v27 (T6HH) from 09-24, v24 (AUES) and v30 (P28T) from
 # 09-25. () = off.
 HISTORY_DUMP = ()               # read 10-07 (r34.14); off
+# READ-ONLY, ONE-OFF (the owner, 10-08: "have the bot generate that for us for
+# v37 today"): at start-up, every trade and every change of the bid / ask in
+# these windows (ET, on TICK_DUMP_DAY) is read from the data service and written
+# to the log in packed TICKDUMP lines - v37's 19 trades of 10-08, 30 seconds
+# before each buy to minutes after, so its exit can be replayed print by print.
+# No orders, no trading state touched. () = off.
+TICK_DUMP_DAY = "2026-10-08"
+TICK_DUMP = (("AIXI", "04:02:00", "04:08:00"), ("IPW", "04:09:48", "04:16:00"),
+             ("DKI", "04:13:08", "04:22:00"), ("DKI", "05:00:17", "05:06:00"),
+             ("SBFM", "05:20:47", "05:28:00"), ("MEDS", "05:43:21", "05:49:00"),
+             ("DKI", "06:57:06", "07:03:00"), ("MOBX", "07:01:19", "07:07:00"),
+             ("FLYE", "07:23:00", "07:31:00"), ("CHR", "08:01:49", "08:07:00"),
+             ("BIAF", "08:09:11", "08:15:00"), ("NCT", "11:46:10", "11:52:00"))
+TICK_DUMP_CHARS = 3500          # characters of rows in one log line
 HISTORY_PAGES = 40              # 500 orders a page
 HISTORY_PER_LINE = 25           # fills per log line
 
@@ -6684,6 +6757,9 @@ class Engine:
             if HISTORY_DUMP:
                 self.history_tasks.append(asyncio.create_task(
                     self.history(strat, *HISTORY_DUMP)))
+        if TICK_DUMP:                           # read-only, once, in the background
+            self.history_tasks.append(asyncio.create_task(
+                self.data.dump_ticks(TICK_DUMP_DAY, TICK_DUMP)))
 
         log.info("engine up: VERSION %s | %s | one data connection | "
                  "orphan mode %s | baseline " + DAY_BASELINE + " | "
