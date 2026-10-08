@@ -1826,3 +1826,23 @@ def test_from_the_bid_off_as_today(v37, clock, now):
     tick(v37, s, now, round(e + 0.01, 2))
     tick(v37, s, now, e)
     assert not s.in_position
+
+
+# ---- 10-08 proposal (off): out a set number of cents under the best since the buy ---
+
+def test_trail_cents_sells_3c_under_the_best(v37, clock, now, monkeypatch):
+    monkeypatch.setattr(bot, "V37_TRAIL_CENTS", 0.03)
+    s = bought(v37, clock, now)
+    e = s.entry
+    tick(v37, s, now, round(e + 0.01, 2))
+    tick(v37, s, now, e)                                  # 1c back: held (was "half")
+    assert s.in_position
+    tick(v37, s, now, round(e + 0.06, 2))
+    tick(v37, s, now, round(e + 0.04, 2))                 # 2c off the best: held
+    assert s.in_position
+    tick(v37, s, now, round(e + 0.03, 2))                 # 3c off: out
+    assert not s.in_position and v37.closed_today[-1][5] == "trail"
+
+
+def test_trail_cents_off_as_today(v37):
+    assert bot.V37_TRAIL_CENTS == 0.0
