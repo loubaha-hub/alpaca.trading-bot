@@ -35,6 +35,9 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   crossed $3.05 in the data: -$233 skipped) vs tiers alone -$273.
 
 ### WORX after hours, 4:48-4:53pm (v36/v36b; findings, the owner's chart)
+- Times: the owner's Alpaca Activities page shows CENTRAL time (WORX buy
+  "03:51:35 PM" = 4:51:35pm ET; BIAF "07:06" = 8:06am ET). The bot's log
+  is UTC. Memory and replies use ET.
 - WORX closed $4.20 (-27% on the day), then ran $4.79 (4:48) -> $7.20
   (4:53) after hours. The bots saw it only from 4:50:13 ($6.09): after
   9:30 the scanner measures the gain from TODAY'S OPEN (GAIN_FROM_OPEN
@@ -44,7 +47,8 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   4:51:34.8 OK (4c). v36 filled 613 @ $6.74 (print $6.69) 4:51:35.97,
   stop $6.64 (10c, furious). 0.9s later the market 6.58 x 6.68: its middle
   under the stop -> out; after hours a limit sale, 152 shares then the
-  other 461 (cancel and resend) by 4:51:39, avg $6.65: -$53.55. v36b 184 @
+  other 461 (cancel and resend) by 4:51:39, avg $6.65: -$53.55 (Alpaca:
+  152 @ $6.60, 461 @ $6.67 - the bid back up 9c in 2s). v36b 184 @
   $6.73 -> $6.62, -$19.66. No print at the stop: a 10c-wide quote.
 - 4:52 ran $6.57 -> $6.99 through the day's high ($6.77): no re-entry -
   "get back on it above the high of the day" (furious_new_high) also needs
