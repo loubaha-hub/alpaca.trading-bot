@@ -34,6 +34,27 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   within 3c of a line -$321, 5c -$320, 10c -$175 (FLYE 7:25 at $2.91 never
   crossed $3.05 in the data: -$233 skipped) vs tiers alone -$273.
 
+### WORX after hours, 4:48-4:53pm (v36/v36b; findings, the owner's chart)
+- WORX closed $4.20 (-27% on the day), then ran $4.79 (4:48) -> $7.20
+  (4:53) after hours. The bots saw it only from 4:50:13 ($6.09): after
+  9:30 the scanner measures the gain from TODAY'S OPEN (GAIN_FROM_OPEN
+  10%), so a stock that fell all day is invisible until 10% over its open.
+- 4:51:00 v36/v36b: NO CROWD (needs #1/#2 held 2 minutes; #2 for 0m).
+  4:51:33 furious at $6.72: FAST BUY NO, the ask 19c over the bid (r34.29);
+  4:51:34.8 OK (4c). v36 filled 613 @ $6.74 (print $6.69) 4:51:35.97,
+  stop $6.64 (10c, furious). 0.9s later the market 6.58 x 6.68: its middle
+  under the stop -> out; after hours a limit sale, 152 shares then the
+  other 461 (cancel and resend) by 4:51:39, avg $6.65: -$53.55. v36b 184 @
+  $6.73 -> $6.62, -$19.66. No print at the stop: a 10c-wide quote.
+- 4:52 ran $6.57 -> $6.99 through the day's high ($6.77): no re-entry -
+  "get back on it above the high of the day" (furious_new_high) also needs
+  a new burst of speed; the regular route waited for the crowd's 2 minutes
+  (4:53:01) and then the high + 5c ($7.05): starters (a tenth) @ $7.11 at
+  4:53:43, the top was $7.20; out at $6.93 in 2s (-$10 / -$4).
+- Proposals for the owner (words first, test on the three-day read): the
+  after-hours gain from the 4pm close; the furious re-entry on the day's
+  high without a new burst; the stop on a wide quote decided by a print.
+
 ### The runners of 10-08, and why v37 bought BIAF late (findings, ~5:30pm)
 - v37 bought FLYE at $1.90 at 7:23:30, as its run to $3.17 (7:25:55)
   began; live sold it 7s later at $1.88 (-$36: half the gain armed at
