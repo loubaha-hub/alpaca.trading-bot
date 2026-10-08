@@ -140,7 +140,7 @@ RISK_CHECK_SECONDS = 5                      # the halt runs on a CLOCK, not tick
 # The file name and this string are changed together, every single time. The
 # log then answers "which code is actually running?" without anyone guessing
 # from line numbers or from behaviour that only shows up once a trade is on.
-VERSION = "v31-r34.31"
+VERSION = "v31-r34.32"
 
 # WHERE THE DAY'S HALT BASELINE COMES FROM.
 #   "last_equity" - equity at the PREVIOUS session's close, read from the broker.
@@ -5375,6 +5375,11 @@ V37_GIVEBACK_ARM = 0.0          # "half the gain" only once the best gain reache
 # best price $4.81 - half a cent - sold one second later by "half the gain"
 # @ $4.69 while the stop ($4.59, under the red candle) was nowhere near; the
 # next candle closed $4.93. Half a cent is not a gain.
+V37_GIVEBACK_FROM_BID = False   # PROPOSAL (10-08, fix 3, off until the owner decides):
+                                # "half the gain" arms only once the live bid has been
+                                # over what we paid - a gain we could sell at. 10-08: 15
+                                # of v37's 19 sales were "half the gain" on 1-3c of prints
+                                # (bought at the ask, sold at the bid), held 1-12s, -$249
 V37_GIVEBACK_ARM_CENTS = 0.01   # "half the gain" only once the best gain is a
                                 # full cent or more (0 = any fraction, as before)
 # 10-07: the bots acted on single prints that were not the market. BIYA
@@ -5563,11 +5568,14 @@ V37_EXTRAORDINARY = True
 # A RE-BUY RIGHT AFTER A SALE (the owner, 2026-10-06: 65 of the day's trades
 # were bought back within 15 seconds of selling): not within V37_REBUY_WAIT
 # seconds of the sale unless the price is already V37_REBUY_JUMP above what
-# the sale got (V37_REBUY_JUMP_PCT of the price instead, if smaller; 0 = not
-# used). 0 = off. The owner, 10-08: 20 cents, not 30 - and no 10%: "just 20
-# cents higher".
+# the sale got - V37_REBUY_JUMP_CHEAP for a sale under V37_REBUY_CHEAP_UNDER
+# (V37_REBUY_JUMP_PCT of the price instead, if smaller; 0 = not used). 0 =
+# off. The owner, 10-08: 20 cents, not 30, and no 10% - then 10 cents under
+# $2, 20 cents from $2 up.
 V37_REBUY_WAIT = 60.0
 V37_REBUY_JUMP = 0.20
+V37_REBUY_JUMP_CHEAP = 0.10
+V37_REBUY_CHEAP_UNDER = 2.00
 V37_REBUY_JUMP_PCT = 0.0
 V37_FRESH_EXITS = True          # sells, stops and adds decide only on prints under
                                 # V37_FRESH_SECONDS old. 2026-10-06: 76 sales were
@@ -5659,7 +5667,8 @@ class V37(V36):
             return False                        # furious, a new high: back on it
         if time.time() - s.v37_sold_ts >= V37_REBUY_WAIT:
             return False
-        jump = V37_REBUY_JUMP
+        jump = (V37_REBUY_JUMP_CHEAP if V37_REBUY_JUMP_CHEAP
+                and s.v37_sold_px < V37_REBUY_CHEAP_UNDER else V37_REBUY_JUMP)
         if V37_REBUY_JUMP_PCT:
             jump = min(jump, V37_REBUY_JUMP_PCT * s.v37_sold_px)
         return price < s.v37_sold_px + jump
@@ -5991,6 +6000,7 @@ class V37(V36):
                                      s.entry * (1 - MIN_STOP_PCT)))
         s.v37_pace_at_buy = self.pace(s)
         s.v37_peak_after = 0.0
+        s.v37_bid_over = False
         s.v37_accel = accel
         s.v37_accel_added = False
         s.peak = s.entry
@@ -6111,6 +6121,11 @@ class V37(V36):
         gain = top - s.entry
         armed = (top >= s.entry * (1 + V37_GIVEBACK_ARM)
                  and gain >= V37_GIVEBACK_ARM_CENTS - 1e-9)
+        if V37_GIVEBACK_FROM_BID:               # a gain the bid can pay
+            q = self.live_quote(s)
+            if q and q[0] > s.entry + 1e-9:
+                s.v37_bid_over = True
+            armed = armed and getattr(s, "v37_bid_over", False)
         if V37_FURIOUS_EXIT and getattr(s, "v37_accel", 0.0) >= V37_FURIOUS_SPEED:
             fline = self.furious_line(s, top)   # up 30c: 30% of the gain back, out
             if fline and price <= fline:

@@ -745,14 +745,18 @@ def test_a_20_cent_jump_buys_back_at_once(v37, clock, now, rebuy_wait, monkeypat
     assert s.in_position
 
 
-def test_the_jump_is_20_cents_at_any_price(v37, clock, now, rebuy_wait):
-    """The owner, 10-08: "remove that 10% - just 20 cents higher"."""
+@pytest.mark.parametrize("sold, wait, buy", [
+    (1.00, 1.09, 1.11),                                   # under $2: 10 cents
+    (1.99, 2.08, 2.10),
+    (2.00, 2.19, 2.21),                                   # $2 and up: 20 cents
+    (6.00, 6.19, 6.21),
+])
+def test_the_jump_is_10_cents_under_2_dollars_and_20_from_2(v37, clock, now, rebuy_wait,
+                                                           sold, wait, buy):
+    """The owner, 10-08: no 10% - 10 cents under $2, 20 cents from $2 up."""
     s = bought(v37, clock, now)
-    s.v37_sold_ts, s.v37_sold_px = now[0], 1.00
-    assert v37.too_soon(s, 1.11)                          # 11c on a $1 stock: wait
-    assert v37.too_soon(s, 1.19) and not v37.too_soon(s, 1.21)
-    s.v37_sold_px = 6.00
-    assert v37.too_soon(s, 6.19) and not v37.too_soon(s, 6.21)   # $6: 20c too
+    s.v37_sold_ts, s.v37_sold_px = now[0], sold
+    assert v37.too_soon(s, wait) and not v37.too_soon(s, buy)
 
 
 def test_a_percent_jump_still_works_when_set(v37, clock, now, rebuy_wait, monkeypatch):
@@ -1786,3 +1790,31 @@ def test_v37_rising_with_a_tight_market_buys(v37, clock, now, monkeypatch):
     s = accel_setup(v37, clock, now, monkeypatch, 0.02, (10.38, 10.41))
     tick(v37, s, now, 10.40)
     assert s.in_position and s.entry_kind == "accel"
+
+
+# ---- 10-08 proposal (fix 3, off): "half the gain" from a gain the bid can pay ------
+
+def test_from_the_bid_a_1c_print_is_no_gain(v37, clock, now, monkeypatch):
+    """10-08: 15 of 19 v37 sales were "half the gain" on 1-3c of prints, the bid
+    under what we paid all along."""
+    monkeypatch.setattr(bot, "V37_GIVEBACK_FROM_BID", True)
+    s = bought(v37, clock, now)
+    e = s.entry
+    s.quote = (round(e - 0.03, 2), round(e + 0.01, 2), now[0] + 1)
+    tick(v37, s, now, round(e + 0.01, 2))                 # 1c of prints
+    tick(v37, s, now, e)                                  # half of it back
+    assert s.in_position                                  # the bid never paid a gain
+    s.quote = (round(e + 0.04, 2), round(e + 0.06, 2), now[0] + 2)
+    tick(v37, s, now, round(e + 0.08, 2))                 # the bid over the buy: armed
+    tick(v37, s, now, round(e + 0.03, 2))
+    assert not s.in_position
+    assert v37.closed_today[-1][5] == "giveback"
+
+
+def test_from_the_bid_off_as_today(v37, clock, now):
+    assert bot.V37_GIVEBACK_FROM_BID is False
+    s = bought(v37, clock, now)
+    e = s.entry
+    tick(v37, s, now, round(e + 0.01, 2))
+    tick(v37, s, now, e)
+    assert not s.in_position

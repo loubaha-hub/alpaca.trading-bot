@@ -463,6 +463,8 @@ async def run(args):
                 rth_open_px.setdefault(sym, price)
                 rth_high[sym] = max(rth_high.get(sym, 0.0), price)
             if sym in subscribed and t >= subscribed[sym]:
+                if args.quotes:                   # the modelled bid and ask, as a
+                    strat.offer_quote(sym, market.bid(sym), market.ask(sym))  # stream
                 await tick(strat, strat.st(sym), price, size, clock.ts())
         else:
             if sym in subscribed and t > subscribed[sym]:
@@ -567,6 +569,10 @@ def main():
                     help="stress test: every fill this many %% worse than the "
                          "quote (a buy never past its limit) - a runner's "
                          "real book is far wider than the simulated 0.2%%")
+    ap.add_argument("--quotes", action="store_true",
+                    help="feed the strategy the modelled bid and ask before each "
+                         "print, as the live quote stream does (live_quote, the bid "
+                         "stop, the bid checks); off = no streamed quotes, as before")
     ap.add_argument("--no-rebalance", action="store_true",
                     help="what-if: never run the strategy's periodic() rebalance")
     asyncio.run(run(ap.parse_args()))
