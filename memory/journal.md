@@ -5,6 +5,58 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-08
 
+### The tiered exit on v37's 19 trades of 10-08 (finding; the owner decides)
+- The owner's design (~4:30pm): best gain 0-5c: out 5c under the best;
+  5-20c: out at the buy price; 20-50c: keep half; 50c-$1: keep two thirds;
+  $1+: give back a fifth (or a flat 20c). The line only rises; the stop
+  stays under it. Re-entry unlimited, only over the day's high + 5c.
+- Same entries, exit only (v37's own code, real prints, sold at the bid
+  0.5s later; replay/research/tiers_1008.py): live -$742 (0 won); the 5c cut
+  (r34.33) -$290 (3 won); tiers -$273 (1 won) - FLYE 7:23 +$383 vs +$256,
+  SBFM 5:21 $0 vs +$89 (the break-even zone gave the gain back). Top tier
+  flat 20c: same (nothing reached +$1). Edges x0.75 -$273, x1.5 -$223.
+  A wider first leash loses more: 10c -$632, 15c -$598 - most of these
+  entries go straight down.
+- With re-entries over the day's high + 5c, filled at the ask 1s after the
+  signal (live decision-to-fill is ~1.3s for v36/v36b), 6-8 minutes of data
+  per stock: 5c cut -$885 on 37 entries, tiers -$1,077 on 36 - worse than
+  live. The re-buys land at the top of one-second bursts (FLYE 7:25:54 went
+  $2.40 -> $2.71 in 0.4s); DKI 4:13-4:21 ran $2.50 -> $3.70 and the rule
+  bought 12 times and lost 11 (-$543). With no delay it looked good
+  (-$378): the delay decides it.
+- One day, 19 entries, v37 only. The real test is the three-day read.
+
+### Whole and half dollars (the owner, ~4:45pm; words to write, then the owner reads)
+- The owner: incorporate the lines ($x.00, $x.50) as resistance and
+  support. A buy waits for the line + 5c ($2.05, $1.55, $3.05) - "not
+  always profitable, but most of the time; all traders watch them". In a
+  position near a line with a good profit: be diligent, jump out if it
+  comes back ("I leave a lot on the table, but at least I assured that").
+  A strong / furious stock: the lines are not a limiting factor.
+- Built already: v36/v36b no buy or add from 3c under a line to 5c over
+  it until held 3s past (V36_LEVELS, not for furious); the stop under the
+  line under the buy, rising to each line cleared (V36_LEVEL_STOP, all
+  three). v37 has no line wait on buys. Earlier research: tops did not
+  land near lines more often than elsewhere (leaders_retests.py).
+- 10-08 (levels_near / levels_wait / levels_hesitate.py): 10 of 74 buys
+  sat at a line, 1 won, -$742 (-$74 an entry; the other 64: +$121, +$2 an
+  entry); 9 of the 10 were furious. Waiting for the line + 5c on the 9
+  with ticks, same exit (5c cut): -$188 (held 3s: -$431) vs -$142 as
+  bought - the cross often came at the top. A "hesitates at the line" exit
+  on v37: -$367 (3c/2c) vs -$290; with strong stocks exempt -$289. Small
+  sample; to test on the three-day read with the profit condition.
+
+### The read for the three days, r34.34 (to release after 8pm with r34.33)
+- SEC_DUMP: read-only, once at start-up: each account's fills on 10-06,
+  10-07, 10-08 into the log; around every buy 30s before to 30 min after,
+  every print and quote change for the first minute, one row a second for
+  the rest (OHLC, volume, bid/ask). zlib + base64 SECDUMP lines,
+  100 requests a minute; replay/research/secread.py reads them back. Next
+  release: SEC_DUMP_DAYS = ().
+- After it: the tiered exit, the 5c cut, re-entries and the line rules
+  for v36, v36b and v37 on all three days, per entry. Then the owner's
+  next question: why v36b is not better than v36.
+
 ### The green-tape idea, measured (finding)
 - The owner: buy only when the time and sales is green (trades at the ask).
   10-08's tape, while rising, last 5s >=70% at the ask: the mid +0.41c 1s
