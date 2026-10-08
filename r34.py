@@ -72,6 +72,10 @@ SESSION = ((4, 0), (20, 0))                 # the session WE trade, ET
 FLATTEN_AT = (19, 0)                        # start closing at 7:00pm ET - a full
                                             # hour to work out of thin after-hours
                                             # books, flat well before 8:00pm
+NO_BUYS_FROM = (("2026-10-08", (18, 0)),)   # (ET date, (hour, minute)): no new buys
+                                            # by any strategy from then to the day's end -
+                                            # the owner, 10-08 6pm: "flatten them; we'll
+                                            # start them later" (the next day trades as usual)
 
 # --- scanner (shared by all three) -------------------------------------------
 PRICE_MIN = 1.00
@@ -144,7 +148,7 @@ RISK_CHECK_SECONDS = 5                      # the halt runs on a CLOCK, not tick
 # The file name and this string are changed together, every single time. The
 # log then answers "which code is actually running?" without anyone guessing
 # from line numbers or from behaviour that only shows up once a trade is on.
-VERSION = "v31-r34.34"
+VERSION = "v31-r34.35"
 
 # WHERE THE DAY'S HALT BASELINE COMES FROM.
 #   "last_equity" - equity at the PREVIOUS session's close, read from the broker.
@@ -709,6 +713,9 @@ def entries_allowed() -> bool:
     hm = (now.hour, now.minute)
     if hm >= FLATTEN_AT:
         return False
+    stop = dict(NO_BUYS_FROM).get(now.date().isoformat())
+    if stop and hm >= stop:
+        return False                    # the owner stopped the buying for the day
     if OPEN_PAUSE and OPEN_PAUSE[0] <= hm < OPEN_PAUSE[1]:
         return False                    # the opening auction: gaps, slow cancels
     return SESSION[0] <= hm < SESSION[1]

@@ -196,3 +196,18 @@ def test_sold_elsewhere_the_position_closes_here(v31, broker, clock, caplog):
     assert not s.in_position and s.shares == 0
     assert "already sold elsewhere" in caplog.text
     assert not v31.closed_today                           # nothing booked
+
+
+def test_no_buys_from_the_owners_stop_for_that_day_only(clock, monkeypatch):
+    """NO_BUYS_FROM (the owner, 10-08 6pm): no new buys from 6pm that day; the
+    next day trades as usual from 4am."""
+    from datetime import datetime as real_dt
+    monkeypatch.setattr(bot, "NO_BUYS_FROM", (("2026-10-08", (18, 0)),))
+    clock.now = real_dt(2026, 10, 8, 17, 59, tzinfo=bot.ET)
+    assert bot.entries_allowed()
+    clock.now = real_dt(2026, 10, 8, 18, 0, tzinfo=bot.ET)
+    assert not bot.entries_allowed()
+    clock.now = real_dt(2026, 10, 9, 4, 0, tzinfo=bot.ET)
+    assert bot.entries_allowed()
+    clock.now = real_dt(2026, 10, 9, 18, 30, tzinfo=bot.ET)
+    assert bot.entries_allowed()
