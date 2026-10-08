@@ -34,6 +34,24 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   within 3c of a line -$321, 5c -$320, 10c -$175 (FLYE 7:25 at $2.91 never
   crossed $3.05 in the data: -$233 skipped) vs tiers alone -$273.
 
+### The scanner's baseline and the 2-minute crowd wait (the owner, ~5:30pm; words sent, to confirm)
+- The owner: "fix right away" - a stock goes on the list when it is up 10%
+  FOR THE DAY, measured from 4:00am of the same day: not yesterday's close,
+  not from 4pm. Today: 4:00-9:30 from yesterday's 4pm close; from 9:30 from
+  today's 9:30 open (GAIN_FROM_OPEN, day_reference).
+- WORX check: first trade 10-08 $5.90 at 4:05am; 9:30 open $5.49; prior
+  close $5.75. List at 10%: 4am rule $6.49, today's rule $6.04 (it came in
+  at $6.09, 4:50:13), from 4pm $4.62. The 4am rule would not have seen WORX
+  sooner. Premarket changes most: a stock that gapped overnight starts at 0%
+  at 4am. The "top gainer" rank (from yesterday's close) would contradict
+  it unless it moves too.
+- The owner: some rules get in the way of orders - the 2-minute crowd hold
+  (V36_CROWD_HOLD_MIN) "could have looked back": the last two minutes were
+  green. Proposed words: top 2 by money and the last two closed 1-minute
+  candles green -> no wait. WORX: open at 4:51:00 instead of 4:53:01. (A rip
+  in the last two minutes already skips it, but needs $250k a minute -
+  WORX's 4:50 minute traded ~$232k: "not ripping".)
+
 ### WORX after hours, 4:48-4:53pm (v36/v36b; findings, the owner's chart)
 - Times: the owner's Alpaca Activities page shows CENTRAL time (WORX buy
   "03:51:35 PM" = 4:51:35pm ET; BIAF "07:06" = 8:06am ET). The bot's log
