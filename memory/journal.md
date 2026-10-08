@@ -34,6 +34,31 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   within 3c of a line -$321, 5c -$320, 10c -$175 (FLYE 7:25 at $2.91 never
   crossed $3.05 in the data: -$233 skipped) vs tiers alone -$273.
 
+### The runners of 10-08, and why v37 bought BIAF late (findings, ~5:30pm)
+- v37 bought FLYE at $1.90 at 7:23:30, as its run to $3.17 (7:25:55)
+  began; live sold it 7s later at $1.88 (-$36: half the gain armed at
+  +1c). The 5c cut: +$256; the tiers: +$383 (out at $2.08 on a dip from
+  $2.25 to $1.99). Live v37 won 0 of 19.
+- The runners swing hard inside the run (replay/research/runners_1008.py):
+  FLYE's deepest pullback on the way up 41c (17%, $2.44 -> $2.03); DKI
+  4:13 ($2.50 -> $3.72) dipped 8c under the buy in seconds, then 34c (9%);
+  BIAF fell 85c under v37's $7.99 buy before $8.33; AIXI 47c under. No
+  cents leash tight enough for the dead entries holds through these: the
+  first tier (5c under the best) took DKI out at $2.44 in 2 seconds.
+  Holding a runner whole needs a leash as wide as its swings, or getting
+  out and back in well (the owner's way) - the re-entry test bought the
+  tops of bursts.
+- BIAF: in the bots' list only from 8:05:39 ($6.79; before that 1-3k
+  shares a minute). 8:06 burst 6.66 -> 7.65 -> 6.70: v36 bought the top
+  ($7.49, 5s -0.7%, -$382; r34.29 now blocks that). v37 did not buy then:
+  its crowd rule wants the #1/#2 name with $1M traded in 5 minutes
+  (V37_CROWD_MIN_DOLLARS) - BIAF had ~$0.4M; by 8:09 $2.4M (crowd #2), and
+  v37 bought at $7.99 on acceleration, near the leg's $8.19 high. v37 does
+  not log why it skips - inferred from its rules and the volumes.
+- r34.34's read now keeps one row a second from 5 minutes before each buy
+  (SEC_DUMP_BEFORE 300; prints from 30s before) - how early each could have
+  got in.
+
 ### Whole and half dollars (the owner, ~4:45pm; words to write, then the owner reads)
 - The owner: incorporate the lines ($x.00, $x.50) as resistance and
   support. A buy waits for the line + 5c ($2.05, $1.55, $3.05) - "not

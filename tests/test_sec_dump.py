@@ -66,6 +66,7 @@ def test_epoch_reads_nanoseconds():
 
 
 def test_seconds_and_ticks_near_the_buy(caplog, monkeypatch):
+    monkeypatch.setattr(bot, "SEC_DUMP_BEFORE", 30)
     monkeypatch.setattr(bot, "SEC_DUMP_AFTER", 150)
     monkeypatch.setattr(bot, "SEC_DUMP_RPM", 0)
     md, calls = fake_data()
@@ -89,6 +90,7 @@ def test_seconds_and_ticks_near_the_buy(caplog, monkeypatch):
 
 
 def test_overlapping_buys_share_one_window(caplog, monkeypatch):
+    monkeypatch.setattr(bot, "SEC_DUMP_BEFORE", 30)
     monkeypatch.setattr(bot, "SEC_DUMP_AFTER", 60)
     monkeypatch.setattr(bot, "SEC_DUMP_RPM", 0)
     md, calls = fake_data()
@@ -99,6 +101,7 @@ def test_overlapping_buys_share_one_window(caplog, monkeypatch):
 
 
 def test_a_refused_minute_is_logged_and_the_rest_goes_on(caplog, monkeypatch):
+    monkeypatch.setattr(bot, "SEC_DUMP_BEFORE", 30)
     monkeypatch.setattr(bot, "SEC_DUMP_AFTER", 150)
     monkeypatch.setattr(bot, "SEC_DUMP_RPM", 0)
     md, _ = fake_data(fail_minute=1)
@@ -134,3 +137,17 @@ def test_engine_reads_every_accounts_buys_on_the_days(caplog, monkeypatch):
                                     (t - 86400 * 3, "OLD", "buy", 1, 1.0)])]
     run(eng.sec_dump())
     assert sorted(seen) == [(t, "BIAF"), (t + 1, "CHR")]
+
+
+def test_rows_from_five_minutes_before_ticks_from_thirty_seconds(caplog, monkeypatch):
+    monkeypatch.setattr(bot, "SEC_DUMP_BEFORE", 300)
+    monkeypatch.setattr(bot, "SEC_DUMP_AFTER", 60)
+    monkeypatch.setattr(bot, "SEC_DUMP_RPM", 0)
+    md, calls = fake_data()
+    run(md.dump_seconds([(T0.timestamp(), "BIAF")]))
+    got = blobs(caplog)
+    assert len(calls) == 12                                       # 6 minutes
+    allT = [r for b in got.values() for r in b["T"]]
+    allS = [r for b in got.values() for r in b["S"]]
+    assert len(allS) == 360
+    assert min(r[0] for r in allT) == 270_000 and max(r[0] for r in allT) < 360_000

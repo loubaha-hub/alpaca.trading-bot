@@ -1405,7 +1405,7 @@ class MarketData:
                  len(windows), sum(int((b - a + 59) // 60) for _, _, a, b, _ in windows))
         gap = 60.0 / SEC_DUMP_RPM if SEC_DUMP_RPM else 0.0
         for day, sym, a, b, times in windows:
-            spans = [(t - SEC_DUMP_BEFORE, t + SEC_DUMP_TICKS) for t in times]
+            spans = [(t - SEC_DUMP_TICKS_BEFORE, t + SEC_DUMP_TICKS) for t in times]
             nt = nq = ns = lost = 0
             m = a
             while m < b:
@@ -4423,16 +4423,19 @@ TICK_DUMP_CHARS = 3500          # characters of rows in one log line
 # HISTORY_DUMP); then, around every buy of the three, SEC_DUMP_BEFORE seconds
 # before to SEC_DUMP_AFTER after, the market is read from the data service a
 # minute at a time (SEC_DUMP_RPM requests a minute at most) and written to the
-# log: every trade and every change of the bid / ask from SEC_DUMP_BEFORE before
-# each buy to SEC_DUMP_TICKS after it, and for the whole window one row a second
+# log: every trade and every change of the bid / ask from SEC_DUMP_TICKS_BEFORE
+# before each buy to SEC_DUMP_TICKS after it, and for the whole window one row a second
 # (open, high, low, close, volume and count of the prints that count, the bid
 # and ask at the second's end, the second's lowest bid). zlib + base64, one
 # SECDUMP line per TICK_DUMP_CHARS (replay/research/secread.py reads them back).
 # No orders, no trading state touched. () = off.
 SEC_DUMP_DAYS = ("2026-10-06", "2026-10-07", "2026-10-08")
-SEC_DUMP_BEFORE = 30
-SEC_DUMP_AFTER = 1800
-SEC_DUMP_TICKS = 60
+SEC_DUMP_BEFORE = 300           # one row a second from 5 minutes before a buy (how
+                                # early it could have got in: BIAF 10-08 ran 8:05-8:14,
+                                # v37 bought 8:09:41) ...
+SEC_DUMP_AFTER = 1800           # ...to 30 minutes after it
+SEC_DUMP_TICKS_BEFORE = 30      # every print and quote from this long before a buy...
+SEC_DUMP_TICKS = 60             # ...to this long after it
 SEC_DUMP_RPM = 100
 HISTORY_PAGES = 40              # 500 orders a page
 HISTORY_PER_LINE = 25           # fills per log line
