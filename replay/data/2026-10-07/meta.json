@@ -1,0 +1,397 @@
+{
+ "ACCL": {
+  "pre_close": 2.58
+ },
+ "ADCT": {
+  "pre_close": 1.27
+ },
+ "AEHL": {
+  "pre_close": 11.76
+ },
+ "AIFU": {
+  "pre_close": 11.18
+ },
+ "AIXI": {
+  "pre_close": 1.85
+ },
+ "ALDX": {
+  "pre_close": 0.9159
+ },
+ "ALIT": {
+  "pre_close": 9.06
+ },
+ "AMBR": {
+  "pre_close": 1.99
+ },
+ "APUS": {
+  "pre_close": 7.13
+ },
+ "AVBP": {
+  "pre_close": 15.09
+ },
+ "BBCI": {},
+ "BFRG": {
+  "pre_close": 0.689
+ },
+ "BIYA": {
+  "pre_close": 1.365
+ },
+ "BRIA": {
+  "pre_close": 1.4
+ },
+ "BSEM": {
+  "pre_close": 2.47
+ },
+ "BYAH": {
+  "pre_close": 2.425
+ },
+ "BYRN": {
+  "pre_close": 3.69
+ },
+ "CANG": {
+  "pre_close": 3.02
+ },
+ "CCG": {
+  "pre_close": 4.97
+ },
+ "CCOI": {
+  "pre_close": 9.31
+ },
+ "CD": {
+  "pre_close": 8.32
+ },
+ "CMND": {
+  "pre_close": 5.84
+ },
+ "CNF": {
+  "pre_close": 1.8956
+ },
+ "CPHI": {
+  "pre_close": 0.6411
+ },
+ "CRMT": {
+  "pre_close": 1.07
+ },
+ "CXAI": {
+  "pre_close": 1.86
+ },
+ "DGNX": {
+  "pre_close": 1.29
+ },
+ "DKI": {
+  "pre_close": 1.36
+ },
+ "DLXY": {
+  "pre_close": 2.4
+ },
+ "DSWL": {
+  "pre_close": 3.06
+ },
+ "ELOG": {
+  "pre_close": 0.569
+ },
+ "ERNA": {
+  "pre_close": 2.235
+ },
+ "EVH": {
+  "pre_close": 3.84
+ },
+ "FFR": {
+  "pre_close": 1.38
+ },
+ "FGC": {
+  "pre_close": 6.96
+ },
+ "FHTX": {
+  "pre_close": 1.97
+ },
+ "FLNT": {
+  "pre_close": 2.67
+ },
+ "FMST": {
+  "pre_close": 0.4948
+ },
+ "FNG": {
+  "pre_close": 6.85
+ },
+ "FOIL": {
+  "pre_close": 16.66
+ },
+ "FOXX": {
+  "pre_close": 2.5
+ },
+ "GAME": {
+  "pre_close": 2.93
+ },
+ "GMEX": {
+  "pre_close": 2.64
+ },
+ "GOTU": {
+  "pre_close": 2.58
+ },
+ "GWAV": {
+  "pre_close": 2.37
+ },
+ "HAO": {
+  "pre_close": 2.42
+ },
+ "HEPS": {
+  "pre_close": 2.46
+ },
+ "ICU": {
+  "pre_close": 3.19
+ },
+ "IDAI": {
+  "pre_close": 3.31
+ },
+ "IHT": {
+  "pre_close": 1.2
+ },
+ "INLX": {
+  "pre_close": 4.85
+ },
+ "INTS": {
+  "pre_close": 3.55
+ },
+ "IPDN": {
+  "pre_close": 4.61
+ },
+ "IPSC": {
+  "pre_close": 1.32
+ },
+ "IPW": {
+  "pre_close": 1.13
+ },
+ "IRIX": {
+  "pre_close": 0.68
+ },
+ "ISPR": {
+  "pre_close": 1.33
+ },
+ "JANX": {
+  "pre_close": 16.79
+ },
+ "JFU": {
+  "pre_close": 2.4
+ },
+ "JVA": {
+  "pre_close": 3.99
+ },
+ "JWEL": {
+  "pre_close": 2.4
+ },
+ "KIDZ": {
+  "pre_close": 2.33
+ },
+ "KRRO": {
+  "pre_close": 9.76
+ },
+ "KUST": {
+  "pre_close": 4.57
+ },
+ "LBGJ": {
+  "pre_close": 1.9
+ },
+ "LEXX": {
+  "pre_close": 3.24
+ },
+ "LGCL": {
+  "pre_close": 2.26
+ },
+ "LGHL": {
+  "pre_close": 3.98
+ },
+ "LPCN": {
+  "pre_close": 2.1
+ },
+ "MCHX": {
+  "pre_close": 1.36
+ },
+ "MI": {
+  "pre_close": 1.23
+ },
+ "MIC": {
+  "pre_close": 15.29
+ },
+ "MKZR": {
+  "pre_close": 1.38
+ },
+ "MNDR": {
+  "pre_close": 1.21
+ },
+ "MOBX": {
+  "pre_close": 1.12
+ },
+ "MODD": {
+  "pre_close": 2.73
+ },
+ "MTEN": {
+  "pre_close": 0.9587
+ },
+ "MUG": {
+  "pre_close": 17.75
+ },
+ "MVIS": {
+  "pre_close": 1.58
+ },
+ "NAUT": {
+  "pre_close": 1.77
+ },
+ "NCI": {
+  "pre_close": 0.8914
+ },
+ "NCPL": {
+  "pre_close": 1.09
+ },
+ "NCT": {
+  "pre_close": 1.5
+ },
+ "NEPH": {
+  "pre_close": 3.02
+ },
+ "NVNO": {
+  "pre_close": 8.2
+ },
+ "NXTC": {
+  "pre_close": 5.685
+ },
+ "OLOX": {
+  "pre_close": 1.25
+ },
+ "ORKT": {
+  "pre_close": 0.97
+ },
+ "PFAI": {
+  "pre_close": 2.34
+ },
+ "PLUT": {
+  "pre_close": 2.3
+ },
+ "PMEC": {
+  "pre_close": 0.5479
+ },
+ "PMI": {
+  "pre_close": 8.74
+ },
+ "PRME": {
+  "pre_close": 3.5
+ },
+ "PROF": {
+  "pre_close": 6.08
+ },
+ "QETA": {
+  "pre_close": 11.79
+ },
+ "QNRX": {
+  "pre_close": 4.72
+ },
+ "QSI": {
+  "pre_close": 1.22
+ },
+ "QTEX": {
+  "pre_close": 1.59
+ },
+ "QUCY": {
+  "pre_close": 1.29
+ },
+ "RBLU": {
+  "pre_close": 4.79
+ },
+ "RC": {
+  "pre_close": 1.12
+ },
+ "RECT": {
+  "pre_close": 1.25
+ },
+ "RIBB": {
+  "pre_close": 6.46
+ },
+ "RMCF": {
+  "pre_close": 0.916175
+ },
+ "SBFM": {
+  "pre_close": 0.3979
+ },
+ "SCTX": {
+  "pre_close": 16.33
+ },
+ "SEAT": {
+  "pre_close": 3.07
+ },
+ "SHPH": {
+  "pre_close": 4.06
+ },
+ "SKIL": {
+  "pre_close": 5.76
+ },
+ "SMCX": {
+  "pre_close": 15.25
+ },
+ "SMXT": {
+  "pre_close": 3.42
+ },
+ "SNDC": {
+  "pre_close": 7.92
+ },
+ "SNDG": {
+  "pre_close": 9.4
+ },
+ "SNXX": {
+  "pre_close": 15.19
+ },
+ "SPAI": {
+  "pre_close": 4.1
+ },
+ "SPOG": {
+  "pre_close": 6.5535
+ },
+ "SSTK": {
+  "pre_close": 4.08
+ },
+ "SUGP": {
+  "pre_close": 2.4396
+ },
+ "SXTC": {
+  "pre_close": 1.25
+ },
+ "TDTH": {
+  "pre_close": 0.97505
+ },
+ "TTGT": {
+  "pre_close": 3.61
+ },
+ "TTRX": {
+  "pre_close": 11.64
+ },
+ "UP": {
+  "pre_close": 3.47
+ },
+ "VALN": {
+  "pre_close": 5.86
+ },
+ "VRXA": {
+  "pre_close": 1.08
+ },
+ "VSA": {
+  "pre_close": 2.13
+ },
+ "WCT": {
+  "pre_close": 0.9111
+ },
+ "WETO": {
+  "pre_close": 1.02
+ },
+ "XRPN": {
+  "pre_close": 19.2
+ },
+ "YRD": {
+  "pre_close": 0.98
+ },
+ "YXT": {
+  "pre_close": 2.24
+ },
+ "ZSQR": {
+  "pre_close": 4.36
+ },
+ "_source": "Webull daily bars; pre_close = the 2026-10-06 close"
+}
