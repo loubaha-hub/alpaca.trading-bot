@@ -33,6 +33,29 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   buy. Today's high is not a separate wall. Do not stack rules until the bots
   are paralyzed: a very good move must not be blocked - discuss before adding.
 
+### The owner's simple speed strategy, tested on the three days (~12:20pm; finding)
+- The owner: a simpler strategy - buy only at speed (the furious test, no
+  patterns, no spread / liquidity checks), out when it comes back to the buy
+  (or the floor after adds), else on giving back half the gain ("the longer
+  it runs, the longer the leash"), back in at once on the next speed burst.
+  Test only on the days with second-by-second data (minute bars would paint
+  it rosy - the owner).
+- replay/research/speedsim.py on SEC_DUMP's 72 windows (10-06..10-08; only
+  around the bots' buys): 206 speed signals; $4,000 a trade; buy at the ask
+  1s after the signal, sell at the bid 0.5s after the decision.
+  | stop / half the gain from / back in | trades | won | P/L |
+  | at the buy / 1c / yes | 202 | 8% | -$6,764 |
+  | 2c under / 5c / yes | 172 | 15% | -$5,975 |
+  | 5c under / 5c / yes | 140 | 29% | -$4,374 |
+  | 10c under / 1c / yes | 164 | 24% | -$2,446 (one trade, SXTC 10-07 8:16 $2.87 -> best $7.07, +$2,925; without it -$5,371) |
+  | first signal only (no re-entry), 2c / 5c | 51 | 20% | -$2,229 |
+  Every variant loses on every day but one (10-07 with the 10c stop, SXTC).
+  The average loss is about $40-57 a trade = the spread and the sale at the
+  bid (1-1.4% of $4,000); a stop at the buy price is hit at once on most
+  buys - the bought print is the top of the burst. Re-entering at once
+  multiplies the trades (202 vs 51) and the losses. Output:
+  replay/live/2026-10-08_secdump/speedsim_run.txt.
+
 ### The owner on the research (~10am): keep our method, fine-tune it
 - The research gave "the full picture of what's out there"; sources from
   people selling courses, signals or algorithms are not reliable by any
