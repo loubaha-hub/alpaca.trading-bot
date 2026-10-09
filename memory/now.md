@@ -1,6 +1,6 @@
 # Where things stand
 
-Updated 2026-10-09, ~8:20am ET.
+Updated 2026-10-09, ~8:55am ET.
 
 ## 10-09 morning
 - Working branch: `claude/three-strategies-x69ppg` (from
@@ -59,6 +59,8 @@ Updated 2026-10-09, ~8:20am ET.
   to get back in was followed by a 10c+ pullback; the money was in holding
   the first buy through a 15c dip. Open question for the owner: the $5.50
   line stop (6c) was tighter than the furious 10c leash.
+- The owner (~8:50am): the line stop and v37's $250k money bar stay (journal).
+  Distilled proposals to discuss: memory/proposals_1009.md.
 - r34.39 on the branch (673 tests pass): SEC_DUMP_DAYS = ("2026-10-09",),
   10 min before to 50 min after each buy - the read-only second-by-second
   read of every trade of the three today, as on 10-08. WAITING ON THE

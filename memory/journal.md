@@ -3,6 +3,25 @@
 Decisions, instructions and results worth keeping. Newest first. Dates are ET.
 Each entry: what was decided or found, the numbers, why, and where it lives.
 
+## 2026-10-09
+
+### DECISIONS (the owner, ~8:50am): the line stop stays; v37's money bar stays
+- VEEA 7:00 bought 5c over $5.50; the line stop ($5.49) was tighter than the
+  furious 10c leash and took it out at $5.49 before the run to ~$6.13. The
+  owner: breaking $5.50 matters on any stock; out at $5.49 "is okay ... not
+  something we would really change."
+- MI 4:32: v37 bought late ($1.45, 19% over the $1.13 high) because both its
+  doors need $250k traded in the last minute. The owner: "that's okay too" -
+  lowering it would get in the way of other moves; if we keep missing the
+  early start of moves, lower it a little ("the speed is what counts more").
+  No rush.
+- The owner on the day: the rules are being followed, "that is really key";
+  modify them a little, not in a rush. Asked for the suggestions distilled
+  and simple, to discuss for over-fitting: memory/proposals_1009.md (two
+  proposals - buy at the ask for all three; a quick stop-out does not use up
+  the leader's pattern buy - two measuring tasks, two dropped).
+- The day's blow by blow (VEEA, MI): memory/review_1009.md.
+
 ## 2026-10-08
 
 ### DECISION (the owner, ~10:35pm): furious 25% then 50% of the account; v37 fast 20% then 40%
