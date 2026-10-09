@@ -100,7 +100,8 @@ def play(path, sigs, dollars, stop_under, arm, rebuy=True):
     return out
 
 
-def run_ladder(path, t0, fill0, full, stop_under, arm, steps=((0.10, 0.5), (0.20, 1.0)), start=0.2):
+def run_ladder(path, t0, fill0, full, stop_under, arm, steps=((0.10, 0.5), (0.20, 1.0)), start=0.2,
+               mid_stop=True, stop_pct=0.0):
     """The owner's ease-in (10-09 ~12:30pm): START of the full dollars at the
     speed buy; at the first fill + each step's cents, a buy (at the ask
     BUY_LAG later) up to that share of the full position. The stop: the buy
@@ -108,7 +109,12 @@ def run_ladder(path, t0, fill0, full, stop_under, arm, steps=((0.10, 0.5), (0.20
     (as the bot's V36_FLOOR_AVG). The line: half the position's gain over its
     average, once that gain is `arm`. One sale of everything at the bid
     SELL_LAG after the decision. Returns (exit time, P/L, why, best, shares,
-    average, adds made)."""
+    average, adds made). mid_stop=False: only a print at the stop sells (the
+    middle of a wide spread is not "back at the buy"). stop_pct: the stop that
+    far under the buy / the average instead of stop_under (a stop sized to the
+    stock's swing; the steps and the line stay in cents)."""
+    if stop_pct:
+        stop_under = fill0 * stop_pct
     sh = int(full * start / fill0)
     cost = sh * fill0
     avg = fill0
@@ -128,11 +134,11 @@ def run_ladder(path, t0, fill0, full, stop_under, arm, steps=((0.10, 0.5), (0.20
                 sh += add
                 cost += add * px
                 avg = cost / sh
-                stop = max(stop, avg - stop_under)
+                stop = max(stop, avg - (avg * stop_pct if stop_pct else stop_under))
             k += 1
         if best - avg >= arm - 1e-9:
             line = max(line, avg + 0.5 * (best - avg))
-        if p <= stop + 1e-9 or (b and a and (b + a) / 2 <= stop + 1e-9):
+        if p <= stop + 1e-9 or (mid_stop and b and a and (b + a) / 2 <= stop + 1e-9):
             xp = path.bid_at(t + S.SELL_LAG)
             return t, (xp - avg) * sh, "stop", best, sh, avg, k
         if p <= line + 1e-9 and not (b and b > line + 1e-9):
@@ -209,7 +215,7 @@ def speed_state(rec):
     return out
 
 
-def play_ladder_hod(path, rec, state, full, stop_under, arm, ok=lambda t: True):
+def play_ladder_hod(path, rec, state, full, stop_under, arm, ok=lambda t: True, **kw):
     """The owner (10-09 ~1:20pm): the first buy on a speed signal; after a sale,
     back in as often as it comes - but only at speed AND on a new high of the
     day (the window's high so far: the read starts 5 minutes before the
@@ -228,8 +234,8 @@ def play_ladder_hod(path, rec, state, full, stop_under, arm, ok=lambda t: True):
         fill = path.ask_at(t_in)
         if not fill or fill <= 0:
             continue
-        te, pl, why, best, sh, avg, adds = run_ladder(path, t_in, fill, full, stop_under, arm)
-        out.append((t_in, fill, why, best, pl, sh, avg, adds))
+        te, pl, why, best, sh, avg, adds = run_ladder(path, t_in, fill, full, stop_under, arm, **kw)
+        out.append((t_in, fill, why, best, pl, sh, avg, adds, te))
         after, first = te + S.SELL_LAG, False
     return out
 

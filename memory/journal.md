@@ -5,6 +5,60 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-09
 
+### STANDING INSTRUCTION (the owner, ~1pm): every table split by session
+- "Every table we construct from now on": three compartments - PREMARKET
+  (4:00-9:30), REGULAR HOURS (9:30-4:00), AFTER HOURS (4:00-8:00pm), by the
+  entry's time. The owner's reasons: premarket has the news (the catalyst
+  that makes a stock fly) and no LULD halts; in regular hours a halt stops
+  the runner you ride, people lock in gains on the reopen and it throws you
+  out. Thinner trading and wider spreads premarket are real but the two make
+  up for them, and on the big runners the spread erodes the gain less.
+- Seen today: Alpaca's daily bars are regular hours only (10-01: XRTX
+  premarket high $2.00, daily high $1.75) - a premarket runner (BIYA 10-07
+  $1.70 -> $33.96 before 9:30) is invisible in daily gainers lists, the web's
+  "closed up X%" lists included.
+
+### The day's top runners go into tonight's read - r34.40 (~1pm)
+- The owner: get the top runners (200-500%) of the last three days (later
+  ten) and include them beside the bots' own entries; cherry-picking the big
+  ones biases the result, "but that still gives us a very good idea"; the
+  simpler and barer the strategy, the more likely it bags the big runners.
+- Second by second IS available for any stock (Alpaca SIP - the read is not
+  limited to what the bots bought; Webull is not needed).
+- r34.40 (branch, 678 tests pass; read-only): per day 10-06..10-09 every
+  listed name's hourly bars, then the 1-minute bars of the biggest rises and
+  of the names found by hand (web + recorded bars: AIXI, XHG, IPDN 10-06;
+  BIYA, SXTC, PFAI, DKI, LGCL 10-07; DKI, FLYE, JZ, AIXI 10-08; VIVK, VEEA,
+  NTCL 10-09). A runner: x1.8+ from a low to a high within 150 minutes, $5M+
+  traded, $1-$20. The six biggest a day are read from 10 minutes before the
+  low to 30 after the high; every runner found is logged (SECDUMP RUNNER).
+  About 2 hours of reading at 100 requests a minute. Needs the owner's OK to
+  go to main after 8pm.
+- From the recorded bars (10-06/07 scanner names): 10-06 AIXI $1.52 -> $4.47
+  (4:01-4:27), XHG $1.90 -> $5.51 (to 9:45), IPDN $3.04 -> $7.10 (6:18-8:35),
+  SDEV, APUS; 10-07 BIYA x20 (8:20), SXTC, PFAI $2.22 -> $7.02 (9:45-12:24),
+  DKI $1.27 -> $3.64 (9:30-12:03), LGCL $2.22 -> $4.53 (7:44-9:42).
+
+### The speed strategy by session, and on the big runs already in the read (~1:10pm; finding)
+- replay/research/speedsim_study.py (every table PRE / RTH / AFTER) and
+  speedsim_stops.py; results replay/live/2026-10-08_secdump/speedsim_sessions.txt,
+  speedsim_stops.txt. Speed only, ease-in, new-high re-entries, $4,000 full.
+- 3c stop / half from 10c: PRE 75 trades +$3,091; RTH 29 -$426; AFTER 18
+  -$229. Regular and after hours lose in every setting tried. But PRE is
+  SXTC (+$4,130): without it PRE is about -$1,000 (-$15 a trade, like RTH).
+- The big runs inside the windows: AIXI 10-06 ($1.69 -> $4.42, 13 trades
+  -$343), IPDN 10-06 ($3.10 -> $6.99, 9 trades -$219), XHG 10-06 ($1.95 ->
+  $4.30, -$202), FRGT 10-06 (-$189); only SXTC 10-07 kept (+$4,130). Why:
+  74% of the trades are out within 5 seconds, the best price the fill
+  itself - the buy at the ask lands on the top of a one-second burst, and a
+  few cents of stop sit inside the stock's second-to-second swing.
+- Stops tried: prints only (not the mid) - no change; 5c / 10c - fewer quick
+  outs, about the same; 5%, 10%, 15% of the price - quick outs 3%, but each
+  loss bigger: -$540 / -$257 total. 10% stop and half from +10%: AIXI +$632,
+  XHG +$136, IPDN -$511, total +$372. Nothing survives without SXTC yet.
+- Tonight's read (whole runs, not 35 minutes around a bot buy) is the real
+  test; this one only saw slices of the runs.
+
 ### DECISIONS (the owner, ~8:50am): the line stop stays; v37's money bar stays
 - VEEA 7:00 bought 5c over $5.50; the line stop ($5.49) was tighter than the
   furious 10c leash and took it out at $5.49 before the run to ~$6.13. The

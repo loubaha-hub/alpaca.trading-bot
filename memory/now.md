@@ -97,14 +97,20 @@ Updated 2026-10-09, ~12pm ET.
   from now on, every move the owner says he would have taken (his charts) is
   kept in memory/would_take.md with the check that blocked it - after 1-2
   weeks, the rule that blocks the most good moves is the one to look at.
-- r34.39 on the branch (674 tests pass): the read-only second-by-second read
-  of every 10-09 buy of the three, plus named moments no bot bought or whose
-  read was lost - NTCL 10-09 8:30, BIYA 10-07 8:20 ($2.54 -> $33.96), DKI
-  10-08 6:54, FLYE 10-08 7:17 - for the owner's speed strategy test.: SEC_DUMP_DAYS = ("2026-10-09",),
-  10 min before to 50 min after each buy - the read-only second-by-second
-  read of every trade of the three today, as on 10-08. WAITING ON THE
-  OWNER'S OK to push to main after 8pm with all three flat; the next
-  release turns it off.
+- r34.40 on the branch (678 tests pass; r34.39 + the top runners): the
+  read-only second-by-second read of every 10-09 buy of the three (10 min
+  before to 50 after), the named moments (NTCL 10-09 8:30, BIYA 10-07 8:20,
+  DKI 10-08 6:54, FLYE 10-08 7:17), and NEW: each day's top runners 10-06..
+  10-09, found by the bot itself from hourly then 1-minute bars (x1.8+ within
+  150 min, $5M+, $1-$20; six a day, 10 min before the low to 30 after the
+  high; SECDUMP RUNNER lines list every runner found). About 2 hours of
+  reading. WAITING ON THE OWNER'S OK to push to main after 8pm with all three
+  flat; the next release turns SEC_DUMP off.
+- After the read: save the SECDUMP lines (replay/live/2026-10-09_secdump),
+  secread.py, then speedsim_study.py / speedsim_stops.py on all windows -
+  every table split PRE / RTH / AFTER (the owner's standing rule, 10-09).
+- Found so far (journal 10-09): on the slices of big runs already read, the
+  speed strategy keeps only SXTC; 74% of its trades are out within 5s.
 
 ## 10-08 night
 - Live: **r34.38** (main d439a58, up 10:41:40pm 10-08, all three 0 positions): r34.37 with the owner's corrected
