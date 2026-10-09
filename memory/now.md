@@ -1,16 +1,18 @@
 # Where things stand
 
-Updated 2026-10-08, ~10:25pm ET.
+Updated 2026-10-08, ~10:27pm ET.
 
 ## Now (10-08 night)
 - Working branch: `claude/happy-ride-o56nlz`. Nothing goes to `main`
   without the owner's OK; a push to `main` restarts the bot.
-- Releasing **r34.37** (~10:30pm 10-08) = r34.36 + the sizes (the owner): a
+- Live: **r34.37** (main 1caa5a5, up 10:24:46pm 10-08, all three 0 positions;
+  the owner: "tested ... then deploy") = r34.36 + the sizes: a
   regular first buy 20% of a full position (was 10%), then 50%, then all;
   a furious buy 50% first (v36/v36b 12.5% of the account, the rest at +20c on
   a new high; v37 32.5%, the rest to 65% on its furious add); v37's fast buys
   under furious speed 8% (20% of its full 40%). NEWS_DUMP_DAYS = () (read once
-  by r34.36, 10:16pm).
+  by r34.36, 10:16-10:23pm: 425 of 425 stock-days, and the accounts' fills
+  10-01..10-08 - v36 989, v37 14,153, v36b 5,767 - in Render's log).
 - r34.36 (main 6219582, pushed ~10:15pm 10-08, all three flat; the
   owner: "implement all of this and make the strategies ready to deploy
   tomorrow at 4am"). Trades from 4am 10-09:
