@@ -106,7 +106,7 @@ def play_day(recs, mode, kw):
                 res = Q.run_ladder(p, t_in, fill, FULL, 0.03, 0.10, **kw)
                 leash = "A"
             te, pl, why, best, sh, avg, adds = res
-            out.append((r, t_in, pl, sh, avg, leash))
+            out.append((r, t_in, pl, sh, avg, leash, te))
             if sh and pl / sh >= 0.20 * avg:
                 proven = True
             after, first = te + S.SELL_LAG, False
