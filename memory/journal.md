@@ -5,6 +5,21 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-08
 
+### v36's exit above +30c: 30% back vs the owner's ladder (finding, ~8:25pm)
+- The owner: keep v36's exit, but from +30c give back half (30-50c), a
+  third (50c-$1), a fifth (above $1) instead of 30% - did any trade get
+  there? (replay/research/ladder30.py)
+- 10-08, the three v36 trades past +30c, every print (v37 TICK_DUMP): DKI
+  5:00 (best +35c) now +$277 / ladder +$203; DKI 6:54 (best +$1.87, data
+  from 6:57:06) now +$612 / ladder +$711; FLYE 7:22 (best +44c) both +$733
+  (it fell through both lines at once). Live: +$281, +$631, +$733.
+- The rest of the three days: 10 more v36 trades past +30c, now -$3,635 vs
+  ladder -$3,703 overall (v36b 7: -$1,540 vs -$1,571); differences $5-$40 a
+  trade - half back loses on 30-50c moves (DKI 10-07 +$57 vs +$19).
+- So about even overall. It helps only past +$1 (a fifth back instead of
+  30%) - once in three days (DKI 6:54, +$99). An option: only that top
+  step (30% back up to $1, a fifth back above) - one trade behind it.
+
 ### The runner table: 10c stop vs 3% (the owner: "remember", ~8:10pm)
 - Runners = the stock 50c+ or 20%+ higher within 30 min of the buy;
   10-06/07/08, each with v36's furious exit (out on 30% back of a 30c+
