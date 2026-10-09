@@ -5,6 +5,21 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-08
 
+### DECISION (the owner, ~10:20pm): ease in 20 / 50 / 100; furious 50% then 50%
+- "Regular: 20%, then 50%, then all. Furious: put in 50% first; it starts to
+  move and moves really nicely - the other 50%." Then: "after you have tested
+  everything ... deploy, push it to main."
+- Built (r34.37): V36_STARTER / V37_STARTER 0.10 -> 0.20 (the adds as before:
+  v36/v36b to 50% at +15c, all at +20c; v37 +10c / +20c). v36/v36b furious:
+  V36_FURIOUS_FIRST 0.50 - half a full position (12.5% of the account), the
+  rest is the last add (+20c over the buy on a new high, as a regular buy's);
+  after it the floor rises to the average (V36_FLOOR_AVG, as for any add).
+  v37: V37_ACCEL_SIZE (0.15, 0.08), (0.20, 0.08), (0.30, 0.325) - under
+  furious speed a regular 20% start; furious half of its 65% (the owner's
+  10-07 "60-70%"), the rest on its add (still furious, a new high 2% over).
+- v37's spike test now sells at 30% back of a $1+ gain (BIG_GAIN, r34.36),
+  a little before the spike rule's third.
+
 ### DECISION (the owner, ~10:25pm): the 10c leash on furious buys - v36b and v37
 - v36b: "that's it, perfect" - 3% on regular buys (cuts the losers that go
   nowhere), v36's 10c leash on furious buys. v37: "the exact same thing - 3%,

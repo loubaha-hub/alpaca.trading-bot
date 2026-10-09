@@ -154,7 +154,7 @@ RISK_CHECK_SECONDS = 5                      # the halt runs on a CLOCK, not tick
 # The file name and this string are changed together, every single time. The
 # log then answers "which code is actually running?" without anyone guessing
 # from line numbers or from behaviour that only shows up once a trade is on.
-VERSION = "v31-r34.36"
+VERSION = "v31-r34.37"
 
 # WHERE THE DAY'S HALT BASELINE COMES FROM.
 #   "last_equity" - equity at the PREVIOUS session's close, read from the broker.
@@ -4231,7 +4231,8 @@ V36_WHY_NOT = True              # a "why not" line, a minute apart, for the top 
                                 # crowd names and the top gainers; 5s apart once the
                                 # price is at a trigger and a check says no
 V36_POSITION_PCT = 0.25         # a full position: this share of equity
-V36_STARTER = 0.10              # the first buy: this fraction of a full position
+V36_STARTER = 0.20              # the first buy: this fraction of a full position (the
+                                # owner, 10-08 night: 20%, then 50%, then all; was 10%)
 # KEEP ADDING AS IT MOVES: once up ADD1_AT from the starter, on a new high with
 # the tape still green, to ADD1_TO of a full position; at ADD2_AT, to ADD2_TO.
 # V36_ADD_CENTS: the AT numbers are dollars (0.15 = 15 cents) instead of a
@@ -4327,6 +4328,11 @@ V36_LEVEL_GIVE = 0.01           # buy, this far under it - "it goes under three,
 V36_FURIOUS_FULL = True         # furious (speeding): the FULL position in the first buy -
                                 # "I enter with a full position on the very first hit; if
                                 # I miss, I try again"...
+V36_FURIOUS_FIRST = 0.50        # ...since 10-08 night half of it (the owner: "for a
+                                # furious stock put in 50% first; it starts to move and
+                                # moves really nicely - the other 50%"): the rest is the
+                                # last add, V36_ADD2_AT over the buy on a new high that
+                                # holds (as a regular buy's last add). 1.0 = all at once
 V36_FURIOUS_STOP_MAX = 0.08     # ...its stop no further than this under the buy (v37's
                                 # most), and the 10-second leash on it at once...
 V36_FURIOUS_STOP_CENTS = 0.10   # ...and no further than this (dollars) under what it
@@ -4886,14 +4892,15 @@ class V36(_Restore, _Momentum, V35):
         return 1.0                             # small floats are what the owner wants
 
     def entry_shares(self, s, price, worst, stop_ref, eq, kind) -> int:
-        """EASE IN: a tenth of a full position (V36_POSITION_PCT of equity) -
+        """EASE IN: V36_STARTER of a full position (V36_POSITION_PCT of equity) -
         a shakeout costs little, and the next buy is cheap too. add_step()
         takes it to the full position once the stock is moving."""
         held_all = sum(x.shares * (x.last_price or price)
                        for x in self.open_positions())
         room = max(0.0, eq * MAX_EXPOSURE_PCT - held_all)
         if s.v36_furious and V36_FURIOUS_FULL:  # "a full position on the first hit"
-            return int(min(eq * V36_POSITION_PCT, eq * MAX_POSITION_PCT, room) / worst)
+            return int(min(eq * V36_POSITION_PCT * V36_FURIOUS_FIRST,
+                           eq * MAX_POSITION_PCT, room) / worst)
         dollars = min(eq * V36_POSITION_PCT * V36_STARTER, room)
         shares = int(dollars / worst)
         if V36_STARTER_RISK and price > 0:      # "B": a far stop buys fewer shares
@@ -5495,16 +5502,22 @@ class V36(_Restore, _Momentum, V35):
                     s.peak = s.entry            # 1:40pm v36b paid $7.35 on a $7.72
                                                 # print and sold on a "gain" it never had
                 if rush and V36_FURIOUS_FULL:
-                    s.v36_adds = len(self.add_steps())   # full already: no adds, and
+                    # V36_FURIOUS_FIRST of it now: the adds it already has are
+                    # done, the rest come as a regular buy's (the last: +20c)
+                    s.v36_adds = sum(1 for _, to in self.add_steps()
+                                     if to <= V36_FURIOUS_FIRST + 1e-9)
                     s.v36_leash_from = time.time()       # the 10-second leash on it
-                    self.log.info("[v36] %s FULL POSITION %d shares at once (furious), "
-                                  "buy %d today - stop %.4f, line $%.2f", s.symbol,
-                                  s.shares, s.v36_entries, s.stop, s.v36_line)
+                    left = (" - the rest at %.4f on a new high" % self.add_level(s, s.v36_adds)
+                            if s.v36_adds < len(self.add_steps()) else "")
+                    self.log.info("[v36] %s FURIOUS %d shares (%.0f%% of a full position)"
+                                  "%s, buy %d today - stop %.4f, line $%.2f", s.symbol,
+                                  s.shares, 100 * V36_FURIOUS_FIRST, left,
+                                  s.v36_entries, s.stop, s.v36_line)
                 else:
-                    self.log.info("[v36] %s STARTER %d shares (a tenth of a full "
+                    self.log.info("[v36] %s STARTER %d shares (%.0f%% of a full "
                                   "position), buy %d today - adds at %.4f and %.4f "
-                                  "on a new high", s.symbol, s.shares, s.v36_entries,
-                                  self.add_level(s, 0), self.add_level(s, 1))
+                                  "on a new high", s.symbol, s.shares, 100 * V36_STARTER,
+                                  s.v36_entries, self.add_level(s, 0), self.add_level(s, 1))
 
     @staticmethod
     def add_steps():
@@ -5728,7 +5741,8 @@ V37_PAIR_TOTAL = 0.50           # ...and two together never over this. The owner
                                 # high), the first is trimmed to 25% and the second
                                 # grows to 25%.
 V37_ADD3_CENTS = 0.30           # "keeps running" for a second position (?)
-V37_STARTER = 0.10              # the first buy: this fraction of a full position
+V37_STARTER = 0.20              # the first buy: this fraction of a full position (the
+                                # owner, 10-08 night: 20%, then 50%, then all; was 10%)
 V37_ADD1_CENTS = 0.10           # up this much from the first buy, on a new high:
 V37_ADD1_TO = 0.50              # to this fraction of a full position
 V37_ADD2_CENTS = 0.20
@@ -5849,7 +5863,11 @@ V37_ACCEL = True                # v37: buy it over the last minute's high...
 # The owner, 10-07: "the position has to get bigger, faster - more than half of
 # the account in the next few seconds, 60-70%; I would have used the whole
 # account. You see this once a month or two; it pays for the months."
-V37_ACCEL_SIZE = ((0.15, 0.04), (0.20, 0.10), (0.30, 0.35))   # ...the first buy, a
+V37_ACCEL_SIZE = ((0.15, 0.08), (0.20, 0.08), (0.30, 0.325))  # ...the first buy, a
+                                # (10-08 night: under furious speed a regular start, 20%
+                                # of a full 40%; furious half of V37_ACCEL_MAX_PCT, the
+                                # rest on the add below - "50% first, then the other
+                                # 50%"; was 4% / 10% / 35%)
                                 # share of the ACCOUNT by the speed...
 V37_ACCEL_MAX_PCT = 0.65        # ...still furious on a new high 2% over the buy:
 V37_ACCEL_ADD_AT = 0.02         # up to this share of the account in one add
@@ -6456,7 +6474,8 @@ class V37(V36):
                       100 * filled * s.entry / eq if eq else 0.0,
                       "ACCELERATING %.2f, %.0f%% of the account" % (
                           accel, 100 * starter * self.v37_full(s, eq))
-                      if accel else "a tenth of a position", s.v36_entries,
+                      if accel else "%.0f%% of a position" % (100 * V37_STARTER),
+                      s.v36_entries,
                       self.crowd_rank(s.symbol),
                       self.crowd_dollars(s.symbol) / 1000, V36_CROWD_MINUTES,
                       s.stop, s.v36_first + V37_ADD1_CENTS,

@@ -339,7 +339,7 @@ def test_beside_a_40_percent_one_the_second_gets_what_is_left(v37, clock, now,
     """The owner: 1%, then 5%, then 10% - 40 and 10 is 50."""
     a, b = two(v37, clock, now, monkeypatch)
     assert pct(a, broker) == pytest.approx(0.40, rel=0.06)
-    assert pct(b, broker) == pytest.approx(0.01, rel=0.2)
+    assert pct(b, broker) == pytest.approx(0.02, rel=0.2)   # 20% of 10% (was 1%)
     tick(v37, b, now, round(b.v36_first + 0.10, 2))
     assert pct(b, broker) == pytest.approx(0.05, rel=0.15)
     tick(v37, b, now, round(b.v36_first + 0.20, 2))
@@ -1405,7 +1405,7 @@ def test_the_faster_the_bigger(v37, clock, now, monkeypatch, broker):
     monkeypatch.setattr(v37, "real_speed", lambda s, p: 0.35)
     s = accelerating_stock(v37, clock)
     tick(v37, s, now, 11.62)
-    assert s.shares * s.entry == pytest.approx(broker.eq * 0.35, rel=0.05)
+    assert s.shares * s.entry == pytest.approx(broker.eq * 0.325, rel=0.05)  # half
     tick(v37, s, now, round(s.entry * 1.025, 2))          # a new high, still furious
     assert s.shares * s.entry == pytest.approx(broker.eq * 0.65, rel=0.05)
 
@@ -1453,16 +1453,17 @@ def test_a_spike_keeps_two_thirds_of_its_gain(v37, clock, now, monkeypatch):
         tick(v37, s, now, round(first * (1 + k / 100), 2))
     e, gain = s.entry, s.peak - s.entry
     assert s.peak >= e * 1.30                              # a spike over the average
-    tick(v37, s, now, round(e + 0.70 * gain, 2))          # 30% of it back: still in
+    tick(v37, s, now, round(e + 0.75 * gain, 2))          # 25% of it back: still in
     assert s.in_position
-    tick(v37, s, now, round(e + 0.60 * gain, 2))          # 40% back: out
+    tick(v37, s, now, round(e + 0.65 * gain, 2))          # 35% back: out (from +$1 a
+                                                          # share 30% sells, BIG_GAIN)
     assert not s.in_position and v37.closed_today[-1][5] == "giveback"
 
 
 def test_the_acceleration_is_on():
     """The owner, 10-07 9:40am: "those fixes have to be implemented right away"."""
     assert bot.V37_ACCEL and bot.V36_ACCEL
-    assert bot.V37_ACCEL_SIZE[-1] == (0.30, 0.35) and bot.V37_ACCEL_MAX_PCT == 0.65
+    assert bot.V37_ACCEL_SIZE[-1] == (0.30, 0.325) and bot.V37_ACCEL_MAX_PCT == 0.65
 
 
 # ---- WETO, 2026-10-07 9:52: should not have been bought, and kept reloading -----------

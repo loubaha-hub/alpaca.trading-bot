@@ -1025,16 +1025,41 @@ def test_a_print_under_starts_the_level_clock_again(v36, clock, monkeypatch):
     assert s.v36_line == 10.5
 
 
-def test_furious_the_full_position_on_the_first_hit(v36, clock, broker, monkeypatch):
-    """The owner: "I enter with a full position on the very first hit". The
-    adds are done; the stop no more than 8% under."""
+def test_furious_half_a_position_first_the_rest_when_it_moves(v36, clock, broker,
+                                                               monkeypatch):
+    """The owner, 10-08 night: "for a furious stock put in 50% first; it starts
+    to move and moves really nicely - the other 50%" (was the full position on
+    the first hit). The rest is the last add: +20c over the buy, a new high;
+    the stop no more than 8% under."""
     monkeypatch.setattr(v36, "speeding", lambda s, p: True)
     s = deep_pullback(v36, clock, 9.92)
     tick(v36, s, TRIGGER)
+    full = broker.eq * bot.V36_POSITION_PCT
     assert entered(v36, s) and s.v36_furious
+    assert s.shares * s.entry == pytest.approx(0.5 * full, rel=0.06)
+    assert s.v36_adds == 1
+    assert s.stop >= TRIGGER * (1 - bot.V36_FURIOUS_STOP_MAX) - 1e-9
+    tick(v36, s, round(s.v36_first + 0.12, 2))            # +12c: not yet
+    assert s.v36_adds == 1
+    tick(v36, s, round(s.v36_first + 0.21, 2))            # +21c, a new high: the rest
+    assert s.v36_adds == 2
+    assert s.shares * s.v36_first == pytest.approx(full, rel=0.06)
+
+
+def test_furious_all_at_once_when_set_so(v36, clock, broker, monkeypatch):
+    monkeypatch.setattr(bot, "V36_FURIOUS_FIRST", 1.0)
+    monkeypatch.setattr(v36, "speeding", lambda s, p: True)
+    s = deep_pullback(v36, clock, 9.92)
+    tick(v36, s, TRIGGER)
     assert s.shares * s.entry == pytest.approx(broker.eq * bot.V36_POSITION_PCT, rel=0.06)
     assert s.v36_adds == len(v36.add_steps())
-    assert s.stop >= TRIGGER * (1 - bot.V36_FURIOUS_STOP_MAX) - 1e-9
+
+
+def test_the_sizes_the_owner_set_10_08():
+    """20%, then 50%, then all; furious 50% first, then the rest."""
+    assert bot.V36_STARTER == 0.20 and bot.V37_STARTER == 0.20
+    assert bot.V36_FURIOUS_FIRST == 0.50
+    assert bot.V36_ADD1_TO == 0.50 and bot.V36_ADD2_TO == 1.00
 
 
 @pytest.mark.parametrize("fast, buys", [(True, True), (False, False)])
