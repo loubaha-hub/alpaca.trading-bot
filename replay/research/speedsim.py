@@ -161,6 +161,79 @@ def play_ladder(path, sigs, full, stop_under, arm, rebuy=True):
     return out
 
 
+def speed_state(rec):
+    """Per second of the window: (speed on?, a new high of the window this
+    second?) - the same speed test as signals(), as a state, not an edge."""
+    rows = {r[0]: r for r in rec["S"] if r[1]}
+    if not rows:
+        return {}
+    last = max(rows)
+    close, vol, dol, high = {}, {}, {}, {}
+    px = None
+    for k in range(0, last + 1):
+        r = rows.get(k)
+        if r:
+            px = r[4]
+        close[k], vol[k] = px, (r[5] if r else 0)
+        dol[k] = (r[4] * r[5]) if r else 0.0
+        high[k] = r[2] if r else None
+    minute = {}
+    for k in sorted(rows):
+        m = (rec["start"] + k) // 60
+        o, c = minute.get(m, (rows[k][1], rows[k][4]))
+        minute[m] = (o, rows[k][4])
+    v = [0] * (last + 2)
+    d = [0.0] * (last + 2)
+    for k in range(last + 1):
+        v[k + 1] = v[k] + vol[k]
+        d[k + 1] = d[k] + dol[k]
+    out, top = {}, None
+    for k in range(last + 1):
+        new_high = high[k] is not None and top is not None and high[k] > top + 1e-9
+        if high[k] is not None:
+            top = high[k] if top is None else max(top, high[k])
+        on = False
+        if k >= 120:
+            p2, p1 = close[k], close[k - 60]
+            if p2 and p1:
+                v2 = v[k + 1] - v[k - 59]
+                v1 = v[k - 59] - v[k - 119]
+                move = p2 / p1 - 1
+                if move >= MOVE_MIN and v1 > 0:
+                    m = (rec["start"] + k) // 60 - 1
+                    bar = minute.get(m)
+                    red = bar is not None and bar[1] < bar[0]
+                    on = (move * min(v2 / v1, VOL_CAP) >= SPEED
+                          and d[k + 1] - d[k - 59] >= DOLLARS_MIN and not red)
+        out[k] = (on, new_high)
+    return out
+
+
+def play_ladder_hod(path, rec, state, full, stop_under, arm, ok=lambda t: True):
+    """The owner (10-09 ~1:20pm): the first buy on a speed signal; after a sale,
+    back in as often as it comes - but only at speed AND on a new high of the
+    day (the window's high so far: the read starts 5 minutes before the
+    bots' first buy, so an earlier high of the day is not seen)."""
+    out, after, first = [], -1.0, True
+    for k in sorted(state):
+        on, new_high = state[k]
+        t = rec["start"] + k + 0.99
+        if t <= after or not on or not ok(t):
+            continue
+        if not first and not new_high:
+            continue
+        t_in = t + S.BUY_LAG
+        if t_in >= path.end - 5:
+            break
+        fill = path.ask_at(t_in)
+        if not fill or fill <= 0:
+            continue
+        te, pl, why, best, sh, avg, adds = run_ladder(path, t_in, fill, full, stop_under, arm)
+        out.append((t_in, fill, why, best, pl, sh, avg, adds))
+        after, first = te + S.SELL_LAG, False
+    return out
+
+
 def main_ladder():
     windows = S.load_windows(sys.argv[1])
     full = float(sys.argv[3]) if len(sys.argv) > 3 else 4000.0
