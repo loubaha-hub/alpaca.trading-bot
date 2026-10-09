@@ -114,6 +114,7 @@ Updated 2026-10-09, ~12pm ET.
   every table split PRE / RTH / AFTER (the owner's standing rule, 10-09).
 - Found so far (journal 10-09): on the slices of big runs already read, the
   speed strategy keeps only SXTC; 74% of its trades are out within 5s.
+- The speed strategy is named **v38** (the owner, 10-09).
 - DECIDED 10-09 ~3:50pm: variant A of the speed strategy (3c stop, half-back
   from +10c, ease-in, new-high re-entries) with the scale-out.
 - The owner's scale-out (decided 10-09 ~3:20pm, in every study): a quarter

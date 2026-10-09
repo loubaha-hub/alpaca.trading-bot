@@ -5,6 +5,13 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-09
 
+### DECISION (the owner, ~2:15pm): the speed strategy is v38
+- The new strategy (variant A: speed entry, ease-in 20/50/100 at +10c / +20c,
+  3c stop, half-back from +10c, re-entry at speed over the day's high, the
+  scale-out a quarter at +100% / a quarter at +200%) is named v38. Next:
+  the read (r34.40, waiting on the session's permission to push), the
+  tables, then v38 in words (memory/checklist.md) before any code.
+
 ### The three bots live vs the speed strategy, 10-06..10-08 (~4:25pm; finding)
 - replay/research/compare_bots_speed.py -> compare_bots_speed.txt. Bots:
   real round trips. Speed A (+ scale-out, new-high re-entries): replayed on
