@@ -1,6 +1,6 @@
 # Where things stand
 
-Updated 2026-10-08, ~9:45pm ET.
+Updated 2026-10-08, ~10:20pm ET.
 
 ## Now (10-08 night)
 - Working branch: `claude/happy-ride-o56nlz`. Nothing goes to `main`
@@ -10,8 +10,9 @@ Updated 2026-10-08, ~9:45pm ET.
   6pm 10-08. Before it, today: r34.29 (fast buy only if up over 5s and the
   ask within 10c of the bid), r34.30 (no limit on buys of a stock a day),
   r34.31 (v37 buys back within 60s only 20c over the sale).
-- Branch: **r34.36, built and tested (652 pass), waiting for the owner's
-  "push"** (before 4am 10-09; all three flat, no buys since 6pm):
+- Branch: **r34.36, built and tested (665 pass), waiting for the owner's
+  "push"** - with buy at the ask (v37, v36b), +$1 then 30% back, v37's two
+  green candles, and (before 4am 10-09; all three flat, no buys since 6pm):
   SEC_DUMP_DAYS = () and NO_BUYS_FROM = () (MUST go out with the next
   release, else the read runs again at every restart) + the news and borrow
   log, information only: BORROW lines (hard to borrow / not shortable, from
@@ -27,8 +28,10 @@ Updated 2026-10-08, ~9:45pm ET.
 - DECIDED and built (r34.36, BUY_AT_ASK): v37 and v36b buy AT THE ASK (no
   20c / 10c / 0.2% over); v36 unchanged (the control). Words:
   memory/words_buy_at_ask.md.
-- v36b's 10c leash: a wash on the 40 furious buys with data (see the journal)
-  - the owner's call.
+- v36b's stop stays as is (the owner: compare v36 and v36b). DECIDED and
+  built: from +$1 a share, out on 30% back (BIG_GAIN_AT / BIG_GAIN_BACK, all
+  three); v37's regular buys need two green candles unless furious
+  (V37_TWO_GREEN). 665 tests pass.
 
 ## The list (the owner, ~9:30pm 10-08: "what do we finally agree on?")
 Everything from ~3:30pm to 9:30pm 10-08, sorted. Details in the journal.

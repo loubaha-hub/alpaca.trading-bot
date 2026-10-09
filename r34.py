@@ -4984,6 +4984,36 @@ class V36(_Restore, _Momentum, V35):
         return bool(V36_FURIOUS_ALL and V36_FURIOUS and s.day_high
                     and price > s.day_high and self.speeding(s, price))
 
+    def big_gain_line(self, s, price) -> float:
+        """BIG_GAIN_AT: once the best price since this position's buy is that
+        far over what we paid (the average), the price giving back
+        BIG_GAIN_BACK of the best gain - 0.0 until then. The best is counted
+        only from prices after the buy, never a high from before it."""
+        if not BIG_GAIN_AT or not s.entry:
+            return 0.0
+        if getattr(s, "big_key", None) != s.v36_entries:   # a new position
+            s.big_key, s.big_best = s.v36_entries, price
+        s.big_best = max(s.big_best, price)
+        gain = s.big_best - s.entry
+        if gain < BIG_GAIN_AT - 1e-9:
+            return 0.0
+        return s.entry + (1 - BIG_GAIN_BACK) * gain
+
+    async def big_gain_exit(self, s, price) -> bool:
+        """Out on BIG_GAIN_BACK of a $1+ gain given back, the bid agreeing."""
+        line = self.big_gain_line(s, price)
+        if not line or price > line + 1e-9:
+            return False
+        q = self.live_quote(s)
+        if q and q[0] > line + 1e-9:
+            return False                        # a stray print: the bid is still over
+        best = getattr(s, "big_best", price)
+        self.log.info("[v31] %s gave back %.0f%% of a $%.2f gain (best %.4f, paid "
+                      "%.4f): out", s.symbol, 100 * BIG_GAIN_BACK, best - s.entry,
+                      best, s.entry)
+        await self.exit(s, "giveback")
+        return True
+
     def furious_line(self, s, top) -> float:
         """A furious buy, once its best price `top` is V36_FURIOUS_EVEN_AT over
         the buy: out at the buy price, or on giving back V36_FURIOUS_GIVEBACK of
@@ -5589,6 +5619,8 @@ class V36(_Restore, _Momentum, V35):
             if line and price <= line:
                 await self.exit(s, "giveback")  # up 30c, then 30% of the gain back
                 return
+        if await self.big_gain_exit(s, price):
+            return                              # up $1+, then 30% of it back
         if s.armed:
             dist = V36_LEASH_ABR * self.abr(s)
             dist = min(max(dist, V31_TRAIL_MIN_PCT * s.peak),
@@ -5849,6 +5881,21 @@ BUY_AT_ASK = ("v36b", "v37")    # the owner, 10-08 night ("buy at the ask is in"
                                 # -$1,349 -> -$525..-$848 (better each day, 89-99% of the
                                 # shares bought); v36b's furious -$586 -> -$371..-$424.
                                 # memory/words_buy_at_ask.md. () = all pay up as before
+BIG_GAIN_AT = 1.00              # the owner, 10-08 night: once the best price since the
+BIG_GAIN_BACK = 0.30            # buy is $1.00 a share or more over what we paid (the
+                                # average), out on giving back 30% of that best gain -
+                                # "us capturing a hundred cents, not the stock up 100%".
+                                # Beside the other rules (the first to sell wins): v36 /
+                                # v36b furious already 30% from +30c, v37 5c from its
+                                # best; it bites on v36 / v36b's regular buys (the ABR
+                                # trail). All three, all sessions. 0 = off
+V37_TWO_GREEN = True            # the owner, 10-08 night: v37 buys only after two green
+                                # candles - the last two closed 1-minute candles each
+                                # closed over its open - unless the move is furious
+                                # (V37_FURIOUS_SPEED). The fast buy needed them already
+                                # (ACCEL_BARS); now the regular buy too. 10-06/07/08: 73
+                                # of v37's 134 buys had them (-$11.8 a trade live); the
+                                # 57 regular ones without them lost -$263 (-$4.6 each)
 V37_SWEEP_SECONDS = 6.0         # (V37_KEEP_TRYING off) it stops trying after this long,
                                 # or once the ask is V37_ACCEL_CHASE over the breakout
 V37_SWEEP_TRIES = 12            # ...or this many orders (Alpaca: ~200 requests a minute)
@@ -6226,6 +6273,12 @@ class V37(V36):
             return await self.accel_buy(s, price, accel)
         if not self.in_the_crowd(s) or not self.flying(s, price):
             return
+        if V37_TWO_GREEN and not self.two_green(s) and not self.furious(s, price):
+            if time.time() - s.v37_skip_logged >= 30:
+                s.v37_skip_logged = time.time()
+                self.log.info("[v37] SKIP %s at %.4f - the last two candles are not "
+                              "both green (not furious)", s.symbol, price)
+            return
         if not self.volume_ok(s):
             return                              # flying means the volume is rising
         why = self.not_running(s)
@@ -6268,6 +6321,11 @@ class V37(V36):
         """V37_FURIOUS_SPEED on real money in the last minute, the last candle
         not red."""
         return self.speeding(s, price)
+
+    @staticmethod
+    def two_green(s) -> bool:
+        """V37_TWO_GREEN: the last two closed 1-minute candles closed green."""
+        return len(s.bars) >= 2 and s.bars[-1].green and s.bars[-2].green
 
     def keeps_trying(self, s, price) -> bool:
         """V37_KEEP_TRYING - for the furious movers only (the owner, 10-07: "the
@@ -6501,6 +6559,8 @@ class V37(V36):
                     return
             if not V37_TRAIL_KEEPS_HALF:
                 armed = False                   # "half the gain" set aside
+        if await self.big_gain_exit(s, price):
+            return                              # up $1+, then 30% of it back
         back = V37_GIVEBACK
         if (getattr(s, "v37_accel", 0.0) and V37_SPIKE_AT
                 and top >= s.entry * (1 + V37_SPIKE_AT)):

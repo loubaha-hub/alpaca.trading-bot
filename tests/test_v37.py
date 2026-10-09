@@ -36,6 +36,7 @@ def v37(broker, data, clock, now, monkeypatch):
     monkeypatch.setattr(bot, "FAST_BUY_MAX_SPREAD", 0.0)  # tested on their own below
     monkeypatch.setattr(bot, "V37_TRAIL_CENTS", 0.0)      # the 5c cut: its own tests;
                                                           # "half the gain" tested as before
+    monkeypatch.setattr(bot, "V37_TWO_GREEN", False)      # two green candles: tested below
     strat = bot.V37(broker, data)
     strat.day_start_equity = broker.eq
     return strat
@@ -1928,3 +1929,47 @@ def test_the_other_buys_of_v36b_and_v37_are_at_the_ask_too(v31, v37, data, broke
     assert v37.buy_limit(3.20, 9.0) == 3.20 and v37.buy_limit(3.20, 3.10) == 3.10
     assert v31.buy_limit(3.20, 9.0) == pytest.approx(3.20 * (1 + bot.FAST_BUY_OVER_ASK))
 
+
+
+# ---- two green candles before a regular buy (the owner, 10-08 night) ---------------
+
+def greens(s, n=2):
+    """The last n closed candles turned green (the same volume)."""
+    for i in range(1, n + 1):
+        b = s.bars[-i]
+        s.bars[-i] = bot.Bar(b.ts, b.c - 0.02, b.h, min(b.l, b.c - 0.02), b.c, b.v)
+
+
+def test_two_green_candles_before_a_regular_buy(v37, clock, now, monkeypatch):
+    """"V37 should only buy after two green candles, unless it's a furious move"."""
+    monkeypatch.setattr(bot, "V37_TWO_GREEN", True)
+    s = ripping(v37, clock, now)                          # five flat minutes
+    tick(v37, s, now, 10.36)
+    assert not s.in_position
+    greens(s, 1)                                          # the last green only
+    tick(v37, s, now, 10.37)
+    assert not s.in_position
+    greens(s, 2)
+    tick(v37, s, now, 10.38)
+    assert s.in_position
+
+
+def test_furious_needs_no_green_candles(v37, clock, now, monkeypatch):
+    monkeypatch.setattr(bot, "V37_TWO_GREEN", True)
+    monkeypatch.setattr(bot, "V37_ACCEL", False)          # the regular buy itself
+    monkeypatch.setattr(v37, "furious", lambda s, p: True)
+    s = ripping(v37, clock, now)
+    tick(v37, s, now, 10.36)
+    assert s.in_position
+
+
+def test_two_green_is_on():
+    assert bot.V37_TWO_GREEN is True
+
+
+def test_v37_sells_on_30_percent_back_of_a_dollar(v37, clock, now, monkeypatch):
+    """BIG_GAIN_AT: v37 too (its 5c cut sells sooner when on)."""
+    s = bought(v37, clock, now)
+    monkeypatch.setattr(v37, "big_gain_line", lambda s, p: s.entry + 0.77)
+    tick(v37, s, now, round(s.entry + 0.76, 2))
+    assert not s.in_position and v37.closed_today[-1][5] == "giveback"

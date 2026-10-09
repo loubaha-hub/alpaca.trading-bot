@@ -5,6 +5,24 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-08
 
+### DECISIONS (the owner, ~10:15pm): +$1 then 30% back; v37 two green candles; v36b as is
+- "For the one dollar ... we'll go with that ... gain more than a dollar, we
+  revert to thirty percent": BIG_GAIN_AT 1.00 / BIG_GAIN_BACK 0.30 - once the
+  best price since the buy is $1+ a share over what we paid (the average),
+  out on 30% of that gain back, the bid agreeing. All three; it bites on
+  v36 / v36b's regular buys (the ABR trail); furious 30% and v37's 5c sell
+  sooner anyway.
+- v37: no three candles - it jumps in as the move comes; "only buy after two
+  green candles, unless it's a furious move ... just what I described":
+  V37_TWO_GREEN - the regular buy needs the last two closed 1-minute candles
+  green, unless furious (the fast buy needed two green already). Measured
+  (clean/two_green.py, candles from SEC_DUMP seconds): 73 of 134 buys had two
+  green (-$860 live, -$11.8 a trade); it drops 57 regular buys (-$263, -$4.6
+  a trade) - fewer trades and a smaller total loss, not better trades.
+- v36: entry kept as is. v36b: "a little more flexibility, five cents, after
+  that 10 - let's compare": its stop stays (3% under $3.33, 10c from there),
+  now buying at the ask. Tomorrow: v36 (pays up, 10c) vs v36b (at the ask, 3%).
+
 ### The owner: from +$1 a share captured, give back a third, not half (~10pm)
 - "Not the stock up 100% - us capturing a hundred cents: the stock up a whole
   dollar from our buy - then the trailing stop from a half to a third, to

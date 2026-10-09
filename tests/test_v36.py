@@ -1385,3 +1385,51 @@ def test_the_checks_leave_a_normal_buy_alone(v36, clock, monkeypatch):
     s = ripping(v36, clock)
     tick(v36, s, TRIGGER)
     assert entered(v36, s) and not s.v36_furious
+
+
+# ---- from +$1 a share, 30% back (the owner, 10-08 night) ---------------------------
+
+def test_big_gain_line_from_a_dollar_over_what_we_paid(v36):
+    """"Us capturing a hundred cents - the stock up a whole dollar from our buy -
+    then give back 30%"."""
+    from helpers import hold
+    s = hold(v36, "ABCD", 1000, 2.00)
+    s.v36_entries = 1
+    s.peak = 9.99                                         # a high from before: not ours
+    assert v36.big_gain_line(s, 2.00) == 0.0
+    assert v36.big_gain_line(s, 2.99) == 0.0              # 99c: not yet
+    assert v36.big_gain_line(s, 3.10) == pytest.approx(2.77)   # keeps 70% of $1.10
+    assert v36.big_gain_line(s, 2.90) == pytest.approx(2.77)   # the best is kept
+    s.v36_entries, s.entry = 2, 3.00                      # a new position: from scratch
+    assert v36.big_gain_line(s, 3.05) == 0.0
+
+
+def test_big_gain_sells_a_regular_position_the_trail_would_hold(v36, monkeypatch):
+    from helpers import hold
+    monkeypatch.setattr(v36, "abr", lambda s: 0.50)       # a wide trail: 2 ABR = $1
+    s = hold(v36, "ABCD", 1000, 2.00, stop=1.80)
+    s.v36_entries, s.v36_adds = 1, len(v36.add_steps())   # full: no adds to test
+    for px in (2.40, 2.90, 3.10, 2.95, 2.80):
+        tick(v36, s, px)
+    assert s.in_position                                  # 30c back of $1.10: held
+    tick(v36, s, 2.76)                                    # under 2.77: out
+    assert not s.in_position
+    assert v36.closed_today[-1][5] == "giveback"
+
+
+def test_big_gain_waits_for_the_bid(v36, monkeypatch):
+    from helpers import hold
+    monkeypatch.setattr(v36, "abr", lambda s: 0.50)
+    s = hold(v36, "ABCD", 1000, 2.00, stop=1.80)
+    s.v36_entries, s.v36_adds = 1, len(v36.add_steps())
+    tick(v36, s, 3.10)
+    monkeypatch.setattr(v36, "live_quote", lambda s: (2.85, 2.87))
+    run(v36.big_gain_exit(s, 2.70))                       # one print under, bid over
+    assert s.in_position
+    monkeypatch.setattr(v36, "live_quote", lambda s: (2.70, 2.72))
+    assert run(v36.big_gain_exit(s, 2.70))
+    assert not s.in_position
+
+
+def test_big_gain_is_on():
+    assert bot.BIG_GAIN_AT == 1.00 and bot.BIG_GAIN_BACK == 0.30
