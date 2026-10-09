@@ -97,9 +97,12 @@ Updated 2026-10-09, ~12pm ET.
   from now on, every move the owner says he would have taken (his charts) is
   kept in memory/would_take.md with the check that blocked it - after 1-2
   weeks, the rule that blocks the most good moves is the one to look at.
-- 10-09 ~2pm: the owner OK'd releasing r34.40 NOW (all three flat at 2:01pm, 0
-  positions). The push to main was refused by this session's permission check -
-  waiting for the owner to allow it (or to merge the branch himself).
+- **Live: r34.40** (main c57c735 - the owner merged PR #1 at 6:23pm ET 10-09;
+  up 6:24pm, all three 0 positions). The read is running: SECDUMP RUNNER lines
+  from 6:25pm (BIYA 10-07 x12.35 $2.34 7:22 -> $28.90 8:21 read). Next release
+  turns SEC_DUMP off (SEC_DUMP_DAYS = (), SEC_DUMP_RUNNER_DAYS = ()).
+- To collect the read: list_logs pages of 100 SECDUMP lines (big pages are saved
+  to tool-results files) -> a lines file -> secread.py.
 - r34.40 on the branch (678 tests pass; r34.39 + the top runners): the
   read-only second-by-second read of every 10-09 buy of the three (10 min
   before to 50 after), the named moments (NTCL 10-09 8:30, BIYA 10-07 8:20,
