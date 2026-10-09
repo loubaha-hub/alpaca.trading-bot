@@ -80,6 +80,34 @@ Settled today by the owner (no change):
   removes buys rather than adding them, and it is one comparison. Test it on
   10-06..10-09 first: how many pattern buys it removes, and what they made.
 
+## 4. Risk management for runners: the stock's swing sets the stop, a dollar risk sets the size
+- The owner (~12pm): turn the small losses into gains; keep the big runners;
+  the volatility works against us; we have no technique yet that limits the
+  big losses AND harvests the big gains.
+- Rule, in words: risk the same dollars on every buy (e.g. 0.5% of the
+  account). The stop goes where the stock's own noise will not reach it
+  (k times its recent swing - under the burst's base), so it can ride the
+  normal dip. The size = the dollar risk / the stop distance - a wide stop
+  means fewer shares, never a bigger loss. Build to full size only once it
+  proves itself (new highs after the dip). Trail by the swing, not by cents;
+  bank part at about 2x the risk and let the rest run.
+- Why: the research's conclusion ("hold them through ordinary noise at a
+  size the account can afford"); this week every runner dipped 3-9% first
+  (VEEA 15c, VIVK ~37c, MI) while our stops were 6-10c.
+- Touches: the 10c furious leash and the 25%/50% furious sizes (the owner,
+  10-08), the line stop, the 20/50/100 ease-in. It was an open item from
+  10-07 night ("furious size from a dollar risk, the stop sized to the
+  stock's swing") - never decided.
+- Both sides: runners would be held (VEEA/VIVK by hand: about +$145 / up to
+  +$270 instead of -$39 / -$199) but with fewer shares quick wins shrink (MI
+  4:32: maybe +$80 instead of +$190), and every look-alike that dips and
+  never comes back now loses the full dollar risk instead of a 6-10c stop.
+  Only the full test says which side is bigger.
+- Test before any code: every live entry 10-06..10-09 on the second-by-second
+  data, stops at 1.5 / 2 / 3 swings, a fixed dollar risk, a swing trail and
+  the furious 30% exit; totals, win rate, average win and loss, the runners
+  kept, the worst days.
+
 ## Not rules - measuring
 - A. A daily scorecard, per trade: kind of buy, price seen vs paid, share of
   the order filled, why it sold, the stock 5 and 15 minutes after the sale.
