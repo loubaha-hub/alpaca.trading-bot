@@ -74,7 +74,7 @@ Updated 2026-10-09, ~9:20am ET.
   in play, after 9:30, $5+, top relative volume); the research confirms our
   three leaks (burst-top buys, paying over the ask, the 1-minute replay).
   The map, research vs our live numbers: https://claude.ai/artifact/PT9fPxUXei5HVJsBRoKGDG
-  The full report: reports/Small cap momentum strategy evidence.md (writing).
+  The full report: reports/Small cap momentum strategy evidence.md.
 - Tonight, agreed: the count of which check said no on the #1/#2 leaders
   today, and what each stock did in the next 15 minutes (from the log). Plus,
   from now on, every move the owner says he would have taken (his charts) is
