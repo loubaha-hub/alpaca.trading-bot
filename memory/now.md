@@ -1,11 +1,131 @@
 # Where things stand
 
-Updated 2026-10-08, ~10:40pm ET.
+Updated 2026-10-09, ~12pm ET.
 
-## Now (10-08 night)
-- Working branch: `claude/happy-ride-o56nlz`. Nothing goes to `main`
+## 10-09 morning
+- Working branch: `claude/three-strategies-x69ppg` (from
+  `claude/happy-ride-o56nlz`, same history). Nothing goes to `main`
   without the owner's OK; a push to `main` restarts the bot.
-- Releasing **r34.38** (~10:40pm 10-08): r34.37 with the owner's corrected
+- The owner, ~4:30am: "all three strategies up and running". Checked in
+  Render's log: r34.38 (main d439a58) unchanged since 10:41pm, no restart;
+  v36 / v37 / v36b all agree with the broker, 0 positions; no warning or
+  error since 4am; 63 names watched by 4:30. Start equity: v36 $16,679
+  (halt $15,013), v37 $13,503 (halt $12,154), v36b $6,027 (halt $5,425).
+- First signal: SDEV 4:02:31 FURIOUS for v36 / v36b (speed 0.42, +6% in
+  5s) - no order: the $2.29 print (Form T) stood 12c over the $2.17 ask,
+  "TRIGGER NOT CONFIRMED". The price check worked as meant. No fills to
+  4:30am.
+- To 7:40am (premarket, 6 trades, all furious): v36 -$6 (3 trades, 1 won),
+  v37 -$101 (1, 0 won), v36b +$59 (2, 1 won); all -$48. Equity 7:38am:
+  v36 $16,673 (-0.1%), v37 $13,402 (-0.8%), v36b $6,086 (+1.0%).
+  - MI 4:32:38 (furious, speed 1.22): v36 2,383 @ $1.38 -> $1.4596 trail,
+    +$190, 19s; v36b 925 @ $1.38 -> $1.4594, +$73, 18s; v37 2,019 @ $1.45
+    (its first try at the $1.44 ask got 0) -> out 2s later at $1.40 on its
+    5c cut, -$101 - MI reached $1.54 about 10s later.
+  - MI 4:33:43 (furious again at $1.59): v36 paid up (limit ask + 20c =
+    $1.83), got 872 of 2,600 @ $1.68 avg with the market already $1.54 x
+    $1.55 - out at $1.5006 in 3s, -$156. v36b's order at the ask ($1.63)
+    got nothing - no loss. Pay-up vs at-the-ask, case 1.
+  - VEEA 7:00:12 (furious at $5.53, stop the $5.50 line - 1c): v36 629 @
+    $5.5473 -> $5.4847, -$39; v36b 238 @ $5.55 -> $5.49, -$14; 13-20s.
+  - Furious first buys filled 78-85% of the shares wanted (20-22% of the
+    account, not 25%); no add reached. A 1-share VEEA remnant logged
+    CRITICAL "STILL HOLDING", sold a second later at $5.40 (-$0.15).
+  - The owner (~7:50am): the bots took the two stocks that really moved.
+    Checked: both were the #1 name by money when bought - MI crowd #1
+    $758k / gainer #1 (4:33), VEEA crowd #1 $1.55M / gainer #2 (6:59).
+  - VEEA ran after our stop: out at $5.49 (7:00:26; it dipped to $5.40 x
+    $5.42 at 7:00:34), then $5.65 7:04, $5.88 7:10, $6.04 7:26, high about
+    $6.13 ~7:31, $5.63 at 7:48. Nobody got back in: v36/v36b "NO SPEED for
+    a re-entry" (0.00-0.06 under 0.10) at $5.65-$5.95, then "at the $6.00
+    level - wait till it holds 5c past"; v37 SKIP score 9/15 at $5.79, "not
+    two green" at $5.95. A 10c stop would also have gone ($5.45); only ~3%
+    (v36b's regular stop, $5.38) held the 15c dip. Same pattern as 10-08:
+    runners dip 15-20c+ first. One case - for the scorecard, not a change.
+  - XRTX 7:47:10 (furious, speed 0.34; crowd #3 $975k, gainer #4 - not a
+    top-2 name, furious sets the crowd aside): v36 1,250 @ $2.13 -> $2.1066
+    on the 10s leash, -$29, 63s; v36b 119 of 699 wanted @ $2.13 -> $2.1076,
+    -$3. Peak $2.20.
+  - SAIQ 7:46:10 (a regular buy, "setup trigger 6.75", 5% of the account;
+    SAIQ crowd #1 $4.4M): v36 121 @ $6.76 -> $6.66 stop, -$12.10, 45s; v36b
+    44 @ $6.76 -> $6.6584, -$4.47. Afterwards "NO SPEED for a re-entry".
+  - To 8:15am: v36 -$47.64 (5 trades, 1 won), v37 -$100.95 (1, 0),
+    v36b +$52.01 (4, 1); all -$96.58. The owner pasted Alpaca's Activities
+    for T6HH and AUES (Central time): every fill matches the bot's EXIT /
+    TRIM lines to the cent (v36's VEEA: 459 @ $5.55 + 170 @ $5.54, sold in 9
+    pieces $5.49 -> $5.40).
+- VEEA blow by blow from the log: memory/review_1009.md. The owner
+  (~8am): "it may have acted as designed" - the log agrees; each later point
+  to get back in was followed by a 10c+ pullback; the money was in holding
+  the first buy through a 15c dip. Open question for the owner: the $5.50
+  line stop (6c) was tighter than the furious 10c leash.
+- The owner (~8:50am): the line stop and v37's $250k money bar stay (journal).
+  Distilled proposals to discuss: memory/proposals_1009.md.
+- The owner (~9:25am): the bots respect the rules set for them; not perfect -
+  a person overrules his own rules in some situations, the bot cannot; there
+  are moves he would have taken that the stacked rules refuse.
+- VIVK 9:07-9:14 ($4.46 -> ~$6.74 on deal news): v36 -$169.58 (5 trades),
+  v36b -$74.98 (3), v37 +$11.91 (3); blow by blow in memory/review_1009.md.
+  Day at 9:16: v36 -1.3%, v37 -0.7%, v36b -0.4%.
+- Regular hours to 11:55am (8 trades): VEEA 10:17 (v36 starter + 2 adds ->
+  608 @ $6.58 avg, out at the floor, +$1.60; v36b -$9.80; v37 -$9.73);
+  PCSA 10:26 (v36 -$60.42, v36b -$15.96, the 10s leash); VEEA 11:40 (v36
+  -$26.03, v36b -$4.56). VIVK 9:28-9:29: v36 -$23.20, v36b -$1.68.
+  Equity 11:54: v36 $16,353.54 (-2.0%), v37 $13,404.59 (-0.7%), v36b
+  $5,972.14 (-0.9%).
+- By session, 4 days (10-06..10-09): v36 premarket about +$127 (~59
+  trades, ~+$2 a trade), regular hours about -$1,738 (~39, ~-$45 a trade),
+  after hours -$433 (11, 0 won); v36b premarket about -$263, regular about
+  -$579, after hours -$246 (8, 0 won); v37 premarket about -$1,456 (10-06's
+  99 trades before the fixes), regular about -$423, after hours -$11.
+- The owner (~11:50am): premarket is more profitable for this niche - the
+  news and the runners come there; the challenge is the volatility: tight
+  entries and stops throw us out before the run; a human changes the plan
+  after the entry by reading other factors, the bot cannot. Asked for my
+  ideas along those lines, some maybe for today. Friday; one positive day
+  on one strategy this week - "dismal ... however, it's a progress".
+- The owner (~9:30am): after a month, no profit - do public, recognized
+  strategies do better? Researched (4 parts, notes in research_notes/Small cap
+  momentum strategy evidence/). Answer: no proven, cost-surviving strategy on
+  our kind of stock; one candidate to test (opening range breakout on stocks
+  in play, after 9:30, $5+, top relative volume); the research confirms our
+  three leaks (burst-top buys, paying over the ask, the 1-minute replay).
+  The map, research vs our live numbers: https://claude.ai/artifact/PT9fPxUXei5HVJsBRoKGDG
+  The full report: reports/Small cap momentum strategy evidence.md.
+- Tonight, agreed: the count of which check said no on the #1/#2 leaders
+  today, and what each stock did in the next 15 minutes (from the log). Plus,
+  from now on, every move the owner says he would have taken (his charts) is
+  kept in memory/would_take.md with the check that blocked it - after 1-2
+  weeks, the rule that blocks the most good moves is the one to look at.
+- 10-09 ~2pm: the owner OK'd releasing r34.40 NOW (all three flat at 2:01pm, 0
+  positions). The push to main was refused by this session's permission check -
+  waiting for the owner to allow it (or to merge the branch himself).
+- r34.40 on the branch (678 tests pass; r34.39 + the top runners): the
+  read-only second-by-second read of every 10-09 buy of the three (10 min
+  before to 50 after), the named moments (NTCL 10-09 8:30, BIYA 10-07 8:20,
+  DKI 10-08 6:54, FLYE 10-08 7:17), and NEW: each day's top runners 10-06..
+  10-09, found by the bot itself from hourly then 1-minute bars (x1.8+ within
+  150 min, $5M+, $1-$20; six a day, 10 min before the low to 30 after the
+  high; SECDUMP RUNNER lines list every runner found). About 2 hours of
+  reading. WAITING ON THE OWNER'S OK to push to main after 8pm with all three
+  flat; the next release turns SEC_DUMP off.
+- After the read: save the SECDUMP lines (replay/live/2026-10-09_secdump),
+  secread.py, then speedsim_study.py / speedsim_stops.py on all windows -
+  every table split PRE / RTH / AFTER (the owner's standing rule, 10-09).
+- Found so far (journal 10-09): on the slices of big runs already read, the
+  speed strategy keeps only SXTC; 74% of its trades are out within 5s.
+- The speed strategy is named **v38** (the owner, 10-09).
+- DECIDED 10-09 ~3:50pm: variant A of the speed strategy (3c stop, half-back
+  from +10c, ease-in, new-high re-entries) with the scale-out.
+- The owner's scale-out (decided 10-09 ~3:20pm, in every study): a quarter
+  sold at +100%, a quarter at +200%, the last half on the half-back line.
+  Tonight's read decides BIYA 8:20 ($2.54 -> $33.96) - the test of it. To
+  build in a bot: words first.
+- The study after the read: speedsim_study / _bag / _giveback / _adds /
+  _scaleout / _trace on all windows, every table PRE / RTH / AFTER.
+
+## 10-08 night
+- Live: **r34.38** (main d439a58, up 10:41:40pm 10-08, all three 0 positions): r34.37 with the owner's corrected
   sizes - v36/v36b furious 25% of the account first, to 50% on the add (+20c,
   a new high); v37 fast under furious speed 20% of the account, to 40% at +20c;
   v37 furious 32.5% then 65%; regular buys 20% of a full position (v36/v36b
@@ -32,6 +152,15 @@ Updated 2026-10-08, ~10:40pm ET.
   - SEC_DUMP_DAYS = () and NO_BUYS_FROM = (): no read, no buy stop.
   Before it: r34.35 (6:02pm) v37's 5c cut; r34.29-31 the fast-buy checks, no
   per-stock buy limit, v37's 20c re-buy.
+- Pre-flight for 10-09 (~10:50pm 10-08): r34.38 live, deploy "live", no errors
+  since the restart, 0 positions on all three; buying 4:00-19:00 ET (paused
+  9:29-9:31), no date blocks (NO_BUYS_FROM, SEC_DUMP_DAYS, NEWS_DUMP_DAYS all
+  empty); the day rolls at midnight ET (10-08's roll logged "new day", halt at
+  -10%); no order refused on 10-08. Two 10-08 "no real stop" CRITICALs (v36
+  SAIQ 3:34pm, XRTX 4:08pm) were the self-check running 70 ms before the
+  fill's stop was set - not a real gap. Sizes in dollars: v36 regular $834 ->
+  $4,170, furious $4,170 -> $8,340; v36b $301 -> $1,507, furious $1,507 ->
+  $3,014; v37 regular $1,080, fast $2,701 -> $5,402, furious $4,389 -> $8,778.
 - To watch 10-09: v36 (pays up, 10c) vs v36b (at the ask, 3% / 10c furious);
   v37's trade count with two green candles; fills vs the ask; NEWS lines.
 - Save the NEWSDUMP and the 10-01..10-05 history lines from Render (7-day

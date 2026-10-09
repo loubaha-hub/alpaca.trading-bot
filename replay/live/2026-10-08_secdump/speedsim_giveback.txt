@@ -1,0 +1,44 @@
+EVERY WINDOW READ (72: every stock-moment the three bots bought 10-06..10-08, winners and losers)
+the speed strategy's own trades in them; A = 3c stop, half from +10c; B = 10% stop, half from +10%
+a cell: trades, won, P/L
+
+set windows                     PRE                  RTH                AFTER                  ALL
+A   run 40%+       45   6     +3364     14   3      -204      1   0       -15     60   9     +3145
+    the rest       30   1      -274     15   1      -221     17   0      -215     62   2      -709
+    all            75   7     +3091     29   4      -426     18   0      -229    122  11     +2436
+
+B   run 40%+       20   9     +3794      9   7     +1369      1   1      +241     30  17     +5404
+    the rest       18   3     -2544      9   0     -1563      7   1      -924     34   4     -5032
+    all            38  12     +1249     18   7      -194      8   2      -683     64  21      +372
+
+ON EACH RUN: up at its best (the trades' peaks over their buys, added, cents a share), kept, given back
+- each as a share of the run (its high minus its low)
+== PRE ==
+  day   sym      run | A: best / kept / gave back | B: best / kept / gave back
+  10-06 WHLR     44% |     2%    -6%      8%    |     8%   -32%     40%   
+  10-06 FRGT    324% |    24%    -7%     31%    |    24%   -20%     43%   
+  10-06 AIXI    162% |    14%   -27%     41%    |    38%    18%     21%   
+  10-06 SDEV     50% |    13%     6%      8%    |    25%    10%     15%   
+  10-06 RUBI     69% |     1%   -10%     12%    |    15%    -4%     19%   
+  10-06 IPDN    125% |     0%   -32%     32%    |    15%   -47%     62%   
+  10-06 NXAT     41% |     5%    -2%      7%    |    25%     8%     17%   
+  10-06 XHG     120% |     0%   -36%     36%    |     5%   -42%     48%   
+  10-07 BIYA     61% |     7%     0%      6%    |     8%   -23%     32%   
+  10-07 LPCN     74% |     2%    -5%      7%    |    25%    -9%     34%   
+  10-07 SXTC    235% |   102%    52%     49%    |   102%    52%     49%   
+  10-08 AIXI     45% |     6%   -16%     22%    |    23%     6%     17%   
+  average            |    15%    -7%     21% |    26%    -7%     33%   (averages, 12 runs)
+== RTH ==
+  day   sym      run | A: best / kept / gave back | B: best / kept / gave back
+  10-06 XHG      59% |     2%    -8%     10%    |    70%    35%     36%   
+  10-07 DKI      60% |     0%    -2%      2%    |    36%     4%     31%   
+  10-07 SXTC     85% |     2%   -15%     17%    |    29%    -8%     37%   
+  10-07 CPHI     45% |     8%   -24%     32%    |    24%   -14%     38%   
+  10-07 PFAI     47% |     0%   -15%     15%    |    26%    12%     13%   
+  10-08 INHD     40% |     3%     4%     -1%    |    46%    22%     24%   
+  average            |     3%   -10%     13% |    38%     9%     30%   (averages, 6 runs)
+== AFTER ==
+  day   sym      run | A: best / kept / gave back | B: best / kept / gave back
+  10-06 VCIG     59% |     8%    -4%     12%    |    15%    14%      1%   
+  10-08 WORX     50% |     0%     0%      0%    |     0%     0%      0%   
+  average            |     4%    -2%      6% |     8%     7%      1%   (averages, 2 runs)

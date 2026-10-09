@@ -42,6 +42,8 @@ numbers into any file here - memory files included.
   **Live results outrank replays.**
 - Premarket (4:00-9:30 ET) is prime time and gets its own design; regular
   hours (9:30-4:00, with LULD halts) get a separate one.
+  The owner, 2026-10-09: every table from now on is split into three -
+  premarket (4:00-9:30), regular hours (9:30-4:00), after hours (4:00-8:00pm).
 - The day's #1 and #2 leaders come first, and a stock is never banned for
   ripping (2026-10-05; replaces "the no-chase rule stays"). The owner's
   method is in `memory/playbook.md`; the bot is to follow it point by point.
@@ -59,6 +61,10 @@ numbers into any file here - memory files included.
   touches, overrides or makes moot, and resolve any conflict in words first,
   "so the bots don't get mixed up". Judge win rates and averages per entry
   (trade), added up over days.
+  The owner, 2026-10-09: too many rules stacked on each other paralyze the
+  bots - they let good moves go. "Don't throw the baby out with the bath
+  water": every check is judged on both sides - the losers it removes AND
+  the good moves it would have blocked.
 
 ## Memory
 

@@ -3,6 +3,451 @@
 Decisions, instructions and results worth keeping. Newest first. Dates are ET.
 Each entry: what was decided or found, the numbers, why, and where it lives.
 
+## 2026-10-09
+
+### DECISION (the owner, ~2:30pm): v38 keeps its re-entries; compare A vs "A then B"
+- The owner: re-entries are not clean but "we cannot afford not to have
+  them" - that is how more of each runner is harvested. v38 keeps them
+  (speed + a new high of the day).
+- The comparison to run on every read: v38 with A all the way, vs A for the
+  first entries and B's leash once the stock has proven itself (a trade on
+  it closed 20%+ over its average) - for every later entry on that stock
+  that day. replay/research/speedsim_v38.py -> speedsim_v38.txt.
+- 10-06..10-08: only SXTC proved itself; its later entries on B's leash:
+  A +$3,347 -> A then B +$3,567 (3 trades on B +$136; the afternoon SXTC run
+  kept -5% instead of -15%); A then B' (3c under the average after an add)
+  +$3,239. One stock - tonight's read decides.
+- Within one trade the switch at +20% changes nothing (the half-back line is
+  above both stops); the difference is in the later entries.
+
+### DECISION (the owner, ~2:15pm): the speed strategy is v38
+- The new strategy (variant A: speed entry, ease-in 20/50/100 at +10c / +20c,
+  3c stop, half-back from +10c, re-entry at speed over the day's high, the
+  scale-out a quarter at +100% / a quarter at +200%) is named v38. Next:
+  the read (r34.40, waiting on the session's permission to push), the
+  tables, then v38 in words (memory/checklist.md) before any code.
+
+### The three bots live vs the speed strategy, 10-06..10-08 (~4:25pm; finding)
+- replay/research/compare_bots_speed.py -> compare_bots_speed.txt. Bots:
+  real round trips. Speed A (+ scale-out, new-high re-entries): replayed on
+  the read around the bots' buys, $4,000 full (about $1,090 bought a trade
+  on average; v36 $1,952, v36b $771, v37 $1,060).
+- Whole days (trades, wins / losses, P/L): v36 94, 20/74, -$1,718; v36b 86,
+  8/78, -$1,032; v37 141, 28/113, -$1,790; speed A 118, 10/108, +$3,347
+  (10-06 -$1,080, 10-07 +$4,677, 10-08 -$250). Without SXTC's one trade
+  (+$5,125) speed A is -$1,778 - about where the bots are.
+- Premarket: v36 +$367, v36b -$238, v37 -$1,367, speed A +$3,975.
+  Regular: -$1,653 / -$549 / -$413 / -$408. After: -$433 / -$246 / -$11 /
+  -$221. Live outranks a replay; the speed strategy only saw the bots'
+  stocks.
+- Re-entries (speedsim_reentry.py, the day's high from the minute bars):
+  the first buys +$4,492 (51), the re-entries -$1,145 (67) on a new high;
+  over the high + 5c -$564 (34); + 10c -$184 (15); 60s after a sale -$159
+  (17). Every re-entry rule loses on these days - the owner's point: the
+  jumps in and out eat the runners' gains.
+
+### The owner's middle ground - A at the start, B's leash once it is a runner (~4pm; finding)
+- The owner: keep A's leash on every new entry; once the trade has bagged
+  about 20% of gain, change to B's longer leash.
+- Where A's 122 trades ended (scale-out on): 67 never traded over the buy
+  (-$1,070), 49 were up under 5% (-$730), 4 up 5-10%, 1 up 10-20%, ONE up
+  20%+ (SXTC +$5,125). And once a trade is up 20%, A and B exit the same
+  way - the half-back line sits above both stops. So the switch on the
+  trade's gain changes nothing on these days.
+- Read instead as "the STOCK is already up 20%+ from its low in the window
+  -> that entry gets B's leash (10% stop, 3c under the average after an
+  add)": worse - 20%: +$2,361 (PRE +$3,230 / RTH -$552 / AFTER -$316); 30%:
+  +$2,510; 50%: +$2,879; 10%: +$1,475; vs A everywhere +$3,309. The late
+  entries on an extended stock sit near the top; the wide stop loses more
+  (20%: 47 trades on B's leash -$2,276).
+- So A is shaken out in the first seconds, not after a gain: the lever is
+  the entry price (the buy at the ask lands on the top tick of the burst),
+  not the leash. A proposal for later, words first.
+
+### DECISION (the owner, ~3:50pm): A is the variant - the 3c stop, with the scale-out
+- The owner: both catch the big runners; A loses much less on its small
+  losers (about -$20 vs -$174) - "A is definitely superior".
+- The speed strategy's variant from now on: speed entry; ease-in 20% / 50%
+  at +10c / full at +20c; stop 3c under the buy (under the average after
+  adds); half-back line from +10c; re-entry at speed on a new high of the
+  day; the scale-out (a quarter at +100%, a quarter at +200%).
+- Noted to the owner: on runs that wiggle (AIXI, XHG 9:37, INHD) B's wider
+  leash kept part while A was shaken out; tonight's read (whole runs, top
+  runners, BIYA, 10-09 - none used to design it) is A's check, B and B'
+  shown beside it.
+
+### Why A beats B three to one with the scale-out (~3:40pm; finding)
+- The owner: A +$3,309 vs B +$1,246 - why? Both keep the same SXTC trade
+  (+$5,125); the gap is the other trades. A: 121 trades -$1,815 - 111
+  losses averaging -$20, 10 wins +$38. B: 63 trades -$3,879 - 20 wins
+  averaging +$180 (the wider leash keeps part of AIXI, XHG 9:37, INHD...),
+  43 losses averaging -$174; 24 of them after the adds -$6,044 (-$252 each:
+  the full $4,000 position with the stop 10% under the average). With A a
+  loss after adds averages -$53 (the stop 3c under the average).
+- B wins on the runs (+$1,153 without SXTC vs A -$1,106) and loses on the
+  rest (-$5,032 vs -$709).
+- Tried: B' = a 10% first stop, then after an add the stop rises to the
+  average less 3c: +$1,929 (PRE +$3,036 / RTH -$725 / AFTER -$381; runs
+  +$3,436, rest -$1,507). The stop AT the average after an add: -$3,192 -
+  ticks hit it at once, SXTC -$647. speedsim.run_ladder(add_floor=...).
+
+### DECISION (the owner, ~3:20pm): the scale-out - in every study from now on
+- The owner: once a trade is up 100%, sell a quarter (people are still
+  buying fast - sell at the ask, not the bid); at 200% another quarter; the
+  last half rides the half-back line, "so you gave only 25% back ... that's a
+  good strategy, period". It cuts a little from the big winners but banks
+  some of the others. Use it on all the studies; "let's see if we can
+  implement that" - in a bot: words first (memory/checklist.md).
+- Simulator: speedsim.run_ladder(scale=...) - resting sells at the average x
+  (1 + gain), filled at that price when a print reaches it; no adds after the
+  first part sold. replay/research/speedsim_scaleout.py -> speedsim_scaleout.txt.
+- On the three days only ONE trade reached +100%: SXTC 10-07 8:16 (bought
+  $2.18, adds $2.28 / $2.37, average $2.30; sold 434 at $4.61 and 434 at
+  $6.91, the last 869 at $4.75 on the line): +$4,251 -> +$5,125, kept 52% ->
+  63% of the run. Nothing else changes - it never triggers on the small
+  losers. All windows, A: +$2,436 -> +$3,309 (PRE +$3,964 / RTH -$426 /
+  AFTER -$229); B: +$372 -> +$1,246. Settings: +50% / +100% worse (A
+  +$1,810, B -$253); +200% / +400% about the same (+$3,372 / +$1,309).
+- The owner by hand (~3:30pm): never bagged a 1,000%, caught about 100% a
+  couple of times and sold everything very quickly - sometimes leaving money
+  on the table. Measured as "all at +100%": SXTC +$3,999 (vs +$4,251 on the
+  line alone, +$5,125 with the scale-out); all windows A +$2,184, B +$121.
+- The owner asked again: did the returns include the bots' small losers?
+  Yes - the 72 windows are every stock-moment any of the three bots bought
+  10-06..10-08, losers included; the speed strategy's own trades there
+  ("the rest": A -$709 / 62 trades, B -$5,032 / 34). Not in: losers where
+  no bot bought.
+
+### BIYA 10-07 8:20 reopened - "that one would be a monster" (~3:10pm)
+- The owner: if the strategy can keep a run like BIYA's it would be double
+  SXTC's +$4,251 - "see what has happened and if we can keep it".
+- The shape (recorded minute bars): 8:19 $2.43 -> $2.54; 8:20 $2.54 -> high
+  $28.54, close $28.53 (790k shares); 8:21 open $28.56, high $33.96, low
+  $7.29, close $8.20; 8:23 $3.74; 9:05 $1.92. Up and down in about two
+  minutes, premarket (no halt).
+- Why no bot bought (Render 10-07 12:18-12:24 UTC): v36 / v36b "NO: 6 buys
+  today" every minute (the cap, spent on BIYA's 4am whipsaws - removed
+  10-08, V36_MAX_ENTRIES = 0); v37 did not look (crowd #4, it wanted #1/#2).
+  The bots saw $2.62 at 8:20:37 and $9.24 at 8:21:26.
+- Would the speed strategy keep it: its entry fires early in the 8:20
+  minute; the question is the exit - the half-back line would sit near $18
+  under a $33.96 peak, and in the 8:21 minute the price fell $28 -> $7. A
+  rough range for the full $4,000 plan at about $2.75 (~1,450 shares): sold
+  at $8 about +$7,900; at $15 about +$17,800 - IF the adds filled near the
+  plan's prices. Only the seconds can say: tonight's read has BIYA 8:10-9:10
+  with every trade and quote from 8:19:30 to 8:21:00 (SEC_DUMP_MISSED).
+- A proposal to test (words only): resting sells above the market - a
+  quarter at +100%, a quarter at +200% over the average - bought by the
+  chasers on the way up; after the top the bids vanish. Touches the
+  half-back line (the rest rides it) and "the longer it runs, the longer
+  the leash" for that half only.
+
+### B's big losers trade by trade - the adds bought the top of the jump (~3pm; finding)
+- The owner: IPDN -47%, XHG -42%, FRGT -20%, WHLR -32% (10-06), BIYA -23%
+  (10-07) - one entry or many? (The % is of the run's size, not of money:
+  IPDN ran $3.89 a share, the trades lost $1.83 a share added up, -$511.)
+- replay/research/speedsim_trace.py -> speedsim_trace_B_losers.txt:
+  IPDN 4 entries: +$55; -$402 (bought $4.55, both adds within a second at
+  $4.75 / $4.67 -> 856 shares at $4.67, stopped $4.20); -$82 and -$82
+  (starters at $6.89 / $6.93, the day's top). XHG 8:32 2 entries: -$116
+  (bought $3.64 in the spike, the bid fell to $3.11 in one second); -$444
+  (bought $3.75, BOTH adds at $4.31 - the spike's top - 955 shares at
+  $4.19, out $3.72 15s later). FRGT 3 entries: -$62 (bought $0.72, both adds
+  at $0.935, +30% in one jump), +$76, -$133. WHLR 1 entry, -$80: a clean
+  10% stop, the top of a 4am burst. BIYA 10-07 1 entry, -$192: bought $2.70,
+  added $2.81, out $2.50 (it went to $2.31 - the exit was right, the add
+  doubled the loss). BIYA's $2.54 -> $33.96 at 8:20 is NOT in this read (no
+  bot bought there); it is in tonight's read - the investigation reopens
+  with it, and why the bots did not buy (10-07 logs, Render keeps 7 days).
+- The cause: the ease-in steps are +10c / +20c over the first fill; when the
+  price jumps past both in one second, both adds fill at once at the top -
+  80% of the position at the highest price, the stop under that average.
+  In cents the steps mean +14% / +28% on a 70c stock, +1.4% / +2.8% on $7.
+- speedsim_adds.py -> speedsim_adds.txt, all 72 windows: the adds make the
+  money AND the big losses. B: as planned +$372 (PRE +$1,249 / RTH -$194 /
+  AFTER -$683); no add past the step + 5c +$663 (+$2,388 / -$1,042 / -$683);
+  no adds -$11. A: +$2,436 / +$2,505 / -$521. SXTC: +$4,251 with the adds,
+  +$528 to +$860 without. Capping helps premarket, hurts regular hours -
+  not a clean fix on three days.
+
+### The whole picture: the runs AND the bots' losers, and the give-back (~2:40pm; finding)
+- The owner's questions: did the test include all the small losers the bots
+  picked? did our entry pick up the big winners? how much did A and B give
+  back? And a third group not yet in: the losers NO bot picked, where the
+  speed strategy would also have bought.
+- replay/research/speedsim_giveback.py -> speedsim_giveback.txt. The read is
+  72 windows = every stock-moment the three bots bought 10-06..10-08,
+  winners and losers. The speed strategy trades in all of them (its own
+  entries). A (3c stop): 122 trades +$2,436 = the runs +$3,145 (60 trades),
+  the rest -$709 (62 trades, -$11 each). B (10% stop): 64 trades +$372 = the
+  runs +$5,404 (30), the rest -$5,032 (34, -$148 each). By session, all:
+  A PRE +$3,091 / RTH -$426 / AFTER -$229; B +$1,249 / -$194 / -$683.
+- The entry: it bought inside 17 of the 20 runs of 40%+ (no trade on WORX;
+  RUBI and NXAT signalled after the top). The exit: premarket, A was up at
+  its best 15% of the run (averaged over 12 runs), gave back 21%, ended -7%;
+  B up 26%, gave back 33%, ended -7%. Regular hours: A 3% / 13% / -10%; B
+  38% / 30% / +9%.
+- Not in yet: the losers no bot bought. To have them: log every speed
+  signal on the whole list live (no orders) and read those seconds at night
+  - or shadow-trade the strategy live. A proposal, words first.
+
+### Does the speed strategy catch the runners and keep them? (~2:10pm; finding)
+- The owner's questions: does it catch them and keep them; why it lost on
+  AIXI / IPDN / XHG / FRGT 10-06; by stock, how much of each run it bagged.
+  "There is more than one running almost every day ... if we are good at
+  keeping that one in the bag up to near the top, it will pay for all our
+  small costs."
+- replay/research/speedsim_bag.py -> replay/live/2026-10-08_secdump/speedsim_bag.txt.
+  The 19 runs of 40%+ inside the windows read (slices: 35 minutes around a
+  bot buy), each window apart. A = 3c stop, half from +10c; B = 10% stop,
+  half from +10% of the price. Kept = cents a share over the run's cents.
+- CATCH: yes - it bought inside 17 of the 19 runs. KEEP: no, except SXTC
+  10-07 8:14 ($2.00 -> $6.69; one trade $2.30 -> $4.75 = 52% of the run,
+  +$4,251 - it jumped $3.00 -> $6.64 in 2 seconds, the stop never came
+  into it). With A the rest kept -36% to +8% (net of all their trades).
+- WHY IT LOST on 10-06: the stop sits inside the stock's second-to-second
+  swing. AIXI: 13 trades, 8 out within 1 second, the run went on 10% higher
+  within 5 minutes after 10 of the 13. IPDN: all 9 bought the top tick (it
+  never traded over our fill); 7:26:52 spread 17c, sold 36c under the fill
+  in the drop; the steady climb 7:33-8:04 ($4.36 -> $5.83) never gave a new
+  speed signal, so no re-entry. XHG 8:32: four buys in 20 seconds of a
+  one-minute spike ($2.27 -> $4.31), then $2.53 three minutes later - a
+  spike and dump no stop keeps. FRGT ($0.30, under the $1 band): the adds at
+  +10c / +20c (14% / 28% on a 70c stock) put the average near the top, the
+  floor at the average sold the first dip (-$230). Each shake-out pays the
+  spread plus the slip at the bid in a falling second, 5-36c a share.
+- By session, the 40%+ runs only: A - PRE 12 runs 45 trades +$3,363; RTH
+  6 runs 14 trades -$204; AFTER 2 runs 1 trade -$15. B - PRE 20 trades
+  +$3,793; RTH 9 trades +$1,370; AFTER 1 trade +$241. Without SXTC: A about
+  -$1,100, B about +$1,150 on the runners. But B across ALL windows was
+  +$372 (speedsim_stops.py): the 10% stop costs about -$4,700 over three days
+  on the windows with no runner - the runners only just pay for it.
+- Kept by B (a wider leash) where A kept nothing: AIXI 10-06 18% of the run
+  (+$680), XHG 9:37 35% (+$696), INHD 22%, VCIG 14%, PFAI 12%; but IPDN
+  -47%, XHG 8:32 -42%, BIYA -23% 10-07.
+
+### STANDING INSTRUCTION (the owner, ~1pm): every table split by session
+- "Every table we construct from now on": three compartments - PREMARKET
+  (4:00-9:30), REGULAR HOURS (9:30-4:00), AFTER HOURS (4:00-8:00pm), by the
+  entry's time. The owner's reasons: premarket has the news (the catalyst
+  that makes a stock fly) and no LULD halts; in regular hours a halt stops
+  the runner you ride, people lock in gains on the reopen and it throws you
+  out. Thinner trading and wider spreads premarket are real but the two make
+  up for them, and on the big runners the spread erodes the gain less.
+- Seen today: Alpaca's daily bars are regular hours only (10-01: XRTX
+  premarket high $2.00, daily high $1.75) - a premarket runner (BIYA 10-07
+  $1.70 -> $33.96 before 9:30) is invisible in daily gainers lists, the web's
+  "closed up X%" lists included.
+
+### The day's top runners go into tonight's read - r34.40 (~1pm)
+- The owner: get the top runners (200-500%) of the last three days (later
+  ten) and include them beside the bots' own entries; cherry-picking the big
+  ones biases the result, "but that still gives us a very good idea"; the
+  simpler and barer the strategy, the more likely it bags the big runners.
+- Second by second IS available for any stock (Alpaca SIP - the read is not
+  limited to what the bots bought; Webull is not needed).
+- r34.40 (branch, 678 tests pass; read-only): per day 10-06..10-09 every
+  listed name's hourly bars, then the 1-minute bars of the biggest rises and
+  of the names found by hand (web + recorded bars: AIXI, XHG, IPDN 10-06;
+  BIYA, SXTC, PFAI, DKI, LGCL 10-07; DKI, FLYE, JZ, AIXI 10-08; VIVK, VEEA,
+  NTCL 10-09). A runner: x1.8+ from a low to a high within 150 minutes, $5M+
+  traded, $1-$20. The six biggest a day are read from 10 minutes before the
+  low to 30 after the high; every runner found is logged (SECDUMP RUNNER).
+  About 2 hours of reading at 100 requests a minute. Needs the owner's OK to
+  go to main after 8pm.
+- From the recorded bars (10-06/07 scanner names): 10-06 AIXI $1.52 -> $4.47
+  (4:01-4:27), XHG $1.90 -> $5.51 (to 9:45), IPDN $3.04 -> $7.10 (6:18-8:35),
+  SDEV, APUS; 10-07 BIYA x20 (8:20), SXTC, PFAI $2.22 -> $7.02 (9:45-12:24),
+  DKI $1.27 -> $3.64 (9:30-12:03), LGCL $2.22 -> $4.53 (7:44-9:42).
+
+### The speed strategy by session, and on the big runs already in the read (~1:10pm; finding)
+- replay/research/speedsim_study.py (every table PRE / RTH / AFTER) and
+  speedsim_stops.py; results replay/live/2026-10-08_secdump/speedsim_sessions.txt,
+  speedsim_stops.txt. Speed only, ease-in, new-high re-entries, $4,000 full.
+- 3c stop / half from 10c: PRE 75 trades +$3,091; RTH 29 -$426; AFTER 18
+  -$229. Regular and after hours lose in every setting tried. But PRE is
+  SXTC (+$4,130): without it PRE is about -$1,000 (-$15 a trade, like RTH).
+- The big runs inside the windows: AIXI 10-06 ($1.69 -> $4.42, 13 trades
+  -$343), IPDN 10-06 ($3.10 -> $6.99, 9 trades -$219), XHG 10-06 ($1.95 ->
+  $4.30, -$202), FRGT 10-06 (-$189); only SXTC 10-07 kept (+$4,130). Why:
+  74% of the trades are out within 5 seconds, the best price the fill
+  itself - the buy at the ask lands on the top of a one-second burst, and a
+  few cents of stop sit inside the stock's second-to-second swing.
+- Stops tried: prints only (not the mid) - no change; 5c / 10c - fewer quick
+  outs, about the same; 5%, 10%, 15% of the price - quick outs 3%, but each
+  loss bigger: -$540 / -$257 total. 10% stop and half from +10%: AIXI +$632,
+  XHG +$136, IPDN -$511, total +$372. Nothing survives without SXTC yet.
+- Tonight's read (whole runs, not 35 minutes around a bot buy) is the real
+  test; this one only saw slices of the runs.
+
+### DECISIONS (the owner, ~8:50am): the line stop stays; v37's money bar stays
+- VEEA 7:00 bought 5c over $5.50; the line stop ($5.49) was tighter than the
+  furious 10c leash and took it out at $5.49 before the run to ~$6.13. The
+  owner: breaking $5.50 matters on any stock; out at $5.49 "is okay ... not
+  something we would really change."
+- MI 4:32: v37 bought late ($1.45, 19% over the $1.13 high) because both its
+  doors need $250k traded in the last minute. The owner: "that's okay too" -
+  lowering it would get in the way of other moves; if we keep missing the
+  early start of moves, lower it a little ("the speed is what counts more").
+  No rush.
+- The owner on the day: the rules are being followed, "that is really key";
+  modify them a little, not in a rush. Asked for the suggestions distilled
+  and simple, to discuss for over-fitting: memory/proposals_1009.md (two
+  proposals - buy at the ask for all three; a quick stop-out does not use up
+  the leader's pattern buy - two measuring tasks, two dropped).
+- The day's blow by blow (VEEA, MI): memory/review_1009.md.
+
+### The owner's three-candle 2:1, defined (~9:10am) - not in the bot yet
+- Green, red, green: entry where the third candle reaches the top of the
+  red's body; risk to the bottom of the red's whole wick; gain to the top of
+  the wick of the green before the red; gain at least 2x risk, or no buy.
+  "It's a good rule to have." The bot's room check (V35_ROOM_RR) measures to
+  the PREVIOUS day's high only. Words and holes: memory/proposals_1009.md #3.
+- The owner (~9:20am): keep yesterday's high as a wall; take the nearer of
+  the two (the green's wick top or yesterday's high) - under 2x the risk, no
+  buy. Today's high is not a separate wall. Do not stack rules until the bots
+  are paralyzed: a very good move must not be blocked - discuss before adding.
+
+### Did the speed strategy bag SXTC's run? Yes - half of it (~1:55pm; finding)
+- The owner: "didn't the one without a filter run it all the way to the top
+  and take half? ... if it was able to bag the bigger one, we are in for
+  something that may be useful" - keeping big runners is what the bots fail.
+- SXTC 10-07, speed only, ease-in, 5c / half from 10c: buy 8:14:37 $2.18
+  (20%), adds at about $2.28 and $2.38 -> 1,737 shares at $2.303 ($4,000);
+  held through the climb to $3.00 (8:16:37), then $3.00 -> $6.64 in two
+  seconds (8:16:39-40) and the $7.07 top at 8:16:44; sold on the way down at
+  8:17:02 at the bid $4.75 (the half-gain line $4.69): +$4,251 - $2.45 of the
+  $4.77 a share it rose over the average, about half, as designed.
+- The data is real: 11,577 prints in 8:16:30-8:17:10, the quotes moving with
+  them (bid $4.21 / ask $4.22 at 8:16:39, $6.33 / $6.38 at 8:16:40); the bots
+  bought SXTC at 8:16:33-37 themselves. The whole run lasted 2.5 minutes;
+  1,737 shares against 25-47k shares a second traded at the sale.
+- So the exit design (small start, adds on strength, half the gain) can bag
+  a big runner - the piece the bots miss. The entries (speed alone) bleed in
+  between: about -$1,700 to -$1,900 in three days without SXTC. Profitable
+  only if an SXTC-size run comes often enough - more days decide.
+
+### Speed alone vs the crowd alone vs both (~1:45pm; finding)
+- The owner: the crowd and the speed are two separate things - test each
+  alone; the combination "is not the winner".
+- speedsim.play_ladder_crowd (crowd only: a buy on a new high while in the
+  top N by money, or the moment it joins the top N; re-entries on new highs
+  while in the top N; no speed test). Same ease-in, $4,000, three days.
+  | trigger | trades | 3-day P/L, range over 5 settings | without SXTC 10-07 |
+  | speed only | 83-198 | -$1,837 .. +$2,436 (positive only via SXTC) | -$1,281 .. -$2,808 |
+  | crowd only, #1 | 134-389 | -$2,678 .. -$1,494 | -$2,461 .. -$1,281 |
+  | crowd only, top 2 | 201-612 | -$3,384 .. -$2,000 | -$3,239 .. -$1,805 |
+  | crowd only, top 3 | 236-730 | -$4,352 .. +$1,260 (positive only via SXTC) | -$4,181 .. -$1,550 |
+  | both, #1 | 30-58 | -$524 .. -$255 | -$426 .. -$150 |
+  | both, top 2 | 46-106 | -$737 .. -$474 | -$597 .. -$323 |
+- Reading: speed is the trigger that caught the one big run early; the
+  crowd alone buys the most and loses the most (new highs while in the crowd
+  = tops, again and again); both together trade the least and lose the least,
+  but never made money in these three days. File:
+  replay/live/2026-10-08_secdump/speedsim_speed_vs_crowd.txt.
+
+### ... + re-entry only at speed on a new high of the day (~1:25pm; finding)
+- The owner: re-entry is allowed as often as it comes, per stock - but it
+  must wait for a new high of the day ("that one, it's a must").
+- speedsim.play_ladder_hod: first buy on speed; after a sale, back in only
+  when speed is on AND the price makes a new high (the window's high so far -
+  the read starts 5 min before the bots' first buy, so an earlier high of the
+  day is not seen).
+  | filter | stop / half from | trades | won | P/L | without SXTC 10-07 |
+  | none | 3c / 10c | 122 | 9% | +$2,436 | -$1,694 |
+  | none | 5c / 10c | 103 | 9% | +$2,171 (SXTC 8:14 +$4,251) | -$1,911 |
+  | crowd top 3 | 5c / 5c | 95 | 24% | -$1,273 | -$696 |
+  | crowd top 2 | 5c / 5c | 75 | 27% | -$474 | -$323 |
+  | crowd #1 | 3c / 10c | 44 | 11% | -$255 | -$150 |
+  Same picture: positive only with SXTC's early entry (no filter); every
+  crowd-filtered version loses; the new-high rule trims the churn but does
+  not flip a result. The 10c steps are large on sub-$1 stocks (FRGT 10-06,
+  $0.72 first fill, the add filled in a jump, -$402), and adds into a gap fill
+  far above the step (SXTC 8:16:37 $3.00 -> average $4.20, -$404).
+  Output: replay/live/2026-10-08_secdump/speedsim_hod_rebuy_run.txt.
+
+### ... + the day's top names (~1:10pm; finding)
+- The owner: only stocks that are moving and where the crowd is - the
+  day's #1-#3 by money (and/or the top 3 gainers), up 10%+.
+- replay/research/ranks.py ranks each minute: money in the last 5 closed
+  minutes among the day's names (10-06: 79 names, 10-07: 132 - the recorded
+  bars from claude/zealous-ramanujan-br3gay; 10-08: only the 17 traded names).
+  Gainer ranks need the previous close, missing for 94 of 206 signals (SXTC
+  10-07 among them) - the gainer / up-10% filters are not trustworthy here;
+  the crowd filter is (every window's stock was on the up-10% list).
+  | filter | stop / half from | trades | won | P/L |
+  | none | 5c / 10c | 129 | 10% | +$2,323 (SXTC 10-07 +$3,967; without it -$1,644) |
+  | crowd top 3 | 5c / 5c | 100 | 24% | -$625 |
+  | crowd top 2 | 5c / 5c | 85 | 25% | -$425 |
+  | crowd #1 | 5c / 5c | 57 | 23% | -$333 |
+  Every filtered version loses (-$333 to -$1,784 in three days); losses small
+  and spread out. Why: the crowd comes late - SXTC 10-07 was #6 by money when
+  its run began ($2.18, 8:14:36), #3 at 8:16:32 ($2.87, shaken out -$8, the run
+  to $7.07 went on without it), #1 at 1:40-1:59pm near its top (9 tries, all
+  stopped, -$155). Files: speedsim_crowd_run.txt, speedsim_filters_run.txt;
+  replay/research/speedsim_ranked.py.
+
+### The speed strategy with the owner's ease-in (~12:40pm; finding)
+- The owner: "I hate to add rules, but smart simpler rules might help" - 20%
+  of the position at the speed buy, to 50% at +10c over the first fill, full
+  at +20c (cents, not percent, so $1 stocks are not skewed). Floor at the
+  average after an add; half the gain; back in on the next burst.
+- speedsim.py ladder, same 72 windows, full = $4,000:
+  | stop / half from / back in | trades | won | P/L | without SXTC 10-07 |
+  | at the buy / 1c / yes | 202 | 8% | -$1,360 (was -$6,764 at full size) | - |
+  | 3c under / 10c / yes | 154 | - | +$2,402 | -$1,625 |
+  | 5c under / 10c / yes | 129 | 10% | +$2,323 | -$1,644 |
+  | 5c under / 8c / yes | 137 | - | -$1,760 (SXTC cut early: -$275) | -$1,485 |
+  | 10c under / 10c / yes | 118 | 22% | +$573 | -$3,340 |
+- The ease-in cuts what the failures cost to about a fifth. Every positive
+  version is one trade: SXTC 10-07 8:14 first $2.18, avg $2.30 after both
+  adds, best $7.07, +$4,251. Without it every version loses $1,500-3,400 in
+  three days; arming the half-gain exit at 8c instead of 10c turns +$2,323
+  into -$1,760 - fragile. The question is how often an SXTC-size runner comes
+  and whether it is ridden: needs 10-09 (VIVK, MI, VEEA, NTCL - tonight's
+  read) and more days. Output: replay/live/2026-10-08_secdump/speedsim_ladder_run.txt.
+
+### The owner's simple speed strategy, tested on the three days (~12:20pm; finding)
+- The owner: a simpler strategy - buy only at speed (the furious test, no
+  patterns, no spread / liquidity checks), out when it comes back to the buy
+  (or the floor after adds), else on giving back half the gain ("the longer
+  it runs, the longer the leash"), back in at once on the next speed burst.
+  Test only on the days with second-by-second data (minute bars would paint
+  it rosy - the owner).
+- replay/research/speedsim.py on SEC_DUMP's 72 windows (10-06..10-08; only
+  around the bots' buys): 206 speed signals; $4,000 a trade; buy at the ask
+  1s after the signal, sell at the bid 0.5s after the decision.
+  | stop / half the gain from / back in | trades | won | P/L |
+  | at the buy / 1c / yes | 202 | 8% | -$6,764 |
+  | 2c under / 5c / yes | 172 | 15% | -$5,975 |
+  | 5c under / 5c / yes | 140 | 29% | -$4,374 |
+  | 10c under / 1c / yes | 164 | 24% | -$2,446 (one trade, SXTC 10-07 8:16 $2.87 -> best $7.07, +$2,925; without it -$5,371) |
+  | first signal only (no re-entry), 2c / 5c | 51 | 20% | -$2,229 |
+  Every variant loses on every day but one (10-07 with the 10c stop, SXTC).
+  The average loss is about $40-57 a trade = the spread and the sale at the
+  bid (1-1.4% of $4,000); a stop at the buy price is hit at once on most
+  buys - the bought print is the top of the burst. Re-entering at once
+  multiplies the trades (202 vs 51) and the losses. Output:
+  replay/live/2026-10-08_secdump/speedsim_run.txt.
+
+### The owner on the research (~10am): keep our method, fine-tune it
+- The research gave "the full picture of what's out there"; sources from
+  people selling courses, signals or algorithms are not reliable by any
+  measure - good to know. Direction: keep doing what we do and fine-tune it.
+  The daily losses have shrunk with the tweaks (10-07: v36 -9.45%, v36b
+  -8.62%; 10-09 at 9:16am: v36 -1.3%, v36b -0.4%, v37 -0.7%). Next: make the
+  method more efficient and find a way to keep the runners and raise the
+  returns on the high runners. The owner will think and bring more ideas.
+  Report: reports/Small cap momentum strategy evidence.md; the map:
+  https://claude.ai/artifact/PT9fPxUXei5HVJsBRoKGDG
+
+### Standing rule (the owner, ~9:35am): don't throw the baby out with the bath water
+- Too many rules stacked on each other paralyze the bots: they let a lot of
+  good moves go. A check that removes a few bad trades but blocks good moves
+  is not worth having. Every proposed check is judged on both sides, over
+  days: the losers it removes and the good moves it would have blocked.
+  Added to CLAUDE.md's standing rules (no over-fitting).
+
 ## 2026-10-08
 
 ### DECISION (the owner, ~10:35pm): furious 25% then 50% of the account; v37 fast 20% then 40%

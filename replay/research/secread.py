@@ -7,7 +7,8 @@ Writes, per window (a day, a symbol, the buys whose 30 minutes overlap):
         "buys" ["HH:MM:SS.mmm" ET], "T": [[ms after start, price, size, conds]],
         "Q": [[ms, bid, ask, bid size, ask size]], "S": [[second after start, open,
         high, low, close, volume, prints, bid, ask, lowest bid]], "missing": [minute
-        offsets with no data or a missing piece]}
+        offsets with no data or a missing piece], "hod_before": the day's high
+        before the window (r34.40's SECDUMP HOD line; None before)}
 and <out>/fills.json: {strategy: {day: [[ "HH:MM:SS", "B"/"S", sym, qty, price ]]}}
 from the "[vNN] history <day> #n:" lines."""
 import base64, glob, gzip, json, os, re, sys, zlib
@@ -17,6 +18,7 @@ from zoneinfo import ZoneInfo
 ET = ZoneInfo("America/New_York")
 DATA = re.compile(r"SECDUMP (\d{4}-\d\d-\d\d) (\S+) (\d\d:\d\d:\d\d) (\d+) (\d+)/(\d+) (\S+)$")
 WIN = re.compile(r"SECDUMP (\d{4}-\d\d-\d\d) (\S+) (\d\d:\d\d:\d\d)-(\d\d:\d\d:\d\d): (\d+) buys \(([^)]*)\)")
+HODL = re.compile(r"SECDUMP HOD (\d{4}-\d\d-\d\d) (\S+) (\d\d:\d\d:\d\d): the day's high before the read ([\d.]+)")
 HIST = re.compile(r"\[(\w+)\] history (\d{4}-\d\d-\d\d) #\d+: (.*)$")
 
 
@@ -26,7 +28,7 @@ def epoch(day, hms):
 
 def main(src, out):
     os.makedirs(out, exist_ok=True)
-    pieces, wins, fills = {}, {}, {}
+    pieces, wins, fills, hods = {}, {}, {}, {}
     opener = gzip.open if src.endswith(".gz") else open
     for line in opener(src, "rt", encoding="utf-8"):
         line = line.rstrip("\n")
@@ -34,6 +36,11 @@ def main(src, out):
         if m:
             day, sym, a, off, i, n, text = m.groups()
             pieces.setdefault((day, sym, a, int(off)), {})[int(i)] = (int(n), text)
+            continue
+        m = HODL.search(line)
+        if m:                                 # r34.40: the day's high before the window
+            day, sym, a, hod = m.groups()
+            hods[(day, sym, a)] = float(hod)
             continue
         m = WIN.search(line)
         if m:
@@ -67,7 +74,8 @@ def main(src, out):
                 missing.append(off)               # a piece that does not decode: left out
                 continue
             T += blob["T"]; Q += blob["Q"]; S += blob["S"]
-        rec = dict(day=day, sym=sym, start=start, end=end, buys=buys, T=T, Q=Q, S=S, missing=missing)
+        rec = dict(day=day, sym=sym, start=start, end=end, buys=buys, T=T, Q=Q, S=S, missing=missing,
+                   hod_before=hods.get((day, sym, a)))
         path = os.path.join(out, f"{day}_{sym}_{a.replace(':', '')}.json.gz")
         with gzip.open(path, "wt") as f:
             json.dump(rec, f, separators=(",", ":"))

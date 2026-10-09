@@ -1,0 +1,9 @@
+=== 2026-10-07 SXTC window 08:11:33-08:47:06, setting A+ (stop 3c under, half-back from +$0.10) - 1 trade(s), P/L +5125
+  #1 signal 08:14:36 -> buy 08:14:37 366 sh at the ask $2.180 ($798), stop $2.150
+     08:14:57 add 527 sh at $2.280 -> average $2.239, stop rises to $2.209
+     08:15:12 up +$0.10 over the average: half-back line on (best $2.340)
+     08:15:29 add 844 sh at $2.370 -> average $2.303, stop rises to $2.273
+     08:16:40 SOLD 434 sh at $4.605 (resting sell, +100% over the average $2.303)
+     08:16:44 SOLD 434 sh at $6.908 (resting sell, +200% over the average $2.303)
+     08:17:02 OUT (line) at the bid $4.750 - 869 sh, average $2.303, best $7.070, held 144s: +5125   | next 5 min: high $4.83, then $3.06
+

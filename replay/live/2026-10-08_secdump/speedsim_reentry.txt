@@ -1,0 +1,11 @@
+RE-ENTRIES - variant A with the scale-out, 72 windows (50 with the day's high before the window)
+a cell: trades, P/L
+
+re-entry rule                                            PRE             RTH           AFTER             ALL   first buys    re-entries
+speed + a new high of the day                    74    +3975     26     -408     18     -221    118    +3347    51   +4492    67   -1145
+speed + over the day's high + 2c                 69    +4020     26     -401     14     -152    109    +3466    51   +4492    58   -1026
+speed + over the day's high + 5c (v36)           53    +4427     22     -385     10     -114     85    +3928    51   +4492    34    -564
+speed + over the day's high + 10c                40    +4747     18     -341      8      -99     66    +4308    51   +4492    15    -184
+new high, at most 2 re-entries                   52    +4328     24     -399     16     -203     92    +3726    51   +4492    41    -767
+new high, 60s after the last sale                39    +4837     20     -397      9     -107     68    +4333    51   +4492    17    -159
+no re-entries                                    28    +4904     15     -313      8      -99     51    +4492    51   +4492     0      +0
