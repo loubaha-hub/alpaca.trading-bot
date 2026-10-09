@@ -61,10 +61,20 @@ Settled today by the owner (no change):
      the lowest low and the last red's open)
   b. Entry at the red's open exactly, or 1c over (the bot buys 1c over)?
   c. Furious buys: stay outside it (room is set aside when furious).
-  d. Keep the old prior-day-high check too (both must pass), or drop it?
+  d. ANSWERED: keep yesterday's high; the nearer of the two walls decides.
   e. v37 does not buy the pattern (it buys over the day's high) - v36/v36b only.
 - Touches #2: it filters #2's pullbacks (VEEA's estimates to redo with this
   definition on the tape).
+- The owner (~9:20am): yesterday's high IS a wall to keep - "a very important
+  point". Take the NEARER wall above the buy - the green's wick top or
+  yesterday's high - and if that one is not 2x the risk away, no buy.
+  Today's high is not a separate wall (the other buys are over it). And:
+  "I don't want tons and tons of rules ... it will paralyze the bots ... when
+  you have a very good move the bot will be blocked" - discuss before adding.
+- So it is ONE rule, not a new one: the existing room check (V35_ROOM_RR 2.0)
+  gets a second wall - room = the buy to the nearer of (the green's wick
+  top, yesterday's high), at least 2x the risk. Furious buys stay outside
+  it, so a very good move is never stopped by it. Holes a and b still open.
 - My call: worth building - it is the owner's own rule from the playbook
   ("Room: the next resistance must be at least double the risk away"), it
   removes buys rather than adding them, and it is one comparison. Test it on

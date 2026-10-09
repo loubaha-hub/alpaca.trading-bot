@@ -28,6 +28,10 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   the wick of the green before the red; gain at least 2x risk, or no buy.
   "It's a good rule to have." The bot's room check (V35_ROOM_RR) measures to
   the PREVIOUS day's high only. Words and holes: memory/proposals_1009.md #3.
+- The owner (~9:20am): keep yesterday's high as a wall; take the nearer of
+  the two (the green's wick top or yesterday's high) - under 2x the risk, no
+  buy. Today's high is not a separate wall. Do not stack rules until the bots
+  are paralyzed: a very good move must not be blocked - discuss before adding.
 
 ## 2026-10-08
 
