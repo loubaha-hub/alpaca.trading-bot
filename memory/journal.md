@@ -5,6 +5,21 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-08
 
+### Trading like the owner: a few trades a day (finding, ~9pm)
+- The owner: "1, 2 or 3 trades a day, sometimes none; under a dozen even
+  scalping. A day with no trade beats a day worked and lost." The bots:
+  v36 16/42/36 trades on 10-06/07/08, v36b 5/42/39, v37 110/11/20.
+- Live P/L of only the trades kept, 3 days: v36 all -$1,718 | first trade a
+  day +$268 | first 3 +$239 | stop after the 1st loss +$138 | after 2 losses
+  +$144. v36b -$1,032 | +$111 | -$1 | +$97 | +$24. v37 -$1,790 | +$2 | -$76
+  | -$3 | -$36. The first trades of the day (the 4am leaders) were the good
+  ones; the rest lost.
+- Costs: the spread plus paying over the ask seen were ~70-80% of v36/v36b's
+  losses and more than v37's whole loss (3 days, approximate).
+- Caveat: 3 days, 3-9 trades - AIXI 10-08 +$329 carries v36's numbers. A
+  daily limit touches the owner's 10-08 decision (no limit on entries;
+  LPCN 10-07). To test on earlier days' fills before any rule.
+
 ### Keeping the runners: the dip before the run (finding, ~8:45pm)
 - The owner: the goal is keeping the runners. replay/research/runner_dips.py:
   most runners fell 20c+ under the buy before their top - v36 18 of 28,
