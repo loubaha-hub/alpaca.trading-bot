@@ -1026,7 +1026,7 @@ def test_a_print_under_starts_the_level_clock_again(v36, clock, monkeypatch):
 
 
 def test_furious_half_a_position_first_the_rest_when_it_moves(v36, clock, broker,
-                                                               monkeypatch):
+                                                               monkeypatch, caplog):
     """The owner, 10-08 night: "for a furious stock put in 50% first; it starts
     to move and moves really nicely - the other 50%" (was the full position on
     the first hit). The rest is the last add: +20c over the buy, a new high;
@@ -1034,16 +1034,19 @@ def test_furious_half_a_position_first_the_rest_when_it_moves(v36, clock, broker
     monkeypatch.setattr(v36, "speeding", lambda s, p: True)
     s = deep_pullback(v36, clock, 9.92)
     tick(v36, s, TRIGGER)
-    full = broker.eq * bot.V36_POSITION_PCT
     assert entered(v36, s) and s.v36_furious
-    assert s.shares * s.entry == pytest.approx(0.5 * full, rel=0.06)
+    # "25% of the account, then when you add, make it 50% of the account"
+    assert s.shares * s.entry == pytest.approx(0.25 * broker.eq, rel=0.06)
     assert s.v36_adds == 1
     assert s.stop >= TRIGGER * (1 - bot.V36_FURIOUS_STOP_MAX) - 1e-9
     tick(v36, s, round(s.v36_first + 0.12, 2))            # +12c: not yet
     assert s.v36_adds == 1
     tick(v36, s, round(s.v36_first + 0.21, 2))            # +21c, a new high: the rest
     assert s.v36_adds == 2
-    assert s.shares * s.v36_first == pytest.approx(full, rel=0.06)
+    assert s.shares * s.v36_first == pytest.approx(0.50 * broker.eq, rel=0.06)
+    assert s.stop == pytest.approx(s.entry)               # after the add: the average
+    run(v36.self_check())                                 # 50% is within its cap
+    assert "SELF-CHECK VIOLATION" not in caplog.text
 
 
 def test_furious_all_at_once_when_set_so(v36, clock, broker, monkeypatch):
@@ -1056,9 +1059,10 @@ def test_furious_all_at_once_when_set_so(v36, clock, broker, monkeypatch):
 
 
 def test_the_sizes_the_owner_set_10_08():
-    """20%, then 50%, then all; furious 50% first, then the rest."""
+    """20%, then 50%, then all; furious 25% of the account, then 50%."""
     assert bot.V36_STARTER == 0.20 and bot.V37_STARTER == 0.20
-    assert bot.V36_FURIOUS_FIRST == 0.50
+    assert bot.V36_FURIOUS_FIRST == 0.50 and bot.V36_FURIOUS_PCT == 0.50
+    assert bot.V37_ACCEL_SIZE == ((0.15, 0.20), (0.20, 0.20), (0.30, 0.325))
     assert bot.V36_ADD1_TO == 0.50 and bot.V36_ADD2_TO == 1.00
 
 

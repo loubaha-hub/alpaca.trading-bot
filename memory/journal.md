@@ -5,6 +5,18 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-08
 
+### DECISION (the owner, ~10:35pm): furious 25% then 50% of the account; v37 fast 20% then 40%
+- Corrections to r34.37: "you cannot start with that small of a position":
+  v37's fast buys under furious speed 20% of the account (were 8%), built to
+  the full 40% by the +20c add; v36 / v36b furious 25% of the account first
+  (were 12.5%), the add (+20c over the buy, a new high) to 50% of the
+  account; v37 furious 32.5% then 65% ("the 65 you have is good"). Regular
+  buys unchanged (20% of a full position: v36/v36b 5%, v37 8%).
+- r34.38: V36_FURIOUS_PCT 0.50 (a furious position's full size), add_step
+  sizes a furious add from it, the self-check cap for v36/v36b raised to 60%
+  (else a 50% position logs a false VIOLATION); V37_ACCEL_SIZE 0.20 / 0.20 /
+  0.325. The owner: "Perfect. That's it."
+
 ### DECISION (the owner, ~10:20pm): ease in 20 / 50 / 100; furious 50% then 50%
 - "Regular: 20%, then 50%, then all. Furious: put in 50% first; it starts to
   move and moves really nicely - the other 50%." Then: "after you have tested

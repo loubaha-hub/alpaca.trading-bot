@@ -1,11 +1,16 @@
 # Where things stand
 
-Updated 2026-10-08, ~10:27pm ET.
+Updated 2026-10-08, ~10:40pm ET.
 
 ## Now (10-08 night)
 - Working branch: `claude/happy-ride-o56nlz`. Nothing goes to `main`
   without the owner's OK; a push to `main` restarts the bot.
-- Live: **r34.37** (main 1caa5a5, up 10:24:46pm 10-08, all three 0 positions;
+- Releasing **r34.38** (~10:40pm 10-08): r34.37 with the owner's corrected
+  sizes - v36/v36b furious 25% of the account first, to 50% on the add (+20c,
+  a new high); v37 fast under furious speed 20% of the account, to 40% at +20c;
+  v37 furious 32.5% then 65%; regular buys 20% of a full position (v36/v36b
+  5% of the account, v37 8%).
+- r34.37 (main 1caa5a5, up 10:24:46pm 10-08, all three 0 positions;
   the owner: "tested ... then deploy") = r34.36 + the sizes: a
   regular first buy 20% of a full position (was 10%), then 50%, then all;
   a furious buy 50% first (v36/v36b 12.5% of the account, the rest at +20c on

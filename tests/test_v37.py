@@ -1460,6 +1460,24 @@ def test_a_spike_keeps_two_thirds_of_its_gain(v37, clock, now, monkeypatch):
     assert not s.in_position and v37.closed_today[-1][5] == "giveback"
 
 
+def test_fast_under_furious_starts_at_20_percent_and_builds_to_40(v37, clock, now,
+                                                                  monkeypatch, broker):
+    """The owner, 10-08 night: "you cannot start with that small of a position -
+    20%, then work it out to 40% of the account"."""
+    monkeypatch.setattr(bot, "V37_ACCEL", True)
+    monkeypatch.setattr(bot, "V37_ASK_PLUS", 0.0)
+    monkeypatch.setattr(v37, "real_speed", lambda s, p: 0.22)   # fast, not furious
+    s = accelerating_stock(v37, clock)
+    tick(v37, s, now, 11.62)
+    assert s.in_position
+    first = s.v36_first
+    assert s.shares * s.entry == pytest.approx(broker.eq * 0.20, rel=0.05)
+    tick(v37, s, now, round(first + 0.11, 2))             # +10c: already half of 40%
+    assert s.shares * s.entry == pytest.approx(broker.eq * 0.20, rel=0.05)
+    tick(v37, s, now, round(first + 0.21, 2))             # +20c: the full 40%
+    assert s.shares * first == pytest.approx(broker.eq * 0.40, rel=0.05)
+
+
 def test_the_acceleration_is_on():
     """The owner, 10-07 9:40am: "those fixes have to be implemented right away"."""
     assert bot.V37_ACCEL and bot.V36_ACCEL

@@ -154,7 +154,7 @@ RISK_CHECK_SECONDS = 5                      # the halt runs on a CLOCK, not tick
 # The file name and this string are changed together, every single time. The
 # log then answers "which code is actually running?" without anyone guessing
 # from line numbers or from behaviour that only shows up once a trade is on.
-VERSION = "v31-r34.37"
+VERSION = "v31-r34.38"
 
 # WHERE THE DAY'S HALT BASELINE COMES FROM.
 #   "last_equity" - equity at the PREVIOUS session's close, read from the broker.
@@ -1752,8 +1752,8 @@ class Strategy:
                "v35": V35_MAX_POSITION_PCT,
                # v36 buys to 25% of equity on the way up; a runner it holds
                # keeps growing past that, as v35's does.
-               "v36": V35_MAX_POSITION_PCT,
-               "v36b": V35_MAX_POSITION_PCT,
+               "v36": max(V35_MAX_POSITION_PCT, V36_FURIOUS_PCT + 0.10),
+               "v36b": max(V35_MAX_POSITION_PCT, V36_FURIOUS_PCT + 0.10),
                "v37": max(0.60, V37_ACCEL_MAX_PCT + 0.10)}.get(
                    self.name, MAX_POSITION_PCT)   # 40% (65% furious), grown by a run
         total_value = 0.0
@@ -4328,11 +4328,13 @@ V36_LEVEL_GIVE = 0.01           # buy, this far under it - "it goes under three,
 V36_FURIOUS_FULL = True         # furious (speeding): the FULL position in the first buy -
                                 # "I enter with a full position on the very first hit; if
                                 # I miss, I try again"...
-V36_FURIOUS_FIRST = 0.50        # ...since 10-08 night half of it (the owner: "for a
-                                # furious stock put in 50% first; it starts to move and
-                                # moves really nicely - the other 50%"): the rest is the
-                                # last add, V36_ADD2_AT over the buy on a new high that
-                                # holds (as a regular buy's last add). 1.0 = all at once
+V36_FURIOUS_PCT = 0.50          # ...a furious position is this share of equity (a
+                                # regular one V36_POSITION_PCT, 25%)...
+V36_FURIOUS_FIRST = 0.50        # ...and since 10-08 night half of it first (the owner:
+                                # "furious: 25% of the account, then when you add, make
+                                # it 50% of the account"): the rest is the last add,
+                                # V36_ADD2_AT over the buy on a new high that holds (as a
+                                # regular buy's last add). 1.0 = all at once
 V36_FURIOUS_STOP_MAX = 0.08     # ...its stop no further than this under the buy (v37's
                                 # most), and the 10-second leash on it at once...
 V36_FURIOUS_STOP_CENTS = 0.10   # ...and no further than this (dollars) under what it
@@ -4900,7 +4902,7 @@ class V36(_Restore, _Momentum, V35):
                        for x in self.open_positions())
         room = max(0.0, eq * MAX_EXPOSURE_PCT - held_all)
         if s.v36_furious and V36_FURIOUS_FULL:  # "a full position on the first hit"
-            return int(min(eq * V36_POSITION_PCT * V36_FURIOUS_FIRST,
+            return int(min(eq * V36_FURIOUS_PCT * V36_FURIOUS_FIRST,
                            eq * MAX_POSITION_PCT, room) / worst)
         dollars = min(eq * V36_POSITION_PCT * V36_STARTER, room)
         shares = int(dollars / worst)
@@ -5510,10 +5512,12 @@ class V36(_Restore, _Momentum, V35):
                     s.v36_leash_from = time.time()       # the 10-second leash on it
                     left = (" - the rest at %.4f on a new high" % self.add_level(s, s.v36_adds)
                             if s.v36_adds < len(self.add_steps()) else "")
-                    self.log.info("[v36] %s FURIOUS %d shares (%.0f%% of a full position)"
-                                  "%s, buy %d today - stop %.4f, line $%.2f", s.symbol,
-                                  s.shares, 100 * V36_FURIOUS_FIRST, left,
-                                  s.v36_entries, s.stop, s.v36_line)
+                    self.log.info("[v36] %s FURIOUS %d shares (%.0f%% of the account, "
+                                  "to %.0f%%)%s, buy %d today - stop %.4f, line $%.2f",
+                                  s.symbol, s.shares,
+                                  100 * V36_FURIOUS_PCT * V36_FURIOUS_FIRST,
+                                  100 * V36_FURIOUS_PCT, left, s.v36_entries, s.stop,
+                                  s.v36_line)
                 else:
                     self.log.info("[v36] %s STARTER %d shares (%.0f%% of a full "
                                   "position), buy %d today - adds at %.4f and %.4f "
@@ -5551,7 +5555,8 @@ class V36(_Restore, _Momentum, V35):
             held_all = sum(x.shares * (x.last_price or ref)
                            for x in self.open_positions())
             room = max(0.0, eq * MAX_EXPOSURE_PCT - held_all)
-            want = max(0.0, eq * V36_POSITION_PCT * to_fraction - s.shares * ref)
+            full = V36_FURIOUS_PCT if s.v36_furious else V36_POSITION_PCT
+            want = max(0.0, eq * full * to_fraction - s.shares * ref)
             shares = int(min(want, room) / worst)
             if shares * ref < MIN_TRADE_DOLLARS:
                 if V36_ADD_RETRY:
@@ -5864,11 +5869,12 @@ V37_ACCEL = True                # v37: buy it over the last minute's high...
 # The owner, 10-07: "the position has to get bigger, faster - more than half of
 # the account in the next few seconds, 60-70%; I would have used the whole
 # account. You see this once a month or two; it pays for the months."
-V37_ACCEL_SIZE = ((0.15, 0.08), (0.20, 0.08), (0.30, 0.325))  # ...the first buy, a
-                                # (10-08 night: under furious speed a regular start, 20%
-                                # of a full 40%; furious half of V37_ACCEL_MAX_PCT, the
-                                # rest on the add below - "50% first, then the other
-                                # 50%"; was 4% / 10% / 35%)
+V37_ACCEL_SIZE = ((0.15, 0.20), (0.20, 0.20), (0.30, 0.325))  # ...the first buy, a
+                                # (the owner, 10-08 night: under furious speed 20% of the
+                                # account, built to the full 40% by the +20c add;
+                                # furious half of V37_ACCEL_MAX_PCT, the rest on the add
+                                # below - "50% first, then the other 50%"; was 4% / 10%
+                                # / 35%)
                                 # share of the ACCOUNT by the speed...
 V37_ACCEL_MAX_PCT = 0.65        # ...still furious on a new high 2% over the buy:
 V37_ACCEL_ADD_AT = 0.02         # up to this share of the account in one add
