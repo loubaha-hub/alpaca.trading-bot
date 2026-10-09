@@ -1,6 +1,6 @@
 # Where things stand
 
-Updated 2026-10-08, ~10:55pm ET.
+Updated 2026-10-08, ~9:45pm ET.
 
 ## Now (10-08 night)
 - Working branch: `claude/happy-ride-o56nlz`. Nothing goes to `main`
@@ -22,7 +22,7 @@ Updated 2026-10-08, ~10:55pm ET.
   accounts' fills 10-01..10-08 and the headlines of every stock bought.
 - Judge rules per entry, added up over days (the owner, 10-08).
 
-## Clean for 10-09 (the owner, ~10:40pm: "what are the clean ones?")
+## Clean for 10-09 (the owner, ~9:35pm: "what are the clean ones?")
 - v37's 1c exit: gone - the 5c cut is live since 6:02pm (r34.35).
 - PROPOSED, words in memory/words_buy_at_ask.md, waiting for the owner: v37's
   fast buys and v36b's furious buys AT THE ASK, not ask + 20c - better on all

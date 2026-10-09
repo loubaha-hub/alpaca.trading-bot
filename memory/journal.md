@@ -5,7 +5,7 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-08
 
-### The owner: what is clean for 10-09 - v37's buy, v36b's leash (~10:50pm)
+### The owner: what is clean for 10-09 - v37's buy, v36b's leash (~9:40pm)
 - The owner: v37 loses "nonstop in that one cent" - change its entry now; v36
   beats v36b because of its leash up front - do something for v36b's entry.
 - v37's 1c: already gone - "half the gain from 1c" (10-08: -$742, 0 of 19

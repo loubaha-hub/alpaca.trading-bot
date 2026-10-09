@@ -1,6 +1,6 @@
 # Buy at the ask (v37, and v36b's furious buys) - words for the owner to read
 
-Written 10-08 ~10:50pm, before any code (the owner's "words before code").
+Written 10-08 ~9:40pm, before any code (the owner's "words before code").
 Status: PROPOSAL - waiting for the owner's yes / change / no.
 
 ## Why
@@ -46,7 +46,7 @@ one-second burst. A limit at the ask buys only where sellers already are.
 - The owner's 10-07 "keep trying" sweep at the ask + 20c (V37_SWEEP_CENTS):
   the sweep stays, the cents become 0 for v37 and v36b.
 - The owner's 10-08 decision "the buy stays as is (pays up on flying
-  stocks)": reversed for v37 and v36b only, by the owner's ask (10-08 ~10:40pm:
+  stocks)": reversed for v37 and v36b only, by the owner's ask (10-08 ~9:35pm:
   "the entry for v37 ... I would have to change immediately").
 - Nothing else: entries, sizes, stops and exits are untouched.
 
