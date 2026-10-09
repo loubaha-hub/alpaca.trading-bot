@@ -111,6 +111,8 @@ Updated 2026-10-09, ~12pm ET.
   every table split PRE / RTH / AFTER (the owner's standing rule, 10-09).
 - Found so far (journal 10-09): on the slices of big runs already read, the
   speed strategy keeps only SXTC; 74% of its trades are out within 5s.
+- DECIDED 10-09 ~3:50pm: variant A of the speed strategy (3c stop, half-back
+  from +10c, ease-in, new-high re-entries) with the scale-out.
 - The owner's scale-out (decided 10-09 ~3:20pm, in every study): a quarter
   sold at +100%, a quarter at +200%, the last half on the half-back line.
   Tonight's read decides BIYA 8:20 ($2.54 -> $33.96) - the test of it. To

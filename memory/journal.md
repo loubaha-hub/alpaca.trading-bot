@@ -5,6 +5,18 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-09
 
+### DECISION (the owner, ~3:50pm): A is the variant - the 3c stop, with the scale-out
+- The owner: both catch the big runners; A loses much less on its small
+  losers (about -$20 vs -$174) - "A is definitely superior".
+- The speed strategy's variant from now on: speed entry; ease-in 20% / 50%
+  at +10c / full at +20c; stop 3c under the buy (under the average after
+  adds); half-back line from +10c; re-entry at speed on a new high of the
+  day; the scale-out (a quarter at +100%, a quarter at +200%).
+- Noted to the owner: on runs that wiggle (AIXI, XHG 9:37, INHD) B's wider
+  leash kept part while A was shaken out; tonight's read (whole runs, top
+  runners, BIYA, 10-09 - none used to design it) is A's check, B and B'
+  shown beside it.
+
 ### Why A beats B three to one with the scale-out (~3:40pm; finding)
 - The owner: A +$3,309 vs B +$1,246 - why? Both keep the same SXTC trade
   (+$5,125); the gap is the other trades. A: 121 trades -$1,815 - 111
