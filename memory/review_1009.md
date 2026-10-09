@@ -125,3 +125,30 @@ high, then $1.40-1.65 chop to ~5:30 and a fade to $1.28 by 8:15.
 - v37 bought the top of a 1-second burst ($1.48 print, bid $1.40 a second
   later); the 5c cut sold it in 2s. v37 did not buy the 4:33:43 burst - no
   line in the log (a quiet check; the tape will tell).
+
+## MI: why v37 did not buy right over the day's high (the owner's question, ~8:40am)
+- The owner: v36/v36b not in the first minute is fine (the wick would have
+  shaken them; after it, too volatile - "I won't trust that pattern");
+  the one thing to examine: v37 did not buy right after the high of the day.
+- MI's high before the burst: $1.13 (v36's furious "new-high trigger
+  1.1300"). 4:32:00: $1.05, $98k traded in 5 min (#5 by money, #2 gainer).
+  4:32:00-4:32:38: ~215,000 shares, $1.05 -> $1.34 (the tape at 4:32:39:
+  215,463 shares in the last 60s).
+- v37 has two doors, and both need $250,000 traded in the last 60 seconds:
+  - the regular buy: the #1/#2 by money with $1M+ in 5 min, or the top
+    gainer - MI was #5 and #2 - then "flying": up 3% in 60s on $250k
+    (V37_FAST_DOLLARS);
+  - the fast / furious buy: the owner's speed 0.30+ on $250k in the last
+    minute (ACCEL_DOLLARS), the last candle not red.
+  The speed was there early (1.22 at 4:32:38, far over 0.30); the money was
+  not. It reached $250k at about 4:32:38 with MI at $1.34 - 21c (19%) over
+  the $1.13 high. v36/v36b's furious door opened that same moment (4:32:38.3).
+- v37 went 2.1s later (4:32:40.5, $1.42) - most likely its extra tape check
+  (60% of shares at the ask; the tape read 61/39 at 4:32:39.5, right at the
+  edge) - to confirm on the tape. Its first order at the $1.44 ask got 0;
+  the second (ask $1.49) filled 2,019 @ $1.45 at 4:32:43.7 - the top of the
+  burst; the bid $1.40; the 5c cut out in 2s.
+- To test on the tape tonight (all days, not MI alone): when MI crossed
+  $1.13 and its money crossed $100k / $150k / $250k in a minute; where v37
+  would have bought with a lower money bar, and whether the wick shook it out
+  (the owner expects so); the same for every furious buy of 10-06..10-09.
