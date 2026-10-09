@@ -97,6 +97,9 @@ Updated 2026-10-09, ~12pm ET.
   from now on, every move the owner says he would have taken (his charts) is
   kept in memory/would_take.md with the check that blocked it - after 1-2
   weeks, the rule that blocks the most good moves is the one to look at.
+- 10-09 ~2pm: the owner OK'd releasing r34.40 NOW (all three flat at 2:01pm, 0
+  positions). The push to main was refused by this session's permission check -
+  waiting for the owner to allow it (or to merge the branch himself).
 - r34.40 on the branch (678 tests pass; r34.39 + the top runners): the
   read-only second-by-second read of every 10-09 buy of the three (10 min
   before to 50 after), the named moments (NTCL 10-09 8:30, BIYA 10-07 8:20,
