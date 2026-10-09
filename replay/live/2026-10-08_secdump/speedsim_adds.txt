@@ -1,0 +1,9 @@
+set adds                                    PRE                  RTH                AFTER                  ALL   runs 40%+   the rest
+A   as the owner's plan        75   7     +3091     29   4      -426     18   0      -229    122  11     +2436       +3145       -709   (trades with adds: 18, +3981)
+    none past step + 5c        75   7     +3160     29   4      -426     18   0      -229    122  11     +2505       +3215       -709
+    no adds at all             78  17        +2     29   5      -340     18   1      -183    125  23      -521         -90       -431
+
+B   as the owner's plan        38  12     +1249     18   7      -194      8   2      -683     64  21      +372       +5404      -5032   (trades with adds: 44, +1771)
+    none past step + 5c        38  13     +2388     17   6     -1042      8   2      -683     63  21      +663       +5084      -4421
+    no adds at all             39  19      +176     17   9        +3      8   3      -189     64  31       -11       +1156      -1166
+

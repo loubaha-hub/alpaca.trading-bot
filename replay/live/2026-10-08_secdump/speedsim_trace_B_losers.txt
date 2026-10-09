@@ -1,0 +1,46 @@
+=== 2026-10-06 IPDN window 07:24:00-09:05:44, setting B (stop 10% under the buy / average, half-back from +$0.31) - 4 trade(s), P/L -511
+  #1 signal 07:26:51 -> buy 07:26:52 219 sh at the ask $3.650 ($799), stop $3.285
+     07:27:24 add 287 sh at $4.170 -> average $3.945, stop rises to $3.550
+     07:27:24 add 480 sh at $4.170 -> average $4.055, stop rises to $3.649
+     07:27:51 up +$0.32 over the average: half-back line on (best $4.370)
+     07:27:54 OUT (line) at the bid $4.110 - 986 sh, average $4.055, best $4.370, held 61s: +55   | next 5 min: high $4.82, then $3.88
+  #2 signal 07:28:12 -> buy 07:28:13 175 sh at the ask $4.550 ($796), stop $4.095
+     07:28:56 add 253 sh at $4.750 -> average $4.668, stop rises to $4.201
+     07:28:57 add 428 sh at $4.670 -> average $4.669, stop rises to $4.202
+     07:30:00 OUT (stop) at the bid $4.200 - 856 sh, average $4.669, best $4.850, held 106s: -402   | next 5 min: high $4.52, then $4.31
+  #3 signal 08:20:30 -> buy 08:20:31 116 sh at the ask $6.890 ($799), stop $6.201
+     08:24:09 OUT (stop) at the bid $6.180 - 116 sh, average $6.890, best $6.960, held 217s: -82   | next 5 min: high $6.77, then $6.33
+  #4 signal 08:35:43 -> buy 08:35:44 115 sh at the ask $6.930 ($797), stop $6.237
+     08:43:04 OUT (stop) at the bid $6.220 - 115 sh, average $6.930, best $6.930, held 439s: -82   | next 5 min: high $6.47, then $6.30
+
+=== 2026-10-06 XHG window 08:28:00-09:03:03, setting B (stop 10% under the buy / average, half-back from +$0.20) - 2 trade(s), P/L -560
+  #1 signal 08:32:31 -> buy 08:32:32 219 sh at the ask $3.640 ($797), stop $3.276
+     08:32:34 OUT (stop) at the bid $3.110 - 219 sh, average $3.640, best $3.640, held 1s: -116   | next 5 min: high $4.30, then $2.53
+  #2 signal 08:32:43 -> buy 08:32:44 213 sh at the ask $3.750 ($799), stop $3.375
+     08:32:51 add 278 sh at $4.310 -> average $4.067, stop rises to $3.660
+     08:32:52 add 464 sh at $4.310 -> average $4.185, stop rises to $3.767
+     08:33:00 OUT (stop) at the bid $3.720 - 955 sh, average $4.185, best $4.310, held 15s: -444   | next 5 min: high $4.08, then $2.68
+
+=== 2026-10-06 FRGT window 04:02:00-04:37:00, setting B (stop 10% under the buy / average, half-back from +$0.06) - 3 trade(s), P/L -119
+  #1 signal 04:04:09 -> buy 04:04:10 1111 sh at the ask $0.720 ($800), stop $0.648
+     04:04:31 add 1283 sh at $0.935 -> average $0.835, stop rises to $0.752
+     04:04:31 add 2138 sh at $0.935 -> average $0.882, stop rises to $0.794
+     04:04:30 up +$0.07 over the average: half-back line on (best $0.950)
+     04:04:32 OUT (line) at the bid $0.869 - 4532 sh, average $0.882, best $0.950, held 21s: -62   | next 5 min: high $1.27, then $1.03
+  #2 signal 04:05:14 -> buy 04:05:15 800 sh at the ask $1.000 ($800), stop $0.900
+     04:05:25 up +$0.07 over the average: half-back line on (best $1.070)
+     04:05:28 add 1052 sh at $1.140 -> average $1.080, stop rises to $0.972
+     04:05:28 add 1755 sh at $1.140 -> average $1.109, stop rises to $0.998
+     04:05:28 OUT (line) at the bid $1.130 - 3607 sh, average $1.109, best $1.220, held 12s: +76   | next 5 min: high $1.27, then $1.01
+  #3 signal 04:05:38 -> buy 04:05:39 666 sh at the ask $1.200 ($799), stop $1.080
+     04:06:07 OUT (stop) at the bid $1.000 - 666 sh, average $1.200, best $1.250, held 27s: -133   | next 5 min: high $1.18, then $1.03
+
+=== 2026-10-06 WHLR window 03:58:12-04:33:35, setting B (stop 10% under the buy / average, half-back from +$0.16) - 1 trade(s), P/L -80
+  #1 signal 04:03:13 -> buy 04:03:14 380 sh at the ask $2.100 ($798), stop $1.890
+     04:04:03 OUT (stop) at the bid $1.890 - 380 sh, average $2.100, best $2.150, held 48s: -80   | next 5 min: high $1.89, then $1.82
+
+=== 2026-10-07 BIYA window 04:08:53-05:27:52, setting B (stop 10% under the buy / average, half-back from +$0.19) - 1 trade(s), P/L -192
+  #1 signal 04:13:52 -> buy 04:13:53 296 sh at the ask $2.700 ($799), stop $2.430
+     04:13:58 add 427 sh at $2.810 -> average $2.765, stop rises to $2.488
+     04:14:09 OUT (stop) at the bid $2.500 - 723 sh, average $2.765, best $2.860, held 15s: -192   | next 5 min: high $2.53, then $2.31
+

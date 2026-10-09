@@ -101,7 +101,7 @@ def play(path, sigs, dollars, stop_under, arm, rebuy=True):
 
 
 def run_ladder(path, t0, fill0, full, stop_under, arm, steps=((0.10, 0.5), (0.20, 1.0)), start=0.2,
-               mid_stop=True, stop_pct=0.0):
+               mid_stop=True, stop_pct=0.0, trace=None, add_cap=None):
     """The owner's ease-in (10-09 ~12:30pm): START of the full dollars at the
     speed buy; at the first fill + each step's cents, a buy (at the ask
     BUY_LAG later) up to that share of the full position. The stop: the buy
@@ -112,7 +112,9 @@ def run_ladder(path, t0, fill0, full, stop_under, arm, steps=((0.10, 0.5), (0.20
     average, adds made). mid_stop=False: only a print at the stop sells (the
     middle of a wide spread is not "back at the buy"). stop_pct: the stop that
     far under the buy / the average instead of stop_under (a stop sized to the
-    stock's swing; the steps and the line stay in cents)."""
+    stock's swing; the steps and the line stay in cents). add_cap: an add only
+    at the step's price + add_cap or less - a stock that jumped past it gets
+    no add (the size planned at that price, not at the top of the jump)."""
     if stop_pct:
         stop_under = fill0 * stop_pct
     sh = int(full * start / fill0)
@@ -129,14 +131,20 @@ def run_ladder(path, t0, fill0, full, stop_under, arm, steps=((0.10, 0.5), (0.20
         best = max(best, p)
         while k < len(steps) and p >= fill0 + steps[k][0] - 1e-9:
             px = path.ask_at(t + S.BUY_LAG)
+            if add_cap is not None and px and px > fill0 + steps[k][0] + add_cap + 1e-9:
+                px = None                          # jumped past the step: no add, no chase
             add = int((full * steps[k][1] - cost) / px) if px and px > 0 else 0
             if add > 0:
                 sh += add
                 cost += add * px
                 avg = cost / sh
                 stop = max(stop, avg - (avg * stop_pct if stop_pct else stop_under))
+                if trace is not None:
+                    trace.append((t + S.BUY_LAG, "add", add, px, avg, stop))
             k += 1
         if best - avg >= arm - 1e-9:
+            if trace is not None and line < 0:
+                trace.append((t, "armed", best, avg))
             line = max(line, avg + 0.5 * (best - avg))
         if p <= stop + 1e-9 or (mid_stop and b and a and (b + a) / 2 <= stop + 1e-9):
             xp = path.bid_at(t + S.SELL_LAG)

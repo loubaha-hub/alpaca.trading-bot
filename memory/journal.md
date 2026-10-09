@@ -5,6 +5,34 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-09
 
+### B's big losers trade by trade - the adds bought the top of the jump (~3pm; finding)
+- The owner: IPDN -47%, XHG -42%, FRGT -20%, WHLR -32% (10-06), BIYA -23%
+  (10-07) - one entry or many? (The % is of the run's size, not of money:
+  IPDN ran $3.89 a share, the trades lost $1.83 a share added up, -$511.)
+- replay/research/speedsim_trace.py -> speedsim_trace_B_losers.txt:
+  IPDN 4 entries: +$55; -$402 (bought $4.55, both adds within a second at
+  $4.75 / $4.67 -> 856 shares at $4.67, stopped $4.20); -$82 and -$82
+  (starters at $6.89 / $6.93, the day's top). XHG 8:32 2 entries: -$116
+  (bought $3.64 in the spike, the bid fell to $3.11 in one second); -$444
+  (bought $3.75, BOTH adds at $4.31 - the spike's top - 955 shares at
+  $4.19, out $3.72 15s later). FRGT 3 entries: -$62 (bought $0.72, both adds
+  at $0.935, +30% in one jump), +$76, -$133. WHLR 1 entry, -$80: a clean
+  10% stop, the top of a 4am burst. BIYA 10-07 1 entry, -$192: bought $2.70,
+  added $2.81, out $2.50 (it went to $2.31 - the exit was right, the add
+  doubled the loss). BIYA's $2.54 -> $33.96 at 8:20 is NOT in this read (no
+  bot bought there); it is in tonight's read - the investigation reopens
+  with it, and why the bots did not buy (10-07 logs, Render keeps 7 days).
+- The cause: the ease-in steps are +10c / +20c over the first fill; when the
+  price jumps past both in one second, both adds fill at once at the top -
+  80% of the position at the highest price, the stop under that average.
+  In cents the steps mean +14% / +28% on a 70c stock, +1.4% / +2.8% on $7.
+- speedsim_adds.py -> speedsim_adds.txt, all 72 windows: the adds make the
+  money AND the big losses. B: as planned +$372 (PRE +$1,249 / RTH -$194 /
+  AFTER -$683); no add past the step + 5c +$663 (+$2,388 / -$1,042 / -$683);
+  no adds -$11. A: +$2,436 / +$2,505 / -$521. SXTC: +$4,251 with the adds,
+  +$528 to +$860 without. Capping helps premarket, hurts regular hours -
+  not a clean fix on three days.
+
 ### The whole picture: the runs AND the bots' losers, and the give-back (~2:40pm; finding)
 - The owner's questions: did the test include all the small losers the bots
   picked? did our entry pick up the big winners? how much did A and B give
