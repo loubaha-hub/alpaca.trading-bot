@@ -1,0 +1,145 @@
+HOW MUCH OF EACH RUN WAS BAGGED - runs of 40%+ inside the read (only the windows read around the
+bots' buys, 10-06..10-08: slices of the runs). Kept = cents a share over the run's cents.
+A = 3c stop, half from +10c   B = 10% stop, half from +10%
+
+== PREMARKET 4:00-9:30 ==
+  day   sym   run low           run high           run% | set trades in run best trade (in -> out)        kept      P/L
+  10-06 AIXI  $1.69 04:12:06    $4.42 04:27:15     162% | A      13     12 04:17 3.09 -> 3.15    2%      -27%     -323
+                                                     0% | B       2      2 04:16 2.54 -> 2.90   13%       18%     +680
+                                              read: 04:12-04:48
+  10-06 FRGT  $0.30 04:02:02    $1.27 04:05:34     324% | A       4      3 04:05 1.11 -> 1.13    2%       -7%     -189
+                                                     0% | B       3      2 04:05 1.11 -> 1.13    2%      -20%     -119
+                                              read: 04:02-04:37
+  10-06 IPDN  $3.10 07:25:24    $6.99 08:35:43     125% | A       9      8 08:20 6.95 -> 6.94   -0%      -32%     -219
+                                                     0% | B       4      3 07:26 4.05 -> 4.11    1%      -47%     -511
+                                              read: 07:24-09:05
+  10-06 NXAT  $0.99 07:30:03    $1.40 07:30:12      41% | A       1      0 07:31 1.16 -> 1.15   -2%       -2%       -7
+                                                     0% | B       1      0 07:31 1.28 -> 1.31    8%        8%     +107
+                                              read: 07:27-08:02
+  10-06 RUBI  $0.83 05:54:21    $1.40 05:54:58      69% | A       1      0 05:55 1.22 -> 1.16  -10%      -10%      -39
+                                                     0% | B       1      0 05:55 1.28 -> 1.26   -4%       -4%      -37
+                                              read: 05:53-06:28
+  10-06 SDEV  $3.70 04:22:07    $5.56 04:47:39      50% | A       1      1 04:25 4.30 -> 4.41    6%        6%     +101
+                                                     0% | B       1      1 04:25 4.30 -> 4.49   10%       10%     +175
+                                              read: 04:21-05:00
+  10-06 WHLR  $1.47 04:01:29    $2.12 04:03:16      44% | A       2      1 04:03 2.10 -> 2.10    0%       -6%      -15
+                                                     0% | B       1      1 04:03 2.10 -> 1.89  -32%      -32%      -80
+                                              read: 03:58-04:33
+  10-06 XHG   $1.95 08:31:26    $4.30 08:32:52     120% | A       4      3 08:32 3.75 -> 3.64   -5%      -36%     -172
+                                                     0% | B       2      2 08:32 4.19 -> 3.72  -20%      -42%     -560
+                                              read: 08:28-09:03
+  10-07 BIYA  $1.86 04:11:01    $2.99 04:54:53      61% | A       2      2 04:13 2.76 -> 2.85    8%        0%      +38
+                                                     0% | B       1      1 04:13 2.76 -> 2.50  -23%      -23%     -192
+                                              read: 04:08-05:27
+  10-07 LPCN  $2.28 06:28:28    $3.97 07:32:14      74% | A       2      2 07:15 3.48 -> 3.45   -2%       -5%      -19
+                                                     0% | B       2      2 07:15 3.62 -> 3.78   10%       -9%       -9
+                                              read: 06:28-07:48
+  10-07 SXTC  $2.00 08:12:23    $6.69 08:16:42     235% | A       1      1 08:14 2.30 -> 4.75   52%       52%    +4251
+                                                     0% | B       1      1 08:14 2.30 -> 4.75   52%       52%    +4251
+                                              read: 08:11-08:47
+  10-08 AIXI  $1.84 04:00:16    $2.66 04:05:55      45% | A       5      5 04:02 2.42 -> 2.41   -1%      -16%      -44
+                                                     0% | B       1      1 04:01 2.35 -> 2.40    6%        6%      +88
+                                              read: 03:56-04:33
+
+== REGULAR HOURS 9:30-4:00 ==
+  day   sym   run low           run high           run% | set trades in run best trade (in -> out)        kept      P/L
+  10-06 XHG   $3.46 09:37:03    $5.51 09:45:57      59% | A       2      2 09:38 3.81 -> 3.77   -2%       -8%      -30
+                                                     0% | B       1      1 09:38 4.07 -> 4.78   35%       35%     +696
+                                              read: 09:34-10:09
+  10-07 CPHI  $0.83 14:08:39    $1.20 14:21:23      45% | A       2      2 14:18 1.12 -> 1.09   -8%      -24%      -66
+                                                     0% | B       2      2 14:18 1.12 -> 1.17   14%      -14%      -39
+                                              read: 14:06-14:51
+  10-07 DKI   $2.22 11:25:02    $3.56 12:03:25      60% | A       1      1 11:26 2.65 -> 2.62   -2%       -2%       -9
+                                                     0% | B       1      1 11:26 2.80 -> 2.86    4%        4%      +84
+                                              read: 11:23-12:07
+  10-07 PFAI  $3.89 14:56:14    $5.73 15:05:54      47% | A       3      3 15:01 5.27 -> 5.20   -4%      -15%      -41
+                                                     0% | B       1      1 15:01 5.27 -> 5.50   12%       12%     +174
+                                              read: 14:49-15:24
+  10-07 SXTC  $5.14 13:46:46    $9.50 14:00:39      85% | A       3      2 13:59 8.83 -> 8.82   -0%      -15%      -68
+                                                     0% | B       3      2 13:59 8.89 -> 9.20    7%       -8%     +145
+                                              read: 13:31-14:29
+  10-08 INHD  $4.86 10:19:30    $6.82 10:32:26      40% | A       3      3 10:20 5.53 -> 5.57    2%        4%      +10
+                                                     0% | B       1      1 10:20 5.52 -> 5.95   22%       22%     +310
+                                              read: 10:15-11:01
+
+== AFTER HOURS 4:00-8:00pm ==
+  day   sym   run low           run high           run% | set trades in run best trade (in -> out)        kept      P/L
+  10-06 VCIG  $1.30 16:01:19    $2.07 16:28:34      59% | A       1      1 16:03 1.62 -> 1.59   -4%       -4%      -15
+                                                     0% | B       1      1 16:03 1.74 -> 1.85   14%       14%     +241
+                                              read: 15:58-16:58
+  10-08 WORX  $4.77 16:47:28    $7.14 16:53:41      50% | A       0      0 -                               0%       +0
+                                                     0% | B       0      0 -                               0%       +0
+                                              read: 16:46-17:23
+
+WHY IT LOST - every trade, setting A (3c stop, half from +10c)
+  paid = the fill over the last print at the signal; spread at the fill; out after s seconds;
+  then: the highest print in the 5 minutes after the sale, and where it was 5 minutes later
+
+2026-10-06 AIXI  run $1.69 04:12:06 -> $4.42 04:27:15 (+162%), 13 trades, P/L -323
+  04:16:03 sig 2.400 fill 2.400 paid +0.000 spread 0.030 | best 2.400 out stop 2.330 after    0s   -23.3 | 5 min: high 3.59 now 3.10
+  04:16:11 sig 2.421 fill 2.460 paid +0.038 spread 0.020 | best 2.460 out stop 2.360 after    1s   -32.5 | 5 min: high 3.59 now 3.05
+  04:16:17 sig 2.440 fill 2.450 paid +0.010 spread 0.030 | best 2.670 out stop 2.560 after   13s   -85.7 | 5 min: high 3.59 now 3.09
+  04:16:58 sig 2.740 fill 2.800 paid +0.060 spread 0.050 | best 2.800 out stop 2.710 after    0s   -25.6 | 5 min: high 3.59 now 3.11
+  04:17:01 sig 2.790 fill 2.750 paid -0.040 spread 0.020 | best 2.750 out stop 2.770 after    0s    +5.8 | 5 min: high 3.59 now 3.10
+  04:17:04 sig 2.820 fill 2.890 paid +0.070 spread 0.060 | best 2.890 out stop 2.840 after    0s   -13.8 | 5 min: high 3.59 now 2.99
+  04:17:14 sig 3.000 fill 3.020 paid +0.020 spread 0.020 | best 3.190 out stop 3.150 after    4s   +38.1 | 5 min: high 3.59 now 2.83
+  04:17:20 sig 3.180 fill 3.300 paid +0.120 spread 0.080 | best 3.300 out stop 3.240 after    0s   -14.5 | 5 min: high 3.59 now 2.83
+  04:17:22 sig 3.100 fill 3.140 paid +0.040 spread 0.050 | best 3.140 out stop 3.050 after    0s   -22.9 | 5 min: high 3.59 now 2.89
+  04:26:43 sig 3.990 fill 4.020 paid +0.030 spread 0.030 | best 4.020 out stop 3.950 after    0s   -13.9 | 5 min: high 4.47 now 3.63
+  04:26:46 sig 4.002 fill 4.050 paid +0.048 spread 0.050 | best 4.100 out stop 4.010 after    4s    -7.9 | 5 min: high 4.47 now 3.61
+  04:26:53 sig 4.062 fill 4.110 paid +0.048 spread 0.040 | best 4.310 out stop 4.120 after    8s   -86.8 | 5 min: high 4.47 now 3.52
+  04:27:15 sig 4.306 fill 4.370 paid +0.064 spread 0.070 | best 4.470 out stop 4.300 after    4s   -40.0 | 5 min: high 4.44 now 3.31
+     7 x top of the burst (never over the fill); the run went on (+10% over the fill within 5 min)
+     2 x rose, then fell back to the stop; the run went on (+10% over the fill within 5 min)
+     2 x rose, then fell back to the stop
+     1 x won; the run went on (+10% over the fill within 5 min)
+     1 x top of the burst (never over the fill)
+
+2026-10-06 FRGT  run $0.30 04:02:02 -> $1.27 04:05:34 (+324%), 4 trades, P/L -189
+  04:04:10 sig 0.711 fill 0.720 paid +0.009 spread 0.019 | best 0.720 out stop 0.701 after    0s   -21.2 | 5 min: high 1.32 now 1.03
+  04:04:13 sig 0.702 fill 0.709 paid +0.007 spread 0.005 | best 0.950 out stop 0.828 after   19s  -230.0 | 5 min: high 1.32 now 1.04
+  04:05:15 sig 1.000 fill 1.000 paid +0.000 spread 0.007 | best 1.220 out line 1.130 after   12s   +75.9 | 5 min: high 1.32 now 1.01
+  04:05:39 sig 1.200 fill 1.200 paid +0.000 spread 0.010 | best 1.250 out stop 1.180 after   23s   -13.3 | 5 min: high 1.19 now 1.03
+     1 x top of the burst (never over the fill); the run went on (+10% over the fill within 5 min)
+     1 x rose, then fell back to the stop; the run went on (+10% over the fill within 5 min)
+     1 x won
+     1 x rose, then fell back to the stop
+
+2026-10-06 IPDN  run $3.10 07:25:24 -> $6.99 08:35:43 (+125%), 9 trades, P/L -219
+  07:26:52 sig 3.570 fill 3.650 paid +0.080 spread 0.170 | best 3.650 out stop 3.290 after    0s   -78.8 | 5 min: high 4.88 now 4.00
+  07:28:13 sig 4.500 fill 4.550 paid +0.050 spread 0.050 | best 4.550 out stop 4.160 after    0s   -68.2 | 5 min: high 4.88 now 4.09
+  07:28:56 sig 4.670 fill 4.730 paid +0.060 spread 0.050 | best 4.730 out stop 4.690 after    0s    -6.8 | 5 min: high 4.88 now 4.47
+  07:28:59 sig 4.630 fill 4.770 paid +0.140 spread 0.080 | best 4.770 out stop 4.680 after    0s   -15.0 | 5 min: high 4.88 now 4.39
+  07:29:04 sig 4.820 fill 4.810 paid -0.010 spread 0.040 | best 4.810 out stop 4.620 after    0s   -31.5 | 5 min: high 4.82 now 4.42
+  08:20:31 sig 6.879 fill 6.890 paid +0.011 spread 0.050 | best 6.890 out stop 6.860 after    0s    -3.5 | 5 min: high 6.96 now 6.37
+  08:20:33 sig 6.904 fill 6.950 paid +0.046 spread 0.050 | best 6.950 out stop 6.940 after    0s    -1.1 | 5 min: high 6.96 now 6.39
+  08:20:35 sig 6.930 fill 6.950 paid +0.020 spread 0.050 | best 6.950 out stop 6.860 after    0s   -10.3 | 5 min: high 6.93 now 6.33
+  08:35:44 sig 6.990 fill 6.930 paid -0.060 spread 0.040 | best 6.930 out stop 6.900 after    0s    -3.4 | 5 min: high 6.93 now 6.65
+     8 x top of the burst (never over the fill)
+     1 x top of the burst (never over the fill); the run went on (+10% over the fill within 5 min)
+
+2026-10-06 XHG  run $1.95 08:31:26 -> $4.30 08:32:52 (+120%), 4 trades, P/L -172
+  08:32:32 sig 3.500 fill 3.640 paid +0.140 spread 0.100 | best 3.640 out stop 3.360 after    0s   -61.3 | 5 min: high 4.31 now 2.53
+  08:32:44 sig 3.532 fill 3.750 paid +0.218 spread 0.070 | best 3.750 out stop 3.640 after    0s   -23.4 | 5 min: high 4.31 now 2.62
+  08:32:46 sig 3.790 fill 3.650 paid -0.140 spread 0.040 | best 3.650 out stop 3.540 after    0s   -24.1 | 5 min: high 4.31 now 2.61
+  08:32:52 sig 4.270 fill 4.310 paid +0.040 spread 0.040 | best 4.310 out stop 3.970 after    0s   -62.9 | 5 min: high 4.30 now 2.63
+     3 x top of the burst (never over the fill); the run went on (+10% over the fill within 5 min)
+     1 x top of the burst (never over the fill)
+
+2026-10-06 XHG  run $3.46 09:37:03 -> $5.51 09:45:57 (+59%), 2 trades, P/L -30
+  09:38:04 sig 3.809 fill 3.810 paid +0.001 spread 0.030 | best 3.840 out stop 3.770 after    2s    -8.4 | 5 min: high 4.70 now 4.70
+  09:39:50 sig 4.280 fill 4.330 paid +0.050 spread 0.030 | best 4.350 out stop 4.210 after    0s   -22.1 | 5 min: high 4.70 now 4.70
+     1 x rose, then fell back to the stop; the run went on (+10% over the fill within 5 min)
+     1 x rose, then fell back to the stop
+
+2026-10-08 AIXI  run $1.84 04:00:16 -> $2.66 04:05:55 (+45%), 5 trades, P/L -44
+  04:01:46 sig 2.188 fill 2.190 paid +0.002 spread 0.020 | best 2.200 out stop 2.160 after    0s   -10.9 | 5 min: high 2.67 now 2.44
+  04:02:01 sig 2.300 fill 2.340 paid +0.040 spread 0.020 | best 2.350 out stop 2.300 after    1s   -13.6 | 5 min: high 2.67 now 2.40
+  04:02:06 sig 2.410 fill 2.420 paid +0.010 spread 0.030 | best 2.420 out stop 2.410 after    0s    -3.3 | 5 min: high 2.67 now 2.42
+  04:02:26 sig 2.460 fill 2.460 paid +0.000 spread 0.020 | best 2.490 out stop 2.450 after    3s    -3.2 | 5 min: high 2.67 now 2.51
+  04:03:02 sig 2.510 fill 2.540 paid +0.030 spread 0.020 | best 2.540 out stop 2.500 after    0s   -12.6 | 5 min: high 2.67 now 2.62
+     2 x rose, then fell back to the stop; the run went on (+10% over the fill within 5 min)
+     1 x top of the burst (never over the fill); the run went on (+10% over the fill within 5 min)
+     1 x rose, then fell back to the stop
+     1 x top of the burst (never over the fill)
+

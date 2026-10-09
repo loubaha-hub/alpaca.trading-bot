@@ -5,6 +5,41 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-09
 
+### Does the speed strategy catch the runners and keep them? (~2:10pm; finding)
+- The owner's questions: does it catch them and keep them; why it lost on
+  AIXI / IPDN / XHG / FRGT 10-06; by stock, how much of each run it bagged.
+  "There is more than one running almost every day ... if we are good at
+  keeping that one in the bag up to near the top, it will pay for all our
+  small costs."
+- replay/research/speedsim_bag.py -> replay/live/2026-10-08_secdump/speedsim_bag.txt.
+  The 19 runs of 40%+ inside the windows read (slices: 35 minutes around a
+  bot buy), each window apart. A = 3c stop, half from +10c; B = 10% stop,
+  half from +10% of the price. Kept = cents a share over the run's cents.
+- CATCH: yes - it bought inside 17 of the 19 runs. KEEP: no, except SXTC
+  10-07 8:14 ($2.00 -> $6.69; one trade $2.30 -> $4.75 = 52% of the run,
+  +$4,251 - it jumped $3.00 -> $6.64 in 2 seconds, the stop never came
+  into it). With A the rest kept -36% to +8% (net of all their trades).
+- WHY IT LOST on 10-06: the stop sits inside the stock's second-to-second
+  swing. AIXI: 13 trades, 8 out within 1 second, the run went on 10% higher
+  within 5 minutes after 10 of the 13. IPDN: all 9 bought the top tick (it
+  never traded over our fill); 7:26:52 spread 17c, sold 36c under the fill
+  in the drop; the steady climb 7:33-8:04 ($4.36 -> $5.83) never gave a new
+  speed signal, so no re-entry. XHG 8:32: four buys in 20 seconds of a
+  one-minute spike ($2.27 -> $4.31), then $2.53 three minutes later - a
+  spike and dump no stop keeps. FRGT ($0.30, under the $1 band): the adds at
+  +10c / +20c (14% / 28% on a 70c stock) put the average near the top, the
+  floor at the average sold the first dip (-$230). Each shake-out pays the
+  spread plus the slip at the bid in a falling second, 5-36c a share.
+- By session, the 40%+ runs only: A - PRE 12 runs 45 trades +$3,363; RTH
+  6 runs 14 trades -$204; AFTER 2 runs 1 trade -$15. B - PRE 20 trades
+  +$3,793; RTH 9 trades +$1,370; AFTER 1 trade +$241. Without SXTC: A about
+  -$1,100, B about +$1,150 on the runners. But B across ALL windows was
+  +$372 (speedsim_stops.py): the 10% stop costs about -$4,700 over three days
+  on the windows with no runner - the runners only just pay for it.
+- Kept by B (a wider leash) where A kept nothing: AIXI 10-06 18% of the run
+  (+$680), XHG 9:37 35% (+$696), INHD 22%, VCIG 14%, PFAI 12%; but IPDN
+  -47%, XHG 8:32 -42%, BIYA -23% 10-07.
+
 ### STANDING INSTRUCTION (the owner, ~1pm): every table split by session
 - "Every table we construct from now on": three compartments - PREMARKET
   (4:00-9:30), REGULAR HOURS (9:30-4:00), AFTER HOURS (4:00-8:00pm), by the
