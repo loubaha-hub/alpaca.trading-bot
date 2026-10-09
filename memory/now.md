@@ -1,10 +1,22 @@
 # Where things stand
 
-Updated 2026-10-08, ~10:50pm ET.
+Updated 2026-10-09, ~4:30am ET.
 
-## Now (10-08 night)
-- Working branch: `claude/happy-ride-o56nlz`. Nothing goes to `main`
+## 10-09 morning
+- Working branch: `claude/three-strategies-x69ppg` (from
+  `claude/happy-ride-o56nlz`, same history). Nothing goes to `main`
   without the owner's OK; a push to `main` restarts the bot.
+- The owner, ~4:30am: "all three strategies up and running". Checked in
+  Render's log: r34.38 (main d439a58) unchanged since 10:41pm, no restart;
+  v36 / v37 / v36b all agree with the broker, 0 positions; no warning or
+  error since 4am; 63 names watched by 4:30. Start equity: v36 $16,679
+  (halt $15,013), v37 $13,503 (halt $12,154), v36b $6,027 (halt $5,425).
+- First signal: SDEV 4:02:31 FURIOUS for v36 / v36b (speed 0.42, +6% in
+  5s) - no order: the $2.29 print (Form T) stood 12c over the $2.17 ask,
+  "TRIGGER NOT CONFIRMED". The price check worked as meant. No fills to
+  4:30am.
+
+## 10-08 night
 - Live: **r34.38** (main d439a58, up 10:41:40pm 10-08, all three 0 positions): r34.37 with the owner's corrected
   sizes - v36/v36b furious 25% of the account first, to 50% on the add (+20c,
   a new high); v37 fast under furious speed 20% of the account, to 40% at +20c;
