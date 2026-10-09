@@ -1,6 +1,6 @@
 # Where things stand
 
-Updated 2026-10-09, ~7:45am ET.
+Updated 2026-10-09, ~7:55am ET.
 
 ## 10-09 morning
 - Working branch: `claude/three-strategies-x69ppg` (from
@@ -31,6 +31,22 @@ Updated 2026-10-09, ~7:45am ET.
   - Furious first buys filled 78-85% of the shares wanted (20-22% of the
     account, not 25%); no add reached. A 1-share VEEA remnant logged
     CRITICAL "STILL HOLDING", sold a second later at $5.40 (-$0.15).
+  - The owner (~7:50am): the bots took the two stocks that really moved.
+    Checked: both were the #1 name by money when bought - MI crowd #1
+    $758k / gainer #1 (4:33), VEEA crowd #1 $1.55M / gainer #2 (6:59).
+  - VEEA ran after our stop: out at $5.49 (7:00:26; it dipped to $5.40 x
+    $5.42 at 7:00:34), then $5.65 7:04, $5.88 7:10, $6.04 7:26, high about
+    $6.13 ~7:31, $5.63 at 7:48. Nobody got back in: v36/v36b "NO SPEED for
+    a re-entry" (0.00-0.06 under 0.10) at $5.65-$5.95, then "at the $6.00
+    level - wait till it holds 5c past"; v37 SKIP score 9/15 at $5.79, "not
+    two green" at $5.95. A 10c stop would also have gone ($5.45); only ~3%
+    (v36b's regular stop, $5.38) held the 15c dip. Same pattern as 10-08:
+    runners dip 15-20c+ first. One case - for the scorecard, not a change.
+  - XRTX 7:47:10 (furious, speed 0.34; crowd #3 $975k, gainer #4 - not a
+    top-2 name, furious sets the crowd aside): v36 1,250 @ $2.13 -> $2.1066
+    on the 10s leash, -$29, 63s; v36b 119 of 699 wanted @ $2.13 -> $2.1076,
+    -$3. Peak $2.20. Running total 7:48: v36 -$36, v37 -$101, v36b +$56,
+    all -$80.
 
 ## 10-08 night
 - Live: **r34.38** (main d439a58, up 10:41:40pm 10-08, all three 0 positions): r34.37 with the owner's corrected
