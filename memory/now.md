@@ -1,6 +1,6 @@
 # Where things stand
 
-Updated 2026-10-09, ~8:55am ET.
+Updated 2026-10-09, ~9:30am ET.
 
 ## 10-09 morning
 - Working branch: `claude/three-strategies-x69ppg` (from
@@ -61,7 +61,15 @@ Updated 2026-10-09, ~8:55am ET.
   line stop (6c) was tighter than the furious 10c leash.
 - The owner (~8:50am): the line stop and v37's $250k money bar stay (journal).
   Distilled proposals to discuss: memory/proposals_1009.md.
-- r34.39 on the branch (673 tests pass): SEC_DUMP_DAYS = ("2026-10-09",),
+- The owner (~9:25am): the bots respect the rules set for them; not perfect -
+  a person overrules his own rules in some situations, the bot cannot; there
+  are moves he would have taken that the stacked rules refuse.
+- Tonight, agreed: the count of which check said no on the #1/#2 leaders
+  today, and what each stock did in the next 15 minutes (from the log). Plus,
+  from now on, every move the owner says he would have taken (his charts) is
+  kept in memory/would_take.md with the check that blocked it - after 1-2
+  weeks, the rule that blocks the most good moves is the one to look at.
+- r34.39 on the branch (674 tests pass; reads NTCL too): SEC_DUMP_DAYS = ("2026-10-09",),
   10 min before to 50 min after each buy - the read-only second-by-second
   read of every trade of the three today, as on 10-08. WAITING ON THE
   OWNER'S OK to push to main after 8pm with all three flat; the next
