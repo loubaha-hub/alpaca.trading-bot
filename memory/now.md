@@ -1,49 +1,83 @@
 # Where things stand
 
-Updated 2026-10-08, ~6:05pm ET.
+Updated 2026-10-08, ~9:35pm ET.
 
-## Now (10-08)
-- Working branch: `claude/happy-ride-o56nlz` (this session). The memory
-  files came over from `claude/zealous-ramanujan-br3gay`. Nothing goes to
-  `main` without the owner's OK; a push to `main` restarts the bot.
-- Live: **VERSION v31-r34.32** (pushed 3:25:13pm): r34.31 + a one-off
-  read-only TICK_DUMP of v37's 10-08 trades (set TICK_DUMP = () in the next
-  release). r34.31 (2:17pm): v37's 60s re-buy needs 20c over the sale (no 10%). r34.30 (1:26pm): no limit on buys of a stock a
-  day (v36, v36b; v37 had none). r34.29 (1:08:58pm): no
-  fast buy unless the price is up over the last 5 seconds; no fast buy when
-  the ask is more than 10c over the bid. Everything else as r34.28.
+## Now (10-08 night)
+- Working branch: `claude/happy-ride-o56nlz`. Nothing goes to `main`
+  without the owner's OK; a push to `main` restarts the bot.
+- Live: **r34.35** (main 6eec247, released 6:02pm): v37 sells 5c under its
+  best since the buy; the one-off SEC_DUMP read (done 7:29pm); no buys from
+  6pm 10-08. Before it, today: r34.29 (fast buy only if up over 5s and the
+  ask within 10c of the bid), r34.30 (no limit on buys of a stock a day),
+  r34.31 (v37 buys back within 60s only 20c over the sale).
+- Branch: r34.36 = SEC_DUMP_DAYS = () and NO_BUYS_FROM = () (MUST go out
+  with the next release, else the read runs again at every restart) + HTB
+  and news into the log (being built, ~9:35pm). Needs the owner's "push"
+  before 4am 10-09; all three are flat (no buys since 6pm).
 - Judge rules per entry, added up over days (the owner, 10-08).
-- **Released 6:02pm 10-08 (the owner: "push"): r34.35** (main 6eec247) =
-  r34.33 (v37 sells 5c under its best since the buy, in place of half the
-  gain; TICK_DUMP off) + r34.34 (SEC_DUMP: read-only, every buy of the three
-  on 10-06/07/08, one row a second from 5 min before to 30 min after, every
-  print for the first minute) + NO_BUYS_FROM 10-08 18:00 (the owner:
-  "flatten them; we'll start them later" - no buys tonight; 10-09 trades as
-  usual from 4am). All three were flat. Next: fetch the SECDUMP lines from
-  Render, replay/research/secread.py, then test for all three bots on all
-  three days, per entry: the tiers, the 5c and 10c cuts, re-entries, the
-  line rules, v36 vs v36b (v36b's 3% first stop vs the furious 10c). The
-  NEXT release must set SEC_DUMP_DAYS = () and NO_BUYS_FROM = () - else the
-  read runs again at every restart.
-- (history) r34.33 (branch c08b67b) - v37 sells 5c
-  under its best since the buy, in place of half the gain (a trial); the
-  one-off TICK_DUMP off. Built off on the branch, not chosen: the 10c-under-$2
-  re-buy, fix 3 (gain from the bid), V37_TRAIL_KEEPS_HALF.
-- The owner chose at ~3:40am: v36, v36b and v37 on the full schedule
-  (4am-8pm), not premarket only.
-- The day at 1:05pm: v36 +$288, v36b -$326 ($312 above its halt), v37 -$743.
-- **Still to do, in words first (the checklist), then the owner reads:**
-  1. the stop set after the fill, from what was paid: 10c under it or 1c
-     under the whole / half dollar beneath it - never from the decision print
-     (v36b's 3% cap and the 1% floor today);
-  2. protect a furious gain sooner than +30c (replay 10c / 15c / 20c);
-  3. v37's gain counted from the bid, not a 1c print;
-  4. premarket sells left working instead of cancel-and-resend each second;
-  5. the recorder (every print and quote around each trade, every bot action
-     to the ms) and the nightly audit from it;
-  6. the adds on big runs (BIAF 10:07, INHD 10:31 rode with starters).
-- The audit of today's trades: scratchpad audit1008 (parse.py, trades.json,
-  summary.md) - rebuildable from the Render log.
+
+## The list (the owner, ~9:30pm 10-08: "what do we finally agree on?")
+Everything from ~3:30pm to 9:30pm 10-08, sorted. Details in the journal.
+
+Decided - stays as it is:
+- the scanner's 10% (from yesterday's close before 9:30, today's open
+  after); the 2-minute crowd wait (a furious move overrides it);
+- v36's entry and exit: 10c stop, from +30c out on 30% back;
+- no 9:30 cut-off on 10-09; no limit on buys of a stock a day (r34.30).
+
+Going out tonight (r34.36, information only - nothing trades differently):
+- hard-to-borrow / shortable for every name on the list, and at each buy;
+- news headlines for the names on the list, logged as they come, with
+  flags (offering, reverse split, ...), and at each buy; a one-time read of
+  the headlines for the stocks traded 10-01..10-08. The owner: "just let
+  them go into the log" - good-looking news often fizzles.
+
+Tested on the three days and NOT adding an edge - not building:
+- the owner's ladder on top of the 5c cut (5c, then the buy price to +20c,
+  half 20-50c, a third 50c-$1, a fifth $1+) - 174 of 223 trades never got
+  5c over the buy; it never beat the plain cut;
+- v36's half / third / fifth above +30c instead of 30% back - about even;
+- buying back over the day's high + 5c, or on reclaiming the buy price -
+  both add losses (the re-buys land on the tops of one-second bursts);
+- a wider first leash (10c, 15c) - worse than 5c for all three;
+- buy only on an uptick; buy only on a green tape; wait for the whole /
+  half dollar + 5c; out when it hesitates at a line - none held up;
+- EMA 9 over 20, MACD over 0, over VWAP - nearly every buy had them, so
+  they cannot pick the good ones; a volume spike at the buy was worse.
+
+Showed an edge on the three days - candidates, each needs the owner's word
+(and a check on more days; 3 days is a small sample):
+1. Premarket (4:00-9:30): v36 +$367 there vs -$1,653 regular hours and
+   -$433 after hours. The owner: not from 10-09; the guru stops at 9:30.
+2. Few trades a day: v36's first trade of each day +$268 vs all -$1,718;
+   stop after the first loss +$138. Touches nothing per stock (r34.30 is a
+   per-stock limit); a per-day limit is new.
+3. Stop paying up: the spread + paying over the ask seen = ~70-80% of
+   v36/v36b's losses, more than v37's whole loss. Touches the owner's
+   10-08 decision "the buy stays as is (pays up on flying stocks)".
+4. No buy 20%+ over VWAP: 1 of 28 won vs 29% - mostly regular hours, so it
+   overlaps with 1.
+5. v36b (the loser): a quick 4c cut, trades with no adds -$964 -> -$248
+   (59 trades). Holds no runners - but no rule held runners.
+6. v36b's furious buys with the 10c stop instead of the 3% cap (the owner:
+   "sensible"). The data: a wash on what we have; the 10-08 FLYE / DKI
+   cases where 10c won are in the missing data.
+7. The three-candle setup on the day's #1 leader, its first pullbacks
+   (LPCN 10-07 4 of 4 to +2R) - not tested on its own yet.
+8. Shrinking green bodies before the buy: 14% won vs 22% - weak.
+1-4 point the same way: the morning's leaders, few trades, no chasing.
+
+Untested proposals from WORX (after hours 4:51pm):
+- a furious re-entry at the day's high without a new burst of speed;
+- a stop on a wide quote decided by a real print, not the middle.
+
+Housekeeping: v37 logs why it skips a buy (WHY-NOT); a map of which rules
+apply in which situation (furious, back on after a stop, the leader's new
+high, the regular setups); the 10-08 data that could not be saved (DKI x3,
+CRE, FLYE's start). Older open items (10-08 morning): the stop from the
+fill not the decision print; protect a furious gain before +30c; v37's
+gain from the bid; premarket sells left working; the recorder; adds on big
+runs.
 
 ## Earlier (10-07 night)
 

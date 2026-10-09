@@ -5,7 +5,14 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-08
 
-### The owner: trade premarket, stop at 9:30 (~10:10pm; when to switch: asked)
+### The list: what we agree on, what is left (~9:35pm)
+- The owner asked for everything from the afternoon sorted: decided, going
+  out tonight, tested and dropped, candidates with an edge. Written in
+  memory/now.md ("The list"). The owner on news: "just let them go into
+  the log" - good-looking news often fizzles; information only.
+- Times on tonight's entries corrected (they ran ~20-50 min ahead).
+
+### The owner: trade premarket, stop at 9:30 (~9:20pm; when to switch: asked)
 - On the session table: "very, very important ... if the system works, we
   can even start shutting it off at 9:30. Starts at 4am" - the guru never
   trades after 9:30: over 20 years he kept the hours that made money and
@@ -15,7 +22,7 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   it does not reach them; a cut-off for all three needs a small change in
   entries_allowed().
 
-### The owner's factors at each buy, and the time of day (finding, ~10pm)
+### The owner's factors at each buy, and the time of day (finding, ~9:15pm)
 - Data: Webull 1-minute bars 4am-8pm for the 41 stock-days v36/v36b traded
   (replay/live/2026-10-08_secdump/bars/); replay/research/factors.py.
 - By session, live, 3 days: v36 premarket 47 trades, 30% won, +$367 (+$7.8
@@ -34,7 +41,7 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   the owner chose the full 4am-8pm schedule at 3:40am 10-08. To check on
   10-01..10-05 first.
 
-### The three-candle setup as the bots trade it (finding, ~9:40pm)
+### The three-candle setup as the bots trade it (finding, ~9:10pm)
 - The owner: the three-candle setup (green, red, buy back over the red's
   open, stop under the red) works 80%+ for experienced traders, more with
   every filter that checks out; the first one especially.
@@ -47,7 +54,7 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   (3), SPAI (2), MTEN (3), MI (2), and BIYA's later ones. Next: the setup
   on the day's #1 name only, its first pullbacks, 3 days, after costs.
 
-### How many trades for a 99.9% chance of a +2% day (the owner's question, ~9:15pm)
+### How many trades for a 99.9% chance of a +2% day (the owner's question, ~8:50pm)
 - Independent trades, fixed win and loss sizes, no costs (exact binomial).
   60% wins, wins = losses: 224 trades a day just to end above zero 99.9% of
   days; 244-300 for +2% (a loser 1%-0.25% of the account). 60% wins, wins =
@@ -60,7 +67,7 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 - Real trades are not independent (one stock, one market mood) and each pays
   ~0.6% in spread on these stocks: more trades than this, and a bigger edge.
 
-### Trading like the owner: a few trades a day (finding, ~9pm)
+### Trading like the owner: a few trades a day (finding, ~8:40pm)
 - The owner: "1, 2 or 3 trades a day, sometimes none; under a dozen even
   scalping. A day with no trade beats a day worked and lost." The bots:
   v36 16/42/36 trades on 10-06/07/08, v36b 5/42/39, v37 110/11/20.
@@ -75,7 +82,7 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   daily limit touches the owner's 10-08 decision (no limit on entries;
   LPCN 10-07). To test on earlier days' fills before any rule.
 
-### Keeping the runners: the dip before the run (finding, ~8:45pm)
+### Keeping the runners: the dip before the run (finding, ~8:30pm)
 - The owner: the goal is keeping the runners. replay/research/runner_dips.py:
   most runners fell 20c+ under the buy before their top - v36 18 of 28,
   v36b 15 of 22, v37 48 of 56 - and ALL came back over the buy price later
@@ -89,7 +96,7 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   slower confirmation before getting back in (e.g. a minute closing over the
   old high). Not yet designed.
 
-### v36's exit above +30c: 30% back vs the owner's ladder (finding, ~8:25pm)
+### v36's exit above +30c: 30% back vs the owner's ladder (finding, ~8:20pm)
 - The owner: keep v36's exit, but from +30c give back half (30-50c), a
   third (50c-$1), a fifth (above $1) instead of 30% - did any trade get
   there? (replay/research/ladder30.py)
@@ -103,7 +110,7 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 - So about even overall. It helps only past +$1 (a fifth back instead of
   30%) - once in three days (DKI 6:54, +$99). An option: only that top
   step (30% back up to $1, a fifth back above) - one trade behind it.
-- With re-entries (the owner, ~8:35pm; first buy of each stretch, then buy
+- With re-entries (the owner, ~8:22pm; first buy of each stretch, then buy
   back over the day's high + 5c, same rule): v36 70 buys - now -$3,288,
   ladder -$3,365, top step only -$3,288; v36b 62: -$1,361 / -$1,396 /
   -$1,361; v37 62: -$1,483 / -$1,450 / -$1,483. One buy each instead: v36
@@ -156,7 +163,7 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   within 3c of a line -$321, 5c -$320, 10c -$175 (FLYE 7:25 at $2.91 never
   crossed $3.05 in the data: -$233 skipped) vs tiers alone -$273.
 
-### The owner's ladder ON TOP of the cents cut (the owner's correction, ~8:20pm)
+### The owner's ladder ON TOP of the cents cut (the owner's correction, ~8pm)
 - The owner: the tiers are an add-on to the 5c (or 4c) cut, not an
   alternative: the cut first ("5 introductory cents ... below 10c"), then
   never under the buy up to +20c, half the gain kept 20-50c, two thirds
