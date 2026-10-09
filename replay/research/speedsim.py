@@ -103,7 +103,7 @@ def play(path, sigs, dollars, stop_under, arm, rebuy=True):
 def run_ladder(path, t0, fill0, full, stop_under, arm, steps=((0.10, 0.5), (0.20, 1.0)), start=0.2,
                mid_stop=True, stop_pct=0.0, trace=None, add_cap=None, scale=(), add_floor=None,
                doublings=None, stop_bid=False, scale_full=False, line_hold=0.0,
-               arm_pct=None, line_bid=False, ratchet=False):
+               arm_pct=None, line_bid=False, ratchet=False, tiers=()):
     """The owner's ease-in (10-09 ~12:30pm): START of the full dollars at the
     speed buy; at the first fill + each step's cents, a buy (at the ask
     BUY_LAG later) up to that share of the full position. The stop: the buy
@@ -141,7 +141,13 @@ def run_ladder(path, t0, fill0, full, stop_under, arm, steps=((0.10, 0.5), (0.20
     best and the line read from the BID, what can really be sold (a stray print
     on another venue decides nothing); ratchet - after each part sold at a
     scale-out level, the stop on the rest rises to the level before it (after
-    +100% the stop is the average, after +200% it is +100%...)."""
+    +100% the stop is the average, after +200% it is +100%...).
+    tiers ((retracement, share), ...): the owner's trailing exit (10-09 ~7:45pm)
+    - nothing is sold on the way up; once the position is full, each time the
+    price falls this far from its peak, this share of the full position is sold
+    at the bid (20% -> a third, 40% -> a third, 50% -> the rest); and the floor
+    (the stop at the full position's average) sells everything, whichever comes
+    first. With tiers the half-back line is off."""
     if stop_pct:
         stop_under = fill0 * stop_pct
     sh = int(full * start / fill0)
@@ -202,7 +208,7 @@ def run_ladder(path, t0, fill0, full, stop_under, arm, steps=((0.10, 0.5), (0.20
             j += 1
             if ratchet:                            # the stop climbs to the level before
                 stop = max(stop, avg * (1 + (scale[j - 2][0] if j >= 2 else 0.0)))
-        armed = (best - avg >= avg * arm_pct - 1e-9) if arm_pct else (best - avg >= arm - 1e-9)
+        armed = not tiers and ((best - avg >= avg * arm_pct - 1e-9) if arm_pct else (best - avg >= arm - 1e-9))
         if armed:
             if trace is not None and line < 0:
                 trace.append((t, "armed", best, avg))
@@ -212,6 +218,19 @@ def run_ladder(path, t0, fill0, full, stop_under, arm, steps=((0.10, 0.5), (0.20
         if hit:
             xp = path.bid_at(t + S.SELL_LAG)
             return t, (xp - avg) * sh + banked, "stop", best, sh + sold, avg, k
+        if tiers and k >= len(steps) and not pending:   # all in: sell on the way down only
+            full_sh = sh + sold
+            while j < len(tiers) and p <= best * (1 - tiers[j][0]) + 1e-9:
+                xp = path.bid_at(t + S.SELL_LAG)
+                q = sh if j == len(tiers) - 1 else min(sh, int(round(tiers[j][1] * full_sh)))
+                banked += (xp - avg) * q
+                sh -= q
+                sold += q
+                if trace is not None:
+                    trace.append((t, "sold", q, xp, avg, stop))
+                j += 1
+                if sh <= 0:
+                    return t, banked, "tiers", best, sold, avg, k
         if line_hold and line > 0:
             if p <= line + 1e-9:
                 under_since = t if under_since is None else under_since

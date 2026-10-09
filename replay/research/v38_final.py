@@ -16,7 +16,12 @@ one (any window that day) needs speed AND a new high of the day. Variants:
   A then B - B's leash (10% stop, half-back from +10%) for later entries once
              the stock has proven itself (a trade closed 20%+ over its average)
   each window fresh - v38 with a window's first buy free of the new-high rule
-             (as the tables before 10-09 night): what the rule costs or saves"""
+             (as the tables before 10-09 night): what the rule costs or saves
+  trailing tiers - the owner's exit (10-09 ~7:45pm): nothing sold on the way up;
+             once full, a third at 20% off the peak, a third at 40%, the rest at
+             50% - or everything at the floor (the full position's average less
+             3c), whichever first
+The full position: V38_FULL dollars (default $7,500 = 50% of a $15,000 account)."""
 import json, os, sys
 from collections import defaultdict
 from datetime import datetime
@@ -29,6 +34,8 @@ from speedsim_giveback import run_of
 
 SC = ((1.0, 0.25), (2.0, 0.25))
 BASE = dict(scale=SC, scale_full=True)
+TIERS = ((0.20, 1 / 3), (0.40, 1 / 3), (0.50, 1.0))   # the owner's trailing exit, 10-09 ~7:45pm
+FULL = float(os.environ.get("V38_FULL", "7500"))     # 50% of a $15,000 account (the owner, 10-09)
 VARIANTS = [
     ("v38", "A", dict(BASE)),
     ("arm 10%", "A", dict(BASE, arm_pct=0.10)),
@@ -37,7 +44,12 @@ VARIANTS = [
     ("arm 10% + bid + ratchet", "A", dict(BASE, arm_pct=0.10, line_bid=True, ratchet=True)),
     ("A then B", "AB", dict(BASE)),
     ("v38, each window fresh", "FRESH", dict(BASE)),   # the earlier tables: a window's first buy free
+    ("trailing tiers", "A", dict(tiers=TIERS)),
+    ("tiers, each window fresh", "FRESH", dict(tiers=TIERS)),
 ]
+
+
+SHOW = ("v38", "trailing tiers", "v38, each window fresh", "tiers, each window fresh")
 
 
 def load(new_dir, old_dir, bars_dir):
@@ -88,10 +100,10 @@ def play_day(recs, mode, kw):
             if not fill or fill <= 0:
                 continue
             if mode == "AB" and proven:
-                res = Q.run_ladder(p, t_in, fill, 4000, 0.0, 0.10 * fill, mid_stop=False, stop_pct=0.10, **kw)
+                res = Q.run_ladder(p, t_in, fill, FULL, 0.0, 0.10 * fill, mid_stop=False, stop_pct=0.10, **kw)
                 leash = "B"
             else:
-                res = Q.run_ladder(p, t_in, fill, 4000, 0.03, 0.10, **kw)
+                res = Q.run_ladder(p, t_in, fill, FULL, 0.03, 0.10, **kw)
                 leash = "A"
             te, pl, why, best, sh, avg, adds = res
             out.append((r, t_in, pl, sh, avg, leash))
@@ -124,10 +136,11 @@ def main():
     allt = {}
     for name, mode, kw in VARIANTS:
         allt[name] = [x for k in sorted(by) for x in play_day(by[k], mode, kw)]
-    names = ("v36", "v36b", "v37", "v38")
+    names = ("v36", "v36b", "v37", "v38", "trailing tiers")
     print("THE THREE BOTS LIVE vs v38 (second by second) - %d windows, %s" % (
         sum(len(v) for v in by.values()), ", ".join(d[5:] for d in days)))
-    print("a cell: trades, wins, losses, P/L. v38's moments: the bots' buys and each day's top runners\n")
+    print("a cell: trades, wins, losses, P/L. v38's moments: the bots' buys and each day's top runners;")
+    print("v38 full position $%.0f (the bots as they really bought)\n" % FULL)
     for sess in SESSIONS + ("ALL",):
         print("== %s ==" % {"PRE": "PREMARKET 4:00-9:30", "RTH": "REGULAR HOURS 9:30-4:00",
                              "AFTER": "AFTER HOURS 4:00-8:00pm", "ALL": "THE WHOLE DAY"}[sess])
@@ -136,8 +149,8 @@ def main():
         for d in days + [None]:
             row = []
             for n in names:
-                if n == "v38":
-                    xs = [x[2] for x in allt["v38"] if (d is None or x[0]["day"] == d) and session(x[1]) in ss]
+                if n in allt:
+                    xs = [x[2] for x in allt[n] if (d is None or x[0]["day"] == d) and session(x[1]) in ss]
                 else:
                     xs = [v for (b, dd, s), l in live.items() if b == n and (d is None or dd == d) and s in ss for v in l]
                 row.append(cell(xs))
@@ -152,7 +165,7 @@ def main():
               "%20s" % cell([x[2] for x in xs]), sum(x[2] for x in xs if isrun(x)), sum(x[2] for x in xs if not isrun(x))))
     print("\nEACH RUN OF 40%+ IN A WINDOW: the share of the run v38 kept (sold parts included), and its P/L")
     print("  %-5s %-5s %-5s %-17s %-17s %6s | %s" % ("day", "sym", "sess", "low", "high", "run",
-                                                   " | ".join("%-22s" % n for n, _, _ in VARIANTS[:5])))
+                                                   " | ".join("%-22s" % n for n in SHOW)))
     hm = lambda t: datetime.fromtimestamp(t, S.ET).strftime("%H:%M:%S")
     for k in sorted(by):
         for r in by[k]:
@@ -160,7 +173,7 @@ def main():
             if not rn or rn[0] - 1 < 0.40:
                 continue
             cells = []
-            for name, _, _ in VARIANTS[:5]:
+            for name in SHOW:
                 xs = [x for x in allt[name] if x[0] is r]
                 kept = sum(x[2] / x[3] for x in xs if x[3]) / (rn[4] - rn[2])
                 cells.append("%5.0f%% %+8.0f (%2d)" % (100 * kept, sum(x[2] for x in xs), len(xs)))
