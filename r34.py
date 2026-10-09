@@ -41,6 +41,7 @@ import csv
 import logging
 import json
 import os
+import re
 import statistics
 import time
 import zlib
@@ -51,9 +52,11 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from alpaca.data.historical import StockHistoricalDataClient
+from alpaca.data.historical.news import NewsClient
 from alpaca.data.live import StockDataStream
 from alpaca.data.requests import (StockBarsRequest, StockSnapshotRequest,
-                                   StockTradesRequest, StockQuotesRequest)
+                                   StockTradesRequest, StockQuotesRequest,
+                                   NewsRequest)
 from alpaca.data.timeframe import TimeFrame
 from alpaca.trading.client import TradingClient
 from alpaca.trading.requests import (GetAssetsRequest, GetOrdersRequest,
@@ -1993,6 +1996,11 @@ class Strategy:
         if end is None:
             end = last
         filled = max(0, int(end - start))
+        if filled and not start and NEWS_LOG:  # information only (r34.36)
+            try:
+                log.info("[%s] CONTEXT %s: %s", self.name, symbol, context_line(symbol))
+            except Exception:
+                pass
         if filled < shares:
             # EVERY MISS IS LOGGED. A buy that came back empty used to leave no
             # line at all, so how often the bot missed a runner was unknowable.
@@ -4448,6 +4456,100 @@ SEC_DUMP_RPM = 100
 HISTORY_PAGES = 40              # 500 orders a page
 HISTORY_PER_LINE = 25           # fills per log line
 
+# THE NEWS AND BORROW LOG (r34.36; the owner, 10-08: Alpaca publishes hard to
+# borrow and the news - "just let them go into the log"). INFORMATION ONLY: no
+# rule reads any of it, nothing trades differently. News that looks good often
+# fizzles once the market has read it through; the log lets it be judged later.
+#   BORROW   - the list's names as they come in: hard to borrow (Alpaca's
+#              easy_to_borrow is false) or not shortable; any change in the day.
+#   NEWS     - the list's names checked every NEWS_SECONDS; a name's first
+#              check of the day reaches back to the last session's 4pm close.
+#              Each headline once, with its age and its NEWS_FLAGS words.
+#   CONTEXT  - at each opening buy: the borrow status and the day's headlines.
+#   NEWSDUMP - once, at a start-up on a NEWS_DUMP_ON date: each account's fills
+#              from the first to the last of NEWS_DUMP_DAYS (as HISTORY_DUMP)
+#              and the headlines of every stock bought each day, from the 4pm
+#              close before to 8pm. () = off.
+NEWS_LOG = True
+NEWS_SECONDS = 60               # how often the list's names are checked
+NEWS_BATCH = 40                 # names a request
+NEWS_RPM = 60                   # requests a minute at most, the dump included
+NEWS_OVERLAP = 900              # each check reaches 15 minutes back (late stories)
+NEWS_KEEP = 3                   # headlines quoted in a CONTEXT line
+NEWS_FLAGS = (                  # a word's start must match (\b), any case
+    ("offering", ("offering", "registered direct", "private placement",
+                  "at-the-market", "at the market", "warrant", "shelf", "priced",
+                  "pricing", "dilut", "securities purchase agreement")),
+    ("reverse split", ("reverse split", "reverse stock split", "share consolidation")),
+    ("listing", ("delist", "nasdaq notice", "minimum bid", "deficiency", "compliance")),
+    ("fda / trial", ("fda", "phase 1", "phase 2", "phase 3", "clinical", "trial")),
+    ("deal", ("merger", "acquisition", "acquire", "partnership", "contract",
+              "collaboration", "license", "purchase order", "agreement")),
+    ("earnings", ("earnings", "quarter", "results", "revenue", "guidance")),
+    ("squeeze", ("squeeze", "short interest")),
+    ("halt", ("halt",)),
+)
+NEWS_DUMP_DAYS = ("2026-10-01", "2026-10-08")   # first and last ET date, both read
+NEWS_DUMP_ON = ("2026-10-08", "2026-10-09")     # start-ups on these ET dates only
+
+BORROW: dict = {}               # sym -> (easy to borrow, shortable), the scanner's asset list
+NEWS: dict = {}                 # sym -> [(epoch, source, headline, flags)] today, oldest first
+NEWS_FROM: dict = {}            # sym -> epoch its headlines are read from today
+
+_NEWS_RX = [(name, re.compile("|".join(r"\b" + re.escape(w) for w in words), re.I))
+            for name, words in NEWS_FLAGS]
+
+
+def news_flags(text) -> list:
+    """The NEWS_FLAGS a headline (and its summary) carries."""
+    return [name for name, rx in _NEWS_RX if rx.search(text or "")]
+
+
+def news_since(day):
+    """The 4pm close of the last weekday before ET date `day`."""
+    d = day - timedelta(days=1)
+    while d.weekday() >= 5:
+        d -= timedelta(days=1)
+    return datetime(d.year, d.month, d.day, 16, 0, tzinfo=ET)
+
+
+def borrow_text(sym) -> str:
+    etb, short = BORROW.get(sym, (None, None))
+    if short is False:
+        return "not shortable"
+    if etb is False:
+        return "hard to borrow"
+    if etb:
+        return "easy to borrow"
+    return "borrow unknown"
+
+
+def _ago(seconds) -> str:
+    m = max(0, int(seconds // 60))
+    return "%dm" % m if m < 120 else "%dh" % (m // 60)
+
+
+def context_line(sym, now=None) -> str:
+    """What is known about `sym` besides its price: borrow and today's news."""
+    now = time.time() if now is None else now
+    parts = [borrow_text(sym)]
+    if sym not in NEWS_FROM:
+        parts.append("news not read yet")
+        return " | ".join(parts)
+    items = NEWS.get(sym, [])
+    since = datetime.fromtimestamp(NEWS_FROM[sym], ET).strftime("%m-%d %H:%M")
+    if not items:
+        parts.append("no news since %s" % since)
+        return " | ".join(parts)
+    flags = sorted({f for it in items for f in it[3]})
+    parts.append("%d headline%s since %s%s" % (
+        len(items), "" if len(items) == 1 else "s", since,
+        " (%s)" % ", ".join(flags) if flags else ""))
+    for t, src, head, fl in items[::-1][:NEWS_KEEP]:
+        parts.append("%s %s ago: %s" % (datetime.fromtimestamp(t, ET).strftime("%H:%M"),
+                                        _ago(now - t), head[:140]))
+    return " | ".join(parts)
+
 # WHICH STRATEGY TRADES EACH ACCOUNT (the owner, 2026-10-06): v31's keys
 # (T6HH, "v27-30k") run v36; v34's keys (V33_*, P28T, "V30-100k") run v37;
 # v35's keys (AUES) run v36b (v36 with r34.13's changes; v35 until 10-06).
@@ -6444,6 +6546,7 @@ class Engine:
         # ONE data connection for the whole process, on v31's keys.
         self.data = MarketData(key, secret, feed)
         self.assets_client = TradingClient(key, secret, paper=self.paper)
+        self.news_client = NewsClient(key, secret, raw_data=True)   # NEWS, read-only
 
         self.strategies = []
         self.history_tasks = []
@@ -6475,6 +6578,12 @@ class Engine:
         self.prev_closes: dict[str, float] = {}
         self.day_highs: dict[str, float] = {}   # from today's bars, once a day
         self.day_highs_date = None
+        self.news_day = None                    # NEWS: today's checks
+        self.news_ids: set = set()              # (story id, sym) already logged
+        self.news_last = 0.0
+        self.news_next_at = 0.0
+        self.borrow_seen: dict[str, str] = {}   # BORROW: what each name showed
+        self.borrow_day = None
 
     async def history(self, strat, first, last):
         try:
@@ -6500,6 +6609,165 @@ class Engine:
             await self.data.dump_seconds(buys)
         except Exception as e:
             log.error("SECDUMP: %s", e)
+
+    # ---- the news and borrow log (information only) -------------------------
+
+    async def read_news(self, symbols, start, end=None, limit=50):
+        """The data service's stories on `symbols` from `start` (epoch) to `end`,
+        newest first, at most `limit` (50 a request); NEWS_RPM paced."""
+        if NEWS_RPM:
+            wait = self.news_next_at - time.monotonic()
+            if wait > 0:
+                await asyncio.sleep(wait)
+            self.news_next_at = max(time.monotonic(), self.news_next_at) + \
+                60.0 / NEWS_RPM * max(1, -(-limit // 50))
+        req = NewsRequest(symbols=",".join(symbols), limit=limit, sort="desc",
+                          start=datetime.fromtimestamp(start, timezone.utc),
+                          end=datetime.fromtimestamp(end, timezone.utc) if end else None)
+        raw = await asyncio.to_thread(self.news_client.get_news, req)
+        return list((raw or {}).get("news") or [])
+
+    async def news_check(self):
+        """NEWS: the list's names. A name's first check of the day reaches back
+        to the last session's 4pm close; later ones NEWS_OVERLAP before the
+        last check. Each story is logged once per name."""
+        now = datetime.now(ET)
+        today = now.date()
+        if self.news_day != today:
+            self.news_day = today
+            NEWS.clear()
+            NEWS_FROM.clear()
+            self.news_ids = set()
+            self.news_last = 0.0
+        syms = sorted(self.roster)
+        since = news_since(today).timestamp()
+        new = [s for s in syms if s not in NEWS_FROM]
+        old = [s for s in syms if s in NEWS_FROM]
+        checked = now.timestamp()
+        for group, start, limit, first in (
+                (new, since, 200, True),
+                (old, max(since, self.news_last - NEWS_OVERLAP), 50, False)):
+            for i in range(0, len(group), NEWS_BATCH):
+                batch = group[i:i + NEWS_BATCH]
+                items = await self.read_news(batch, start, None, limit)
+                self.take_news(items, set(batch), checked)
+                if first:
+                    none = [s for s in batch if not NEWS.get(s)]
+                    for s in batch:
+                        NEWS_FROM[s] = since
+                    if none:
+                        log.info("NEWS none since %s: %s", datetime.fromtimestamp(
+                            since, ET).strftime("%m-%d %H:%M"), " ".join(none))
+        self.news_last = checked
+
+    def take_news(self, items, wanted, now):
+        """Each new story on a wanted name into NEWS and the log, oldest first."""
+        for it in sorted(items, key=lambda x: x.get("created_at") or ""):
+            sid = it.get("id")
+            syms = sorted(s for s in (it.get("symbols") or [])
+                          if s in wanted and (sid, s) not in self.news_ids)
+            if not syms:
+                continue
+            t = _epoch(it["created_at"]) if it.get("created_at") else now
+            head = " ".join((it.get("headline") or "").split())
+            flags = news_flags(head + " " + (it.get("summary") or ""))
+            src = it.get("source") or "?"
+            for s in syms:
+                self.news_ids.add((sid, s))
+                NEWS.setdefault(s, []).append((t, src, head, flags))
+                NEWS[s].sort()
+            log.info("NEWS %s %s (%s ago) [%s] %s%s", " ".join(syms),
+                     datetime.fromtimestamp(t, ET).strftime("%m-%d %H:%M"), _ago(now - t),
+                     src, head[:200], " | " + ", ".join(flags) if flags else "")
+
+    async def news_loop(self):
+        if not NEWS_LOG:
+            return
+        while True:
+            await asyncio.sleep(NEWS_SECONDS)
+            try:
+                if self.roster:
+                    await self.news_check()
+            except Exception as e:
+                log.error("NEWS: %s", e)
+
+    def note_borrow(self, assets):
+        """BORROW from the scanner's asset list (no extra request)."""
+        try:
+            fresh = {a.symbol: (getattr(a, "easy_to_borrow", None),
+                                getattr(a, "shortable", None)) for a in assets}
+        except Exception as e:
+            log.error("BORROW: %s", e)
+            return
+        BORROW.clear()
+        BORROW.update(fresh)
+
+    def log_borrow(self, symbols):
+        """BORROW: the list's names as they come in (once a day), and any change."""
+        if not NEWS_LOG:
+            return
+        today = datetime.now(ET).date()
+        if self.borrow_day != today:
+            self.borrow_day = today
+            self.borrow_seen = {}
+        new, changed = {}, []
+        for s in sorted(symbols):
+            b = borrow_text(s)
+            old = self.borrow_seen.get(s)
+            if old is None:
+                new.setdefault(b, []).append(s)
+            elif old != b:
+                changed.append("%s %s -> %s" % (s, old, b))
+            self.borrow_seen[s] = b
+        if new:
+            log.info("BORROW in: %s", " | ".join(
+                "%s: %s" % (b, " ".join(new[b])) for b in
+                ("hard to borrow", "not shortable", "easy to borrow", "borrow unknown")
+                if b in new))
+        for c in changed:
+            log.info("BORROW change: %s", c)
+
+    async def news_dump(self):
+        """NEWS_DUMP_DAYS, once: each account's fills over the days into the log
+        (as HISTORY_DUMP), then the headlines of every stock bought each day,
+        from the 4pm close before to 8pm. Read-only."""
+        await asyncio.sleep(30)                 # the first scan fills BORROW
+        first, last = NEWS_DUMP_DAYS
+        end = (datetime.fromisoformat(last) + timedelta(days=1)).date().isoformat()
+        firsts = {}                             # (ET date, sym) -> first buy
+        for strat in self.strategies:
+            try:
+                fills = await strat.dump_history(first, end) or []
+            except Exception as e:
+                log.error("[%s] NEWSDUMP fills %s..%s: %s", strat.name, first, last, e)
+                continue
+            for t, sym, side, q, px in fills:
+                if side == "buy":
+                    k = (datetime.fromtimestamp(t, ET).date(), sym)
+                    firsts[k] = min(firsts.get(k, t), t)
+        log.info("NEWSDUMP plan: %d stock-days bought, %s..%s", len(firsts), first, last)
+        done = 0
+        for (day, sym), t0 in sorted(firsts.items()):
+            since = news_since(day)
+            until = datetime(day.year, day.month, day.day, 20, 0, tzinfo=ET)
+            try:
+                items = await self.read_news([sym], since.timestamp(), until.timestamp(), 50)
+            except Exception as e:
+                log.error("NEWSDUMP %s %s: %s", day, sym, e)
+                continue
+            done += 1
+            log.info("NEWSDUMP %s %s: %d headlines from %s, first buy %s, %s (now)",
+                     day, sym, len(items), since.strftime("%m-%d %H:%M"),
+                     datetime.fromtimestamp(t0, ET).strftime("%H:%M:%S"), borrow_text(sym))
+            for it in sorted(items, key=lambda x: x.get("created_at") or ""):
+                head = " ".join((it.get("headline") or "").split())
+                flags = news_flags(head + " " + (it.get("summary") or ""))
+                log.info("NEWSDUMP %s %s %s [%s] %s%s", day, sym,
+                         datetime.fromtimestamp(_epoch(it["created_at"]) if it.get(
+                             "created_at") else t0, ET).strftime(
+                             "%m-%d %H:%M"), it.get("source") or "?", head[:200],
+                         " | " + ", ".join(flags) if flags else "")
+        log.info("NEWSDUMP done: %d of %d stock-days", done, len(firsts))
 
     def add_strategy(self, cls, key, secret):
         if not key or not secret:
@@ -6539,6 +6807,7 @@ class Engine:
                 GetAssetsRequest(status=AssetStatus.ACTIVE))
             symbols = [a.symbol for a in assets
                        if a.tradable and a.symbol.isalpha() and len(a.symbol) <= 4]
+            self.note_borrow(assets)
         except Exception as e:
             now = time.time()
             if now - self.last_auth_warn > 60:
@@ -6637,6 +6906,7 @@ class Engine:
                     if picks:
                         symbols = list(picks)[:MAX_WATCH]
                         self.log_roster(picks, symbols)
+                        self.log_borrow(symbols)
                         # The real high of the day BEFORE a name can be
                         # traded - a restart must not forget the morning.
                         await self.seed_day_highs(symbols)
@@ -6952,6 +7222,8 @@ class Engine:
                 self.data.dump_ticks(TICK_DUMP_DAY, TICK_DUMP)))
         if SEC_DUMP_DAYS:                       # read-only, once, in the background
             self.history_tasks.append(asyncio.create_task(self.sec_dump()))
+        if NEWS_DUMP_DAYS and datetime.now(ET).date().isoformat() in NEWS_DUMP_ON:
+            self.history_tasks.append(asyncio.create_task(self.news_dump()))
 
         log.info("engine up: VERSION %s | %s | one data connection | "
                  "orphan mode %s | baseline " + DAY_BASELINE + " | "
@@ -6970,6 +7242,7 @@ class Engine:
         tasks = [self.scanner_loop(), self.reconcile_loop(), self.periodic_loop(),
                  self.close_loop(), self.dead_loop(), self.risk_loop(),
                  self.health_loop(), self.book_loop(), self.summary_loop(),
+                 self.news_loop(),
                  self.data.subscribe_loop(), self.data.run_forever()]
         for strat in self.strategies:
             tasks.append(strat.tick_worker())

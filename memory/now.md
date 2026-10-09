@@ -10,10 +10,16 @@ Updated 2026-10-08, ~9:35pm ET.
   6pm 10-08. Before it, today: r34.29 (fast buy only if up over 5s and the
   ask within 10c of the bid), r34.30 (no limit on buys of a stock a day),
   r34.31 (v37 buys back within 60s only 20c over the sale).
-- Branch: r34.36 = SEC_DUMP_DAYS = () and NO_BUYS_FROM = () (MUST go out
-  with the next release, else the read runs again at every restart) + HTB
-  and news into the log (being built, ~9:35pm). Needs the owner's "push"
-  before 4am 10-09; all three are flat (no buys since 6pm).
+- Branch: **r34.36, built and tested (652 pass), waiting for the owner's
+  "push"** (before 4am 10-09; all three flat, no buys since 6pm):
+  SEC_DUMP_DAYS = () and NO_BUYS_FROM = () (MUST go out with the next
+  release, else the read runs again at every restart) + the news and borrow
+  log, information only: BORROW lines (hard to borrow / not shortable, from
+  the scanner's asset list), NEWS lines (the list's names every minute; a
+  name's first check from the last 4pm close; flags offering, reverse split,
+  listing, fda / trial, deal, earnings, squeeze, halt), a CONTEXT line at
+  each opening buy, and NEWSDUMP once (start-ups on 10-08 / 10-09 only): the
+  accounts' fills 10-01..10-08 and the headlines of every stock bought.
 - Judge rules per entry, added up over days (the owner, 10-08).
 
 ## The list (the owner, ~9:30pm 10-08: "what do we finally agree on?")
