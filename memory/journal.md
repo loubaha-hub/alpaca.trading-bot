@@ -5,6 +5,16 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-08
 
+### The owner: trade premarket, stop at 9:30 (~10:10pm; when to switch: asked)
+- On the session table: "very, very important ... if the system works, we
+  can even start shutting it off at 9:30. Starts at 4am" - the guru never
+  trades after 9:30: over 20 years he kept the hours that made money and
+  dropped the ones that lost. Also wants news and short squeezes in
+  ("short squeezes add fuel to the fire").
+- Code: V35_ENTRY_END exists but V36 and V37 have their own maybe_enter, so
+  it does not reach them; a cut-off for all three needs a small change in
+  entries_allowed().
+
 ### The owner's factors at each buy, and the time of day (finding, ~10pm)
 - Data: Webull 1-minute bars 4am-8pm for the 41 stock-days v36/v36b traded
   (replay/live/2026-10-08_secdump/bars/); replay/research/factors.py.
