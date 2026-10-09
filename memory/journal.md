@@ -5,6 +5,22 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-08
 
+### The runner table: 10c stop vs 3% (the owner: "remember", ~8:10pm)
+- Runners = the stock 50c+ or 20%+ higher within 30 min of the buy;
+  10-06/07/08, each with v36's furious exit (out on 30% back of a 30c+
+  gain); 10-08 DKI, CRE and FLYE's start missing from the data.
+- All trades (the replay takes the first buy only): v36 28 runners, 10c
+  -$724 vs 3% -$835; v36b 22: -$172 vs -$149; v37 56: -$112 vs -$295.
+- Trades with no adds: v36 14: -$566 vs -$565; v36b 16: -$235 vs -$219;
+  v37 46: -$484 vs -$691. (My message first paired the all-trade dollars
+  with the no-adds counts 14/16/46 - corrected here.)
+- v37, 10c vs its own 3-8% stop (114 trades with no adds, 46 runners): with
+  the 5c cut every stop gives -$1,329 (runners -$511) - the cut sells first;
+  with the furious exit 10c -$3,318 (runners -$484), 3% -$2,778 (-$691), 5%
+  -$3,994 (-$761), 8% -$5,482 (-$990).
+- Proposal (the owner: "sensible", not yet decided): v36b keeps its 3% cap on
+  normal buys; its furious buys get the owner's 10c, as v36's do.
+
 ### The tiered exit on v37's 19 trades of 10-08 (finding; the owner decides)
 - The owner's design (~4:30pm): best gain 0-5c: out 5c under the best;
   5-20c: out at the buy price; 20-50c: keep half; 50c-$1: keep two thirds;
