@@ -1,6 +1,6 @@
 # Where things stand
 
-Updated 2026-10-09, ~4:30am ET.
+Updated 2026-10-09, ~7:45am ET.
 
 ## 10-09 morning
 - Working branch: `claude/three-strategies-x69ppg` (from
@@ -15,6 +15,22 @@ Updated 2026-10-09, ~4:30am ET.
   5s) - no order: the $2.29 print (Form T) stood 12c over the $2.17 ask,
   "TRIGGER NOT CONFIRMED". The price check worked as meant. No fills to
   4:30am.
+- To 7:40am (premarket, 6 trades, all furious): v36 -$6 (3 trades, 1 won),
+  v37 -$101 (1, 0 won), v36b +$59 (2, 1 won); all -$48. Equity 7:38am:
+  v36 $16,673 (-0.1%), v37 $13,402 (-0.8%), v36b $6,086 (+1.0%).
+  - MI 4:32:38 (furious, speed 1.22): v36 2,383 @ $1.38 -> $1.4596 trail,
+    +$190, 19s; v36b 925 @ $1.38 -> $1.4594, +$73, 18s; v37 2,019 @ $1.45
+    (its first try at the $1.44 ask got 0) -> out 2s later at $1.40 on its
+    5c cut, -$101 - MI reached $1.54 about 10s later.
+  - MI 4:33:43 (furious again at $1.59): v36 paid up (limit ask + 20c =
+    $1.83), got 872 of 2,600 @ $1.68 avg with the market already $1.54 x
+    $1.55 - out at $1.5006 in 3s, -$156. v36b's order at the ask ($1.63)
+    got nothing - no loss. Pay-up vs at-the-ask, case 1.
+  - VEEA 7:00:12 (furious at $5.53, stop the $5.50 line - 1c): v36 629 @
+    $5.5473 -> $5.4847, -$39; v36b 238 @ $5.55 -> $5.49, -$14; 13-20s.
+  - Furious first buys filled 78-85% of the shares wanted (20-22% of the
+    account, not 25%); no add reached. A 1-share VEEA remnant logged
+    CRITICAL "STILL HOLDING", sold a second later at $5.40 (-$0.15).
 
 ## 10-08 night
 - Live: **r34.38** (main d439a58, up 10:41:40pm 10-08, all three 0 positions): r34.37 with the owner's corrected
