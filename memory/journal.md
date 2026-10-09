@@ -33,6 +33,25 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   buy. Today's high is not a separate wall. Do not stack rules until the bots
   are paralyzed: a very good move must not be blocked - discuss before adding.
 
+### Speed alone vs the crowd alone vs both (~1:45pm; finding)
+- The owner: the crowd and the speed are two separate things - test each
+  alone; the combination "is not the winner".
+- speedsim.play_ladder_crowd (crowd only: a buy on a new high while in the
+  top N by money, or the moment it joins the top N; re-entries on new highs
+  while in the top N; no speed test). Same ease-in, $4,000, three days.
+  | trigger | trades | 3-day P/L, range over 5 settings | without SXTC 10-07 |
+  | speed only | 83-198 | -$1,837 .. +$2,436 (positive only via SXTC) | -$1,281 .. -$2,808 |
+  | crowd only, #1 | 134-389 | -$2,678 .. -$1,494 | -$2,461 .. -$1,281 |
+  | crowd only, top 2 | 201-612 | -$3,384 .. -$2,000 | -$3,239 .. -$1,805 |
+  | crowd only, top 3 | 236-730 | -$4,352 .. +$1,260 (positive only via SXTC) | -$4,181 .. -$1,550 |
+  | both, #1 | 30-58 | -$524 .. -$255 | -$426 .. -$150 |
+  | both, top 2 | 46-106 | -$737 .. -$474 | -$597 .. -$323 |
+- Reading: speed is the trigger that caught the one big run early; the
+  crowd alone buys the most and loses the most (new highs while in the crowd
+  = tops, again and again); both together trade the least and lose the least,
+  but never made money in these three days. File:
+  replay/live/2026-10-08_secdump/speedsim_speed_vs_crowd.txt.
+
 ### ... + re-entry only at speed on a new high of the day (~1:25pm; finding)
 - The owner: re-entry is allowed as often as it comes, per stock - but it
   must wait for a new high of the day ("that one, it's a must").

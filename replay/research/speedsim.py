@@ -234,6 +234,36 @@ def play_ladder_hod(path, rec, state, full, stop_under, arm, ok=lambda t: True):
     return out
 
 
+def play_ladder_crowd(path, rec, state, full, stop_under, arm, in_crowd, edge=False):
+    """CROWD ONLY (the owner, 10-09 ~1:35pm: the crowd and the speed are two
+    separate things - test each alone). No speed test. A buy when the stock
+    is in the crowd (in_crowd(t): top N by money in the last 5 minutes) and
+    the price makes a new high of the day; with edge=True the FIRST buy is the
+    moment it joins the top N instead (no price condition). Back in, as often
+    as it comes, on a new high while still in the top N."""
+    out, after, first, was = [], -1.0, True, False
+    for k in sorted(state):
+        _, new_high = state[k]
+        t = rec["start"] + k + 0.99
+        inc = in_crowd(t)
+        joined = inc and not was
+        was = inc
+        if t <= after or not inc:
+            continue
+        if not (new_high or (edge and first and joined)):
+            continue
+        t_in = t + S.BUY_LAG
+        if t_in >= path.end - 5:
+            break
+        fill = path.ask_at(t_in)
+        if not fill or fill <= 0:
+            continue
+        te, pl, why, best, sh, avg, adds = run_ladder(path, t_in, fill, full, stop_under, arm)
+        out.append((t_in, fill, why, best, pl, sh, avg, adds))
+        after, first = te + S.SELL_LAG, False
+    return out
+
+
 def main_ladder():
     windows = S.load_windows(sys.argv[1])
     full = float(sys.argv[3]) if len(sys.argv) > 3 else 4000.0
