@@ -52,11 +52,14 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from alpaca.data.historical import StockHistoricalDataClient
-from alpaca.data.historical.news import NewsClient
 from alpaca.data.live import StockDataStream
 from alpaca.data.requests import (StockBarsRequest, StockSnapshotRequest,
-                                   StockTradesRequest, StockQuotesRequest,
-                                   NewsRequest)
+                                   StockTradesRequest, StockQuotesRequest)
+try:                                        # the news log (r34.36) is information only:
+    from alpaca.data.historical.news import NewsClient   # a library without it
+    from alpaca.data.requests import NewsRequest         # must not stop the bot
+except Exception:                           # pragma: no cover
+    NewsClient = NewsRequest = None
 from alpaca.data.timeframe import TimeFrame
 from alpaca.trading.client import TradingClient
 from alpaca.trading.requests import (GetAssetsRequest, GetOrdersRequest,
@@ -6641,7 +6644,11 @@ class Engine:
         # ONE data connection for the whole process, on v31's keys.
         self.data = MarketData(key, secret, feed)
         self.assets_client = TradingClient(key, secret, paper=self.paper)
-        self.news_client = NewsClient(key, secret, raw_data=True)   # NEWS, read-only
+        try:                                    # NEWS, read-only; None = no news log
+            self.news_client = NewsClient(key, secret, raw_data=True) if NewsClient else None
+        except Exception as e:
+            log.error("NEWS: no news client (%s) - no news log", e)
+            self.news_client = None
 
         self.strategies = []
         self.history_tasks = []
@@ -6776,7 +6783,7 @@ class Engine:
                      src, head[:200], " | " + ", ".join(flags) if flags else "")
 
     async def news_loop(self):
-        if not NEWS_LOG:
+        if not NEWS_LOG or self.news_client is None:
             return
         while True:
             await asyncio.sleep(NEWS_SECONDS)
@@ -7317,7 +7324,8 @@ class Engine:
                 self.data.dump_ticks(TICK_DUMP_DAY, TICK_DUMP)))
         if SEC_DUMP_DAYS:                       # read-only, once, in the background
             self.history_tasks.append(asyncio.create_task(self.sec_dump()))
-        if NEWS_DUMP_DAYS and datetime.now(ET).date().isoformat() in NEWS_DUMP_ON:
+        if (NEWS_DUMP_DAYS and self.news_client is not None
+                and datetime.now(ET).date().isoformat() in NEWS_DUMP_ON):
             self.history_tasks.append(asyncio.create_task(self.news_dump()))
 
         log.info("engine up: VERSION %s | %s | one data connection | "
