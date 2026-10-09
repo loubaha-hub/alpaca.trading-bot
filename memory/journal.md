@@ -5,6 +5,20 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-08
 
+### Keeping the runners: the dip before the run (finding, ~8:45pm)
+- The owner: the goal is keeping the runners. replay/research/runner_dips.py:
+  most runners fell 20c+ under the buy before their top - v36 18 of 28,
+  v36b 15 of 22, v37 48 of 56 - and ALL came back over the buy price later
+  (median 1.5-3 minutes after the low). No acceptable stop holds them.
+- Buying back once the price reclaims the buy + 2c and holds 3s (any number
+  of times): it churns - v36 43 first buys -> 474 buys, 5c cut -$5,459 (vs
+  -$567 one buy each, -$905 back in over the high + 5c); v36b 391 buys
+  -$2,344; v37 434 buys -$4,499. Worse than no buy-back.
+- Reading: for each runner there are many look-alikes that dip and do not
+  come back. Keeping runners needs telling them apart - at the buy, or with a
+  slower confirmation before getting back in (e.g. a minute closing over the
+  old high). Not yet designed.
+
 ### v36's exit above +30c: 30% back vs the owner's ladder (finding, ~8:25pm)
 - The owner: keep v36's exit, but from +30c give back half (30-50c), a
   third (50c-$1), a fifth (above $1) instead of 30% - did any trade get
