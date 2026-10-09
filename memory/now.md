@@ -1,6 +1,6 @@
 # Where things stand
 
-Updated 2026-10-08, ~10:40pm ET.
+Updated 2026-10-08, ~10:50pm ET.
 
 ## Now (10-08 night)
 - Working branch: `claude/happy-ride-o56nlz`. Nothing goes to `main`
@@ -32,6 +32,15 @@ Updated 2026-10-08, ~10:40pm ET.
   - SEC_DUMP_DAYS = () and NO_BUYS_FROM = (): no read, no buy stop.
   Before it: r34.35 (6:02pm) v37's 5c cut; r34.29-31 the fast-buy checks, no
   per-stock buy limit, v37's 20c re-buy.
+- Pre-flight for 10-09 (~10:50pm 10-08): r34.38 live, deploy "live", no errors
+  since the restart, 0 positions on all three; buying 4:00-19:00 ET (paused
+  9:29-9:31), no date blocks (NO_BUYS_FROM, SEC_DUMP_DAYS, NEWS_DUMP_DAYS all
+  empty); the day rolls at midnight ET (10-08's roll logged "new day", halt at
+  -10%); no order refused on 10-08. Two 10-08 "no real stop" CRITICALs (v36
+  SAIQ 3:34pm, XRTX 4:08pm) were the self-check running 70 ms before the
+  fill's stop was set - not a real gap. Sizes in dollars: v36 regular $834 ->
+  $4,170, furious $4,170 -> $8,340; v36b $301 -> $1,507, furious $1,507 ->
+  $3,014; v37 regular $1,080, fast $2,701 -> $5,402, furious $4,389 -> $8,778.
 - To watch 10-09: v36 (pays up, 10c) vs v36b (at the ask, 3% / 10c furious);
   v37's trade count with two green candles; fills vs the ask; NEWS lines.
 - Save the NEWSDUMP and the 10-01..10-05 history lines from Render (7-day
