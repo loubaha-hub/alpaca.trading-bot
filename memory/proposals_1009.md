@@ -41,18 +41,34 @@ Settled today by the owner (no change):
   for 10-06..10-09, every leader pullback after a quick stop-out, before
   deciding.
 
-## 3. Room to TODAY's high on a pullback (the playbook's 2:1)
-- Rule: a pullback buy under the day's high needs the day's high at least
-  twice the risk (buy to stop) above the buy - as it already does for
-  yesterday's high (V35_ROOM_RR 2.0 on prev_high).
-- Why: the owner's playbook ("the next resistance must be at least double
-  the risk away"); the owner on NTCL 10-09.
-- Touches: the room check (adds today's high as a wall); furious buys keep
-  room set aside. CONFLICT with #2: VEEA's first pullback (~7:09: buy ~$5.68,
-  stop ~$5.55, the high ~$5.73) would fail it - ~5c of room against ~13c of
-  risk; the second (~7:18, risk ~5c, the high $5.90) would pass. Chart
-  estimates - the tape decides.
-- My call: test #2 and #3 together on the tape; if both, #3 filters #2.
+## 3. The three-candle 2:1 (the owner's rule, defined 10-09 ~9:10am)
+- The owner's words: green, red, green. Enter when the third candle reaches
+  the top of the red's body (the red's open). Risk = from there to the
+  bottom of the red's WHOLE wick (its low). Gain = from there to the top of
+  the WICK of the green before the red (its high). The gain must be at least
+  twice the risk, or no buy. "It's a good rule to have."
+- Is it in the bot? NO. The pattern buy has the entry (1c over the red's
+  open) and the stop (the reds' low) right, but its only room check
+  (V35_ROOM_RR 2.0) measures to the stock's high of the PREVIOUS trading day
+  (a daily bar, an old wall overhead) - not to the green candle's high.
+- In numbers: buy at B, stop at L (the red's low), first green's high H.
+  Buy only if H - B >= 2 x (B - L). If H is at or under B, no buy.
+  NTCL 8:34 (chart estimate): B ~$2.45, L ~$2.17-2.20, H $2.65 -> gain ~20c,
+  risk ~25-28c: under 1:1 - no buy.
+- Holes to settle in words before code:
+  a. Two or more reds: risk to the LOWEST low of the reds, gain to the high
+     of the green before the first red? (the bot's pattern already takes
+     the lowest low and the last red's open)
+  b. Entry at the red's open exactly, or 1c over (the bot buys 1c over)?
+  c. Furious buys: stay outside it (room is set aside when furious).
+  d. Keep the old prior-day-high check too (both must pass), or drop it?
+  e. v37 does not buy the pattern (it buys over the day's high) - v36/v36b only.
+- Touches #2: it filters #2's pullbacks (VEEA's estimates to redo with this
+  definition on the tape).
+- My call: worth building - it is the owner's own rule from the playbook
+  ("Room: the next resistance must be at least double the risk away"), it
+  removes buys rather than adding them, and it is one comparison. Test it on
+  10-06..10-09 first: how many pattern buys it removes, and what they made.
 
 ## Not rules - measuring
 - A. A daily scorecard, per trade: kind of buy, price seen vs paid, share of

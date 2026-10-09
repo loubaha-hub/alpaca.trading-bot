@@ -22,6 +22,13 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   the leader's pattern buy - two measuring tasks, two dropped).
 - The day's blow by blow (VEEA, MI): memory/review_1009.md.
 
+### The owner's three-candle 2:1, defined (~9:10am) - not in the bot yet
+- Green, red, green: entry where the third candle reaches the top of the
+  red's body; risk to the bottom of the red's whole wick; gain to the top of
+  the wick of the green before the red; gain at least 2x risk, or no buy.
+  "It's a good rule to have." The bot's room check (V35_ROOM_RR) measures to
+  the PREVIOUS day's high only. Words and holes: memory/proposals_1009.md #3.
+
 ## 2026-10-08
 
 ### DECISION (the owner, ~10:35pm): furious 25% then 50% of the account; v37 fast 20% then 40%
