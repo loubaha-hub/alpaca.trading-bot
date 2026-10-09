@@ -1,26 +1,28 @@
 # Where things stand
 
-Updated 2026-10-08, ~10:30pm ET.
+Updated 2026-10-08, ~10:20pm ET.
 
 ## Now (10-08 night)
 - Working branch: `claude/happy-ride-o56nlz`. Nothing goes to `main`
   without the owner's OK; a push to `main` restarts the bot.
-- Live: **r34.35** (main 6eec247, released 6:02pm): v37 sells 5c under its
-  best since the buy; the one-off SEC_DUMP read (done 7:29pm); no buys from
-  6pm 10-08. Before it, today: r34.29 (fast buy only if up over 5s and the
-  ask within 10c of the bid), r34.30 (no limit on buys of a stock a day),
-  r34.31 (v37 buys back within 60s only 20c over the sale).
-- Branch: **r34.36, built and tested (669 pass), waiting for the owner's
-  "push"** - with buy at the ask (v37, v36b), +$1 then 30% back, v37's two
-  green candles, and (before 4am 10-09; all three flat, no buys since 6pm):
-  SEC_DUMP_DAYS = () and NO_BUYS_FROM = () (MUST go out with the next
-  release, else the read runs again at every restart) + the news and borrow
-  log, information only: BORROW lines (hard to borrow / not shortable, from
-  the scanner's asset list), NEWS lines (the list's names every minute; a
-  name's first check from the last 4pm close; flags offering, reverse split,
-  listing, fda / trial, deal, earnings, squeeze, halt), a CONTEXT line at
-  each opening buy, and NEWSDUMP once (start-ups on 10-08 / 10-09 only): the
-  accounts' fills 10-01..10-08 and the headlines of every stock bought.
+- Live: **r34.36** (main 6219582, pushed ~10:15pm 10-08, all three flat; the
+  owner: "implement all of this and make the strategies ready to deploy
+  tomorrow at 4am"). Trades from 4am 10-09:
+  - v37 and v36b buy AT THE ASK (BUY_AT_ASK); v36 pays up as before.
+  - furious buys of v36b and v37: the 10c leash (FURIOUS_TEN_CENTS); v36b
+    keeps 3% on regular buys; v37's regular stop 3% (V37_STOP_MAX); v37's 5c
+    cut still sells first on all its buys.
+  - v37's regular buys need two green candles unless furious (V37_TWO_GREEN).
+  - from +$1 a share over the average, out on 30% back (BIG_GAIN_*), all three.
+  - the news and borrow log (NEWS / BORROW / CONTEXT lines), information only;
+    NEWSDUMP once tonight (fills 10-01..10-08 + headlines of every stock bought).
+  - SEC_DUMP_DAYS = () and NO_BUYS_FROM = (): no read, no buy stop.
+  Before it: r34.35 (6:02pm) v37's 5c cut; r34.29-31 the fast-buy checks, no
+  per-stock buy limit, v37's 20c re-buy.
+- To watch 10-09: v36 (pays up, 10c) vs v36b (at the ask, 3% / 10c furious);
+  v37's trade count with two green candles; fills vs the ask; NEWS lines.
+- Save the NEWSDUMP and the 10-01..10-05 history lines from Render (7-day
+  retention) for the "first trades" and "premarket" checks.
 - Judge rules per entry, added up over days (the owner, 10-08).
 
 ## Clean for 10-09 (the owner, ~9:35pm: "what are the clean ones?")
