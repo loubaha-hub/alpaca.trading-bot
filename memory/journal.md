@@ -5,6 +5,14 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-08
 
+### The owner: from +$1 a share captured, give back a third, not half (~10pm)
+- "Not the stock up 100% - us capturing a hundred cents: the stock up a whole
+  dollar from our buy - then the trailing stop from a half to a third, to
+  protect the gains." Words sent back to confirm (which bots it touches):
+  v36/v36b furious already give back 30% from +30c, v37 5c from its best;
+  only v36/v36b's regular buys (the 2-ABR trail from +10%) can give back more.
+  In 3 days one trade got past +$1 a share (v36 DKI 6:54, +$1.34 kept).
+
 ### DECISION (the owner, ~9:50pm): buy at the ask - v37 and v36b
 - "Buy at the ask is in ... that's a given." Built in r34.36 (BUY_AT_ASK =
   ("v36b", "v37")): every buy of theirs is a limit at the ask of that moment -
