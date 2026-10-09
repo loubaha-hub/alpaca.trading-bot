@@ -196,3 +196,13 @@ minute, a burst to the $2.65 high ~8:32:50, then $2.10-2.45 chop.
     8:33 red's open (~$2.44). The log says only "NO PATTERN" - it does not
     name which check (a gap; information only).
 - r34.39 now also reads NTCL 8:20-9:20 (SEC_DUMP_MISSED) to settle it.
+- The owner (~9am): NTCL was not a clean entry anyway - the top wick, then
+  the red's long lower wick: the risk from the buy (over the red's open) to
+  the bottom of that wick needs twice that much room up to the green's top
+  wick (the day's high), and that may not be there. "I want to know the
+  reasons why the bots did not enter" - the two blocks above.
+- The bots never reached their room check on NTCL. And that check
+  (V35_ROOM_RR 2.0) measures room only to YESTERDAY's high (prev_high), not
+  to today's high - so on a pullback under today's high it does not do the
+  owner's 2:1. NTCL by eye: buy ~$2.45, stop ~$2.17-2.20 (~25-28c risk), $2.65
+  high 20c away - under 1:1.

@@ -41,11 +41,26 @@ Settled today by the owner (no change):
   for 10-06..10-09, every leader pullback after a quick stop-out, before
   deciding.
 
+## 3. Room to TODAY's high on a pullback (the playbook's 2:1)
+- Rule: a pullback buy under the day's high needs the day's high at least
+  twice the risk (buy to stop) above the buy - as it already does for
+  yesterday's high (V35_ROOM_RR 2.0 on prev_high).
+- Why: the owner's playbook ("the next resistance must be at least double
+  the risk away"); the owner on NTCL 10-09.
+- Touches: the room check (adds today's high as a wall); furious buys keep
+  room set aside. CONFLICT with #2: VEEA's first pullback (~7:09: buy ~$5.68,
+  stop ~$5.55, the high ~$5.73) would fail it - ~5c of room against ~13c of
+  risk; the second (~7:18, risk ~5c, the high $5.90) would pass. Chart
+  estimates - the tape decides.
+- My call: test #2 and #3 together on the tape; if both, #3 filters #2.
+
 ## Not rules - measuring
 - A. A daily scorecard, per trade: kind of buy, price seen vs paid, share of
   the order filled, why it sold, the stock 5 and 15 minutes after the sale.
 - B. The second-by-second read of each day's trades (r34.39 for 10-09), saved
   each night; Render keeps 7 days.
+- C. Name the failed check in the "NO PATTERN" line (heavy red, failed rip,
+  no green before the red) - information only.
 
 ## Looked at and dropped (keep as is)
 - The +10% trail on furious buys (it sold MI at $1.46 before the furious exit
