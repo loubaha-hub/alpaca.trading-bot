@@ -5,6 +5,19 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-08
 
+### How many trades for a 99.9% chance of a +2% day (the owner's question, ~9:15pm)
+- Independent trades, fixed win and loss sizes, no costs (exact binomial).
+  60% wins, wins = losses: 224 trades a day just to end above zero 99.9% of
+  days; 244-300 for +2% (a loser 1%-0.25% of the account). 60% wins, wins =
+  2x losses: 30 trades to end above zero; 37-49 for +2%.
+- 55% wins: 930 / 970-1,086 (equal); 48 / 52-70 (2x). 65%: 96 / 108-144
+  (equal); 21 / 25-37 (2x). The size of the wins matters more than a few
+  points of win rate.
+- v36's own payoff (wins 2.25x losses), 40 trades a day, a loser 0.5%: a
+  +2% day 79% of days at 40% wins, 98% at 50%, 99.9% at ~58%. v36 now: 21%.
+- Real trades are not independent (one stock, one market mood) and each pays
+  ~0.6% in spread on these stocks: more trades than this, and a bigger edge.
+
 ### Trading like the owner: a few trades a day (finding, ~9pm)
 - The owner: "1, 2 or 3 trades a day, sometimes none; under a dozen even
   scalping. A day with no trade beats a day worked and lost." The bots:
