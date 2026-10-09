@@ -4503,7 +4503,8 @@ NEWS_FLAGS = (                  # a word's start must match (\b), any case
     ("squeeze", ("squeeze", "short interest")),
     ("halt", ("halt",)),
 )
-NEWS_DUMP_DAYS = ("2026-10-01", "2026-10-08")   # first and last ET date, both read
+NEWS_DUMP_DAYS = ()             # read once by r34.36 (10-08 10:16pm: 425 stock-days,
+                                # 10-01..10-08) - (first, last) ET dates, both read
 NEWS_DUMP_ON = ("2026-10-08", "2026-10-09")     # start-ups on these ET dates only
 
 BORROW: dict = {}               # sym -> (easy to borrow, shortable), the scanner's asset list

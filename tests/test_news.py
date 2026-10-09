@@ -155,6 +155,7 @@ def test_a_broken_context_never_stops_a_buy(v31, data, no_sleep, monkeypatch):
 
 
 def test_the_one_time_read_of_past_headlines(caplog, monkeypatch, no_sleep):
+    monkeypatch.setattr(bot, "NEWS_DUMP_DAYS", ("2026-10-01", "2026-10-08"))
     t = datetime(2026, 10, 7, 6, 42, 10, tzinfo=bot.ET).timestamp()
 
     def strat(name, fills):
@@ -178,3 +179,8 @@ def test_the_one_time_read_of_past_headlines(caplog, monkeypatch, no_sleep):
     assert "after 8pm" not in caplog.text
     assert "NEWSDUMP 2026-10-06 MI: 0 headlines from 10-05 16:00" in caplog.text
     assert "NEWSDUMP done: 2 of 2 stock-days" in caplog.text
+
+
+def test_the_one_time_read_is_done():
+    assert bot.NEWS_DUMP_DAYS == ()
+
