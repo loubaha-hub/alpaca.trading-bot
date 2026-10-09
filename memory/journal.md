@@ -33,6 +33,13 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   buy. Today's high is not a separate wall. Do not stack rules until the bots
   are paralyzed: a very good move must not be blocked - discuss before adding.
 
+### Standing rule (the owner, ~9:35am): don't throw the baby out with the bath water
+- Too many rules stacked on each other paralyze the bots: they let a lot of
+  good moves go. A check that removes a few bad trades but blocks good moves
+  is not worth having. Every proposed check is judged on both sides, over
+  days: the losers it removes and the good moves it would have blocked.
+  Added to CLAUDE.md's standing rules (no over-fitting).
+
 ## 2026-10-08
 
 ### DECISION (the owner, ~10:35pm): furious 25% then 50% of the account; v37 fast 20% then 40%

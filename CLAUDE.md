@@ -59,6 +59,10 @@ numbers into any file here - memory files included.
   touches, overrides or makes moot, and resolve any conflict in words first,
   "so the bots don't get mixed up". Judge win rates and averages per entry
   (trade), added up over days.
+  The owner, 2026-10-09: too many rules stacked on each other paralyze the
+  bots - they let good moves go. "Don't throw the baby out with the bath
+  water": every check is judged on both sides - the losers it removes AND
+  the good moves it would have blocked.
 
 ## Memory
 
