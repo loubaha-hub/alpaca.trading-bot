@@ -4469,9 +4469,12 @@ SEC_DUMP_BEFORE = 600           # one row a second from 10 minutes before a buy 
                                 # 6:47, bought 7:00:12; 10-08 read 5 minutes) ...
 SEC_DUMP_AFTER = 3000           # ...to 50 minutes after it (VEEA 10-09: stopped 7:00:26,
                                 # high ~$6.13 ~7:31, faded by 7:48; 10-08 read 30 minutes)
-SEC_DUMP_MISSED = (              # stocks no bot bought, read the same way around these
-    ("2026-10-09 08:30:23", "NTCL"),    # moments (ET; only on SEC_DUMP_DAYS): NTCL 10-09,
-)                                       # $1.83 -> $2.65 8:29-8:33, the owner asked why missed
+SEC_DUMP_MISSED = (              # moments read the same way though no bot bought there
+    ("2026-10-09 08:30:23", "NTCL"),    # (ET, any day; read when SEC_DUMP_DAYS is on): NTCL
+    ("2026-10-07 08:20:00", "BIYA"),    # 10-09 $1.83 -> $2.65 (missed); BIYA 10-07 $2.54 ->
+    ("2026-10-08 06:54:00", "DKI"),     # $33.96 -> $8.20 in a minute (not bought); DKI 6:54
+    ("2026-10-08 07:17:00", "FLYE"),    # and FLYE 7:17 10-08 - runners whose 10-08 read could
+)                                       # not be saved. The owner's speed strategy, 10-09.
 SEC_DUMP_TICKS_BEFORE = 30      # every print and quote from this long before a buy...
 SEC_DUMP_TICKS = 60             # ...to this long after it
 SEC_DUMP_RPM = 100
@@ -6739,10 +6742,8 @@ class Engine:
                 continue
             buys += [(t, sym) for t, sym, side, q, px in fills if side == "buy"
                      and datetime.fromtimestamp(t, ET).date().isoformat() in SEC_DUMP_DAYS]
-        for when, sym in SEC_DUMP_MISSED:      # the ones no bot bought
-            t = datetime.fromisoformat(when).replace(tzinfo=ET)
-            if t.date().isoformat() in SEC_DUMP_DAYS:
-                buys.append((t.timestamp(), sym))
+        for when, sym in SEC_DUMP_MISSED:      # the ones no bot bought, any day
+            buys.append((datetime.fromisoformat(when).replace(tzinfo=ET).timestamp(), sym))
         try:
             await self.data.dump_seconds(buys)
         except Exception as e:

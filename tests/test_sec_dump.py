@@ -118,6 +118,7 @@ async def _no_sleep(*a, **k):
 
 def test_engine_reads_every_accounts_buys_on_the_days(caplog, monkeypatch):
     monkeypatch.setattr(bot, "SEC_DUMP_DAYS", ("2026-10-06", "2026-10-07", "2026-10-08"))
+    monkeypatch.setattr(bot, "SEC_DUMP_MISSED", ())
     seen = []
 
     class Data:
@@ -154,9 +155,10 @@ def test_rows_from_five_minutes_before_ticks_from_thirty_seconds(caplog, monkeyp
     assert min(r[0] for r in allT) == 270_000 and max(r[0] for r in allT) < 360_000
 
 
-def test_missed_stocks_are_read_on_their_day_only(monkeypatch):
-    """SEC_DUMP_MISSED (10-09): a stock no bot bought (NTCL) is read around the
-    moment named, the same way as a buy - on a SEC_DUMP_DAYS date only."""
+def test_missed_stocks_are_read_on_any_day(monkeypatch):
+    """SEC_DUMP_MISSED (10-09): a stock no bot bought (NTCL), or a moment whose
+    read was lost (an earlier day), is read around the moment named, the same
+    way as a buy - whatever SEC_DUMP_DAYS holds."""
     seen = []
 
     class Data:
@@ -173,5 +175,5 @@ def test_missed_stocks_are_read_on_their_day_only(monkeypatch):
                                                  ("2026-10-08 07:00:00", "OLD")))
     monkeypatch.setattr(bot, "SEC_DUMP_DAYS", ("2026-10-09",))
     run(eng.sec_dump())
-    want = datetime(2026, 10, 9, 8, 30, 23, tzinfo=bot.ET).timestamp()
-    assert seen == [(want, "NTCL")]
+    assert seen == [(datetime(2026, 10, 9, 8, 30, 23, tzinfo=bot.ET).timestamp(), "NTCL"),
+                    (datetime(2026, 10, 8, 7, 0, 0, tzinfo=bot.ET).timestamp(), "OLD")]
