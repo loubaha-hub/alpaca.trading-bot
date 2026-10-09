@@ -1,6 +1,6 @@
 # Where things stand
 
-Updated 2026-10-09, ~9:30am ET.
+Updated 2026-10-09, ~9:20am ET.
 
 ## 10-09 morning
 - Working branch: `claude/three-strategies-x69ppg` (from
@@ -64,6 +64,9 @@ Updated 2026-10-09, ~9:30am ET.
 - The owner (~9:25am): the bots respect the rules set for them; not perfect -
   a person overrules his own rules in some situations, the bot cannot; there
   are moves he would have taken that the stacked rules refuse.
+- VIVK 9:07-9:14 ($4.46 -> ~$6.74 on deal news): v36 -$169.58 (5 trades),
+  v36b -$74.98 (3), v37 +$11.91 (3); blow by blow in memory/review_1009.md.
+  Day at 9:16: v36 -1.3%, v37 -0.7%, v36b -0.4%.
 - Tonight, agreed: the count of which check said no on the #1/#2 leaders
   today, and what each stock did in the next 15 minutes (from the log). Plus,
   from now on, every move the owner says he would have taken (his charts) is

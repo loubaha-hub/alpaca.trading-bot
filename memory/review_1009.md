@@ -206,3 +206,43 @@ minute, a burst to the $2.65 high ~8:32:50, then $2.10-2.45 chop.
   to today's high - so on a pullback under today's high it does not do the
   owner's 2:1. NTCL by eye: buy ~$2.45, stop ~$2.17-2.20 (~25-28c risk), $2.65
   high 20c away - under 1:1.
+
+# VIVK 10-09 9:05-9:14 (the owner pasted T6HH's fills) - $4.46 -> ~$6.74
+News 9:02: "Vivakor Agrees To Acquire Direct Midstream For $40M". On the list
+9:05:12 at $4.46. All fills match Alpaca's page.
+
+| ET | what |
+|---|---|
+| 9:07:13.7 | FURIOUS at $5.13 (speed 0.30, +7.2% in 5s, $231k). First look: spread 11c > 10c - FAST BUY NO (all three) |
+| 9:07:14.2 | spread 8c: v36 771 @ $5.14 (24%, limit ask + 20c), stop $5.04 (10c), line $5.00 |
+| 9:07:15.6-17.3 | v36b: 0 at the $5.15 ask, then 279 @ $5.13 (24%), stop $5.03 |
+| 9:07:15.8-16.1 | v37: fast buy at $5.22, got 0 - "the ask 5.18 is back at the high 5.21 - no buy under it" (saved it) |
+| 9:07:19-23 | bid $5.02 -> $4.84 in 2s: v36b out @ $4.8735 (-$71.57, 4s), v36 out @ $4.8818 (-$199.11, 8s) - 16c under the stops (premarket limit sells 10% under the bid fill where the market is) |
+| 9:07:51 | market $4.80 x $4.83 (a ~45c, 9% dip from $5.22 - no sane stop holds that) |
+| 9:09:44-46 | regular buys (5% / 2% of the account): v36b 53 @ $5.37 (out $5.16, -$11.04, 7s); v36 68 @ $5.37, stop $4.99 (7% away - so the size is small) -> out $4.93 at 9:11:40, -$29.89 |
+| 9:12:38-40 | v37 SKIP at $5.43 (not two green). v36b 52 @ $5.59 (print $5.45), v36 53 @ $5.55 (print $5.45) |
+| 9:13:09-18 | v37 three buys in 8 seconds, each out in 1s on its 5c cut: 165 @ $5.91 -> $5.86 (-$8.43); 667 @ $6.11 -> $6.17 (+$40.02); 656 @ $6.34 -> $6.31 (-$19.68) |
+| 9:13:20.8 | v36b ADD +62 @ $6.14 -> 114 @ $5.9951 |
+| 9:13:21.5 | v36 ADD decided at $6.14, filled ~$6.32 (paid up) -> 308 @ $6.1896; the floor rose to that average - ABOVE the market - out at once @ $6.1769, -$3.93 (trigger print 6.0s old) |
+| 9:13:27-34 | v36 furious 630 @ $6.32 -> "stop" on an 8.5s-old print in 0.2s, sold into a rising bid @ $6.4367: +$73.50 |
+| 9:13:33.5 | v36b ADD to 100% +103 @ $6.56 -> 217 @ $6.2248; peak $6.7378 |
+| 9:13:36-37 | v36 furious 145 of 610 @ $6.47 -> out @ $6.40 (trigger 4.2s old), -$10.15 |
+| 9:13:47 | v36b out at its floor (the average) @ $6.26: +$7.63 |
+
+VIVK, by account: v36 -$169.58 (5 trades), v36b -$74.98 (3), v37 +$11.91 (3).
+Day at 9:16 (health): v36 $16,461.59 (-1.3%), v37 $13,414.32 (-0.7%), v36b
+$6,004.14 (-0.4%).
+
+Reading it:
+- Same as VEEA and MI: the first furious buy came at the top of a 5-second
+  burst and the stock dipped ~9% before running +30% more. The money was in
+  the run after the dip; the bots got back in late and small, near the top.
+- Three things to look at (information, no change yet):
+  1. v36's add filled ~18c over its decision price (paying up), and the
+     floor-to-average rule then sat ABOVE the market - an instant exit.
+  2. v36 stops on stale prints (6.0s, 8.5s, 4.2s old) - by design v36 has no
+     fresh-print rule (v36b has); today it cut both ways (+$73.50, -$10.15).
+  3. v37 bought 3 times in 8 seconds, each sold in 1 second - churn on a
+     stock moving 10-20c a second; net +$11.91.
+- Log flood: v36b wrote ~100 FURIOUS lines in 2 seconds while it tried to
+  buy - one a print; worth throttling (information only).
