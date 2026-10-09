@@ -65,3 +65,25 @@ stopped it - from the tape tonight.
   (v36 -$1,269 vs -$1,605; v36b -$586 vs -$606) - one more case for that table.
 - v36 (pays up) vs v36b (at the ask): the same price here ($5.5473 vs $5.55);
   both filled 85-88% of the shares wanted.
+
+## The owner's chart (Webull 1-minute, 6:55-8:09 ET; read by eye, +-2c)
+- 7:00 candle: green ~$5.29 -> ~$5.46, top wick to ~$5.53-5.56 - our buys at
+  $5.55 were at the top of that wick. 7:01: red to ~$5.37 (the stop-out).
+- 7:02-7:06: five greens, ~$5.40 -> ~$5.63, over EMA9.
+- 7:07-7:08: two reds, pullback to ~$5.55-5.58, over EMA20. 7:09-7:11:
+  green again, ~$5.84-5.88 at 7:11.
+- 7:13-7:17: pullback to ~$5.58-5.60 (EMA20). 7:18-7:29: climb to the $6.13
+  high (~7:29). Then $5.70 by 7:41, $5.84 at 7:53, ~$5.52 at 8:04, $5.67 at 8:09.
+- Two of the playbook's green-red-green pullbacks on the #1 leader: buy back
+  over the red's open ~$5.67 at ~7:09-7:10 (stop under the red ~$5.55) and
+  ~$5.77 at ~7:19-7:20 (stop ~$5.58). Both ran to $5.88 / $6.13.
+- Why no bot took them: the furious buy at 7:00:12 was VEEA's first buy, and
+  V36_SETUP_BUYS = 1 (the owner, 10-07, SPAI / LPCN: "a re-entry has to go
+  past the high of the day") - after one buy, no candle setups; only the
+  day's high + 5c, at speed 0.10 (V36_REENTRY_SPEED). The code's own comment
+  quotes the owner (10-06): the setups are "for the first and second buys".
+- Question for the owner (words, not code): should a furious buy stopped out
+  within seconds use up the leader's setup buy? Touches V36_SETUP_BUYS and the
+  10-07 SPAI decision (SPAI's 2nd buy was under the high, on a red candle, no
+  speed). Ties to candidate 7 in now.md (the #1 leader's first pullbacks,
+  LPCN 10-07 4 of 4 to +2R). Needs the tape and more days before any change.
