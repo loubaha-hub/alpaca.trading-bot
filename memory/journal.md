@@ -5,6 +5,30 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-09
 
+### BIYA 10-07 8:20 reopened - "that one would be a monster" (~3:10pm)
+- The owner: if the strategy can keep a run like BIYA's it would be double
+  SXTC's +$4,251 - "see what has happened and if we can keep it".
+- The shape (recorded minute bars): 8:19 $2.43 -> $2.54; 8:20 $2.54 -> high
+  $28.54, close $28.53 (790k shares); 8:21 open $28.56, high $33.96, low
+  $7.29, close $8.20; 8:23 $3.74; 9:05 $1.92. Up and down in about two
+  minutes, premarket (no halt).
+- Why no bot bought (Render 10-07 12:18-12:24 UTC): v36 / v36b "NO: 6 buys
+  today" every minute (the cap, spent on BIYA's 4am whipsaws - removed
+  10-08, V36_MAX_ENTRIES = 0); v37 did not look (crowd #4, it wanted #1/#2).
+  The bots saw $2.62 at 8:20:37 and $9.24 at 8:21:26.
+- Would the speed strategy keep it: its entry fires early in the 8:20
+  minute; the question is the exit - the half-back line would sit near $18
+  under a $33.96 peak, and in the 8:21 minute the price fell $28 -> $7. A
+  rough range for the full $4,000 plan at about $2.75 (~1,450 shares): sold
+  at $8 about +$7,900; at $15 about +$17,800 - IF the adds filled near the
+  plan's prices. Only the seconds can say: tonight's read has BIYA 8:10-9:10
+  with every trade and quote from 8:19:30 to 8:21:00 (SEC_DUMP_MISSED).
+- A proposal to test (words only): resting sells above the market - a
+  quarter at +100%, a quarter at +200% over the average - bought by the
+  chasers on the way up; after the top the bids vanish. Touches the
+  half-back line (the rest rides it) and "the longer it runs, the longer
+  the leash" for that half only.
+
 ### B's big losers trade by trade - the adds bought the top of the jump (~3pm; finding)
 - The owner: IPDN -47%, XHG -42%, FRGT -20%, WHLR -32% (10-06), BIYA -23%
   (10-07) - one entry or many? (The % is of the run's size, not of money:
