@@ -5,6 +5,19 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-08
 
+### The three-candle setup as the bots trade it (finding, ~9:40pm)
+- The owner: the three-candle setup (green, red, buy back over the red's
+  open, stop under the red) works 80%+ for experienced traders, more with
+  every filter that checks out; the first one especially.
+- v36 on 10-08 took none (19 furious, 7 new-high to 9:47). On 10-06/07 it
+  took 34 (31 matched to round trips: 5 won, -$409; starters ~$430).
+- Second by second (R = buy - the red's low): +1R before the stop 15 of 34
+  (44%), +2R 11 of 34 (32%) - about break-even before costs.
+- Where it worked: LPCN 10-07 6:42-7:00, the #1 name, 4 of 4 to +2R;
+  BIYA's first two (4:20, 4:23); DKI 11:28; MOBX. Every one failed on DLXY
+  (3), SPAI (2), MTEN (3), MI (2), and BIYA's later ones. Next: the setup
+  on the day's #1 name only, its first pullbacks, 3 days, after costs.
+
 ### How many trades for a 99.9% chance of a +2% day (the owner's question, ~9:15pm)
 - Independent trades, fixed win and loss sizes, no costs (exact binomial).
   60% wins, wins = losses: 224 trades a day just to end above zero 99.9% of
