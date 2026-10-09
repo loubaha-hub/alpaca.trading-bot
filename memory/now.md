@@ -97,7 +97,10 @@ Updated 2026-10-09, ~12pm ET.
   from now on, every move the owner says he would have taken (his charts) is
   kept in memory/would_take.md with the check that blocked it - after 1-2
   weeks, the rule that blocks the most good moves is the one to look at.
-- r34.39 on the branch (674 tests pass; reads NTCL too): SEC_DUMP_DAYS = ("2026-10-09",),
+- r34.39 on the branch (674 tests pass): the read-only second-by-second read
+  of every 10-09 buy of the three, plus named moments no bot bought or whose
+  read was lost - NTCL 10-09 8:30, BIYA 10-07 8:20 ($2.54 -> $33.96), DKI
+  10-08 6:54, FLYE 10-08 7:17 - for the owner's speed strategy test.: SEC_DUMP_DAYS = ("2026-10-09",),
   10 min before to 50 min after each buy - the read-only second-by-second
   read of every trade of the three today, as on 10-08. WAITING ON THE
   OWNER'S OK to push to main after 8pm with all three flat; the next
