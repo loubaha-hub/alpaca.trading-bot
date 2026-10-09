@@ -33,6 +33,47 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   buy. Today's high is not a separate wall. Do not stack rules until the bots
   are paralyzed: a very good move must not be blocked - discuss before adding.
 
+### ... + re-entry only at speed on a new high of the day (~1:25pm; finding)
+- The owner: re-entry is allowed as often as it comes, per stock - but it
+  must wait for a new high of the day ("that one, it's a must").
+- speedsim.play_ladder_hod: first buy on speed; after a sale, back in only
+  when speed is on AND the price makes a new high (the window's high so far -
+  the read starts 5 min before the bots' first buy, so an earlier high of the
+  day is not seen).
+  | filter | stop / half from | trades | won | P/L | without SXTC 10-07 |
+  | none | 3c / 10c | 122 | 9% | +$2,436 | -$1,694 |
+  | none | 5c / 10c | 103 | 9% | +$2,171 (SXTC 8:14 +$4,251) | -$1,911 |
+  | crowd top 3 | 5c / 5c | 95 | 24% | -$1,273 | -$696 |
+  | crowd top 2 | 5c / 5c | 75 | 27% | -$474 | -$323 |
+  | crowd #1 | 3c / 10c | 44 | 11% | -$255 | -$150 |
+  Same picture: positive only with SXTC's early entry (no filter); every
+  crowd-filtered version loses; the new-high rule trims the churn but does
+  not flip a result. The 10c steps are large on sub-$1 stocks (FRGT 10-06,
+  $0.72 first fill, the add filled in a jump, -$402), and adds into a gap fill
+  far above the step (SXTC 8:16:37 $3.00 -> average $4.20, -$404).
+  Output: replay/live/2026-10-08_secdump/speedsim_hod_rebuy_run.txt.
+
+### ... + the day's top names (~1:10pm; finding)
+- The owner: only stocks that are moving and where the crowd is - the
+  day's #1-#3 by money (and/or the top 3 gainers), up 10%+.
+- replay/research/ranks.py ranks each minute: money in the last 5 closed
+  minutes among the day's names (10-06: 79 names, 10-07: 132 - the recorded
+  bars from claude/zealous-ramanujan-br3gay; 10-08: only the 17 traded names).
+  Gainer ranks need the previous close, missing for 94 of 206 signals (SXTC
+  10-07 among them) - the gainer / up-10% filters are not trustworthy here;
+  the crowd filter is (every window's stock was on the up-10% list).
+  | filter | stop / half from | trades | won | P/L |
+  | none | 5c / 10c | 129 | 10% | +$2,323 (SXTC 10-07 +$3,967; without it -$1,644) |
+  | crowd top 3 | 5c / 5c | 100 | 24% | -$625 |
+  | crowd top 2 | 5c / 5c | 85 | 25% | -$425 |
+  | crowd #1 | 5c / 5c | 57 | 23% | -$333 |
+  Every filtered version loses (-$333 to -$1,784 in three days); losses small
+  and spread out. Why: the crowd comes late - SXTC 10-07 was #6 by money when
+  its run began ($2.18, 8:14:36), #3 at 8:16:32 ($2.87, shaken out -$8, the run
+  to $7.07 went on without it), #1 at 1:40-1:59pm near its top (9 tries, all
+  stopped, -$155). Files: speedsim_crowd_run.txt, speedsim_filters_run.txt;
+  replay/research/speedsim_ranked.py.
+
 ### The speed strategy with the owner's ease-in (~12:40pm; finding)
 - The owner: "I hate to add rules, but smart simpler rules might help" - 20%
   of the position at the speed buy, to 50% at +10c over the first fill, full
