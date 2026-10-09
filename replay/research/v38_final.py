@@ -72,10 +72,11 @@ def load(new_dir, old_dir, bars_dir):
     return by
 
 
-def play_day(recs, mode, kw):
+def play_day(recs, mode, kw, reentry="day"):
     """[(rec, t_in, P/L, shares, average, leash)] - first buy of the day free,
     later ones at speed on a new high of the day, across the day's windows."""
     out, first, proven = [], True, False
+    since = None                                   # the high since v38's last sale (reentry="sale")
     for r in recs:
         p, st = S.Path(r), Q.speed_state(r)
         hi = {x[0]: x[2] for x in r["S"] if x[2]}
@@ -91,8 +92,13 @@ def play_day(recs, mode, kw):
             t = r["start"] + k + 0.99
             if t <= after or not on:
                 continue
-            if not first and (h is None or prev is None or h <= prev + 1e-9):
+            if not first and reentry == "day" and (h is None or prev is None or h <= prev + 1e-9):
                 continue
+            if not first and reentry == "sale":        # over the highest price since the last sale
+                hs = [x[2] for x in r["S"] if x[2] and after - r["start"] <= x[0] < k]
+                ref = max(hs) if hs else None
+                if h is None or ref is None or h <= ref + 1e-9:
+                    continue
             t_in = t + S.BUY_LAG
             if t_in >= p.end - 5:
                 break

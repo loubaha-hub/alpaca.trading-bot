@@ -5,6 +5,32 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-09
 
+### The owner's plan for live money (~7:50pm; a plan, not built)
+- When v38 runs with real money it may stop at 9:30 if the premarket returns
+  are healthy enough - to be tested. A paper account keeps running the
+  identical strategy 4am-8pm (closing from 7pm) plus anything experimental -
+  paper is free to lose; compare paper with real money (paper a little kinder:
+  partial fills and real-money imperfections).
+- "A strategy is only as good as how much money it doesn't lose" - the swings
+  (10-08 -$1,918 under the trailing exit) must come down too.
+
+### v38: the trailing exit, the daily loss limit, the re-entry high (~7:50pm; partial read)
+- The owner's trailing exit (nothing sold on the way up; once full, a third
+  at 20% off the peak, a third at 40%, the rest at 50% or the floor at the
+  full position's average): +$10,568 vs v38 as decided +$1,116 ($7,500 full,
+  10-06..10-09 partial); BIYA 8:20 +$11,331. Worst day 10-08 -$1,918.
+- A daily loss limit (no new buy once the day's closed trades are down $X):
+  $500 -> +$12,604, worst day -$515; $750 -> +$12,167 / -$791. It dropped 41
+  trades, all losers; the big winners (FRGT 4:01, BIYA 8:20, SBFM 10:31) came
+  on days it never hit. Proposed for v38.
+- The re-entry high: "over the DAY's high" (as decided) blocked SXTC 8:14
+  ($2.18, under 5am's $2.59) and BIYA before 8:20 (under $3.10). A recent high
+  instead (my windows' gaps acted as one) let BIYA in at $2.65 before the
+  spike, full at $2.80: +$41,519 with the trailing exit. Not a clean test -
+  next: the high of the last 30 / 60 / 120 minutes vs the day's, on the full
+  read, with the daily limit. Speed alone (no high): +$39,900 but 447 trades
+  and worst day -$1,648.
+
 ### DECISION (the owner, ~2:30pm): v38 keeps its re-entries; compare A vs "A then B"
 - The owner: re-entries are not clean but "we cannot afford not to have
   them" - that is how more of each runner is harvested. v38 keeps them
