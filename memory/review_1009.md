@@ -177,3 +177,22 @@ minute, a burst to the $2.65 high ~8:32:50, then $2.10-2.45 chop.
 - "Missed the start" count (the owner: lower the money bar only if we keep
   missing the early start): MI 4:32 (money bar), NTCL 8:30-8:32 (the list's
   10%, then most likely the red-candle check).
+- The owner (~8:55am): NTCL had the conditions for v37 and the three-candle
+  pattern - why missed? Maybe v37's two green candles? From the log and code:
+  - Not the two-green rule: it writes a SKIP line; v37 wrote none for NTCL.
+  - During the burst (8:32, new highs $2.08 -> $2.65): v37's regular door
+    needs #1/#2 by money or the top gainer - NTCL was #3 ($701k) and gainer
+    #5. Every bot's furious door needs the last 1-minute candle not red - the
+    8:31 candle WAS red (v36's line at 8:33:00: "last candles RG" = 8:31 red,
+    8:32 green). Both doors shut, no line written.
+  - After 8:33: v37 buys only over the day's high; NTCL never got back over
+    $2.65 (high $2.45 by 8:48).
+  - v36/v36b's three-candle pattern: crowd #1 from 8:34, held 2 min at 8:36.
+    The green-red pairs were there (8:32/8:33, 8:34/8:35, 8:36/8:37...), but
+    the pattern refuses a pullback whose red trades as much as the green
+    before it (V36_PULLBACK_VOL, 10-07, "selling, not a light pullback") or
+    dips under the rip candle's open (V36_FAILED_RIP) - most likely the
+    volume check on the 8:33 crash; the 8:34 green never got back over the
+    8:33 red's open (~$2.44). The log says only "NO PATTERN" - it does not
+    name which check (a gap; information only).
+- r34.39 now also reads NTCL 8:20-9:20 (SEC_DUMP_MISSED) to settle it.
