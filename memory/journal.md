@@ -5,6 +5,24 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-09
 
+### The owner's middle ground - A at the start, B's leash once it is a runner (~4pm; finding)
+- The owner: keep A's leash on every new entry; once the trade has bagged
+  about 20% of gain, change to B's longer leash.
+- Where A's 122 trades ended (scale-out on): 67 never traded over the buy
+  (-$1,070), 49 were up under 5% (-$730), 4 up 5-10%, 1 up 10-20%, ONE up
+  20%+ (SXTC +$5,125). And once a trade is up 20%, A and B exit the same
+  way - the half-back line sits above both stops. So the switch on the
+  trade's gain changes nothing on these days.
+- Read instead as "the STOCK is already up 20%+ from its low in the window
+  -> that entry gets B's leash (10% stop, 3c under the average after an
+  add)": worse - 20%: +$2,361 (PRE +$3,230 / RTH -$552 / AFTER -$316); 30%:
+  +$2,510; 50%: +$2,879; 10%: +$1,475; vs A everywhere +$3,309. The late
+  entries on an extended stock sit near the top; the wide stop loses more
+  (20%: 47 trades on B's leash -$2,276).
+- So A is shaken out in the first seconds, not after a gain: the lever is
+  the entry price (the buy at the ask lands on the top tick of the burst),
+  not the leash. A proposal for later, words first.
+
 ### DECISION (the owner, ~3:50pm): A is the variant - the 3c stop, with the scale-out
 - The owner: both catch the big runners; A loses much less on its small
   losers (about -$20 vs -$174) - "A is definitely superior".
