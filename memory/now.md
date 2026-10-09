@@ -67,6 +67,14 @@ Updated 2026-10-09, ~9:20am ET.
 - VIVK 9:07-9:14 ($4.46 -> ~$6.74 on deal news): v36 -$169.58 (5 trades),
   v36b -$74.98 (3), v37 +$11.91 (3); blow by blow in memory/review_1009.md.
   Day at 9:16: v36 -1.3%, v37 -0.7%, v36b -0.4%.
+- The owner (~9:30am): after a month, no profit - do public, recognized
+  strategies do better? Researched (4 parts, notes in research_notes/Small cap
+  momentum strategy evidence/). Answer: no proven, cost-surviving strategy on
+  our kind of stock; one candidate to test (opening range breakout on stocks
+  in play, after 9:30, $5+, top relative volume); the research confirms our
+  three leaks (burst-top buys, paying over the ask, the 1-minute replay).
+  The map, research vs our live numbers: https://claude.ai/artifact/PT9fPxUXei5HVJsBRoKGDG
+  The full report: reports/Small cap momentum strategy evidence.md (writing).
 - Tonight, agreed: the count of which check said no on the #1/#2 leaders
   today, and what each stock did in the next 15 minutes (from the log). Plus,
   from now on, every move the owner says he would have taken (his charts) is
