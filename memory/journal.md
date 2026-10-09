@@ -33,6 +33,17 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   buy. Today's high is not a separate wall. Do not stack rules until the bots
   are paralyzed: a very good move must not be blocked - discuss before adding.
 
+### The owner on the research (~10am): keep our method, fine-tune it
+- The research gave "the full picture of what's out there"; sources from
+  people selling courses, signals or algorithms are not reliable by any
+  measure - good to know. Direction: keep doing what we do and fine-tune it.
+  The daily losses have shrunk with the tweaks (10-07: v36 -9.45%, v36b
+  -8.62%; 10-09 at 9:16am: v36 -1.3%, v36b -0.4%, v37 -0.7%). Next: make the
+  method more efficient and find a way to keep the runners and raise the
+  returns on the high runners. The owner will think and bring more ideas.
+  Report: reports/Small cap momentum strategy evidence.md; the map:
+  https://claude.ai/artifact/PT9fPxUXei5HVJsBRoKGDG
+
 ### Standing rule (the owner, ~9:35am): don't throw the baby out with the bath water
 - Too many rules stacked on each other paralyze the bots: they let a lot of
   good moves go. A check that removes a few bad trades but blocks good moves
