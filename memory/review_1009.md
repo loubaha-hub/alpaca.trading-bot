@@ -152,3 +152,28 @@ high, then $1.40-1.65 chop to ~5:30 and a fade to $1.28 by 8:15.
   $1.13 and its money crossed $100k / $150k / $250k in a minute; where v37
   would have bought with a lower money bar, and whether the wick shook it out
   (the owner expects so); the same for every furious buy of 10-06..10-09.
+
+# NTCL 10-09 (the owner's chart, ~8:50am) - no bot traded it
+Chart: prev close $1.795; ~$1.83 at 8:29, a jump to ~$2.17 in the 8:30
+minute, a burst to the $2.65 high ~8:32:50, then $2.10-2.45 chop.
+
+| ET | NTCL | the log |
+|---|---|---|
+| 8:30:23 | $2.17 | first on the scanner's list (10% over the close = $1.975), already 19% over its $1.829 high; watched from the next batch (~30s) |
+| 8:32:00 | $2.08 | v36/v36b: no crowd (#3, $701k in 5 min; gainer #5) |
+| ~8:32:50 | $2.65 high | no FURIOUS line from any bot at any time |
+| 8:33:00 | $2.44 | "rip 08:32 alive", last candles red-green - waiting for the pullback pattern |
+| 8:33:44 | | the news (benzinga, 8:33): AI pet launch through a 40% joint venture - after the move started |
+| 8:34-8:36 | $2.25-2.31 | crowd #1 ($3-6M) from 8:34, held 2 min at 8:36; no pattern (green-red, the buy over the red's open never came) |
+| 8:37-8:48 | $2.12-2.30 | no pattern; the rip "dead" 8:45, "alive" again 8:48 |
+
+- The first leg ($1.83 -> $2.17) was over before NTCL reached the list: the
+  scanner's 10% bar.
+- The burst ($2.08 -> $2.65, 8:32) passed with no furious line. The furious
+  door needs speed 0.30+, $250k in the last minute and the last 1-minute
+  candle NOT red; the 8:31 candle was most likely red ($2.16 at 8:30:47 ->
+  $2.08 at 8:32:00) - the likely blocker; the tape confirms.
+- After it: not a crowd name for 2 minutes until 8:36, by then falling.
+- "Missed the start" count (the owner: lower the money bar only if we keep
+  missing the early start): MI 4:32 (money bar), NTCL 8:30-8:32 (the list's
+  10%, then most likely the red-candle check).
