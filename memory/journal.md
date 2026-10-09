@@ -5,6 +5,25 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-08
 
+### The owner's factors at each buy, and the time of day (finding, ~10pm)
+- Data: Webull 1-minute bars 4am-8pm for the 41 stock-days v36/v36b traded
+  (replay/live/2026-10-08_secdump/bars/); replay/research/factors.py.
+- By session, live, 3 days: v36 premarket 47 trades, 30% won, +$367 (+$7.8
+  a trade; 10-07 -$280, 10-08 +$647); regular hours 36, 17%, -$1,653
+  (-$46 a trade); after hours 11, 0 won, -$433. v36b: -$238 / -$549 / -$246
+  (0 of 8 after hours). v37: -$1,367 premarket (99 trades on 10-06) / -$413 /
+  -$11.
+- The owner's factors (v36, 69 trades with 30+ minutes of bars): EMA9 over
+  EMA20, MACD over zero, over VWAP - nearly every buy had them (the bots
+  require them), so they cannot separate. EMA gap widening, MACD bars
+  growing, small top wick: no difference here. Volume spike at the buy:
+  worse (15% won). Price 20%+ over VWAP: 4% won (28 trades) vs 29% - mostly
+  regular hours; in premarket not clean (DKI 6:54 +$631 was over). Green
+  bodies shrinking: 14% won vs 22% (v36b 0% vs 18%).
+- Thought (not decided): v36 premarket only - the 10-07 night proposal (a);
+  the owner chose the full 4am-8pm schedule at 3:40am 10-08. To check on
+  10-01..10-05 first.
+
 ### The three-candle setup as the bots trade it (finding, ~9:40pm)
 - The owner: the three-candle setup (green, red, buy back over the red's
   open, stop under the red) works 80%+ for experienced traders, more with
