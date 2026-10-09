@@ -33,6 +33,26 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   buy. Today's high is not a separate wall. Do not stack rules until the bots
   are paralyzed: a very good move must not be blocked - discuss before adding.
 
+### The speed strategy with the owner's ease-in (~12:40pm; finding)
+- The owner: "I hate to add rules, but smart simpler rules might help" - 20%
+  of the position at the speed buy, to 50% at +10c over the first fill, full
+  at +20c (cents, not percent, so $1 stocks are not skewed). Floor at the
+  average after an add; half the gain; back in on the next burst.
+- speedsim.py ladder, same 72 windows, full = $4,000:
+  | stop / half from / back in | trades | won | P/L | without SXTC 10-07 |
+  | at the buy / 1c / yes | 202 | 8% | -$1,360 (was -$6,764 at full size) | - |
+  | 3c under / 10c / yes | 154 | - | +$2,402 | -$1,625 |
+  | 5c under / 10c / yes | 129 | 10% | +$2,323 | -$1,644 |
+  | 5c under / 8c / yes | 137 | - | -$1,760 (SXTC cut early: -$275) | -$1,485 |
+  | 10c under / 10c / yes | 118 | 22% | +$573 | -$3,340 |
+- The ease-in cuts what the failures cost to about a fifth. Every positive
+  version is one trade: SXTC 10-07 8:14 first $2.18, avg $2.30 after both
+  adds, best $7.07, +$4,251. Without it every version loses $1,500-3,400 in
+  three days; arming the half-gain exit at 8c instead of 10c turns +$2,323
+  into -$1,760 - fragile. The question is how often an SXTC-size runner comes
+  and whether it is ridden: needs 10-09 (VIVK, MI, VEEA, NTCL - tonight's
+  read) and more days. Output: replay/live/2026-10-08_secdump/speedsim_ladder_run.txt.
+
 ### The owner's simple speed strategy, tested on the three days (~12:20pm; finding)
 - The owner: a simpler strategy - buy only at speed (the furious test, no
   patterns, no spread / liquidity checks), out when it comes back to the buy

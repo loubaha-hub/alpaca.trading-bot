@@ -100,6 +100,107 @@ def play(path, sigs, dollars, stop_under, arm, rebuy=True):
     return out
 
 
+def run_ladder(path, t0, fill0, full, stop_under, arm, steps=((0.10, 0.5), (0.20, 1.0)), start=0.2):
+    """The owner's ease-in (10-09 ~12:30pm): START of the full dollars at the
+    speed buy; at the first fill + each step's cents, a buy (at the ask
+    BUY_LAG later) up to that share of the full position. The stop: the buy
+    price (less stop_under) - after an add, the floor rises to the average
+    (as the bot's V36_FLOOR_AVG). The line: half the position's gain over its
+    average, once that gain is `arm`. One sale of everything at the bid
+    SELL_LAG after the decision. Returns (exit time, P/L, why, best, shares,
+    average, adds made)."""
+    sh = int(full * start / fill0)
+    cost = sh * fill0
+    avg = fill0
+    stop = fill0 - stop_under
+    best, line, k = fill0, -1.0, 0
+    i = path.at(t0)
+    for t, p, b, a in path.ev[i:]:
+        if b and a:
+            tol = max(S.PRINT_TOL_CENTS, S.PRINT_TOL_PCT * p)
+            if p > a + tol or p < b - tol:
+                continue
+        best = max(best, p)
+        while k < len(steps) and p >= fill0 + steps[k][0] - 1e-9:
+            px = path.ask_at(t + S.BUY_LAG)
+            add = int((full * steps[k][1] - cost) / px) if px and px > 0 else 0
+            if add > 0:
+                sh += add
+                cost += add * px
+                avg = cost / sh
+                stop = max(stop, avg - stop_under)
+            k += 1
+        if best - avg >= arm - 1e-9:
+            line = max(line, avg + 0.5 * (best - avg))
+        if p <= stop + 1e-9 or (b and a and (b + a) / 2 <= stop + 1e-9):
+            xp = path.bid_at(t + S.SELL_LAG)
+            return t, (xp - avg) * sh, "stop", best, sh, avg, k
+        if p <= line + 1e-9 and not (b and b > line + 1e-9):
+            xp = path.bid_at(t + S.SELL_LAG)
+            return t, (xp - avg) * sh, "line", best, sh, avg, k
+    last = path.ev[-1]
+    return last[0], ((last[2] or last[1]) - avg) * sh, "open", best, sh, avg, k
+
+
+def play_ladder(path, sigs, full, stop_under, arm, rebuy=True):
+    out, busy_until = [], -1.0
+    for t_sig, _ in sigs:
+        if t_sig <= busy_until:
+            continue
+        if out and not rebuy:
+            break
+        t_in = t_sig + S.BUY_LAG
+        if t_in >= path.end - 5:
+            break
+        fill = path.ask_at(t_in)
+        if not fill or fill <= 0:
+            continue
+        te, pl, why, best, sh, avg, k = run_ladder(path, t_in, fill, full, stop_under, arm)
+        out.append((t_in, fill, why, best, pl, sh, avg, k))
+        busy_until = te + S.SELL_LAG
+    return out
+
+
+def main_ladder():
+    windows = S.load_windows(sys.argv[1])
+    full = float(sys.argv[3]) if len(sys.argv) > 3 else 4000.0
+    recs = [r for lst in windows.values() for r in lst]
+    data = [(r, S.Path(r), signals(r)) for r in recs]
+    print("THE EASE-IN: 20%% at the speed buy, 50%% at +10c, full at +20c over the first fill; full = $%.0f" % full)
+    print("%-26s %7s %5s %6s %10s %8s %8s %6s %6s  %s" % ("stop / half from / rebuy", "trades", "won", "won%",
+                                                       "P/L", "avg win", "avg loss", "+10c", "+20c", "by day"))
+    keep = {}
+    for su in (0.00, 0.02, 0.05, 0.10):
+        for arm in (0.01, 0.05, 0.10):
+            for rb in ((True, False) if (su, arm) in ((0.0, 0.01), (0.05, 0.05), (0.10, 0.05)) else (True,)):
+                rows, per_day = [], defaultdict(float)
+                for r, path, sg in data:
+                    for tr in play_ladder(path, sg, full, su, arm, rb):
+                        rows.append((r["day"], r["sym"], tr))
+                        per_day[r["day"]] += tr[4]
+                pl = [x[2][4] for x in rows]
+                w = [x for x in pl if x > 0]
+                l = [x for x in pl if x <= 0]
+                print("%-26s %7d %5d %5.0f%% %+10.2f %+8.2f %+8.2f %6d %6d  %s" % (
+                    "%2.0fc under / %2.0fc / %s" % (100 * su, 100 * arm, "yes" if rb else "no"),
+                    len(pl), len(w), 100 * len(w) / max(1, len(pl)), sum(pl),
+                    sum(w) / max(1, len(w)), sum(l) / max(1, len(l)),
+                    sum(x[2][7] >= 1 for x in rows), sum(x[2][7] >= 2 for x in rows),
+                    "  ".join("%s %+.0f" % (d[5:], per_day[d]) for d in sorted(per_day))))
+                keep[(su, arm, rb)] = rows
+    from datetime import datetime
+    for key in ((0.0, 0.01, True), (0.10, 0.05, True)):
+        rows = keep[key]
+        tot = sum(x[2][4] for x in rows)
+        top = sorted(rows, key=lambda x: -x[2][4])
+        print("\n%2.0fc under / half from %2.0fc / rebuy: total %+.2f; without the best trade %+.2f; the biggest:" % (
+            100 * key[0], 100 * key[1], tot, tot - top[0][2][4]))
+        for d, sym, tr in top[:5] + sorted(rows, key=lambda x: x[2][4])[:3]:
+            print("  %s %-5s %s first %.3f avg %.3f shares %d adds %d best %.3f %-4s %+9.2f" % (
+                d, sym, datetime.fromtimestamp(tr[0], S.ET).strftime("%H:%M:%S"), tr[1], tr[6], tr[5], tr[7],
+                tr[3], tr[2], tr[4]))
+
+
 def main():
     windows = S.load_windows(sys.argv[1])
     dollars = float(sys.argv[2]) if len(sys.argv) > 2 else 4000.0
@@ -143,4 +244,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) > 2 and sys.argv[2] == "ladder":
+        main_ladder()
+    else:
+        main()

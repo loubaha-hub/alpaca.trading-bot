@@ -1,0 +1,37 @@
+THE EASE-IN: 20% at the speed buy, 50% at +10c, full at +20c over the first fill; full = $4000
+stop / half from / rebuy    trades   won   won%        P/L  avg win avg loss   +10c   +20c  by day
+ 0c under /  1c / yes          202    17     8%   -1359.82    +7.23    -8.01      1      0  10-06 -579  10-07 -389  10-08 -392
+ 0c under /  1c / no            51     5    10%    -448.63    +6.88   -10.50      0      0  10-06 -307  10-07 -100  10-08 -41
+ 0c under /  5c / yes          202    19     9%   -1333.30    +7.86    -8.10      2      0  10-06 -577  10-07 -364  10-08 -392
+ 0c under / 10c / yes          202    19     9%   -1351.44    +6.91    -8.10      2      0  10-06 -577  10-07 -383  10-08 -392
+ 2c under /  1c / yes          193    21    11%   -1410.84    +6.53    -9.00      2      0  10-06 -540  10-07 -433  10-08 -438
+ 2c under /  5c / yes          176    25    14%   -1229.87   +16.07   -10.80      9      0  10-06 -571  10-07 -438  10-08 -221
+ 2c under / 10c / yes          168     8     5%   -1697.44   +29.23   -12.07     13      2  10-06 -570  10-07 -663  10-08 -465
+ 5c under /  1c / yes          174    33    19%   -1186.69    +8.46   -10.40      5      0  10-06 -515  10-07 -384  10-08 -287
+ 5c under /  5c / yes          147    39    27%   -1125.91   +16.83   -16.50     18      2  10-06 -579  10-07 -557  10-08 +10
+ 5c under /  5c / no            51    18    35%    -521.30   +17.16   -25.16      9      1  10-06 -399  10-07 -268  10-08 +145
+ 5c under / 10c / yes          129    13    10%   +2322.92  +401.29   -24.95     32     11  10-06 -630  10-07 +3439  10-08 -487
+10c under /  1c / yes          164    36    22%   -1180.31    +8.10   -11.50      8      1  10-06 -506  10-07 -337  10-08 -337
+10c under /  5c / yes          137    49    36%   -1595.04   +14.51   -26.21     24      3  10-06 -599  10-07 -678  10-08 -318
+10c under /  5c / no            51    24    47%    -802.62   +14.84   -42.92     11      2  10-06 -466  10-07 -406  10-08 +69
+10c under / 10c / yes          118    26    22%    +572.74  +206.06   -52.01     48     21  10-06 -1415  10-07 +2884  10-08 -896
+
+ 0c under / half from  1c / rebuy: total -1359.82; without the best trade -1383.99; the biggest:
+  2026-10-06 FRGT  04:05:32 first 1.180 avg 1.215 shares 1645 adds 1 best 1.280 line    +24.17
+  2026-10-06 VCIG  16:03:01 first 1.620 avg 1.620 shares 493 adds 0 best 1.620 stop    +14.79
+  2026-10-07 CPHI  14:18:31 first 1.090 avg 1.090 shares 733 adds 0 best 1.090 stop    +14.66
+  2026-10-06 AIXI  04:17:13 first 3.000 avg 3.000 shares 266 adds 0 best 3.000 stop    +10.64
+  2026-10-07 BIYA  04:13:53 first 2.700 avg 2.700 shares 296 adds 0 best 2.700 stop     +8.88
+  2026-10-06 IPDN  07:26:52 first 3.650 avg 3.650 shares 219 adds 0 best 3.650 stop    -78.84
+  2026-10-06 XHG   08:32:32 first 3.640 avg 3.640 shares 219 adds 0 best 3.640 stop    -61.32
+  2026-10-08 BIAF  08:06:52 first 7.200 avg 7.200 shares 111 adds 0 best 7.200 stop    -43.29
+
+10c under / half from  5c / rebuy: total -1595.04; without the best trade -1681.09; the biggest:
+  2026-10-08 SBFM  05:20:47 first 1.150 avg 1.208 shares 1655 adds 1 best 1.320 line    +86.05
+  2026-10-08 IPW   04:10:25 first 1.730 avg 1.789 shares 1118 adds 1 best 1.860 line    +46.20
+  2026-10-08 CHR   08:02:15 first 1.940 avg 2.005 shares 997 adds 1 best 2.060 line    +45.32
+  2026-10-08 AIXI  04:01:46 first 2.190 avg 2.272 shares 880 adds 1 best 2.350 line    +42.30
+  2026-10-06 AIXI  04:16:48 first 2.630 avg 2.701 shares 740 adds 1 best 2.790 line    +36.48
+  2026-10-08 KAPA  09:37:35 first 1.240 avg 1.240 shares 645 adds 0 best 1.250 stop    -90.30
+  2026-10-06 IPDN  07:26:52 first 3.650 avg 3.650 shares 219 adds 0 best 3.650 stop    -78.84
+  2026-10-08 AIXI  04:02:57 first 2.430 avg 2.495 shares 801 adds 1 best 2.540 line    -75.95
