@@ -101,7 +101,7 @@ def play(path, sigs, dollars, stop_under, arm, rebuy=True):
 
 
 def run_ladder(path, t0, fill0, full, stop_under, arm, steps=((0.10, 0.5), (0.20, 1.0)), start=0.2,
-               mid_stop=True, stop_pct=0.0, trace=None, add_cap=None, scale=()):
+               mid_stop=True, stop_pct=0.0, trace=None, add_cap=None, scale=(), add_floor=None):
     """The owner's ease-in (10-09 ~12:30pm): START of the full dollars at the
     speed buy; at the first fill + each step's cents, a buy (at the ask
     BUY_LAG later) up to that share of the full position. The stop: the buy
@@ -119,7 +119,10 @@ def run_ladder(path, t0, fill0, full, stop_under, arm, steps=((0.10, 0.5), (0.20
     sells at the average x (1 + gain), each for `share` of the whole position,
     filled at that price when a print reaches it (the chasers buy them on the
     way up); after the first one, no more adds; the rest rides the stop and the
-    half-back line. P/L and shares (the whole position) include the parts sold."""
+    half-back line. P/L and shares (the whole position) include the parts sold.
+    add_floor: after an add, the stop rises to the average less this (the
+    owner's words: "back at the buy, or at the floor = the average after
+    adds") - whatever the first stop was."""
     if stop_pct:
         stop_under = fill0 * stop_pct
     sh = int(full * start / fill0)
@@ -144,7 +147,8 @@ def run_ladder(path, t0, fill0, full, stop_under, arm, steps=((0.10, 0.5), (0.20
                 sh += add
                 cost += add * px
                 avg = cost / sh
-                stop = max(stop, avg - (avg * stop_pct if stop_pct else stop_under))
+                stop = max(stop, avg - (add_floor if add_floor is not None else
+                                        avg * stop_pct if stop_pct else stop_under))
                 if trace is not None:
                     trace.append((t + S.BUY_LAG, "add", add, px, avg, stop))
             k += 1

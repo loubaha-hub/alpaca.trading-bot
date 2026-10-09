@@ -5,6 +5,21 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-09
 
+### Why A beats B three to one with the scale-out (~3:40pm; finding)
+- The owner: A +$3,309 vs B +$1,246 - why? Both keep the same SXTC trade
+  (+$5,125); the gap is the other trades. A: 121 trades -$1,815 - 111
+  losses averaging -$20, 10 wins +$38. B: 63 trades -$3,879 - 20 wins
+  averaging +$180 (the wider leash keeps part of AIXI, XHG 9:37, INHD...),
+  43 losses averaging -$174; 24 of them after the adds -$6,044 (-$252 each:
+  the full $4,000 position with the stop 10% under the average). With A a
+  loss after adds averages -$53 (the stop 3c under the average).
+- B wins on the runs (+$1,153 without SXTC vs A -$1,106) and loses on the
+  rest (-$5,032 vs -$709).
+- Tried: B' = a 10% first stop, then after an add the stop rises to the
+  average less 3c: +$1,929 (PRE +$3,036 / RTH -$725 / AFTER -$381; runs
+  +$3,436, rest -$1,507). The stop AT the average after an add: -$3,192 -
+  ticks hit it at once, SXTC -$647. speedsim.run_ladder(add_floor=...).
+
 ### DECISION (the owner, ~3:20pm): the scale-out - in every study from now on
 - The owner: once a trade is up 100%, sell a quarter (people are still
   buying fast - sell at the ask, not the bid); at 200% another quarter; the
