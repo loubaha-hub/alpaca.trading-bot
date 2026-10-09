@@ -5,6 +5,27 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-09
 
+### The whole picture: the runs AND the bots' losers, and the give-back (~2:40pm; finding)
+- The owner's questions: did the test include all the small losers the bots
+  picked? did our entry pick up the big winners? how much did A and B give
+  back? And a third group not yet in: the losers NO bot picked, where the
+  speed strategy would also have bought.
+- replay/research/speedsim_giveback.py -> speedsim_giveback.txt. The read is
+  72 windows = every stock-moment the three bots bought 10-06..10-08,
+  winners and losers. The speed strategy trades in all of them (its own
+  entries). A (3c stop): 122 trades +$2,436 = the runs +$3,145 (60 trades),
+  the rest -$709 (62 trades, -$11 each). B (10% stop): 64 trades +$372 = the
+  runs +$5,404 (30), the rest -$5,032 (34, -$148 each). By session, all:
+  A PRE +$3,091 / RTH -$426 / AFTER -$229; B +$1,249 / -$194 / -$683.
+- The entry: it bought inside 17 of the 20 runs of 40%+ (no trade on WORX;
+  RUBI and NXAT signalled after the top). The exit: premarket, A was up at
+  its best 15% of the run (averaged over 12 runs), gave back 21%, ended -7%;
+  B up 26%, gave back 33%, ended -7%. Regular hours: A 3% / 13% / -10%; B
+  38% / 30% / +9%.
+- Not in yet: the losers no bot bought. To have them: log every speed
+  signal on the whole list live (no orders) and read those seconds at night
+  - or shadow-trade the strategy live. A proposal, words first.
+
 ### Does the speed strategy catch the runners and keep them? (~2:10pm; finding)
 - The owner's questions: does it catch them and keep them; why it lost on
   AIXI / IPDN / XHG / FRGT 10-06; by stock, how much of each run it bagged.
