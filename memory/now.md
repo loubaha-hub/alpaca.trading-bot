@@ -24,9 +24,9 @@ Updated 2026-10-08, ~9:45pm ET.
 
 ## Clean for 10-09 (the owner, ~9:35pm: "what are the clean ones?")
 - v37's 1c exit: gone - the 5c cut is live since 6:02pm (r34.35).
-- PROPOSED, words in memory/words_buy_at_ask.md, waiting for the owner: v37's
-  fast buys and v36b's furious buys AT THE ASK, not ask + 20c - better on all
-  three days in the second-by-second replay. v36 unchanged (the control).
+- DECIDED and built (r34.36, BUY_AT_ASK): v37 and v36b buy AT THE ASK (no
+  20c / 10c / 0.2% over); v36 unchanged (the control). Words:
+  memory/words_buy_at_ask.md.
 - v36b's 10c leash: a wash on the 40 furious buys with data (see the journal)
   - the owner's call.
 

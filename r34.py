@@ -1965,7 +1965,7 @@ class Strategy:
     # ---- execution ----------------------------------------------------------
 
     async def buy(self, symbol: str, shares: int, ref: float,
-                  cap: float = None, floor: float = None, sweep: float = 0.0,
+                  cap: float = None, floor: float = None, sweep: float = None,
                   keep: bool = False) -> int:
         """Fills counted from the BROKER, never from the order reply.
 
@@ -1973,6 +1973,8 @@ class Strategy:
         bought the whole clip again - a $600 slot became $3,050 that way.
 
         cap: how far over ref the buy may pay (BUY_CHASE_CAP when not given).
+        sweep: None, or the cents over the ask of buy_sweep's orders (0.0 = at
+        the ask, BUY_AT_ASK).
         """
         cap = BUY_CHASE_CAP if cap is None else cap
         start = await self.broker.qty(symbol)
@@ -1982,7 +1984,7 @@ class Strategy:
             log.error("[%s] cannot read %s position - not buying", self.name,
                       symbol)
             return 0
-        if sweep:
+        if sweep is not None:
             got, why = await self.buy_sweep(symbol, shares, ref, cap, floor, sweep, keep)
             last = start + got
         elif FAST_BUY:
@@ -2010,7 +2012,10 @@ class Strategy:
         return filled
 
     def buy_limit(self, ask, ceiling) -> float:
-        """The limit for one try of the fast buy: a little over the ask."""
+        """The limit for one try of the fast buy: a little over the ask - AT the
+        ask for BUY_AT_ASK."""
+        if self.name in BUY_AT_ASK:
+            return min(ask, ceiling)
         return min(ask * (1 + FAST_BUY_OVER_ASK), ceiling)
 
     async def buy_sweep(self, symbol, shares, ref, cap, floor=None, cents=0.20,
@@ -4916,10 +4921,15 @@ class V36(_Restore, _Momentum, V35):
         await self.exit(s, "stop")
         return True
 
-    def sweep_cents(self, price) -> float:
-        """V37_SWEEP_CENTS: the cents a fast buy may pay over the ask."""
+    @staticmethod
+    def paid_up_cents(price) -> float:
+        """V37_SWEEP_CENTS: the cents over the ask a fast buy paid up to r34.35."""
         lo, hi = V37_SWEEP_CENTS
         return hi if price >= V37_SWEEP_BIG else lo
+
+    def sweep_cents(self, price) -> float:
+        """The cents a fast buy may pay over the ask: none for BUY_AT_ASK."""
+        return 0.0 if self.name in BUY_AT_ASK else self.paid_up_cents(price)
 
     async def entry_buy(self, s, shares, price, cap) -> int:
         if s.v36_furious and V36_FURIOUS_SWEEP:
@@ -5830,6 +5840,15 @@ V37_SWEEP = True                # a fast buy is an order at the ask plus a few c
 V37_SWEEP_CENTS = (0.20, 0.30)  # the cents over the ask: 20c under V37_SWEEP_BIG, 30c
 V37_SWEEP_BIG = 10.0            # from it - "30 cents is $300 on a thousand shares; good
                                 # enough" (20% was $2,000 on a $10 stock)
+BUY_AT_ASK = ("v36b", "v37")    # the owner, 10-08 night ("buy at the ask is in"): every
+                                # buy of theirs is a limit AT the ask - the fast buys
+                                # (v37's, v36b's furious) no cents over, the others not
+                                # FAST_BUY_OVER_ASK over; each try at the ask of that
+                                # moment, everything else as before. v36 pays up (the
+                                # control). Replayed second by second, 10-06/07/08: v37
+                                # -$1,349 -> -$525..-$848 (better each day, 89-99% of the
+                                # shares bought); v36b's furious -$586 -> -$371..-$424.
+                                # memory/words_buy_at_ask.md. () = all pay up as before
 V37_SWEEP_SECONDS = 6.0         # (V37_KEEP_TRYING off) it stops trying after this long,
                                 # or once the ask is V37_ACCEL_CHASE over the breakout
 V37_SWEEP_TRIES = 12            # ...or this many orders (Alpaca: ~200 requests a minute)
@@ -6117,7 +6136,7 @@ class V37(V36):
         return self.real_speed(s, price) >= V37_SPEED_MIN and dollars >= V37_FAST_DOLLARS
 
     def buy_limit(self, ask, ceiling) -> float:
-        return min(ask + V37_ASK_PLUS, ceiling)
+        return min(ask + (0.0 if self.name in BUY_AT_ASK else V37_ASK_PLUS), ceiling)
 
     def stop_pct(self, s, price) -> float:
         """V37_STOP_SPEED: the stop's distance under the buy - a share of the
@@ -6311,7 +6330,8 @@ class V37(V36):
         if sweep_to and sweep_to > price:
             cap = (max(cap, sweep_to / price - 1) if sweep_to != float("inf")
                    else float("inf"))           # tries up to the safety net, or none...
-            worst = price + 2 * self.sweep_cents(price)   # ...sized on the likely fill
+            worst = price + 2 * self.paid_up_cents(price)  # ...sized on the likely fill
+                                                           # (as before r34.36: the same sizes)
         held_all = sum(x.shares * (x.last_price or price)
                        for x in self.open_positions())
         room = max(0.0, eq * MAX_EXPOSURE_PCT - held_all)
@@ -6321,7 +6341,7 @@ class V37(V36):
         filled = await self.buy(s.symbol, shares, price, cap,
                                 floor=s.day_high,   # never under the old high
                                 sweep=(self.sweep_cents(price)
-                                       if sweep_to and sweep_to > price else 0.0),
+                                       if sweep_to and sweep_to > price else None),
                                 keep=keep)
         if not filled:
             return

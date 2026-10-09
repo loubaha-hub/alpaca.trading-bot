@@ -1234,6 +1234,21 @@ def test_furious_one_fast_order_at_the_ask_plus_cents(v36, clock, monkeypatch, d
     assert v36.sweep_cents(9.99) == 0.20 and v36.sweep_cents(10.0) == 0.30
 
 
+def test_v36b_furious_buys_at_the_ask_v36_pays_up(v36, v36b, clock, monkeypatch, data):
+    """The owner, 10-08 night: "buy at the ask is in" - v36b's furious buy is one
+    order AT the ask; v36, the control, still pays up to 30c over (from $10)."""
+    data.quotes[("ABCD", "ask")] = round(TRIGGER + 0.01, 2)
+    for strat in (v36, v36b):
+        monkeypatch.setattr(strat, "speeding", lambda s, p: True)
+        s = ripping(strat, clock)
+        tick(strat, s, TRIGGER)
+        assert entered(strat, s)
+    assert v36.broker.orders[0][3] == pytest.approx(TRIGGER + 0.01 + 0.30)
+    assert v36b.broker.orders[0][3] == pytest.approx(TRIGGER + 0.01)
+    assert len(v36b.broker.orders) == 1
+    assert v36b.sweep_cents(5.0) == 0.0 and v36b.paid_up_cents(5.0) == 0.20
+
+
 def test_furious_a_miss_tries_again_half_a_second_on(v36, clock, monkeypatch, broker):
     monkeypatch.setattr(v36, "speeding", lambda s, p: True)
     now = [5_000.0]

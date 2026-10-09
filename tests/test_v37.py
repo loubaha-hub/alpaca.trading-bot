@@ -268,13 +268,15 @@ def test_the_days_top_gainer_counts_even_when_not_the_busiest(v37, clock, now):
     assert s.in_position
 
 
-def test_each_try_is_the_ask_plus_10_cents(v37, clock, now, data):
+def test_each_try_is_the_ask_plus_10_cents(v37, clock, now, data, monkeypatch):
     """The owner's hot keys: "ask plus 10 cents" - filled at the best offers
-    up to there."""
+    up to there. Since 10-08 night v37 buys AT the ask (BUY_AT_ASK)."""
     s = ripping(v37, clock, now)
     data.quotes[("ABCD", "ask")] = 10.38
     tick(v37, s, now, 10.36)
-    assert v37.broker.buys("ABCD")[0][3] == pytest.approx(10.48)
+    assert v37.broker.buys("ABCD")[0][3] == pytest.approx(10.38)
+    monkeypatch.setattr(bot, "BUY_AT_ASK", ())
+    assert v37.buy_limit(10.38, 99.0) == pytest.approx(10.48)
 
 
 def test_a_furious_stock_may_cost_up_to_10_percent_more(v37, clock, now, data):
@@ -285,7 +287,7 @@ def test_a_furious_stock_may_cost_up_to_10_percent_more(v37, clock, now, data):
     data.quotes[("ABCD", "ask")] = 10.70                   # 7% over: still in reach
     tick(v37, s, now, 10.01)
     assert s.in_position
-    assert v37.broker.buys("ABCD")[0][3] == pytest.approx(10.80)
+    assert v37.broker.buys("ABCD")[0][3] == pytest.approx(10.70)   # at the ask
 
 
 def test_a_slower_stock_keeps_the_2_percent_ceiling(v37, clock, now):
@@ -1569,8 +1571,55 @@ def test_a_fast_buy_pays_cents_over_the_ask_not_20_percent(v37, clock, now, monk
 @pytest.mark.parametrize("price, cents", [(3.10, 0.20), (9.99, 0.20), (10.00, 0.30),
                                           (15.00, 0.30)])
 def test_20_cents_under_10_dollars_30_from_10(v37, price, cents):
-    """The owner, 10-07: "20 cents for a small one, 30 above ten dollars - not more"."""
-    assert v37.sweep_cents(price) == pytest.approx(cents)
+    """The owner, 10-07: "20 cents for a small one, 30 above ten dollars - not
+    more" - until 10-08 night: now v37 pays none over the ask (BUY_AT_ASK); the
+    20/30c stay for v36 and for sizing v37's buys as before."""
+    assert v37.paid_up_cents(price) == pytest.approx(cents)
+    assert v37.sweep_cents(price) == 0.0
+
+
+def test_v37_fast_buy_is_a_limit_at_the_ask(v37, clock, now, monkeypatch, broker, data):
+    """The owner, 10-08 night: "buy at the ask is in" - no cents over the ask;
+    the same number of shares as before (sized on the old likely fill)."""
+    s = furious_stock(v37, clock, now, monkeypatch)
+    price = round(s.day_high + 0.03, 2)
+    data.quotes[("BIYA", "ask")] = round(price + 0.02, 2)
+    prints(v37, s, now, s.bars[-1].h, price, size=30_000)
+    tick(v37, s, now, price)
+    assert s.in_position
+    order = broker.buys("BIYA")[0]
+    assert order[3] == round(price + 0.02, 2)
+    monkeypatch.setattr(bot, "BUY_AT_ASK", ())             # as before: the ask + 20/30c
+    s2 = furious_stock(v37, clock, now, monkeypatch, symbol="BIYB")
+    data.quotes[("BIYB", "ask")] = round(price + 0.02, 2)
+    prints(v37, s2, now, s2.bars[-1].h, price, size=30_000)
+    tick(v37, s2, now, price)
+    old = broker.buys("BIYB")[0]
+    assert old[3] == round(price + 0.02 + v37.paid_up_cents(price), 2)
+    assert old[1] == order[1]                              # the same size
+
+
+def test_unfilled_at_the_ask_the_next_print_tries_at_the_new_ask(v37, clock, now,
+                                                                  monkeypatch, broker, data):
+    s = furious_stock(v37, clock, now, monkeypatch)
+    broker.fills = [0.0]                                  # the first try misses
+    price = round(s.day_high + 0.03, 2)
+    data.quotes[("BIYA", "ask")] = price
+    prints(v37, s, now, s.bars[-1].h, price, size=30_000)
+    tick(v37, s, now, price)
+    assert not s.in_position
+    now[0] += 0.6
+    data.quotes[("BIYA", "ask")] = round(price + 0.05, 2)
+    tick(v37, s, now, round(price + 0.04, 2))
+    assert s.in_position
+    assert [o[3] for o in broker.buys("BIYA")] == [price, round(price + 0.05, 2)]
+
+
+def test_sweep_zero_cents_is_a_sweep_none_is_not(v31, broker, data, monkeypatch):
+    """buy(sweep=0.0) is an order at the ask (BUY_AT_ASK), not the old chase."""
+    data.quotes[("BIYA", "ask")] = 3.20
+    n = run(v31.buy("BIYA", 1000, 3.12, float("inf"), floor=3.10, sweep=0.0))
+    assert n == 1000 and [o[3] for o in broker.orders] == [3.20]
 
 
 def test_unfilled_it_keeps_trying_at_the_new_ask(v31, broker, data, monkeypatch):
@@ -1814,7 +1863,7 @@ def test_from_the_bid_a_1c_print_is_no_gain(v37, clock, now, monkeypatch):
     tick(v37, s, now, round(e + 0.01, 2))                 # 1c of prints
     tick(v37, s, now, e)                                  # half of it back
     assert s.in_position                                  # the bid never paid a gain
-    s.quote = (round(e + 0.04, 2), round(e + 0.06, 2), now[0] + 2)
+    s.quote = (round(e + 0.03, 2), round(e + 0.06, 2), now[0] + 2)
     tick(v37, s, now, round(e + 0.08, 2))                 # the bid over the buy: armed
     tick(v37, s, now, round(e + 0.03, 2))
     assert not s.in_position
@@ -1870,5 +1919,12 @@ def test_trail_beside_half_the_gain(v37, clock, now, monkeypatch):
     s = bought(v37, clock, now)
     e = s.entry
     tick(v37, s, now, round(e + 0.04, 2))                 # up 4c: the line +2c
-    tick(v37, s, now, round(e + 0.02, 2))                 # back to it: half the gain
+    tick(v37, s, now, round(e + 0.01, 2))                 # back past it: half the gain
     assert not s.in_position and v37.closed_today[-1][5] == "giveback"
+
+
+def test_the_other_buys_of_v36b_and_v37_are_at_the_ask_too(v31, v37, data, broker):
+    """BUY_AT_ASK: the chase (FAST_BUY) goes at the ask, not 0.2% over it."""
+    assert v37.buy_limit(3.20, 9.0) == 3.20 and v37.buy_limit(3.20, 3.10) == 3.10
+    assert v31.buy_limit(3.20, 9.0) == pytest.approx(3.20 * (1 + bot.FAST_BUY_OVER_ASK))
+

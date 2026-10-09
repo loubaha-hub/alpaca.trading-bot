@@ -5,6 +5,18 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-08
 
+### DECISION (the owner, ~9:50pm): buy at the ask - v37 and v36b
+- "Buy at the ask is in ... that's a given." Built in r34.36 (BUY_AT_ASK =
+  ("v36b", "v37")): every buy of theirs is a limit at the ask of that moment -
+  fast buys no cents over (were +20c / +30c from $10), v37's other buys no
+  10c over (V37_ASK_PLUS), v36b's other buys not 0.2% over. Retries, sizes,
+  stops, exits unchanged. v36 pays up as before (the control).
+- The owner on v36b: "v36 has an edge over v36b at the entry ... v36b is
+  always shaken" - to discuss, simpler, before anything goes in.
+- The owner on v37 (~9:55pm): the 5c leash instead of 1c (live since
+  6:02pm), plus v36's features - start with the three-candle setup, after
+  that only over the day's high + 5c - to discuss.
+
 ### The owner: what is clean for 10-09 - v37's buy, v36b's leash (~9:40pm)
 - The owner: v37 loses "nonstop in that one cent" - change its entry now; v36
   beats v36b because of its leash up front - do something for v36b's entry.

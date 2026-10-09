@@ -1,7 +1,8 @@
 # Buy at the ask (v37, and v36b's furious buys) - words for the owner to read
 
 Written 10-08 ~9:40pm, before any code (the owner's "words before code").
-Status: PROPOSAL - waiting for the owner's yes / change / no.
+Status: DECIDED by the owner 10-08 ~9:50pm ("buy at the ask is in"); built in
+r34.36 as BUY_AT_ASK - all of v37's and v36b's buys, not only the fast ones.
 
 ## Why
 The costs: v37 paid ~$740 over the ask it saw a second before its fills on its
