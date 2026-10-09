@@ -1,6 +1,6 @@
 # Where things stand
 
-Updated 2026-10-09, ~9:20am ET.
+Updated 2026-10-09, ~12pm ET.
 
 ## 10-09 morning
 - Working branch: `claude/three-strategies-x69ppg` (from
@@ -67,6 +67,23 @@ Updated 2026-10-09, ~9:20am ET.
 - VIVK 9:07-9:14 ($4.46 -> ~$6.74 on deal news): v36 -$169.58 (5 trades),
   v36b -$74.98 (3), v37 +$11.91 (3); blow by blow in memory/review_1009.md.
   Day at 9:16: v36 -1.3%, v37 -0.7%, v36b -0.4%.
+- Regular hours to 11:55am (8 trades): VEEA 10:17 (v36 starter + 2 adds ->
+  608 @ $6.58 avg, out at the floor, +$1.60; v36b -$9.80; v37 -$9.73);
+  PCSA 10:26 (v36 -$60.42, v36b -$15.96, the 10s leash); VEEA 11:40 (v36
+  -$26.03, v36b -$4.56). VIVK 9:28-9:29: v36 -$23.20, v36b -$1.68.
+  Equity 11:54: v36 $16,353.54 (-2.0%), v37 $13,404.59 (-0.7%), v36b
+  $5,972.14 (-0.9%).
+- By session, 4 days (10-06..10-09): v36 premarket about +$127 (~59
+  trades, ~+$2 a trade), regular hours about -$1,738 (~39, ~-$45 a trade),
+  after hours -$433 (11, 0 won); v36b premarket about -$263, regular about
+  -$579, after hours -$246 (8, 0 won); v37 premarket about -$1,456 (10-06's
+  99 trades before the fixes), regular about -$423, after hours -$11.
+- The owner (~11:50am): premarket is more profitable for this niche - the
+  news and the runners come there; the challenge is the volatility: tight
+  entries and stops throw us out before the run; a human changes the plan
+  after the entry by reading other factors, the bot cannot. Asked for my
+  ideas along those lines, some maybe for today. Friday; one positive day
+  on one strategy this week - "dismal ... however, it's a progress".
 - The owner (~9:30am): after a month, no profit - do public, recognized
   strategies do better? Researched (4 parts, notes in research_notes/Small cap
   momentum strategy evidence/). Answer: no proven, cost-surviving strategy on
