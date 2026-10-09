@@ -111,6 +111,12 @@ Updated 2026-10-09, ~12pm ET.
   every table split PRE / RTH / AFTER (the owner's standing rule, 10-09).
 - Found so far (journal 10-09): on the slices of big runs already read, the
   speed strategy keeps only SXTC; 74% of its trades are out within 5s.
+- The owner's scale-out (decided 10-09 ~3:20pm, in every study): a quarter
+  sold at +100%, a quarter at +200%, the last half on the half-back line.
+  Tonight's read decides BIYA 8:20 ($2.54 -> $33.96) - the test of it. To
+  build in a bot: words first.
+- The study after the read: speedsim_study / _bag / _giveback / _adds /
+  _scaleout / _trace on all windows, every table PRE / RTH / AFTER.
 
 ## 10-08 night
 - Live: **r34.38** (main d439a58, up 10:41:40pm 10-08, all three 0 positions): r34.37 with the owner's corrected

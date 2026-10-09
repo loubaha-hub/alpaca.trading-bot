@@ -10,13 +10,16 @@ import secsim as S
 import speedsim as Q
 
 hm = lambda t: datetime.fromtimestamp(t, S.ET).strftime("%H:%M:%S")
+SCALE = ((1.0, 0.25), (2.0, 0.25))      # "A+" / "B+": the owner's scale-out
 
 
 def run_hod(r, p, st, setting):
     """speedsim.play_ladder_hod with a trace per trade."""
     px0 = next((x[4] for x in r["S"] if x[4]), 1.0)
-    kw = dict(mid_stop=False, stop_pct=0.10) if setting == "B" else {}
-    su, arm = (0.0, 0.10 * px0) if setting == "B" else (0.03, 0.10)
+    kw = dict(mid_stop=False, stop_pct=0.10) if setting.startswith("B") else {}
+    if setting.endswith("+"):
+        kw["scale"] = SCALE
+    su, arm = (0.0, 0.10 * px0) if setting.startswith("B") else (0.03, 0.10)
     out, after, first = [], -1.0, True
     for k in sorted(st):
         on, new_high = st[k]
@@ -50,7 +53,7 @@ def main():
             px = [(r["start"] + x[0], x[4]) for x in r["S"] if x[4]]
             print("=== %s %s window %s-%s, setting %s (stop %s, half-back from +$%.2f) - %d trade(s), P/L %+.0f" % (
                 day, sym, hm(r["start"]), hm(r["end"]), setting,
-                "10% under the buy / average" if setting == "B" else "3c under", arm, len(trs),
+                "10% under the buy / average" if setting.startswith("B") else "3c under", arm, len(trs),
                 sum(x[3][1] for x in trs)))
             for n, (t_sig, t_in, fill, res, tr) in enumerate(trs, 1):
                 te, pl, why, best, sh, avg, adds = res
@@ -58,13 +61,21 @@ def main():
                 start_sh = int(4000 * 0.2 / fill)
                 print("  #%d signal %s -> buy %s %d sh at the ask $%.3f ($%.0f), stop $%.3f" % (
                     n, hm(t_sig), hm(t_in), start_sh, fill, start_sh * fill,
-                    fill * 0.9 if setting == "B" else fill - su))
+                    fill * 0.9 if setting.startswith("B") else fill - su))
                 for e in tr:
                     if e[1] == "add":
                         print("     %s add %d sh at $%.3f -> average $%.3f, stop rises to $%.3f" % (hm(e[0]), e[2], e[3], e[4], e[5]))
+                    elif e[1] == "sold":
+                        print("     %s SOLD %d sh at $%.3f (resting sell, +%.0f%% over the average $%.3f)" % (
+                            hm(e[0]), e[2], e[3], 100 * (e[3] / e[4] - 1), e[4]))
                     else:
                         print("     %s up %s over the average: half-back line on (best $%.3f)" % (hm(e[0]), "+$%.2f" % (e[2] - e[3]), e[2]))
                 after = [v for t, v in px if te <= t <= te + 300]
+                parts = [e for e in tr if e[1] == "sold"]
+                if parts:                          # the rest's own price, not the blend
+                    q = sum(e[2] for e in parts)
+                    xp = avg + (pl - sum(e[2] * (e[3] - e[4]) for e in parts)) / max(1, sh - q)
+                    sh -= q
                 print("     %s OUT (%s) at the bid $%.3f - %d sh, average $%.3f, best $%.3f, held %ds: %+.0f"
                       "   | next 5 min: high $%s, then $%s" % (
                           hm(te), why, xp, sh, avg, best, te - t_in, pl,

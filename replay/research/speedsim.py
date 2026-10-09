@@ -101,7 +101,7 @@ def play(path, sigs, dollars, stop_under, arm, rebuy=True):
 
 
 def run_ladder(path, t0, fill0, full, stop_under, arm, steps=((0.10, 0.5), (0.20, 1.0)), start=0.2,
-               mid_stop=True, stop_pct=0.0, trace=None, add_cap=None):
+               mid_stop=True, stop_pct=0.0, trace=None, add_cap=None, scale=()):
     """The owner's ease-in (10-09 ~12:30pm): START of the full dollars at the
     speed buy; at the first fill + each step's cents, a buy (at the ask
     BUY_LAG later) up to that share of the full position. The stop: the buy
@@ -114,7 +114,12 @@ def run_ladder(path, t0, fill0, full, stop_under, arm, steps=((0.10, 0.5), (0.20
     far under the buy / the average instead of stop_under (a stop sized to the
     stock's swing; the steps and the line stay in cents). add_cap: an add only
     at the step's price + add_cap or less - a stock that jumped past it gets
-    no add (the size planned at that price, not at the top of the jump)."""
+    no add (the size planned at that price, not at the top of the jump).
+    scale ((gain, share), ...): the owner's scale-out (10-09 ~3:20pm) - resting
+    sells at the average x (1 + gain), each for `share` of the whole position,
+    filled at that price when a print reaches it (the chasers buy them on the
+    way up); after the first one, no more adds; the rest rides the stop and the
+    half-back line. P/L and shares (the whole position) include the parts sold."""
     if stop_pct:
         stop_under = fill0 * stop_pct
     sh = int(full * start / fill0)
@@ -122,6 +127,7 @@ def run_ladder(path, t0, fill0, full, stop_under, arm, steps=((0.10, 0.5), (0.20
     avg = fill0
     stop = fill0 - stop_under
     best, line, k = fill0, -1.0, 0
+    banked, sold, j = 0.0, 0, 0
     i = path.at(t0)
     for t, p, b, a in path.ev[i:]:
         if b and a:
@@ -129,7 +135,7 @@ def run_ladder(path, t0, fill0, full, stop_under, arm, steps=((0.10, 0.5), (0.20
             if p > a + tol or p < b - tol:
                 continue
         best = max(best, p)
-        while k < len(steps) and p >= fill0 + steps[k][0] - 1e-9:
+        while j == 0 and k < len(steps) and p >= fill0 + steps[k][0] - 1e-9:
             px = path.ask_at(t + S.BUY_LAG)
             if add_cap is not None and px and px > fill0 + steps[k][0] + add_cap + 1e-9:
                 px = None                          # jumped past the step: no add, no chase
@@ -142,18 +148,27 @@ def run_ladder(path, t0, fill0, full, stop_under, arm, steps=((0.10, 0.5), (0.20
                 if trace is not None:
                     trace.append((t + S.BUY_LAG, "add", add, px, avg, stop))
             k += 1
+        while j < len(scale) and p >= avg * (1 + scale[j][0]) - 1e-9:
+            lvl = avg * (1 + scale[j][0])
+            q = min(sh, int(round(scale[j][1] * (sh + sold))))
+            banked += (lvl - avg) * q
+            sh -= q
+            sold += q
+            if trace is not None:
+                trace.append((t, "sold", q, lvl, avg, stop))
+            j += 1
         if best - avg >= arm - 1e-9:
             if trace is not None and line < 0:
                 trace.append((t, "armed", best, avg))
             line = max(line, avg + 0.5 * (best - avg))
         if p <= stop + 1e-9 or (mid_stop and b and a and (b + a) / 2 <= stop + 1e-9):
             xp = path.bid_at(t + S.SELL_LAG)
-            return t, (xp - avg) * sh, "stop", best, sh, avg, k
+            return t, (xp - avg) * sh + banked, "stop", best, sh + sold, avg, k
         if p <= line + 1e-9 and not (b and b > line + 1e-9):
             xp = path.bid_at(t + S.SELL_LAG)
-            return t, (xp - avg) * sh, "line", best, sh, avg, k
+            return t, (xp - avg) * sh + banked, "line", best, sh + sold, avg, k
     last = path.ev[-1]
-    return last[0], ((last[2] or last[1]) - avg) * sh, "open", best, sh, avg, k
+    return last[0], ((last[2] or last[1]) - avg) * sh + banked, "open", best, sh + sold, avg, k
 
 
 def play_ladder(path, sigs, full, stop_under, arm, rebuy=True):

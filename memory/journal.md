@@ -5,6 +5,29 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-09
 
+### DECISION (the owner, ~3:20pm): the scale-out - in every study from now on
+- The owner: once a trade is up 100%, sell a quarter (people are still
+  buying fast - sell at the ask, not the bid); at 200% another quarter; the
+  last half rides the half-back line, "so you gave only 25% back ... that's a
+  good strategy, period". It cuts a little from the big winners but banks
+  some of the others. Use it on all the studies; "let's see if we can
+  implement that" - in a bot: words first (memory/checklist.md).
+- Simulator: speedsim.run_ladder(scale=...) - resting sells at the average x
+  (1 + gain), filled at that price when a print reaches it; no adds after the
+  first part sold. replay/research/speedsim_scaleout.py -> speedsim_scaleout.txt.
+- On the three days only ONE trade reached +100%: SXTC 10-07 8:16 (bought
+  $2.18, adds $2.28 / $2.37, average $2.30; sold 434 at $4.61 and 434 at
+  $6.91, the last 869 at $4.75 on the line): +$4,251 -> +$5,125, kept 52% ->
+  63% of the run. Nothing else changes - it never triggers on the small
+  losers. All windows, A: +$2,436 -> +$3,309 (PRE +$3,964 / RTH -$426 /
+  AFTER -$229); B: +$372 -> +$1,246. Settings: +50% / +100% worse (A
+  +$1,810, B -$253); +200% / +400% about the same (+$3,372 / +$1,309).
+- The owner asked again: did the returns include the bots' small losers?
+  Yes - the 72 windows are every stock-moment any of the three bots bought
+  10-06..10-08, losers included; the speed strategy's own trades there
+  ("the rest": A -$709 / 62 trades, B -$5,032 / 34). Not in: losers where
+  no bot bought.
+
 ### BIYA 10-07 8:20 reopened - "that one would be a monster" (~3:10pm)
 - The owner: if the strategy can keep a run like BIYA's it would be double
   SXTC's +$4,251 - "see what has happened and if we can keep it".
