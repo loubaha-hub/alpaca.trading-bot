@@ -119,10 +119,11 @@ async def _no_sleep(*a, **k):
 def test_engine_reads_every_accounts_buys_on_the_days(caplog, monkeypatch):
     monkeypatch.setattr(bot, "SEC_DUMP_DAYS", ("2026-10-06", "2026-10-07", "2026-10-08"))
     monkeypatch.setattr(bot, "SEC_DUMP_MISSED", ())
+    monkeypatch.setattr(bot, "SEC_DUMP_RUNNER_DAYS", ())
     seen = []
 
     class Data:
-        async def dump_seconds(self, buys):
+        async def dump_seconds(self, buys, runs=()):
             seen.extend(buys)
 
     def strat(name, fills):
@@ -162,11 +163,13 @@ def test_missed_stocks_are_read_on_any_day(monkeypatch):
     seen = []
 
     class Data:
-        async def dump_seconds(self, buys):
+        async def dump_seconds(self, buys, runs=()):
             seen.extend(buys)
 
     async def dump_history(first, last):
         return []
+
+    monkeypatch.setattr(bot, "SEC_DUMP_RUNNER_DAYS", ())
 
     eng = object.__new__(bot.Engine)
     eng.data = Data()
@@ -177,3 +180,119 @@ def test_missed_stocks_are_read_on_any_day(monkeypatch):
     run(eng.sec_dump())
     assert seen == [(datetime(2026, 10, 9, 8, 30, 23, tzinfo=bot.ET).timestamp(), "NTCL"),
                     (datetime(2026, 10, 8, 7, 0, 0, tzinfo=bot.ET).timestamp(), "OLD")]
+
+
+# ---- the day's top runners (10-09) ------------------------------------------
+
+D7 = "2026-10-07"
+
+
+def at(hm, day=D7):
+    return datetime.fromisoformat("%sT%s" % (day, hm)).replace(tzinfo=bot.ET)
+
+
+def bar(t, low, high, vol=1_000_000, close=None):
+    return {"t": raw_t(t), "o": low, "h": high, "l": low, "c": close or high, "v": vol}
+
+
+def test_best_run_is_the_biggest_rise_within_the_span():
+    m = lambda hm: at(hm).timestamp()
+    bars = [(m("04:00"), 1.0, 1.1), (m("06:00"), 2.0, 2.2), (m("08:00"), 2.1, 7.0),
+            (m("08:30"), 5.0, 6.0), (m("14:00"), 6.5, 9.5)]
+    # 1.0 at 4:00 to 9.5 at 14:00 is bigger, but ten hours apart: the run is
+    # 2.0 (6:00) -> 7.0 (8:00), inside 150 minutes
+    r = bot._best_run(bars, 150 * 60)
+    assert r[1:] == (2.0, m("06:00"), 7.0, m("08:00")) and abs(r[0] - 3.5) < 1e-9
+    assert bot._best_run([], 60)[0] == 0.0
+
+
+def fake_bars(minute, hourly):
+    """minute {sym: [bars]}; hourly {sym: [bars]}. Records the requests."""
+    calls = []
+
+    class Hist:
+        def get_stock_bars(self, req):
+            syms = req.symbol_or_symbols
+            syms = [syms] if isinstance(syms, str) else list(syms)
+            hour = req.timeframe.value == "1Hour"
+            calls.append(("H" if hour else "M", tuple(syms)))
+            src = hourly if hour else minute
+            return {s: src[s] for s in syms if s in src}
+
+    md = object.__new__(bot.MarketData)
+    md.hist_raw, md.feed = Hist(), bot.DataFeed.SIP
+    return md, calls
+
+
+def test_runners_found_from_the_hourly_bars_and_read_around_the_run(caplog, monkeypatch):
+    monkeypatch.setattr(bot, "SEC_DUMP_RPM", 0)
+    monkeypatch.setattr(bot, "RUNNER_TOP", 2)
+    hourly = {
+        "BIYA": [bar(at("04:00"), 1.7, 2.0), bar(at("08:00"), 2.4, 33.96)],
+        "SXTC": [bar(at("07:00"), 1.9, 2.2), bar(at("08:00"), 2.1, 7.07)],
+        "PFAI": [bar(at("09:00"), 2.3, 2.5), bar(at("11:00"), 3.0, 5.0)],
+        "FLAT": [bar(at("09:00"), 3.0, 3.2)],
+        "TINY": [bar(at("08:00"), 0.20, 0.90)],              # never reaches $1
+        "THIN": [bar(at("08:00"), 2.0, 6.0, vol=100)],       # $600 traded
+    }
+    minute = {
+        "BIYA": [bar(at("07:50"), 2.4, 2.5), bar(at("08:20"), 2.54, 33.96)],
+        "SXTC": [bar(at("08:14"), 2.1, 2.2), bar(at("08:16"), 6.5, 7.07)],
+        "PFAI": [bar(at("09:45"), 2.22, 2.3), bar(at("11:20"), 4.0, 4.5)],
+        "VIVK": [bar(at("07:00"), 1.0, 1.1)],
+    }
+    md, calls = fake_bars(minute, hourly)
+    runs = run(md.find_runners(D7, sorted(hourly) + ["VIVK"], ["VIVK"]))
+    assert [(d, s, round(a), round(b)) for d, s, a, b in runs] == [
+        (D7, "BIYA", at("07:50").timestamp() - 600, at("08:20").timestamp() + 1800),
+        (D7, "SXTC", at("08:14").timestamp() - 600, at("08:16").timestamp() + 1800)]
+    # one hourly request for the list; minute bars only for the hourly runners and the named
+    assert calls[0] == ("H", tuple(sorted(hourly) + ["VIVK"]))
+    assert sorted(c[1][0] for c in calls if c[0] == "M") == ["BIYA", "PFAI", "SXTC", "VIVK"]
+    assert "SECDUMP RUNNER 2026-10-07 BIYA x14.15 2.4000 at 07:50 -> 33.9600 at 08:20" in caplog.text
+    assert "PFAI x2.03" in caplog.text and "not read (top 2 done)" in caplog.text
+    assert "VIVK x1.10" in caplog.text and "not read (under the bar)" in caplog.text
+
+
+def test_runner_windows_join_the_buys_on_the_same_stock(caplog, monkeypatch):
+    monkeypatch.setattr(bot, "SEC_DUMP_BEFORE", 30)
+    monkeypatch.setattr(bot, "SEC_DUMP_AFTER", 60)
+    monkeypatch.setattr(bot, "SEC_DUMP_RPM", 0)
+    md, calls = fake_data()
+    t = T0.timestamp()
+    run(md.dump_seconds([(t, "BIAF")], [("2026-10-08", "BIAF", t + 60, t + 180),
+                                         ("2026-10-08", "DKI", t, t + 120)]))
+    assert "SECDUMP plan: 1 buys, 2 windows, 6 minutes to read, 2 runs" in caplog.text
+    assert "SECDUMP 2026-10-08 BIAF 08:09:11-08:12:41: 1 buys (08:09:41.000)" in caplog.text
+    assert "SECDUMP 2026-10-08 DKI 08:09:41-08:11:41: 0 buys ()" in caplog.text
+    dki = [b for k, b in blobs(caplog).items() if k[0] == "DKI"]
+    assert dki and all(not b["T"] and not b["Q"] and b["S"] for b in dki)   # rows only, no ticks
+
+
+def test_engine_reads_the_runners_of_each_day(monkeypatch):
+    seen = {}
+
+    class Data:
+        async def find_runners(self, day, symbols, names):
+            seen.setdefault("find", []).append((day, symbols, names))
+            return [(day, "BIYA", 1.0, 2.0)] if day == D7 else []
+
+        async def dump_seconds(self, buys, runs=()):
+            seen["runs"] = runs
+
+    async def dump_history(first, last):
+        return []
+
+    assets = [SimpleNamespace(symbol=s, tradable=t) for s, t in
+              (("BIYA", True), ("BRK.B", True), ("NOPE", False), ("SXTC", True), ("WARRW", True))]
+    eng = object.__new__(bot.Engine)
+    eng.data = Data()
+    eng.strategies = [SimpleNamespace(name="v36", dump_history=dump_history)]
+    eng.assets_client = SimpleNamespace(get_all_assets=lambda req: assets)
+    monkeypatch.setattr(bot, "SEC_DUMP_DAYS", ("2026-10-09",))
+    monkeypatch.setattr(bot, "SEC_DUMP_MISSED", ())
+    monkeypatch.setattr(bot, "SEC_DUMP_RUNNER_DAYS", ("2026-10-06", D7))
+    monkeypatch.setattr(bot, "SEC_DUMP_RUNNER_NAMES", ((D7, "BIYA"), ("2026-10-09", "VIVK")))
+    run(eng.sec_dump())
+    assert seen["find"] == [("2026-10-06", ["BIYA", "SXTC"], []), (D7, ["BIYA", "SXTC"], ["BIYA"])]
+    assert seen["runs"] == [(D7, "BIYA", 1.0, 2.0)]

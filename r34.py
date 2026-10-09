@@ -154,7 +154,7 @@ RISK_CHECK_SECONDS = 5                      # the halt runs on a CLOCK, not tick
 # The file name and this string are changed together, every single time. The
 # log then answers "which code is actually running?" without anyone guessing
 # from line numbers or from behaviour that only shows up once a trade is on.
-VERSION = "v31-r34.39"
+VERSION = "v31-r34.40"
 
 # WHERE THE DAY'S HALT BASELINE COMES FROM.
 #   "last_equity" - equity at the PREVIOUS session's close, read from the broker.
@@ -1241,6 +1241,31 @@ def _pack_seconds(tr, qr, sym, a, m, spans):
     return pieces, len(T), len(Q), len(rows)
 
 
+def _best_run(bars, span):
+    """The biggest rise in `bars` [(epoch s, low, high)] oldest first: a high over
+    the lowest low from `span` seconds before it up to its own bar - (rise,
+    low, low's epoch, high, high's epoch); (0, ...) when there are no bars."""
+    best = (0.0, 0.0, 0.0, 0.0, 0.0)
+    for i, (t, _, h) in enumerate(bars):
+        lo = None
+        for j in range(i, -1, -1):
+            if bars[j][0] < t - span:
+                break
+            if bars[j][1] > 0 and (lo is None or bars[j][1] < lo[1]):
+                lo = bars[j]
+        if lo and h / lo[1] > best[0]:
+            best = (h / lo[1], lo[1], lo[0], h, t)
+    return best
+
+
+def _bar_rows(raw, sym):
+    """A raw bars reply's rows for `sym`: [(epoch s, low, high)], the dollars."""
+    rows = sorted((_epoch(b["t"]), float(b["l"]), float(b["h"]))
+                  for b in (raw or {}).get(sym, []) or [])
+    dollars = sum(float(b.get("vw") or b["c"]) * float(b["v"]) for b in (raw or {}).get(sym, []) or [])
+    return rows, dollars
+
+
 class MarketData:
 
     def __init__(self, key: str, secret: str, feed: DataFeed):
@@ -1395,27 +1420,26 @@ class MarketData:
                      packed[2], packed[3])
         log.info("TICKDUMP done: %d windows", len(windows))
 
-    async def dump_seconds(self, buys):
-        """SEC_DUMP: read-only. `buys` [(epoch seconds, symbol)]. Per day and
-        symbol, the buys' windows (SEC_DUMP_BEFORE before to SEC_DUMP_AFTER after)
-        joined where they overlap; each read a minute at a time - every trade and
-        quote change near a buy, one row a second throughout (_pack_seconds) - and
-        written to SECDUMP lines."""
-        by = {}
-        for t, sym in sorted(set(buys)):
-            by.setdefault((datetime.fromtimestamp(t, ET).date().isoformat(), sym), []).append(t)
+    async def dump_seconds(self, buys, runs=()):
+        """SEC_DUMP: read-only. `buys` [(epoch seconds, symbol)], `runs` [(day,
+        symbol, from, to)] (find_runners). Per day and symbol, the buys' windows
+        (SEC_DUMP_BEFORE before to SEC_DUMP_AFTER after) and the runs joined where
+        they overlap; each read a minute at a time - every trade and quote change
+        near a buy, one row a second throughout (_pack_seconds) - and written to
+        SECDUMP lines."""
+        spans = [(datetime.fromtimestamp(t, ET).date().isoformat(), sym,
+                  int(t - SEC_DUMP_BEFORE), t + SEC_DUMP_AFTER, [t]) for t, sym in sorted(set(buys))]
+        spans += [(day, sym, int(a), b, []) for day, sym, a, b in runs]
         windows = []
-        for (day, sym), times in sorted(by.items()):
-            for t in times:
-                a, b = int(t - SEC_DUMP_BEFORE), t + SEC_DUMP_AFTER
-                if windows and windows[-1][1] == sym and a <= windows[-1][3]:
-                    windows[-1][3] = max(windows[-1][3], b)
-                    windows[-1][4].append(t)
-                else:
-                    windows.append([day, sym, a, b, [t]])
+        for day, sym, a, b, times in sorted(spans, key=lambda w: w[:3]):
+            if windows and windows[-1][:2] == [day, sym] and a <= windows[-1][3]:
+                windows[-1][3] = max(windows[-1][3], b)
+                windows[-1][4] += times
+            else:
+                windows.append([day, sym, a, b, list(times)])
         hms = lambda x: datetime.fromtimestamp(x, ET).strftime("%H:%M:%S")
-        log.info("SECDUMP plan: %d buys, %d windows, %d minutes to read", len(buys),
-                 len(windows), sum(int((b - a + 59) // 60) for _, _, a, b, _ in windows))
+        log.info("SECDUMP plan: %d buys, %d windows, %d minutes to read, %d runs", len(buys),
+                 len(windows), sum(int((b - a + 59) // 60) for _, _, a, b, _ in windows), len(runs))
         gap = 60.0 / SEC_DUMP_RPM if SEC_DUMP_RPM else 0.0
         for day, sym, a, b, times in windows:
             spans = [(t - SEC_DUMP_TICKS_BEFORE, t + SEC_DUMP_TICKS) for t in times]
@@ -1452,6 +1476,59 @@ class MarketData:
                      " ".join(datetime.fromtimestamp(t, ET).strftime("%H:%M:%S.%f")[:12]
                               for t in times), nt, nq, ns, lost)
         log.info("SECDUMP done: %d windows", len(windows))
+
+    async def find_runners(self, day, symbols, names=()):
+        """SEC_DUMP's runners on `day` (read-only): the hourly bars of `symbols`,
+        500 a request, then the 1-minute bars of the biggest hourly rises
+        (RUNNER_TOP x 4) and of `names`. [(day, symbol, read from, read to)] for
+        the RUNNER_TOP biggest runs; every one found into the log."""
+        a = datetime.fromisoformat(day + "T04:00").replace(tzinfo=ET)
+        b = datetime.fromisoformat(day + "T20:00").replace(tzinfo=ET)
+        gap = 60.0 / SEC_DUMP_RPM if SEC_DUMP_RPM else 0.0
+        fits = lambda r, dollars: (r[0] >= RUNNER_RUN and dollars >= RUNNER_DOLLARS
+                                   and r[3] >= PRICE_MIN and r[1] <= PRICE_MAX)
+        hourly = {}
+        for chunk in [symbols[i:i + 500] for i in range(0, len(symbols), 500)]:
+            try:
+                raw = await asyncio.to_thread(self.hist_raw.get_stock_bars, StockBarsRequest(
+                    symbol_or_symbols=chunk, timeframe=TimeFrame.Hour, start=a, end=b,
+                    feed=self.feed))
+            except Exception as e:
+                log.error("SECDUMP RUNNER %s hourly bars: %s", day, e)
+                raw = {}
+            await asyncio.sleep(gap)
+            for sym in raw or {}:
+                rows, dollars = _bar_rows(raw, sym)
+                r = _best_run(rows, RUNNER_SPAN * 60 + 3600)   # a whole hour's bar either end
+                if fits(r, dollars):
+                    hourly[sym] = r[0]
+        look = sorted(hourly, key=lambda s: -hourly[s])[:RUNNER_TOP * 4]
+        look += [s for s in names if s not in look]
+        found = []
+        for sym in look:
+            try:
+                raw = await asyncio.to_thread(self.hist_raw.get_stock_bars, StockBarsRequest(
+                    symbol_or_symbols=sym, timeframe=TimeFrame.Minute, start=a, end=b,
+                    feed=self.feed))
+            except Exception as e:
+                log.error("SECDUMP RUNNER %s %s minute bars: %s", day, sym, e)
+                continue
+            await asyncio.sleep(gap)
+            rows, dollars = _bar_rows(raw, sym)
+            found.append((await asyncio.to_thread(_best_run, rows, RUNNER_SPAN * 60), dollars, sym))
+        found.sort(key=lambda x: -x[0][0])
+        hm = lambda x: datetime.fromtimestamp(x, ET).strftime("%H:%M") if x else "-"
+        out = []
+        for r, dollars, sym in found:
+            read = fits(r, dollars) and len(out) < RUNNER_TOP
+            if read:
+                out.append((day, sym, r[2] - RUNNER_BEFORE, r[4] + RUNNER_AFTER))
+            log.info("SECDUMP RUNNER %s %s x%.2f %.4f at %s -> %.4f at %s, $%.1fM traded, "
+                     "hourly x%.2f: %s", day, sym, r[0], r[1], hm(r[2]), r[3], hm(r[4]),
+                     dollars / 1e6, hourly.get(sym, 0.0),
+                     "read" if read else "not read (%s)" % (
+                         "top %d done" % RUNNER_TOP if fits(r, dollars) else "under the bar"))
+        return out
 
     async def bars_between(self, symbol: str, start, end):
         """[(bar start, close, volume, high)] of the one-minute bars that
@@ -4475,6 +4552,29 @@ SEC_DUMP_MISSED = (              # moments read the same way though no bot bough
     ("2026-10-08 06:54:00", "DKI"),     # $33.96 -> $8.20 in a minute (not bought); DKI 6:54
     ("2026-10-08 07:17:00", "FLYE"),    # and FLYE 7:17 10-08 - runners whose 10-08 read could
 )                                       # not be saved. The owner's speed strategy, 10-09.
+# THE DAY'S TOP RUNNERS, read the same way (the owner, 10-09 ~4pm: "get the top
+# runners ... the ones that won two, three, four, five hundred percent ... include
+# them besides the ones the bots entered"). Per day: every listed name's hourly
+# bars (the daily bars leave out the premarket - BIYA 10-07 ran $1.70 -> $33.96
+# before 9:30), then the 1-minute bars of the biggest: a runner rose at least
+# RUNNER_RUN times from a low to a high at most RUNNER_SPAN minutes later, traded
+# RUNNER_DOLLARS, high $1+ and low $20 or less (the bots' band). The RUNNER_TOP
+# biggest a day are read from RUNNER_BEFORE before the low to RUNNER_AFTER after
+# the high; every runner found goes into the log (SECDUMP RUNNER lines).
+SEC_DUMP_RUNNER_DAYS = ("2026-10-06", "2026-10-07", "2026-10-08", "2026-10-09")
+SEC_DUMP_RUNNER_NAMES = (       # looked at whatever the hourly bars say (the web, the
+    ("2026-10-06", "AIXI"), ("2026-10-06", "XHG"), ("2026-10-06", "IPDN"),   # bots'
+    ("2026-10-07", "BIYA"), ("2026-10-07", "SXTC"), ("2026-10-07", "PFAI"),  # recorded
+    ("2026-10-07", "DKI"), ("2026-10-07", "LGCL"), ("2026-10-08", "DKI"),    # bars, the
+    ("2026-10-08", "FLYE"), ("2026-10-08", "JZ"), ("2026-10-08", "AIXI"),    # roster)
+    ("2026-10-09", "VIVK"), ("2026-10-09", "VEEA"), ("2026-10-09", "NTCL"),
+)
+RUNNER_RUN = 1.8                # x1.8 = up 80% from the low
+RUNNER_SPAN = 150
+RUNNER_DOLLARS = 5_000_000
+RUNNER_TOP = 6
+RUNNER_BEFORE = 600
+RUNNER_AFTER = 1800
 SEC_DUMP_TICKS_BEFORE = 30      # every print and quote from this long before a buy...
 SEC_DUMP_TICKS = 60             # ...to this long after it
 SEC_DUMP_RPM = 100
@@ -6744,8 +6844,24 @@ class Engine:
                      and datetime.fromtimestamp(t, ET).date().isoformat() in SEC_DUMP_DAYS]
         for when, sym in SEC_DUMP_MISSED:      # the ones no bot bought, any day
             buys.append((datetime.fromisoformat(when).replace(tzinfo=ET).timestamp(), sym))
+        runs = []
+        if SEC_DUMP_RUNNER_DAYS:                # the day's top runners, bought or not
+            try:
+                assets = await asyncio.to_thread(self.assets_client.get_all_assets,
+                                                 GetAssetsRequest(status=AssetStatus.ACTIVE))
+                symbols = sorted(a.symbol for a in assets
+                                 if a.tradable and a.symbol.isalpha() and len(a.symbol) <= 4)
+            except Exception as e:
+                log.error("SECDUMP RUNNER asset list: %s", e)
+                symbols = []
+            for day in SEC_DUMP_RUNNER_DAYS:
+                try:
+                    runs += await self.data.find_runners(
+                        day, symbols, [s for d, s in SEC_DUMP_RUNNER_NAMES if d == day])
+                except Exception as e:
+                    log.error("SECDUMP RUNNER %s: %s", day, e)
         try:
-            await self.data.dump_seconds(buys)
+            await self.data.dump_seconds(buys, runs)
         except Exception as e:
             log.error("SECDUMP: %s", e)
 
