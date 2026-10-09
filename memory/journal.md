@@ -5,6 +5,21 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-09
 
+### DECISION (the owner, ~2:30pm): v38 keeps its re-entries; compare A vs "A then B"
+- The owner: re-entries are not clean but "we cannot afford not to have
+  them" - that is how more of each runner is harvested. v38 keeps them
+  (speed + a new high of the day).
+- The comparison to run on every read: v38 with A all the way, vs A for the
+  first entries and B's leash once the stock has proven itself (a trade on
+  it closed 20%+ over its average) - for every later entry on that stock
+  that day. replay/research/speedsim_v38.py -> speedsim_v38.txt.
+- 10-06..10-08: only SXTC proved itself; its later entries on B's leash:
+  A +$3,347 -> A then B +$3,567 (3 trades on B +$136; the afternoon SXTC run
+  kept -5% instead of -15%); A then B' (3c under the average after an add)
+  +$3,239. One stock - tonight's read decides.
+- Within one trade the switch at +20% changes nothing (the half-back line is
+  above both stops); the difference is in the later entries.
+
 ### DECISION (the owner, ~2:15pm): the speed strategy is v38
 - The new strategy (variant A: speed entry, ease-in 20/50/100 at +10c / +20c,
   3c stop, half-back from +10c, re-entry at speed over the day's high, the
