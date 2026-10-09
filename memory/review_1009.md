@@ -246,3 +246,37 @@ Reading it:
      stock moving 10-20c a second; net +$11.91.
 - Log flood: v36b wrote ~100 FURIOUS lines in 2 seconds while it tried to
   buy - one a print; worth throttling (information only).
+
+## The day's loss to 9:18am, by cause (the owner: "analyze why")
+Day: v36 -$217.22, v36b -$22.97, v37 -$89.04 = -$329.23 (21 trades).
+| kind | trades | won | P/L |
+|---|---|---|---|
+| furious / fast buys | 14 | 4 | -$267.00 (won +$376.54, lost -$643.54) |
+| regular buys | 7 | 1 | -$62.23 |
+The three biggest losses are all a furious first buy on the top of a
+5-second burst: VIVK 9:07 v36 + v36b -$270.68; MI 4:33 v36 (paid up)
+-$156.42; MI 4:32 v37 -$100.95 = -$528.05, more than the whole day.
+
+## VIVK, trade by trade - rule followed? right or wrong? fix?
+1. v36 furious @ $5.14 (9:07:14): rules followed (speed 0.30, $231k, +7% in
+   5s). The chart: the top of the first burst ($5.22), then -9% to ~$4.80.
+   Stop 10c ($5.04) but filled $4.88 - the bid fell $5.02 -> $4.84 in 2s,
+   premarket. -$199 instead of ~-$77 at the stop. Market, plus slippage.
+2. v36b the same @ $5.13: -$72.
+3. v37 skipped it (the ask fell back to the high) - right.
+4. v36b regular @ $5.37 (9:09:44): a poke over the $5.00-5.35 base that
+   failed; out in 7s, -$11. Rules followed.
+5. v36 regular @ $5.37: stop at the $5 line - 1c (7% away), so a small size;
+   out $4.93 after 114s, -$30. Rules followed.
+6. v36 regular @ $5.55 (9:12:40) - at the start of the real move: right.
+   The add (decided $6.14, filled ~$6.32 paying up) lifted the floor to the
+   average $6.19, above the market: out at once, -$4. DEFECT - it threw away
+   308 shares that would have seen $6.74.
+7. v36 furious @ $6.32: out on an 8.5s-old print, sold into rising bids,
+   +$73.50 - luck.
+8. v36 furious @ $6.47 (145 of 610): out on a 4.2s-old print, -$10.
+9. v36b regular @ $5.59 (9:12:39) + adds $6.14, $6.56: right entry; 217 @
+   $6.22; peak $6.74; out at the floor (the average) $6.26, +$7.63 - the
+   floor-at-average after an add (the owner's rule) gave back $6.74 -> $6.26.
+10-12. v37 three fast buys in 8s ($5.91 / $6.11 / $6.34), each out in 1s on
+   the 5c cut: +$11.91 - churn, small.
