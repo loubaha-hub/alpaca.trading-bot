@@ -102,7 +102,8 @@ def play(path, sigs, dollars, stop_under, arm, rebuy=True):
 
 def run_ladder(path, t0, fill0, full, stop_under, arm, steps=((0.10, 0.5), (0.20, 1.0)), start=0.2,
                mid_stop=True, stop_pct=0.0, trace=None, add_cap=None, scale=(), add_floor=None,
-               doublings=None, stop_bid=False, scale_full=False, line_hold=0.0):
+               doublings=None, stop_bid=False, scale_full=False, line_hold=0.0,
+               arm_pct=None, line_bid=False, ratchet=False):
     """The owner's ease-in (10-09 ~12:30pm): START of the full dollars at the
     speed buy; at the first fill + each step's cents, a buy (at the ask
     BUY_LAG later) up to that share of the full position. The stop: the buy
@@ -133,7 +134,14 @@ def run_ladder(path, t0, fill0, full, stop_under, arm, steps=((0.10, 0.5), (0.20
     once the position is full start counting the scale-out, from its average.
     line_hold: the half-back line sells only after the price has stayed at or
     under it this many seconds (a print back over it starts the count again) -
-    in a stock moving dollars a second, one tick under a line is noise."""
+    in a stock moving dollars a second, one tick under a line is noise.
+    PRICE-BASED (the owner, 10-09 ~7:30pm: "a formula with the price that works
+    for any stock"): arm_pct - the half-back line arms when the position is up
+    this share of its average (not a fixed number of cents); line_bid - the
+    best and the line read from the BID, what can really be sold (a stray print
+    on another venue decides nothing); ratchet - after each part sold at a
+    scale-out level, the stop on the rest rises to the level before it (after
+    +100% the stop is the average, after +200% it is +100%...)."""
     if stop_pct:
         stop_under = fill0 * stop_pct
     sh = int(full * start / fill0)
@@ -166,7 +174,10 @@ def run_ladder(path, t0, fill0, full, stop_under, arm, steps=((0.10, 0.5), (0.20
             tol = max(S.PRINT_TOL_CENTS, S.PRINT_TOL_PCT * p)
             if p > a + tol or p < b - tol:
                 continue
-        best = max(best, p)
+        if not line_bid:
+            best = max(best, p)
+        elif b:
+            best = max(best, b)                    # the best bid: what could have been sold
         while j == 0 and k < len(steps) and p >= fill0 + steps[k][0] - 1e-9:
             pending.append((t + S.BUY_LAG, k))
             k += 1
@@ -189,7 +200,10 @@ def run_ladder(path, t0, fill0, full, stop_under, arm, steps=((0.10, 0.5), (0.20
             if trace is not None:
                 trace.append((t, "sold", q, lvl, avg, stop))
             j += 1
-        if best - avg >= arm - 1e-9:
+            if ratchet:                            # the stop climbs to the level before
+                stop = max(stop, avg * (1 + (scale[j - 2][0] if j >= 2 else 0.0)))
+        armed = (best - avg >= avg * arm_pct - 1e-9) if arm_pct else (best - avg >= arm - 1e-9)
+        if armed:
             if trace is not None and line < 0:
                 trace.append((t, "armed", best, avg))
             line = max(line, avg + 0.5 * (best - avg))
@@ -203,7 +217,9 @@ def run_ladder(path, t0, fill0, full, stop_under, arm, steps=((0.10, 0.5), (0.20
                 under_since = t if under_since is None else under_since
             else:
                 under_since = None
-        if p <= line + 1e-9 and not (b and b > line + 1e-9) and \
+        trig = (b is not None and b <= line + 1e-9) if line_bid else \
+            (p <= line + 1e-9 and not (b and b > line + 1e-9))
+        if trig and line > 0 and \
                 (not line_hold or (under_since is not None and t - under_since >= line_hold)):
             xp = path.bid_at(t + S.SELL_LAG)
             return t, (xp - avg) * sh + banked, "line", best, sh + sold, avg, k
