@@ -15,7 +15,8 @@ from speedsim_study import session, SESSIONS
 from speedsim_giveback import run_of
 
 SCALES = (("none", ()), ("+100% / +200% (the owner's)", ((1.0, 0.25), (2.0, 0.25))),
-          ("+50% / +100%", ((0.5, 0.25), (1.0, 0.25))), ("+200% / +400%", ((2.0, 0.25), (4.0, 0.25))))
+          ("+50% / +100%", ((0.5, 0.25), (1.0, 0.25))), ("+200% / +400%", ((2.0, 0.25), (4.0, 0.25))),
+          ("all at +100% (by hand)", ((1.0, 1.0),)))     # the owner's own habit: sell everything fast
 
 
 def play(r, p, st, setting, scale):

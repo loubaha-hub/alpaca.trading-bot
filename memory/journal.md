@@ -22,6 +22,10 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   losers. All windows, A: +$2,436 -> +$3,309 (PRE +$3,964 / RTH -$426 /
   AFTER -$229); B: +$372 -> +$1,246. Settings: +50% / +100% worse (A
   +$1,810, B -$253); +200% / +400% about the same (+$3,372 / +$1,309).
+- The owner by hand (~3:30pm): never bagged a 1,000%, caught about 100% a
+  couple of times and sold everything very quickly - sometimes leaving money
+  on the table. Measured as "all at +100%": SXTC +$3,999 (vs +$4,251 on the
+  line alone, +$5,125 with the scale-out); all windows A +$2,184, B +$121.
 - The owner asked again: did the returns include the bots' small losers?
   Yes - the 72 windows are every stock-moment any of the three bots bought
   10-06..10-08, losers included; the speed strategy's own trades there
