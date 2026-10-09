@@ -5,6 +5,25 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-08
 
+### The owner: what is clean for 10-09 - v37's buy, v36b's leash (~10:50pm)
+- The owner: v37 loses "nonstop in that one cent" - change its entry now; v36
+  beats v36b because of its leash up front - do something for v36b's entry.
+- v37's 1c: already gone - "half the gain from 1c" (10-08: -$742, 0 of 19
+  won) was replaced by the 5c cut (-$290 on the same trades), live since
+  r34.35 6:02pm; 10-09 is its first day. Over 3 days the 5c cut won 10-08 only
+  - no exit makes v37 profitable; its losses are at the buy.
+- v37 buying AT THE ASK instead of ask + 20c (scratchpad clean/payup2.py,
+  payup3.py; sizes counted, kind - first in line): 114 trades -$1,349 ->
+  -$525..-$848, better on each day, 89-99% of shares bought. Words in
+  memory/words_buy_at_ask.md (proposal; the owner reads first).
+- v36b's 10c leash, replayed with v36's real exits (10c / line stop / 10s
+  leash / 30c-30% / trail; clean/leash.py), 40 furious buys with data: v36b's
+  22: 10c -$606 vs its 3% -$586; v36's 18: 10c -$1,605 vs 3% -$1,269. The
+  wider stop gives back on the failures what it saves on the one that comes
+  back (IPW 4:10 +$70 vs -$53; FLYE 7:22 is in the missing data). From
+  $3.33 up both already use 10c (it is tighter there). Not clean - the
+  owner's call. v36b's furious buys at the ask: -$586 -> -$371..-$424.
+
 ### The list: what we agree on, what is left (~9:35pm)
 - The owner asked for everything from the afternoon sorted: decided, going
   out tonight, tested and dropped, candidates with an edge. Written in
