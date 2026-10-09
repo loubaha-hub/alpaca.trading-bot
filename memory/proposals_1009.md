@@ -94,3 +94,22 @@ Settled today by the owner (no change):
   -$3,095 vs live -$1,550).
 - A wider first stop to hold the first dip: the 10c leash was the owner's
   call on 10-08 with the data in hand; VEEA alone does not reopen it.
+
+## The stack today - what a v36 pattern buy must pass (from the code, 10-09)
+Basics: buying hours; on the scanner's list (up 10%+); $1-$20; under 2
+positions; one buy a minute a stock; float 20M or less.
+Who: the crowd (#1/#2 by money held 2 min, ripping, or the top gainer $1M+).
+Pattern: a rip, still alive; green-red after it; the red not under the rip's
+open; the red lighter than the green; the pattern on the stock's first buy
+only (after that, the high + 5c).
+Timing: over the trigger; no more than 5% over it; not at a $x.00 / $x.50
+line (5c past, held 3s); a re-entry at speed 0.10+; v36b: no 60% top wick.
+Filters: over VWAP, EMA9 over EMA20, MACD over 0; tape 60/40; room 2:1 to
+yesterday's high.
+= about 20 checks (v36b 21). A FURIOUS buy skips the crowd, pattern, chase,
+lines, re-entry speed, wick, trend, tape and room - it keeps the basics, the
+speed 0.30 on $250k, the last candle not red, and the 5-second / spread check.
+#3 adds no check: it gives the room check a second wall.
+Proposed (information only): a nightly count of which check said no on the
+#1/#2 leaders, and what the stock did in the next 15 minutes - which rules
+block good moves, by the numbers, before adding or removing any.
