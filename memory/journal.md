@@ -5,6 +5,25 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-09
 
+### The three bots live vs the speed strategy, 10-06..10-08 (~4:25pm; finding)
+- replay/research/compare_bots_speed.py -> compare_bots_speed.txt. Bots:
+  real round trips. Speed A (+ scale-out, new-high re-entries): replayed on
+  the read around the bots' buys, $4,000 full (about $1,090 bought a trade
+  on average; v36 $1,952, v36b $771, v37 $1,060).
+- Whole days (trades, wins / losses, P/L): v36 94, 20/74, -$1,718; v36b 86,
+  8/78, -$1,032; v37 141, 28/113, -$1,790; speed A 118, 10/108, +$3,347
+  (10-06 -$1,080, 10-07 +$4,677, 10-08 -$250). Without SXTC's one trade
+  (+$5,125) speed A is -$1,778 - about where the bots are.
+- Premarket: v36 +$367, v36b -$238, v37 -$1,367, speed A +$3,975.
+  Regular: -$1,653 / -$549 / -$413 / -$408. After: -$433 / -$246 / -$11 /
+  -$221. Live outranks a replay; the speed strategy only saw the bots'
+  stocks.
+- Re-entries (speedsim_reentry.py, the day's high from the minute bars):
+  the first buys +$4,492 (51), the re-entries -$1,145 (67) on a new high;
+  over the high + 5c -$564 (34); + 10c -$184 (15); 60s after a sale -$159
+  (17). Every re-entry rule loses on these days - the owner's point: the
+  jumps in and out eat the runners' gains.
+
 ### The owner's middle ground - A at the start, B's leash once it is a runner (~4pm; finding)
 - The owner: keep A's leash on every new entry; once the trade has bagged
   about 20% of gain, change to B's longer leash.

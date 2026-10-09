@@ -1,0 +1,34 @@
+THE THREE BOTS LIVE vs THE SPEED STRATEGY (A + scale-out), 10-06..10-08
+a cell: trades, wins, losses, P/L. Sizes differ: the bots as they really bought; the speed
+strategy $4,000 full (it starts with $800 and adds only as the stock rises)
+
+== PREMARKET 4:00-9:30 ==
+day                        v36                   v36b                    v37                speed A
+10-06      0   0   0        +0    2   0   2       -32   99  23  76      -691   45   4  41      -979
+10-07     23   5  18      -280   22   1  21      -156    7   3   4       +64   13   2  11     +5054
+10-08     24   9  15      +647   28   6  22       -50   18   0  18      -740   16   1  15      -100
+TOTAL     47  14  33      +367   52   7  45      -238  124  26  98     -1367   74   7  67     +3975
+
+== REGULAR HOURS 9:30-4:00 ==
+day                        v36                   v36b                    v37                speed A
+10-06     12   3   9      -129    2   0   2       -26    9   0   9       -52   10   1   9       -70
+10-07     15   0  15     -1153   16   0  16      -243    2   0   2      -358   11   0  11      -250
+10-08      9   3   6      -370    8   1   7      -280    1   0   1        -2    5   2   3       -87
+TOTAL     36   6  30     -1653   26   1  25      -549   12   0  12      -413   26   3  23      -408
+
+== AFTER HOURS 4:00-8:00pm ==
+day                        v36                   v36b                    v37                speed A
+10-06      4   0   4       -58    1   0   1       -16    2   1   1       -11    3   0   3       -31
+10-07      4   0   4      -289    4   0   4      -204    2   1   1        +2    7   0   7      -127
+10-08      3   0   3       -86    3   0   3       -26    1   0   1        -2    8   0   8       -62
+TOTAL     11   0  11      -433    8   0   8      -246    5   2   3       -11   18   0  18      -221
+
+== THE WHOLE DAY ==
+day                        v36                   v36b                    v37                speed A
+10-06     16   3  13      -187    5   0   5       -74  110  24  86      -753   58   5  53     -1080
+10-07     42   5  37     -1722   42   1  41      -602   11   4   7      -293   31   2  29     +4677
+10-08     36  12  24      +191   39   7  32      -356   20   0  20      -744   29   3  26      -250
+TOTAL     94  20  74     -1718   86   8  78     -1032  141  28 113     -1790  118  10 108     +3347
+avg $            $1952 a trade           $771 a trade          $1060 a trade          $1090 a trade
+/trade             -18 a trade            -12 a trade            -13 a trade            +28 a trade
+

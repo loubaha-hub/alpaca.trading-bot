@@ -50,7 +50,7 @@ def play(r, p, st, clear=0.0, max_re=None, wait=0):
         if not fill or fill <= 0:
             continue
         res = Q.run_ladder(p, t_in, fill, 4000, 0.03, 0.10, scale=SC)
-        out.append((t_in, res[1], first))
+        out.append((t_in, res[1], first, res[4] * res[5]))   # the last: dollars bought
         n_re += not first
         after, first = res[0] + S.SELL_LAG, False
     return out
@@ -83,7 +83,7 @@ def main():
                      ("no re-entries", dict(max_re=0))):
         agg = {s: [0, 0.0] for s in SESSIONS}; fb = [0, 0.0]; re = [0, 0.0]
         for r, p, st in data:
-            for t_in, pl, first in play(r, p, st, **kw):
+            for t_in, pl, first, _ in play(r, p, st, **kw):
                 agg[session(t_in)][0] += 1; agg[session(t_in)][1] += pl
                 x = fb if first else re
                 x[0] += 1; x[1] += pl
