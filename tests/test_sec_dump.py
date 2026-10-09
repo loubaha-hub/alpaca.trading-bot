@@ -41,6 +41,13 @@ def fake_data(fail_minute=None):
                 t += timedelta(milliseconds=500)
             return {req.symbol_or_symbols: out}
 
+        def get_stock_bars(self, req):              # the day's high before the read
+            calls.append(("B", req.start, req.end))
+            end = req.end if req.end.tzinfo else req.end.replace(tzinfo=timezone.utc)
+            return {req.symbol_or_symbols: [
+                {"t": raw_t(end - timedelta(minutes=3)), "o": 7.0, "h": 7.5, "l": 6.9, "c": 7.1, "v": 1000},
+                {"t": raw_t(end - timedelta(seconds=30)), "o": 7.0, "h": 9.9, "l": 6.9, "c": 7.1, "v": 1}]}
+
     md = object.__new__(bot.MarketData)
     md.hist_raw, md.feed = Hist(), bot.DataFeed.SIP
     return md, calls
@@ -73,7 +80,13 @@ def test_seconds_and_ticks_near_the_buy(caplog, monkeypatch):
     run(md.dump_seconds([(T0.timestamp(), "BIAF")]))
     got = blobs(caplog)
     assert sorted(k[2] for k in got) == [0, 60, 120]               # 30s before + 150s, a minute a read
-    assert len(calls) == 6
+    assert len([c for c in calls if c[0] != "B"]) == 6
+    # the day's high before the read: 4:00 to the window's start, the minute still
+    # forming at the start left out
+    utc = lambda d: (d if d.tzinfo else d.replace(tzinfo=timezone.utc)).timestamp()
+    assert [(utc(c[1]), utc(c[2])) for c in calls if c[0] == "B"] == [
+        (datetime(2026, 10, 8, 4, 0, tzinfo=bot.ET).timestamp(), (T0 - timedelta(seconds=30)).timestamp())]
+    assert "SECDUMP HOD 2026-10-08 BIAF 08:09:11: the day's high before the read 7.5000" in caplog.text
     allT = [r for b in got.values() for r in b["T"]]
     allS = [r for b in got.values() for r in b["S"]]
     # ticks only from 30s before the buy to SEC_DUMP_TICKS (60s) after it
@@ -149,7 +162,7 @@ def test_rows_from_five_minutes_before_ticks_from_thirty_seconds(caplog, monkeyp
     md, calls = fake_data()
     run(md.dump_seconds([(T0.timestamp(), "BIAF")]))
     got = blobs(caplog)
-    assert len(calls) == 12                                       # 6 minutes
+    assert len([c for c in calls if c[0] != "B"]) == 12           # 6 minutes
     allT = [r for b in got.values() for r in b["T"]]
     allS = [r for b in got.values() for r in b["S"]]
     assert len(allS) == 360

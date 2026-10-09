@@ -220,7 +220,7 @@ def speed_state(rec):
     for k in range(last + 1):
         v[k + 1] = v[k] + vol[k]
         d[k + 1] = d[k] + dol[k]
-    out, top = {}, None
+    out, top = {}, rec.get("hod_before") or None    # the day's high before the window, when read
     for k in range(last + 1):
         new_high = high[k] is not None and top is not None and high[k] > top + 1e-9
         if high[k] is not None:

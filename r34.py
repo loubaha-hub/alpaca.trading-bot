@@ -1442,6 +1442,18 @@ class MarketData:
                  len(windows), sum(int((b - a + 59) // 60) for _, _, a, b, _ in windows), len(runs))
         gap = 60.0 / SEC_DUMP_RPM if SEC_DUMP_RPM else 0.0
         for day, sym, a, b, times in windows:
+            try:                                # the day's high before the read, for the
+                raw = await asyncio.to_thread(  # re-entries' "new high of the day"
+                    self.hist_raw.get_stock_bars, StockBarsRequest(
+                        symbol_or_symbols=sym, timeframe=TimeFrame.Minute,
+                        start=datetime.fromisoformat(day + "T04:00").replace(tzinfo=ET),
+                        end=datetime.fromtimestamp(a, timezone.utc), feed=self.feed))
+                rows, _ = _bar_rows(raw, sym)
+                log.info("SECDUMP HOD %s %s %s: the day's high before the read %.4f", day, sym,
+                         hms(a), max((h for t, _, h in rows if t < a - 59), default=0.0))
+                await asyncio.sleep(gap)
+            except Exception as e:
+                log.error("SECDUMP HOD %s %s %s: %s", day, sym, hms(a), e)
             spans = [(t - SEC_DUMP_TICKS_BEFORE, t + SEC_DUMP_TICKS) for t in times]
             nt = nq = ns = lost = 0
             m = a
