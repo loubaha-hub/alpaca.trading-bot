@@ -1,6 +1,6 @@
 # Where things stand
 
-Updated 2026-10-09, ~7:55am ET.
+Updated 2026-10-09, ~8:20am ET.
 
 ## 10-09 morning
 - Working branch: `claude/three-strategies-x69ppg` (from
@@ -45,8 +45,25 @@ Updated 2026-10-09, ~7:55am ET.
   - XRTX 7:47:10 (furious, speed 0.34; crowd #3 $975k, gainer #4 - not a
     top-2 name, furious sets the crowd aside): v36 1,250 @ $2.13 -> $2.1066
     on the 10s leash, -$29, 63s; v36b 119 of 699 wanted @ $2.13 -> $2.1076,
-    -$3. Peak $2.20. Running total 7:48: v36 -$36, v37 -$101, v36b +$56,
-    all -$80.
+    -$3. Peak $2.20.
+  - SAIQ 7:46:10 (a regular buy, "setup trigger 6.75", 5% of the account;
+    SAIQ crowd #1 $4.4M): v36 121 @ $6.76 -> $6.66 stop, -$12.10, 45s; v36b
+    44 @ $6.76 -> $6.6584, -$4.47. Afterwards "NO SPEED for a re-entry".
+  - To 8:15am: v36 -$47.64 (5 trades, 1 won), v37 -$100.95 (1, 0),
+    v36b +$52.01 (4, 1); all -$96.58. The owner pasted Alpaca's Activities
+    for T6HH and AUES (Central time): every fill matches the bot's EXIT /
+    TRIM lines to the cent (v36's VEEA: 459 @ $5.55 + 170 @ $5.54, sold in 9
+    pieces $5.49 -> $5.40).
+- VEEA blow by blow from the log: memory/review_1009_veea.md. The owner
+  (~8am): "it may have acted as designed" - the log agrees; each later point
+  to get back in was followed by a 10c+ pullback; the money was in holding
+  the first buy through a 15c dip. Open question for the owner: the $5.50
+  line stop (6c) was tighter than the furious 10c leash.
+- r34.39 on the branch (673 tests pass): SEC_DUMP_DAYS = ("2026-10-09",),
+  10 min before to 50 min after each buy - the read-only second-by-second
+  read of every trade of the three today, as on 10-08. WAITING ON THE
+  OWNER'S OK to push to main after 8pm with all three flat; the next
+  release turns it off.
 
 ## 10-08 night
 - Live: **r34.38** (main d439a58, up 10:41:40pm 10-08, all three 0 positions): r34.37 with the owner's corrected

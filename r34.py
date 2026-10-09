@@ -154,7 +154,7 @@ RISK_CHECK_SECONDS = 5                      # the halt runs on a CLOCK, not tick
 # The file name and this string are changed together, every single time. The
 # log then answers "which code is actually running?" without anyone guessing
 # from line numbers or from behaviour that only shows up once a trade is on.
-VERSION = "v31-r34.38"
+VERSION = "v31-r34.39"
 
 # WHERE THE DAY'S HALT BASELINE COMES FROM.
 #   "last_equity" - equity at the PREVIOUS session's close, read from the broker.
@@ -4460,12 +4460,15 @@ TICK_DUMP_CHARS = 3500          # characters of rows in one log line
 # and ask at the second's end, the second's lowest bid). zlib + base64, one
 # SECDUMP line per TICK_DUMP_CHARS (replay/research/secread.py reads them back).
 # No orders, no trading state touched. () = off.
-SEC_DUMP_DAYS = ()              # read once by r34.35 (10-08 6:03-7:29pm, 76 windows,
-                                # none lost); saved in replay/live/2026-10-08_secdump
-SEC_DUMP_BEFORE = 300           # one row a second from 5 minutes before a buy (how
-                                # early it could have got in: BIAF 10-08 ran 8:05-8:14,
-                                # v37 bought 8:09:41) ...
-SEC_DUMP_AFTER = 1800           # ...to 30 minutes after it
+SEC_DUMP_DAYS = ("2026-10-09",) # the owner, 10-09 ~8am: VEEA "blow by blow", every
+                                # trade of the three by the second. Read once at the
+                                # release after 8pm 10-09; the next release turns it off.
+                                # 10-08's read (r34.35, 76 windows): replay/live/2026-10-08_secdump
+SEC_DUMP_BEFORE = 600           # one row a second from 10 minutes before a buy (how
+                                # early it could have got in: VEEA 10-09 set up from
+                                # 6:47, bought 7:00:12; 10-08 read 5 minutes) ...
+SEC_DUMP_AFTER = 3000           # ...to 50 minutes after it (VEEA 10-09: stopped 7:00:26,
+                                # high ~$6.13 ~7:31, faded by 7:48; 10-08 read 30 minutes)
 SEC_DUMP_TICKS_BEFORE = 30      # every print and quote from this long before a buy...
 SEC_DUMP_TICKS = 60             # ...to this long after it
 SEC_DUMP_RPM = 100
