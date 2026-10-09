@@ -33,6 +33,25 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   buy. Today's high is not a separate wall. Do not stack rules until the bots
   are paralyzed: a very good move must not be blocked - discuss before adding.
 
+### Did the speed strategy bag SXTC's run? Yes - half of it (~1:55pm; finding)
+- The owner: "didn't the one without a filter run it all the way to the top
+  and take half? ... if it was able to bag the bigger one, we are in for
+  something that may be useful" - keeping big runners is what the bots fail.
+- SXTC 10-07, speed only, ease-in, 5c / half from 10c: buy 8:14:37 $2.18
+  (20%), adds at about $2.28 and $2.38 -> 1,737 shares at $2.303 ($4,000);
+  held through the climb to $3.00 (8:16:37), then $3.00 -> $6.64 in two
+  seconds (8:16:39-40) and the $7.07 top at 8:16:44; sold on the way down at
+  8:17:02 at the bid $4.75 (the half-gain line $4.69): +$4,251 - $2.45 of the
+  $4.77 a share it rose over the average, about half, as designed.
+- The data is real: 11,577 prints in 8:16:30-8:17:10, the quotes moving with
+  them (bid $4.21 / ask $4.22 at 8:16:39, $6.33 / $6.38 at 8:16:40); the bots
+  bought SXTC at 8:16:33-37 themselves. The whole run lasted 2.5 minutes;
+  1,737 shares against 25-47k shares a second traded at the sale.
+- So the exit design (small start, adds on strength, half the gain) can bag
+  a big runner - the piece the bots miss. The entries (speed alone) bleed in
+  between: about -$1,700 to -$1,900 in three days without SXTC. Profitable
+  only if an SXTC-size run comes often enough - more days decide.
+
 ### Speed alone vs the crowd alone vs both (~1:45pm; finding)
 - The owner: the crowd and the speed are two separate things - test each
   alone; the combination "is not the winner".
