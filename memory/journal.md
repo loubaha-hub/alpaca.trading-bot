@@ -19,6 +19,13 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 - So about even overall. It helps only past +$1 (a fifth back instead of
   30%) - once in three days (DKI 6:54, +$99). An option: only that top
   step (30% back up to $1, a fifth back above) - one trade behind it.
+- With re-entries (the owner, ~8:35pm; first buy of each stretch, then buy
+  back over the day's high + 5c, same rule): v36 70 buys - now -$3,288,
+  ladder -$3,365, top step only -$3,288; v36b 62: -$1,361 / -$1,396 /
+  -$1,361; v37 62: -$1,483 / -$1,450 / -$1,483. One buy each instead: v36
+  -$2,878. No edge from the ladder; re-entries add losses. The top step
+  equals "now" here - its one case past +$1 (DKI 6:54) is in the missing
+  data. Exits replayed without v36's 10-second leash: compare rules only.
 
 ### The runner table: 10c stop vs 3% (the owner: "remember", ~8:10pm)
 - Runners = the stock 50c+ or 20%+ higher within 30 min of the buy;

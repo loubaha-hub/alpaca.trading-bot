@@ -69,3 +69,40 @@ if __name__ == "__main__":
             bot, n, past, " | ".join("%s %+.0f" % (k, v) for k, v in tot.items())))
         for r in diff_rows:
             print("   %s %s %-5s buy %.3f: now %+.0f, ladder %+.0f" % r)
+
+
+def top_step(fill, best):
+    """30% back from +30c (as now), a fifth back from +$1."""
+    g = best - fill
+    if g < 0.30 - 1e-9:
+        return -1.0
+    if g < 1.00:
+        return max(fill, fill + 0.7 * g)
+    return best - g / 5
+
+
+def with_reentries(windows_dir, rts_path, bots=("v36", "v36b", "v37")):
+    """The first buy of each stretch, then buy back over the day's high + 5c
+    after every sale (the ask 1s later), same rule - one entry vs re-entries."""
+    W = S.load_windows(windows_dir); rts = json.load(open(rts_path)); paths = {}
+    rules = RULES + [("top step only", top_step)]
+    for bot in bots:
+        acc = {n: [0, 0.0, 0, 0.0, 0] for n, _ in rules}
+        for day in sorted(rts[bot]):
+            seen = set()
+            for rt in rts[bot][day]:
+                t0, px, sh = R.entries(rt, day)
+                path = S.path_for(W, paths, day, rt["sym"], t0)
+                if not path or (day, rt["sym"], path.start) in seen:
+                    continue
+                seen.add((day, rt["sym"], path.start))
+                for name, f in rules:
+                    one = R.simulate(path, t0, px, sh, R.STOPS["10c"], f)
+                    many = R.simulate(path, t0, px, sh, R.STOPS["10c"], f, rebuy=True)
+                    a = acc[name]
+                    a[0] += 1; a[1] += one[0][0]; a[2] += len(many); a[3] += sum(x[0] for x in many)
+                    a[4] += sum(x[0] > 0 for x in many)
+        print("\n%s - the first buy of each stretch, then re-entries over the day's high + 5c:" % bot)
+        for name, a in acc.items():
+            print("   %-24s one buy each: %3d buys %+7.0f | with re-entries: %3d buys (%2d won) %+7.0f" % (
+                name, a[0], a[1], a[2], a[4], a[3]))
