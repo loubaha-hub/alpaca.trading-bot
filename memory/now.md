@@ -54,7 +54,7 @@ Updated 2026-10-09, ~8:20am ET.
     for T6HH and AUES (Central time): every fill matches the bot's EXIT /
     TRIM lines to the cent (v36's VEEA: 459 @ $5.55 + 170 @ $5.54, sold in 9
     pieces $5.49 -> $5.40).
-- VEEA blow by blow from the log: memory/review_1009_veea.md. The owner
+- VEEA blow by blow from the log: memory/review_1009.md. The owner
   (~8am): "it may have acted as designed" - the log agrees; each later point
   to get back in was followed by a 10c+ pullback; the money was in holding
   the first buy through a 15c dip. Open question for the owner: the $5.50

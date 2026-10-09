@@ -1,4 +1,4 @@
-# VEEA 10-09, blow by blow (from the bot's own log)
+# 10-09 blow by blow - VEEA, MI (from the bot's own log and the owner's charts)
 
 The owner, 10-09 ~8am: "why did we miss it? ... it may have acted as designed ...
 get the exact entry by seconds for every one ... what the bot did and what it
@@ -87,3 +87,41 @@ stopped it - from the tape tonight.
   10-07 SPAI decision (SPAI's 2nd buy was under the high, on a red candle, no
   speed). Ties to candidate 7 in now.md (the #1 leader's first pullbacks,
   LPCN 10-07 4 of 4 to +2R). Needs the tape and more days before any change.
+
+# MI 10-09, blow by blow (log + the owner's Webull charts, 1m / 10m / 10s)
+The chart: yesterday $0.80 low; today ~$1.00 at 4:30, a burst to the $1.75
+high, then $1.40-1.65 chop to ~5:30 and a fade to $1.28 by 8:15.
+
+| ET | MI | what the bots did, and why |
+|---|---|---|
+| 4:30:35 | $1.00 | back on the scanner's list (up 10%+) |
+| 4:32:00 | $1.05 | v36/v36b: no crowd (#5, $98k) |
+| 4:32:38.3 | $1.34 | FURIOUS (speed 1.22, +3.9% in 5s): $1.05 -> $1.34 in 38s |
+| 4:32:39.4 | | v36: 2,383 of 3,050 @ $1.38 (limit ask + 20c, $1.59); v36b: 925 of 1,102 @ $1.38 at the ask. Stop $1.28 (10c) |
+| 4:32:40.5 | $1.42 | v37 fast buy: 0 at the $1.44 ask; 4:32:42.1 again at $1.48 (ask $1.49) |
+| 4:32:43.7 | | v37: 2,019 @ $1.45 avg - as the bid fell to $1.40 |
+| 4:32:43.8-46.2 | $1.40 | v37's 5c cut (5c under its best, the fill) - out @ $1.40, -$101, held 2s |
+| 4:32:55.5 | best $1.54 | v36/v36b out on the +10% trail (armed at +10%; 2% under the high = ~3c on $1.54); print $1.5032, filled $1.47 / $1.45 -> +$190 / +$73 |
+| 4:33:00 | $1.395 | crowd #1 $758k, gainer #1; waiting for the high + 5c ($1.60) |
+| 4:33:43.8 | $1.59 | FURIOUS again (a new high, speed 0.31): v36 paid up (limit $1.83), 872 of 2,600 @ $1.68 avg; v36b at the $1.63 ask: 0 |
+| 4:33:45.7 | $1.54 x $1.55 | under v36's $1.58 stop: out $1.50-1.53, -$156, held 3s |
+| 4:36:28-33 | $1.73-1.75 (the high) | v36/v36b: NO SPEED for a re-entry (0.07-0.08 under 0.10); v37: SKIP at $1.70, last two candles not both green |
+| 4:37:33 | $1.50 | then $1.53-1.65 to 4:44, crowd #1 $2-3M |
+
+## Reading it
+- The rules worked as written. Blocks that saved money: the speed rule and
+  v37's two-green rule at $1.70-1.75 (the high, then $1.50 a minute later);
+  v36b's at-the-ask order on the 4:33:43 spike (v36 paid up and lost $156).
+- Pay up vs at the ask, case 1: MI 4:33:43 (-$156 vs $0). VEEA 7:00: no
+  difference (v36 $5.5473, v36b $5.55).
+- Rules meeting (a question, no change): a furious buy is ALSO under the
+  regular +10% trail. On a $1.38 stock +10% is 14c, so the trail (2% under
+  the high, ~3c) armed long before the owner's furious exit (from +30c, out
+  on 30% back). Furious rule alone here: the $1.68 spike reaches +30c, line
+  $1.59, the crash to $1.54 -> out ~$1.55: about +17c vs +8c (v36 ~+$215,
+  v36b ~+$83 more) - IF the fill came. Against it: the 10-08 three-day table,
+  v36 trades with no adds (50): live -$1,550 vs "furious 30c/30% alone"
+  -$3,095. One case against 50 - keep, count.
+- v37 bought the top of a 1-second burst ($1.48 print, bid $1.40 a second
+  later); the 5c cut sold it in 2s. v37 did not buy the 4:33:43 burst - no
+  line in the log (a quiet check; the tape will tell).
