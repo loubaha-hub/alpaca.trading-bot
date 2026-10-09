@@ -5420,7 +5420,9 @@ class V36(_Restore, _Momentum, V35):
                 self.why_not(s, price, "NO: a %.0f%% top wick on the last candle - sellers "
                              "rejected the high" % (100 * wick), urgent=True)
                 return
-        if self.own("MAX_STOP"):                # under what it pays, not an old trigger
+        if self.own("MAX_STOP") and not (rush and FURIOUS_TEN_CENTS):
+            # under what it pays, not an old trigger - a regular buy only: a
+            # furious one has v36's 10c leash (FURIOUS_TEN_CENTS)
             stop_ref = max(stop_ref, max(trigger, price) * (1 - self.own("MAX_STOP")))
         if rush and V36_FURIOUS_STOP_MAX:       # a full position: never a far stop
             stop_ref = max(stop_ref, price * (1 - V36_FURIOUS_STOP_MAX))
@@ -5737,7 +5739,10 @@ V37_GIVEBACK = 0.50             # this share of the best gain given back: out
 V37_STOP_SPEED = True           # the stop sized to the stock's speed instead:
 V37_STOP_SHARE = 1 / 3          # this share of the last minute's move under the
 V37_STOP_MIN = 0.03             # buy, never less than this...
-V37_STOP_MAX = 0.08             # ...nor more than this; after an add, the same
+V37_STOP_MAX = 0.03             # ...nor more than this; after an add, the same
+                                # (the owner, 10-08 night: v37 "the exact same thing" as
+                                # v36b - 3% on a regular buy, 10c on a furious one;
+                                # was 8%)
                                 # distance under the new average
 V37_GIVEBACK_ARM = 0.0          # "half the gain" only once the best gain reached
                                 # this (0 = from the first cent, as before)
@@ -5889,6 +5894,14 @@ BIG_GAIN_BACK = 0.30            # buy is $1.00 a share or more over what we paid
                                 # v36b furious already 30% from +30c, v37 5c from its
                                 # best; it bites on v36 / v36b's regular buys (the ABR
                                 # trail). All three, all sessions. 0 = off
+FURIOUS_TEN_CENTS = True        # the owner, 10-08 night: a furious buy's first stop is
+                                # v36's 10c leash - "when the stock starts moving, it
+                                # doesn't stop with 3%" - for v36b (its 3% MAX_STOP on
+                                # regular buys only) and v37 (10c, not the tighter of
+                                # 10c and its 3%). The whole / half dollar line under
+                                # the buy still counts, as for v36. v37's 5c cut still
+                                # sells first (replayed: its 12 furious buys -$751 with
+                                # it, -$1,758 with the 10c leash alone). False = before
 V37_TWO_GREEN = True            # the owner, 10-08 night: v37 buys only after two green
                                 # candles - the last two closed 1-minute candles each
                                 # closed over its open - unless the move is furious
@@ -6202,6 +6215,8 @@ class V37(V36):
             stop = s.entry - V37_STOP_CENTS
         if (V37_FURIOUS_EXIT and V36_FURIOUS_STOP_CENTS
                 and getattr(s, "v37_accel", 0.0) >= V37_FURIOUS_SPEED):
+            if FURIOUS_TEN_CENTS:               # the leash: 10c, not the tighter of two
+                return s.entry - V36_FURIOUS_STOP_CENTS
             stop = max(stop, s.entry - V36_FURIOUS_STOP_CENTS)
         return stop
 

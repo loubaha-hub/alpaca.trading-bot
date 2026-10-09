@@ -379,7 +379,11 @@ def test_a_two_cent_wiggle_no_longer_shakes_it_out(v37, clock, now, leash):
     assert v37.closed_today[-1][5] == "stop"
 
 
-def test_a_furious_stock_gets_a_longer_leash_up_to_8_percent(v37, clock, now, leash):
+def test_a_fast_stock_gets_a_longer_leash_up_to_the_max(v37, clock, now, leash,
+                                                        monkeypatch):
+    """The stop sized to the speed, between V37_STOP_MIN and V37_STOP_MAX (8%
+    until 10-08 night; now 3% both - the owner: 3% on a regular buy)."""
+    monkeypatch.setattr(bot, "V37_STOP_MAX", 0.08)
     s = crowd(v37, clock, "ABCD", 1_000_000)
     prints(v37, s, now, 10.00, 11.40)                     # +14% in under a minute
     s.day_high = 10.05
@@ -388,6 +392,29 @@ def test_a_furious_stock_gets_a_longer_leash_up_to_8_percent(v37, clock, now, le
     assert s.v37_stop_pct == pytest.approx(bot.V37_STOP_SHARE * (11.45 / 10.00 - 1))
     prints(v37, s, now, 10.00, 13.40)                     # +34%: capped
     assert v37.stop_pct(s, 13.45) == bot.V37_STOP_MAX
+
+
+def test_v37_regular_stop_is_3_percent_whatever_the_speed(v37, clock, now, leash):
+    """The owner, 10-08 night: v37 "the exact same thing" as v36b - 3%."""
+    s = crowd(v37, clock, "ABCD", 1_000_000)
+    prints(v37, s, now, 10.00, 11.40)                     # +14% in under a minute
+    s.day_high = 10.05
+    tick(v37, s, now, 11.45)
+    assert s.in_position and s.v37_stop_pct == pytest.approx(0.03)
+
+
+def test_v37_furious_buy_has_the_10c_leash(v37):
+    """"When the stock starts moving, it doesn't stop with 3%": a furious buy's
+    stop is 10c under the fill, not the tighter of 10c and 3% ($1.80: 5.4c)."""
+    s = v37.st("ABCD")
+    s.entry, s.v37_stop_pct, s.v37_accel = 1.80, 0.03, 0.40
+    assert v37.stop_for(s) == pytest.approx(1.70)
+    s.v37_accel = 0.10                                    # not furious: 3%
+    assert v37.stop_for(s) == pytest.approx(1.80 * 0.97)
+
+
+def test_furious_ten_cents_is_on():
+    assert bot.FURIOUS_TEN_CENTS is True and bot.V37_STOP_MAX == 0.03
 
 
 def test_half_the_gain_only_once_up_3_percent(v37, clock, now, leash, monkeypatch):

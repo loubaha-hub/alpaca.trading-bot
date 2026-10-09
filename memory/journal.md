@@ -5,6 +5,20 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-08
 
+### DECISION (the owner, ~10:25pm): the 10c leash on furious buys - v36b and v37
+- v36b: "that's it, perfect" - 3% on regular buys (cuts the losers that go
+  nowhere), v36's 10c leash on furious buys. v37: "the exact same thing - 3%,
+  and 10c for the furious one; when the stock starts moving it doesn't stop
+  with 3%". Built: FURIOUS_TEN_CENTS (furious first stop = 10c under the
+  fill, not the tighter of 10c and 3%); V37_STOP_MAX 0.08 -> 0.03 (v37's
+  regular stop 3%). The whole / half dollar line under the buy still counts.
+- v37's 5c cut stays on its furious buys - it sells before any 10c stop.
+  Replayed, v37's 12 furious buys with data: 5c cut -$751 (3% or 10c the
+  same); 10c leash + 30c/30% exit without the cut -$1,758. Told the owner;
+  "that's great, let's do it that way" (~10:30pm).
+- The owner: "implement all of this and make the strategies ready to deploy
+  tomorrow at 4am" - r34.36 to main tonight (flat, after 8pm).
+
 ### DECISIONS (the owner, ~10:15pm): +$1 then 30% back; v37 two green candles; v36b as is
 - "For the one dollar ... we'll go with that ... gain more than a dollar, we
   revert to thirty percent": BIG_GAIN_AT 1.00 / BIG_GAIN_BACK 0.30 - once the

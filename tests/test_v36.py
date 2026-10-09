@@ -1433,3 +1433,25 @@ def test_big_gain_waits_for_the_bid(v36, monkeypatch):
 
 def test_big_gain_is_on():
     assert bot.BIG_GAIN_AT == 1.00 and bot.BIG_GAIN_BACK == 0.30
+
+
+def test_v36b_furious_buy_gets_the_10c_leash_not_its_cap(v36b, clock, monkeypatch, data):
+    """The owner, 10-08 night: v36b keeps its 3% on regular buys; a furious buy
+    gets v36's 10c leash. (MAX_STOP set to 0.5% here so the two differ at $10;
+    the whole / half dollar line off, as it would sit under both.)"""
+    monkeypatch.setattr(bot, "V36_LEVEL_STOP", False)
+    monkeypatch.setattr(bot, "MIN_STOP_PCT", 0.001)      # the 1% floor would hide it
+    monkeypatch.setattr(v36b, "MAX_STOP", 0.005)
+    monkeypatch.setattr(v36b, "speeding", lambda s, p: True)
+    data.quotes[("ABCD", "ask")] = round(TRIGGER + 0.01, 2)
+    s = ripping(v36b, clock)
+    tick(v36b, s, TRIGGER)
+    assert entered(v36b, s)
+    assert s.stop == pytest.approx(s.entry - 0.10)
+    monkeypatch.setattr(bot, "FURIOUS_TEN_CENTS", False)  # as before: the tighter one
+    s2 = ripping(v36b, clock, symbol="EFGH")
+    data.quotes[("EFGH", "ask")] = round(TRIGGER + 0.01, 2)
+    tick(v36b, s2, TRIGGER)
+    assert entered(v36b, s2)
+    assert s2.stop > s2.entry - 0.10 + 0.03
+
