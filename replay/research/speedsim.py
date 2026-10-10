@@ -103,7 +103,8 @@ def play(path, sigs, dollars, stop_under, arm, rebuy=True):
 def run_ladder(path, t0, fill0, full, stop_under, arm, steps=((0.10, 0.5), (0.20, 1.0)), start=0.2,
                mid_stop=True, stop_pct=0.0, trace=None, add_cap=None, scale=(), add_floor=None,
                doublings=None, stop_bid=False, scale_full=False, line_hold=0.0,
-               arm_pct=None, line_bid=False, ratchet=False, tiers=(), tiers_from=0.0):
+               arm_pct=None, line_bid=False, ratchet=False, tiers=(), tiers_from=0.0,
+               topup=None):
     """The owner's ease-in (10-09 ~12:30pm): START of the full dollars at the
     speed buy; at the first fill + each step's cents, a buy (at the ask
     BUY_LAG later) up to that share of the full position. The stop: the buy
@@ -149,7 +150,11 @@ def run_ladder(path, t0, fill0, full, stop_under, arm, steps=((0.10, 0.5), (0.20
     (the stop at the full position's average) sells everything, whichever comes
     first. With tiers the half-back line is off - or, with tiers_from, on until
     the position is up that share of its average, the tiers after (a small gain
-    is banked by the line instead of riding back to the floor)."""
+    is banked by the line instead of riding back to the floor).
+    topup (gain, dollars): a small position (after the day's loss limit) that
+    proves itself - up `gain` over its average once full - is topped up at the
+    ask, any price, to `dollars` in all; the floor and the tiers then work on
+    the new average."""
     if stop_pct:
         stop_under = fill0 * stop_pct
     sh = int(full * start / fill0)
@@ -159,6 +164,7 @@ def run_ladder(path, t0, fill0, full, stop_under, arm, steps=((0.10, 0.5), (0.20
     best, line, k = fill0, -1.0, 0
     banked, sold, j = 0.0, 0, 0
     under_since = None
+    topped = topup is None
     pending = []                                   # adds sent, not filled yet: (fill time, k)
     i = path.at(t0)
     for t, p, b, a in path.ev[i:]:
@@ -210,6 +216,17 @@ def run_ladder(path, t0, fill0, full, stop_under, arm, steps=((0.10, 0.5), (0.20
             j += 1
             if ratchet:                            # the stop climbs to the level before
                 stop = max(stop, avg * (1 + (scale[j - 2][0] if j >= 2 else 0.0)))
+        if not topped and k >= len(steps) and not pending and best >= avg * (1 + topup[0]) - 1e-9:
+            topped = True                          # it proved itself: up to the full size
+            px = path.ask_at(t + S.BUY_LAG)
+            add = int((topup[1] - cost) / px) if px and px > 0 else 0
+            if add > 0:
+                sh += add
+                cost += add * px
+                avg = cost / sh
+                stop = max(stop, avg - stop_under)
+                if trace is not None:
+                    trace.append((t + S.BUY_LAG, "add", add, px, avg, stop))
         tiers_on = bool(tiers) and k >= len(steps) and not pending and \
             (not tiers_from or best >= avg * (1 + tiers_from) - 1e-9)
         armed = (not tiers or (tiers_from and not tiers_on)) and \
