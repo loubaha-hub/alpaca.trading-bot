@@ -248,6 +248,39 @@ of the day ... you have to have a level before it", not a clock)
   a level before it" - the owner's call. v38 logs every re-entry, and live
   results decide.
 
+## What could still block a big runner (10-10 night - the owner: "any additional
+restrictions that get in the way of catching the big runners?")
+The replay applied the speed test, the bot's buy checks and the rules above -
+nothing else. The live bot has more, and v38 must not inherit these:
+1. v36's furious buy needs the price over the day's high and the last
+   minute's high (r34.py ~5522: level = max(hod_closed, last bar's high)) -
+   the very rule that blocked BIYA 8:20. v38 needs its own entry: the speed
+   test alone (no re-entry level).
+2. One buy per closed minute unless a new high of the day (~5497) - blocks a
+   re-entry in the same minute (BIYA's seconds). v38: none.
+3. The float limit, 20M shares (V36_MAX_FLOAT, ~5501) - would have blocked
+   WFF (38.5M float; +$16,195 with the minute-wide floor) and XHG (46.6M).
+   v38: no float limit (proposed).
+4. The 10c spread check (FAST_BUY_MAX_SPREAD) is in cents: on a $10-$20 stock
+   the median spread is about 9c (0.67%), so it blocks many; under $1 it
+   never blocks. Proposed: in percent (e.g. 2% of the price) - to test.
+5. The scanner: $1-$20 today; v38 $0.50-$20 (decided) - note FRGT's buy was
+   at $0.39 (+$3,378), under the $0.50 bar, so v38 would not have it.
+6. The scanner lists a stock once it is up 10% from its reference (premarket:
+   yesterday's close; regular hours: today's open), every 8 seconds, and the
+   bot keeps no print history before that - the speed test then needs 2
+   minutes of prints. A runner starting from flat can be 10% up and 2 minutes
+   in before v38 can buy. The replay always had the history. Proposed: when a
+   stock joins the list, fetch its last 2 minutes of trades so the speed can
+   fire at once.
+7. The buy: one try of 0.5s, the next on the next furious print (V37_KEEP_
+   TRYING) - v38: kept working and moved up while the speed holds (proposed).
+8. The bot's per-position cap 25% and exposure cap 95% - v38 needs 50% / 100%.
+9. By design (decided): two positions at once (a third runner is not bought -
+   2 of 188 in the read); after -$500 smaller sizes; the -10% shut-off; real
+   money premarket only; the speed never fires on a spike over within a
+   minute (7 of 39 runs).
+
 ## The checklist, answered
 
 **The price it decides on**

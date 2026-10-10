@@ -5,6 +5,16 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-10
 
+### What could still block a big runner live (~night; for the owner)
+- The owner: any other restrictions in the way of the big runners, before
+  v38 goes to work? Listed in memory/words_v38.md ("What could still block a
+  big runner"). The live bot has rules the replay never applied: v36's
+  furious buy needs a new high of the day (the BIYA blocker); one buy a
+  minute unless a new high; a 20M float limit (WFF 38.5M, +$16,195; XHG
+  46.6M); a 10c spread check in cents; the scanner's 10% gain and no print
+  history (2 minutes before the speed can fire on a new name); FRGT's $0.39
+  buy is under the $0.50 bar.
+
 ### DECISION (the owner, ~night): the minute-wide floor everywhere
 - The owner: "the minute-wide floor really wins hands down ... the swing is
   not even bigger - why don't we adopt that?" Adopted for v38 in all
