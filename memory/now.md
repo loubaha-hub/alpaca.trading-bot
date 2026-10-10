@@ -1,6 +1,34 @@
 # Where things stand
 
-Updated 2026-10-09, ~12pm ET.
+Updated 2026-10-10, ~2am ET (Saturday).
+
+## 10-10 ~2am: v38 goes on T6HH - the owner's go
+- The owner: run v38 in v36's place, on T6HH, from its $15,663.58 - "can we
+  get it started?". Working branch now `claude/exciting-brown-26mug3` (main
+  + `claude/three-strategies-x69ppg`, the same files). r34.42 to main and
+  SLOT_V31=v38 in Render - a weekend restart, all three flat (0 positions,
+  no warning or error since midnight).
+- The shut-off stays at -10% as decided 10-09 (the ladder after a halted day
+  as coded: 5%, 2.5%, then stopped after three halted days). The owner has
+  not answered the -25% proposal (V38_HALT_PCT=25 in Render, no code change;
+  replayed -10% -$4,738 vs -25% +$74,795 over 10-06..10-09).
+- Also running on proposals the owner has not signed off: no re-entry
+  level, the speed-scaled cushion over the ask, the top-up at +30%, "down
+  $500" = equity against the day's start.
+- Monday 10-12 from 4am: check v38's first signals, fills and floors in
+  Render's log; P28T (v37) and AUES (v36b) unchanged.
+
+## 10-10 night: v38 built - waiting on the owner
+- Branch `claude/three-strategies-x69ppg`: r34.42 = v38 (and r34.41). main is
+  still r34.40. All 722 tests pass. Nothing deployed.
+- Replayed through the bot's own code (journal, 10-10 "v38 built"): matches
+  the research; as it will run, the -10% shut-off stops it before the
+  runners (-$4,738 over the 4 days vs +$74,795 with no shut-off).
+- The owner (Saturday): v38 replaces v36 on T6HH ($15,663.58), live Monday
+  10-12 - SLOT_V31=v38.
+- Waiting on the owner: (1) DONE - T6HH;
+  (2) v38's shut-off (-10% decided; -25% proposed, V38_HALT_PCT); (3) the OK
+  to merge to main - a weekend deploy, all accounts flat.
 
 ## 10-09 morning
 - Working branch: `claude/three-strategies-x69ppg` (from
@@ -97,9 +125,17 @@ Updated 2026-10-09, ~12pm ET.
   from now on, every move the owner says he would have taken (his charts) is
   kept in memory/would_take.md with the check that blocked it - after 1-2
   weeks, the rule that blocks the most good moves is the one to look at.
-- 10-09 ~2pm: the owner OK'd releasing r34.40 NOW (all three flat at 2:01pm, 0
-  positions). The push to main was refused by this session's permission check -
-  waiting for the owner to allow it (or to merge the branch himself).
+- r34.41 on the branch (678 tests pass): SEC_DUMP off. WAITING to go to main
+  (the owner merges, or allows the push); until then any restart re-reads ~2 hours
+  (read-only).
+- The full read is saved (replay/live/2026-10-09_secdump); results in the journal
+  10-09 night (v38_final.txt).
+- **Live: r34.40** (main c57c735 - the owner merged PR #1 at 6:23pm ET 10-09;
+  up 6:24pm, all three 0 positions). The read is running: SECDUMP RUNNER lines
+  from 6:25pm (BIYA 10-07 x12.35 $2.34 7:22 -> $28.90 8:21 read). Next release
+  turns SEC_DUMP off (SEC_DUMP_DAYS = (), SEC_DUMP_RUNNER_DAYS = ()).
+- To collect the read: list_logs pages of 100 SECDUMP lines (big pages are saved
+  to tool-results files) -> a lines file -> secread.py.
 - r34.40 on the branch (678 tests pass; r34.39 + the top runners): the
   read-only second-by-second read of every 10-09 buy of the three (10 min
   before to 50 after), the named moments (NTCL 10-09 8:30, BIYA 10-07 8:20,
@@ -114,15 +150,62 @@ Updated 2026-10-09, ~12pm ET.
   every table split PRE / RTH / AFTER (the owner's standing rule, 10-09).
 - Found so far (journal 10-09): on the slices of big runs already read, the
   speed strategy keeps only SXTC; 74% of its trades are out within 5s.
-- The speed strategy is named **v38** (the owner, 10-09).
-- DECIDED 10-09 ~3:50pm: variant A of the speed strategy (3c stop, half-back
-  from +10c, ease-in, new-high re-entries) with the scale-out.
-- The owner's scale-out (decided 10-09 ~3:20pm, in every study): a quarter
-  sold at +100%, a quarter at +200%, the last half on the half-back line.
-  Tonight's read decides BIYA 8:20 ($2.54 -> $33.96) - the test of it. To
-  build in a bot: words first.
-- The study after the read: speedsim_study / _bag / _giveback / _adds /
-  _scaleout / _trace on all windows, every table PRE / RTH / AFTER.
+- The speed strategy is named **v38** (the owner, 10-09). As decided by
+  10-09 ~9:30pm (journal 10-09 night; earlier half-back / quarter scale-out
+  ideas are replaced by the trailing thirds):
+  - Entry: the speed test (move 3%+ in 60s x volume ratio, capped 30, at
+    least 0.30; $250k+ in the last 60s; the last 1-minute candle not red).
+  - Re-entries a must: at speed AND a new high of the day (the recent-high
+    version still to test).
+  - Ease-in: 10% -> 25% -> 50% of the account (at +10c / +20c, any price).
+  - Exit: nothing sold on the way up; once full, a third at 20% off the
+    peak, a third at 40%, the rest at 50% - or everything at the floor
+    (average less 3c), whichever first.
+  - After the day is down $500 (closed trades plus running winners):
+    5% -> 10% -> 25%; a stock up +30% over its average once full gets the
+    top-up to 50% - a SEPARATE LOT with its own floor 10% under its fill and
+    its own thirds (decided ~9:30pm, replaces "one floor"). No count limit.
+  - Two stocks at once, each up to 50% (bot caps 25% / 95% must be raised).
+  - The -10% daily shut-off always on.
+  - Real money premarket only; a paper account runs 4am-8pm (closing from 7pm).
+  - Full read ($15,000, full $7,500): trailing thirds +$8,930 (PRE +$10,240,
+    RTH -$274, AFTER -$1,036); with the after-limit formula +$10,212 all day,
+    +$10,648 premarket only; v36 -$2,733, v36b -$1,362, v37 -$2,165.
+  - v38 IN WORDS, draft 1: memory/words_v38.md - WAITING ON THE OWNER to
+    read it and answer its 7 questions (price band under $1?, the re-entry
+    level, which account, "down $500" defined, the +30% top-up, a real-money
+    position at 9:30, unseen days). Tonight's tests (journal 10-09 ~10pm):
+    red candle stays, no wake-up from zero volume, no chug signal found,
+    the re-entry level over the last sale's price proposed (+$33,046 vs
+    +$9,254 for the day's high - BIYA), buys at the ask only.
+  - 10-10 early am: the owner DECIDED the band $0.50-$20 for v38. The buy is
+    the key (the owner: without the 2-3 big runners v38 is dead): tested -
+    the re-entry over the last sale's price plus a limit at the ask + 2%
+    (kept working, moved up) keeps BIYA; the day's high misses it under any
+    limit (journal 10-10). The chug (20 min / 10%): paper only, proposed.
+    Questions 2-9 in words_v38.md still open.
+  - 10-10 midday: the owner put the chug in regular hours only (tested: 2-4
+    buys a day, about even without WFF). Proposed now: NO re-entry level
+    (the last sale's price lost BIYA at one setting; no level kept it at all
+    nine). The speed numbers stay. The owner's open worry: getting in
+    before the explosion - BIYA's speed was met at 8:20:37 at $2.65. The
+    owner's scouts (1-2% before the speed) tested 10-10: they lose at every
+    setting (-$4,718..-$22,210) - not proposed.
+  - 10-10 evening, the owner's caution: the numbers are BIYA's. Without the
+    top 3, every version loses (proposed -$3,129 in 4 days); it makes money
+    on 4-8 of 39 runs. Next: a confirmation test (the speed still on 2s
+    later); a fairer read - unseen days and every stock that starts to move
+    (needs a release, the owner's OK).
+  - 10-10 night: the clean A/B (the scout the only variable) - no difference;
+    the owner agreed, scouts are out. v38 proposed now: the speed buy (3%,
+    0.30, $250k); no re-entry level; the ask + the owner's speed scale, kept
+    working while the speed holds; 10/25/50% ease-in; the trailing thirds;
+    the floor: the last 1-minute candle's low, at most 10% (DECIDED by the
+    owner 10-10 night, all sessions); the chug in regular hours (20 min / +10%);
+    the -10% shut-off; after -$500 the smaller sizes and the separate-lot
+    top-up. Open for the owner: the re-entry level (none?), the scale, which account, the 2s wait (a setting), the unseen-days
+    read of every stock that starts to move (needs a release - the owner's OK).
+  - NEXT after the owner's answers: draft 2 of the words, then the code.
 
 ## 10-08 night
 - Live: **r34.38** (main d439a58, up 10:41:40pm 10-08, all three 0 positions): r34.37 with the owner's corrected

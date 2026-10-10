@@ -40,6 +40,7 @@ import base64
 import csv
 import logging
 import json
+import math
 import os
 import re
 import statistics
@@ -154,7 +155,7 @@ RISK_CHECK_SECONDS = 5                      # the halt runs on a CLOCK, not tick
 # The file name and this string are changed together, every single time. The
 # log then answers "which code is actually running?" without anyone guessing
 # from line numbers or from behaviour that only shows up once a trade is on.
-VERSION = "v31-r34.40"
+VERSION = "v31-r34.42"
 
 # WHERE THE DAY'S HALT BASELINE COMES FROM.
 #   "last_equity" - equity at the PREVIOUS session's close, read from the broker.
@@ -1542,6 +1543,28 @@ class MarketData:
                          "top %d done" % RUNNER_TOP if fits(r, dollars) else "under the bar"))
         return out
 
+    async def recent_trades(self, symbol: str, seconds: float):
+        """V38_SEED_HISTORY: the name's trades of the last `seconds` -
+        [(epoch s, price, size, conditions)], oldest first. Read-only."""
+        end = datetime.now(timezone.utc)
+        raw = await asyncio.to_thread(self.hist_raw.get_stock_trades, StockTradesRequest(
+            symbol_or_symbols=symbol, start=end - timedelta(seconds=seconds), end=end,
+            feed=self.feed))
+        rows = (raw or {}).get(symbol, []) if isinstance(raw, dict) else []
+        return sorted((_epoch(r["t"]), float(r["p"]), float(r["s"]), tuple(r.get("c") or ()))
+                      for r in rows or [])
+
+    async def recent_bars(self, symbol: str, minutes: int):
+        """V38_SEED_HISTORY: the name's 1-minute candles of the last `minutes` -
+        [(epoch s of the minute's start, open, high, low, close, volume)]."""
+        end = datetime.now(timezone.utc)
+        raw = await asyncio.to_thread(self.hist_raw.get_stock_bars, StockBarsRequest(
+            symbol_or_symbols=symbol, timeframe=TimeFrame.Minute,
+            start=end - timedelta(minutes=minutes), end=end, feed=self.feed))
+        rows = (raw or {}).get(symbol, []) if isinstance(raw, dict) else []
+        return sorted((_epoch(b["t"]), float(b["o"]), float(b["h"]), float(b["l"]),
+                       float(b["c"]), float(b["v"])) for b in rows or [])
+
     async def bars_between(self, symbol: str, start, end):
         """[(bar start, close, volume, high)] of the one-minute bars that
         opened between start and end, oldest first. SIP bars from the last 15 minutes need a
@@ -1703,6 +1726,29 @@ class SymState:
                                      # the resistance a new-high re-entry breaks
                                                    # inside the crash window
 
+    v38_stage: int = 0               # v38: 0 flat, 1 the first buy, 2 at +10c, 3 full
+    v38_first: float = 0.0           # v38: the first fill (the adds count from it)
+    v38_avg: float = 0.0             # v38: the starter lot's average
+    v38_dist: float = 0.0            # v38: the floor's distance under that average
+    v38_peak: float = 0.0            # v38: the best price since the last add
+    v38_full_sh: float = 0.0         # v38: the starter lot's shares once full (the thirds)
+    v38_tier: int = 0                # v38: the thirds sold
+    v38_small: bool = False          # v38: bought once the day was down V38_SHRINK_AT
+    v38_kind: str = ""               # v38: "speed" or "chug"
+    v38_topped: bool = False         # v38: the top-up done (or not to be done)
+    v38_top_sh: float = 0.0          # v38: the top-up lot - shares, fill, floor, peak,
+    v38_top_px: float = 0.0          # shares when bought, thirds sold
+    v38_top_floor: float = 0.0
+    v38_top_peak: float = 0.0
+    v38_top_full: float = 0.0
+    v38_top_tier: int = 0
+    v38_cushion: float = 0.0         # v38: the cents over the ask of the buy going out
+    v38_ask0: float = 0.0            # v38: the ask a first buy decided on
+    v38_signal_at: float = 0.0       # v38: V38_WAIT_SEC - when the signal began
+    v38_try_at: float = 0.0          # v38: the last missed buy
+    v38_noroom_at: float = 0.0       # v38: the last "no room" line
+    v38_seeded: bool = False         # v38: its last two minutes read (V38_SEED_HISTORY)
+
     # v31 only
     bars: list = field(default_factory=list)
     trades: deque = field(default_factory=lambda: deque(maxlen=V31_TRADE_WINDOW * 2 + 5))
@@ -1843,7 +1889,8 @@ class Strategy:
                # keeps growing past that, as v35's does.
                "v36": max(V35_MAX_POSITION_PCT, V36_FURIOUS_PCT + 0.10),
                "v36b": max(V35_MAX_POSITION_PCT, V36_FURIOUS_PCT + 0.10),
-               "v37": max(0.60, V37_ACCEL_MAX_PCT + 0.10)}.get(
+               "v37": max(0.60, V37_ACCEL_MAX_PCT + 0.10),
+               "v38": V38_SELF_CHECK_CAP}.get(
                    self.name, MAX_POSITION_PCT)   # 40% (65% furious), grown by a run
         total_value = 0.0
         for s in self.open_positions():
@@ -1863,11 +1910,12 @@ class Strategy:
                     "(stop=%s) while holding %d shares",
                     self.name, s.symbol, s.stop, s.shares)
         exposure_pct = total_value / eq
-        if exposure_pct > MAX_EXPOSURE_PCT + 0.03:
+        exposure_cap = getattr(self, "EXPOSURE_CAP", MAX_EXPOSURE_PCT)
+        if exposure_pct > exposure_cap + 0.03:
             log.critical(
                 "[%s] SELF-CHECK VIOLATION: total exposure %.1f%% of "
                 "equity (cap %.0f%%), $%.0f held",
-                self.name, 100 * exposure_pct, 100 * MAX_EXPOSURE_PCT,
+                self.name, 100 * exposure_pct, 100 * exposure_cap,
                 total_value)
 
     def offer_tick(self, symbol, price, size, conds=(), ts=0.0):
@@ -2281,7 +2329,7 @@ class Strategy:
         end = await self.broker.qty(symbol)
         if end is None:
             return want
-        if end > 0:
+        if end > start - want:                 # a part sold (a third) keeps the rest
             log.critical("[%s] %s STILL HOLDING %.0f share(s) after %d chase "
                          "attempts - the exit did not complete. This position "
                          "is unprotected until the next pass.",
@@ -4549,7 +4597,7 @@ TICK_DUMP_CHARS = 3500          # characters of rows in one log line
 # and ask at the second's end, the second's lowest bid). zlib + base64, one
 # SECDUMP line per TICK_DUMP_CHARS (replay/research/secread.py reads them back).
 # No orders, no trading state touched. () = off.
-SEC_DUMP_DAYS = ("2026-10-09",) # the owner, 10-09 ~8am: VEEA "blow by blow", every
+SEC_DUMP_DAYS = ()              # off (r34.41): 10-09's read done by r34.40 (6:24-8:05pm). Was ("2026-10-09",) - the owner, 10-09 ~8am: VEEA "blow by blow", every
                                 # trade of the three by the second. Read once at the
                                 # release after 8pm 10-09; the next release turns it off.
                                 # 10-08's read (r34.35, 76 windows): replay/live/2026-10-08_secdump
@@ -4573,7 +4621,7 @@ SEC_DUMP_MISSED = (              # moments read the same way though no bot bough
 # RUNNER_DOLLARS, high $1+ and low $20 or less (the bots' band). The RUNNER_TOP
 # biggest a day are read from RUNNER_BEFORE before the low to RUNNER_AFTER after
 # the high; every runner found goes into the log (SECDUMP RUNNER lines).
-SEC_DUMP_RUNNER_DAYS = ("2026-10-06", "2026-10-07", "2026-10-08", "2026-10-09")
+SEC_DUMP_RUNNER_DAYS = ()       # off (r34.41); read by r34.40 for 10-06..10-09: replay/live/2026-10-09_secdump
 SEC_DUMP_RUNNER_NAMES = (       # looked at whatever the hourly bars say (the web, the
     ("2026-10-06", "AIXI"), ("2026-10-06", "XHG"), ("2026-10-06", "IPDN"),   # bots'
     ("2026-10-07", "BIYA"), ("2026-10-07", "SXTC"), ("2026-10-07", "PFAI"),  # recorded
@@ -4692,7 +4740,7 @@ def context_line(sym, now=None) -> str:
 # (T6HH, "v27-30k") run v36; v34's keys (V33_*, P28T, "V30-100k") run v37;
 # v35's keys (AUES) run v36b (v36 with r34.13's changes; v35 until 10-06).
 # Each can be changed in the environment with no code change: SLOT_V31 /
-# SLOT_V34 / SLOT_V35 = v31, v34, v35, v36, v36b, v37 or off.
+# SLOT_V34 / SLOT_V35 = v31, v34, v35, v36, v36b, v37, v38 or off.
 SLOT_DEFAULTS = {"v31": "v36", "v34": "v37", "v35": "v36b"}
 
 
@@ -4701,7 +4749,7 @@ def account_classes(env=None):
     old name."""
     env = os.environ if env is None else env
     names = {"v31": V31, "v34": V34, "v35": V35, "v36": V36, "v36b": V36B,
-             "v37": V37}
+             "v37": V37, "v38": V38}
     out = {"v32": V32}
     for slot, default in SLOT_DEFAULTS.items():
         chosen = (env.get("SLOT_" + slot.upper()) or default).strip().lower()
@@ -6755,6 +6803,548 @@ class V37(V36):
                 await self.v37_add(s, price, to_fraction)
 
 
+# ----------------------------------------------------------------------------
+# v38 - THE SPEED STRATEGY (the owner, 10-09 / 10-10; memory/words_v38.md)
+#
+# One entry: the owner's speed - the price 3%+ over a minute ago, times the
+# volume of the last minute against the minute before (capped at 30), at least
+# 0.30, on $250k traded in the last minute, the last closed 1-minute candle not
+# red. No high-of-the-day rule, no candle pattern, no crowd rank, no float
+# limit, no buys-a-day cap, no one-buy-a-minute: every speed signal may buy
+# while v38 does not hold the stock ("re-entries are a must"). The bot's own
+# fast-buy checks stay (the price up over the last 5 seconds, a quote, the
+# spread at most 10c). In regular hours also the chug: the last 20 minutes up
+# 10%, $250k a minute, the last candle not red, the price over all their highs.
+#
+# The buy: a limit at the ask + a cushion that grows with the speed (2c; 5c
+# from 0.5; 10c from 1; 20c from 2; never over 5% of the price), re-priced at
+# the new ask until filled (12 tries, 6 seconds), never two orders at once.
+# The first buy never more than V38_CHASE_MAX over the ask it decided on.
+# Sizes from the account's equity now (compounding): 10% of the account, 25%
+# at +10c over the first fill, 50% at +20c - each add at any price.
+# The floor: the low of the last finished 1-minute candle at the buy - never
+# closer than 3c, never more than 10% under the fill; after an add the same
+# distance under the new average; a print or the bid-ask midpoint at or under
+# it sells. Nothing is sold on the way up. Once full: a third sold at 20% off
+# the peak since the last add, a third at 40%, the rest at 50%.
+# Once the day is down V38_SHRINK_AT (equity against the day's start): 5% /
+# 10% / 25%; a position up V38_TOPUP_AT over its average once full gets the
+# top-up to 50% of the account - a SEPARATE LOT with its own floor 10% under
+# its fill and its own thirds; at a lot's floor only that lot is sold.
+# Two stocks at once, each up to 50%, 100% in all. The -10% daily shut-off
+# (the base's halt) always on. Paper trades 4am-8pm (V38_SESSIONS).
+# ----------------------------------------------------------------------------
+V38_PRICE_MIN = 0.50            # the owner, 10-10: "take the bar down to 50 cents"
+V38_PRICE_MAX = 20.00
+V38_SPEED = 0.30                # the owner's speed (3%, 0.30, 30 - "three zero three")
+V38_MOVE_MIN = 0.03
+V38_VOL_CAP = 30.0
+V38_DOLLARS = 250_000
+V38_SIZES = (0.10, 0.25, 0.50)          # of the account: the first buy, +10c, +20c
+V38_SIZES_SMALL = (0.05, 0.10, 0.25)    # once the day is down V38_SHRINK_AT
+V38_STEPS = (0.10, 0.20)                # the adds: this far over the first fill
+V38_SHRINK_AT = float(os.environ.get("V38_SHRINK_AT", "500"))   # dollars; 0 = never
+V38_TOPUP_AT = 0.30                     # a small position up this much over its
+V38_TOPUP_TO = 0.50                     # average once full: the top-up to this
+V38_TOPUP_FLOOR = 0.10                  # the top-up lot's floor under its fill
+V38_FLOOR_MIN = 0.03                    # the minute-wide floor: at least 3c,
+V38_FLOOR_MAX = 0.10                    # at most 10% under the fill
+V38_TIERS = ((0.20, 1 / 3), (0.40, 1 / 3), (0.50, 1.0))   # off the peak: sell this share
+V38_MAX_POSITIONS = 2
+V38_MAX_EXPOSURE = 1.00                 # 50% + 50%: never on margin
+V38_SELF_CHECK_CAP = 0.60               # a position may grow past 50% as it runs
+V38_CUSHION = ((2.0, 0.20), (1.0, 0.10), (0.5, 0.05), (0.0, 0.02))   # (speed, cents)
+V38_CUSHION_MAX_PCT = 0.05
+V38_BUY_TRIES = 12
+V38_BUY_WAIT = 0.4                      # each order works this long, then the new ask
+V38_BUY_MAX_SEC = 6.0
+V38_CHASE_MAX = 0.10                    # the first buy: at most this over the ask decided on
+V38_MAX_SPREAD = 0.10                   # no first buy over a wider spread (as FAST_BUY)
+V38_RETRY_GAP = 0.5                     # a missed buy: the next signal this far apart
+V38_WAIT_SEC = float(os.environ.get("V38_WAIT_SEC", "0"))   # the owner's 2s wait: a setting
+V38_CHUG = True                         # the chug, regular hours only (the owner, 10-10)
+V38_CHUG_MINUTES = 20
+V38_CHUG_UP = 0.10
+V38_SESSIONS = tuple(x.strip().upper() for x in
+                     os.environ.get("V38_SESSIONS", "PRE,RTH,AFTER").split(",") if x.strip())
+V38_SEED_HISTORY = True                 # a name new to the list: its last 2 minutes of
+V38_SEED_SECONDS = 120                  # trades and its candles, so the speed can fire
+V38_FRESH = True                        # decide only on prints under V37_FRESH_SECONDS old
+V38_NOROOM_LOG = 30.0                   # "no room" logged at most this often a stock
+
+
+def v38_session(now=None) -> str:
+    """PRE 4:00-9:30, RTH 9:30-4:00, AFTER 4:00-8:00pm ET (the owner's three)."""
+    now = now or datetime.now(ET)
+    hm = (now.hour, now.minute)
+    if hm < (9, 30):
+        return "PRE"
+    if hm < (16, 0):
+        return "RTH"
+    return "AFTER"
+
+
+def v38_cushion(speed, ask) -> float:
+    """The owner's scale (10-10): the cents over the ask grow with the speed."""
+    cents = next(c for at, c in V38_CUSHION if speed >= at)
+    return min(cents, V38_CUSHION_MAX_PCT * ask) if ask > 0 else cents
+
+
+def v38_price(x) -> float:
+    """A limit price the exchange takes, rounded UP: cents from $1, $0.0001 under."""
+    tick = 0.01 if x >= 1.0 else 0.0001
+    return round(math.ceil(round(x / tick, 6)) * tick, 4)
+
+
+class V38(V36):
+    """The speed strategy - see the V38 settings above. Borrows v36's tape
+    (the speed windows, the quotes, the candles) and the base's orders, sales,
+    reconciliation and halt; none of v36's entry or exit rules."""
+
+    name = "v38"
+    log_as = "[v38]"
+    EXPOSURE_CAP = V38_MAX_EXPOSURE
+    PRICE_BAND = (V38_PRICE_MIN, V38_PRICE_MAX)
+
+    def halt_threshold(self) -> float:
+        env = os.getenv("V38_HALT_PCT")
+        if env not in (None, ""):
+            return float(env) / 100.0
+        return Strategy.halt_threshold(self)
+
+    # ---- the signal -----------------------------------------------------------
+
+    def v38_speed(self, s, price) -> float:
+        move, ratio = self.speed_parts(s, price)
+        if move < V38_MOVE_MIN:
+            return 0.0
+        return move * min(ratio, V38_VOL_CAP)
+
+    def v38_fast(self, s, price) -> bool:
+        """The owner's speed test: all four at once."""
+        if self.v38_speed(s, price) < V38_SPEED:
+            return False
+        if sum(x[1] * x[2] for x in s.v37_prints) < V38_DOLLARS:
+            return False
+        return bool(s.bars) and not s.bars[-1].red
+
+    def v38_chug(self, s, price) -> bool:
+        """The chug (regular hours): the last V38_CHUG_MINUTES closed minutes up
+        V38_CHUG_UP, $250k a minute on average, the last one not red, and the
+        price over all their highs."""
+        if not V38_CHUG or v38_session() != "RTH" or not s.bars:
+            return False
+        cut = datetime.now(timezone.utc) - timedelta(minutes=V38_CHUG_MINUTES + 1)
+        bars = [b for b in s.bars if _aware(b.ts) >= cut][-V38_CHUG_MINUTES:]
+        if len(bars) < 2 or bars[-1].red:
+            return False
+        if _aware(bars[0].ts) > cut + timedelta(minutes=3):
+            return False                        # not 20 minutes of candles yet
+        if bars[-1].c < bars[0].o * (1 + V38_CHUG_UP):
+            return False
+        if sum(b.c * b.v for b in bars) < V38_CHUG_MINUTES * V38_DOLLARS:
+            return False
+        return price > max(b.h for b in bars)
+
+    def v38_day_pl(self, eq) -> float:
+        return eq - self.day_start_equity if self.day_start_equity else 0.0
+
+    def v38_held(self, price_of=None) -> float:
+        return sum(x.shares * (x.last_price or x.entry) for x in self.open_positions())
+
+    # ---- the entry ------------------------------------------------------------
+
+    async def maybe_enter(self, s, price, fast=None, base=None):
+        if not entries_allowed() or v38_session() not in V38_SESSIONS:
+            return
+        if s.symbol not in self.qualified:
+            return
+        if not (V38_PRICE_MIN <= price <= V38_PRICE_MAX):
+            return
+        if V38_FRESH and not self.fresh(s):
+            return                              # an old print: the market has moved on
+        kind = "speed" if self.v38_fast(s, price) else (
+            "chug" if self.v38_chug(s, price) else "")
+        if not kind:
+            s.v38_signal_at = 0.0
+            return
+        now = time.time()
+        if V38_WAIT_SEC:                        # the owner's wait: still on N seconds later
+            if not s.v38_signal_at:
+                s.v38_signal_at = now
+                return
+            if now - s.v38_signal_at < V38_WAIT_SEC:
+                return
+        if len(self.open_positions()) >= V38_MAX_POSITIONS:
+            if now - s.v38_noroom_at >= V38_NOROOM_LOG:
+                s.v38_noroom_at = now
+                self.log.info("[v38] NO ROOM %s at %.4f - %s signal, %d positions held "
+                              "(%s)", s.symbol, price, kind, len(self.open_positions()),
+                              ", ".join(x.symbol for x in self.open_positions()))
+            return
+        if now - s.v38_try_at < V38_RETRY_GAP:
+            return                              # missed a moment ago: the next print
+        lock = self.lock(s.symbol)
+        if lock.locked():
+            return
+        async with lock:
+            if s.in_position:
+                return
+            if await self.fast_buy_no(s, price):
+                s.v38_try_at = time.time()
+                return                          # falling, no quote, or a wide spread
+            await self.v38_buy(s, price, kind)
+            if not s.in_position:
+                s.v38_try_at = time.time()
+
+    async def v38_buy(self, s, price, kind):
+        eq = await self.broker.equity(self.day_start_equity)
+        if eq <= 0:
+            return
+        small = bool(V38_SHRINK_AT) and self.v38_day_pl(eq) <= -V38_SHRINK_AT
+        sizes = V38_SIZES_SMALL if small else V38_SIZES
+        q = self.live_quote(s)
+        ask = (q[1] if q else None) or await self.data.quote(s.symbol, "ask") or price
+        spd = self.v38_speed(s, price)
+        s.v38_cushion = v38_cushion(spd, ask)
+        s.v38_ask0 = ask
+        room = max(0.0, eq * V38_MAX_EXPOSURE - self.v38_held())
+        shares = int(min(eq * sizes[0], room) / (ask + s.v38_cushion))
+        if shares * price < MIN_TRADE_DOLLARS:
+            return
+        low = s.bars[-1].l if s.bars else 0.0
+        filled = await self.buy(s.symbol, shares, price, float("inf"))
+        if not filled:
+            return
+        s.shares = filled
+        s.entry = await self.broker.avg_entry(s.symbol) or ask
+        s.v38_avg = s.entry
+        s.v38_first = s.entry
+        s.v38_dist = min(max(s.entry - low, V38_FLOOR_MIN), V38_FLOOR_MAX * s.entry)
+        s.stop = s.entry - s.v38_dist
+        s.v38_stage = 1
+        s.v38_small = small
+        s.v38_kind = kind
+        s.v38_peak = s.peak = s.entry
+        s.v38_full_sh = 0.0
+        s.v38_tier = 0
+        s.v38_topped = False
+        s.v36_furious = True                    # its exits sell into the bids at once
+        s.entry_kind = "v38"
+        s.adopted = False
+        s.traded_today = True
+        s.v36_entries += 1
+        s.entry_at = time.time()
+        self.dlog.record(ev="ENTER", sym=s.symbol, px=price, sh=filled, kind=kind,
+                         stop=s.stop, speed=round(spd, 3))
+        self.log.info("[v38] ENTER %s %s %d @ %.4f (print %.4f, ask %.4f + %.0fc) = $%.0f "
+                      "(%.1f%% of the account%s) | speed %.2f | floor %.4f (the last "
+                      "candle's low %.4f) | adds at %.4f and %.4f | buy %d today",
+                      kind.upper(), s.symbol, filled, s.entry, price, ask,
+                      100 * s.v38_cushion, filled * s.entry,
+                      100 * filled * s.entry / eq, ", SMALL - the day is down $%.0f" % (
+                          -self.v38_day_pl(eq)) if small else "", spd, s.stop, low,
+                      s.v38_first + V38_STEPS[0], s.v38_first + V38_STEPS[1], s.v36_entries)
+        await self.quote_the_crowd()
+
+    async def buy_fast(self, symbol, shares, ref, cap, floor=None):
+        """v38's buy: a limit at the ask + the speed's cushion, re-priced at the
+        new ask every V38_BUY_WAIT seconds until filled - V38_BUY_TRIES orders or
+        V38_BUY_MAX_SEC at most, never two at once. The first buy also stops on
+        a spread over V38_MAX_SPREAD or an ask past V38_CHASE_MAX over the ask
+        it decided on; an add buys at any price. (shares, why it stopped)"""
+        s = self.st(symbol)
+        first = not s.in_position
+        top = (s.v38_ask0 or ref) * (1 + V38_CHASE_MAX) if first else float("inf")
+        cushion = s.v38_cushion or V38_CUSHION[-1][1]
+        got = 0
+        deadline = time.monotonic() + V38_BUY_MAX_SEC
+        budget = getattr(self.broker, "orders_in_last_minute", None)
+        for _ in range(V38_BUY_TRIES):
+            if got >= shares:
+                return got, "filled"
+            if time.monotonic() > deadline:
+                return got, "out of time (%.0fs)" % V38_BUY_MAX_SEC
+            if budget and budget() >= ORDER_BUDGET:
+                return got, "the order budget: %d orders in the last minute" % budget()
+            q = self.live_quote(s)
+            bid, ask = q if q else (None, None)
+            if not ask:
+                ask = await self.data.quote(symbol, "ask") or ref
+            if first and bid and ask - bid > V38_MAX_SPREAD + 1e-9:
+                return got, "the spread %.0fc is over %.0fc" % (100 * (ask - bid),
+                                                                 100 * V38_MAX_SPREAD)
+            if ask > top:
+                return got, "the ask %.4f is past %.4f (%.0f%% over the ask decided on)" % (
+                    ask, top, 100 * V38_CHASE_MAX)
+            limit = v38_price(ask + min(cushion, V38_CUSHION_MAX_PCT * ask))
+            n = await self.broker.send(symbol, shares - got, OrderSide.BUY, limit,
+                                       V38_BUY_WAIT)
+            if n == -2:
+                await self.broker.cancel_open(symbol)
+                continue                       # our own order was in the way
+            if n < 0:
+                return got, "the broker refused the order"
+            got += n
+            if not getattr(self.broker, "settled", True):
+                return got, "an order was not confirmed closed"
+        return got, ("filled" if got >= shares else "out of tries (%d)" % V38_BUY_TRIES)
+
+    # ---- holding --------------------------------------------------------------
+
+    def lot_a(self, s) -> float:
+        return max(0.0, s.shares - s.v38_top_sh)
+
+    def v38_take_over(self, s, price):
+        """A position v38 holds with no memory of its own (a restart): no adds,
+        a floor 10% under the lower of its average and the price, the thirds
+        from here."""
+        s.v38_avg = s.entry or price
+        s.v38_first = s.v38_avg
+        s.v38_dist = V38_FLOOR_MAX * min(s.v38_avg, price or s.v38_avg)
+        s.stop = min(s.v38_avg, price or s.v38_avg) - s.v38_dist
+        s.v38_stage = 3
+        s.v38_full_sh = s.shares
+        s.v38_peak = price or s.v38_avg
+        s.v38_tier = 0
+        s.v38_top_sh = 0.0
+        s.v38_topped = True
+        s.v36_furious = True
+        self.log.warning("[v38] %s TAKEN OVER: %d shares, average %.4f - floor %.4f, "
+                         "the thirds from %.4f, no adds", s.symbol, s.shares, s.v38_avg,
+                         s.stop, s.v38_peak)
+
+    def adopt(self, s, info, price):
+        super().adopt(s, info, price)
+        self.v38_take_over(s, price)
+
+    def clear(self, s):
+        for k, v in V38_FRESH_STATE.items():
+            setattr(s, k, v)
+        super().clear(s)
+
+    async def v38_sell(self, s, shares, why, lot):
+        """Sell `shares` of lot A (the position) or B (the top-up) and keep the
+        lots' books. The caller does not hold the lock."""
+        async with self.lock(s.symbol):
+            if not s.in_position:
+                return
+            shares = int(min(shares, s.shares))
+            if shares <= 0:
+                return
+            before = s.shares
+            if lot == "B":
+                top_before = s.v38_top_sh
+            await self.reduce(s, shares, why)
+            if not s.in_position:
+                return                          # all gone: clear() reset the books
+            sold = before - s.shares
+            if lot == "B":
+                s.v38_top_sh = max(0.0, top_before - sold)
+            elif self.lot_a(s) <= 0 and s.v38_top_sh > 0:
+                # the starter is gone, the top-up rides on: it becomes the position
+                s.v38_avg, s.stop = s.v38_top_px, s.v38_top_floor
+                s.v38_peak, s.v38_full_sh = s.v38_top_peak, s.v38_top_full
+                s.v38_tier, s.v38_stage = s.v38_top_tier, 3
+                s.v38_dist = s.v38_top_px - s.v38_top_floor
+                s.v38_top_sh = 0.0
+                self.log.info("[v38] %s the starter is sold - the top-up lot (%d shares "
+                              "@ %.4f, floor %.4f) rides on", s.symbol, s.shares,
+                              s.v38_avg, s.stop)
+
+    async def v38_add(self, s, price, to_frac):
+        async with self.lock(s.symbol):
+            if not s.in_position:
+                return
+            s.v38_stage += 1                    # the step is spent, filled or not
+            eq = await self.broker.equity(self.day_start_equity)
+            room = max(0.0, eq * V38_MAX_EXPOSURE - self.v38_held())
+            q = self.live_quote(s)
+            ask = (q[1] if q else None) or await self.data.quote(s.symbol, "ask") or price
+            s.v38_cushion = v38_cushion(self.v38_speed(s, price), ask)
+            want = max(0.0, eq * to_frac - self.lot_a(s) * price)
+            shares = int(min(want, room) / (ask + s.v38_cushion))
+            if shares * price >= MIN_TRADE_DOLLARS:
+                filled = await self.buy(s.symbol, shares, price, float("inf"))
+                if filled:
+                    s.shares += filled
+                    s.entry = await self.broker.avg_entry(s.symbol) or s.entry
+                    s.v38_avg = s.entry         # no top-up before the position is full
+                    s.stop = max(s.stop, s.v38_avg - s.v38_dist)
+                    s.v38_peak = max(ask, price)
+                    self.log.info("[v38] ADD %s to %.0f%% of the account: +%d @ ~%.4f -> "
+                                  "%d shares, average %.4f, floor %.4f", s.symbol,
+                                  100 * to_frac, filled, ask, s.shares, s.v38_avg, s.stop)
+            if s.v38_stage >= 3:
+                s.v38_full_sh = self.lot_a(s)
+                s.v38_peak = max(s.v38_peak, price)
+
+    async def v38_topup(self, s, price):
+        async with self.lock(s.symbol):
+            if not s.in_position or s.v38_topped:
+                return
+            s.v38_topped = True                 # one top-up a position
+            eq = await self.broker.equity(self.day_start_equity)
+            room = max(0.0, eq * V38_MAX_EXPOSURE - self.v38_held())
+            q = self.live_quote(s)
+            ask = (q[1] if q else None) or await self.data.quote(s.symbol, "ask") or price
+            s.v38_cushion = v38_cushion(self.v38_speed(s, price), ask)
+            want = max(0.0, eq * V38_TOPUP_TO - s.shares * price)
+            shares = int(min(want, room) / (ask + s.v38_cushion))
+            if shares * price < MIN_TRADE_DOLLARS:
+                return
+            self.broker.take_fill_price(s.symbol)    # the fills before this one
+            filled = await self.buy(s.symbol, shares, price, float("inf"))
+            if not filled:
+                return
+            px = self.broker.take_fill_price(s.symbol) or ask
+            s.shares += filled
+            s.entry = await self.broker.avg_entry(s.symbol) or s.entry
+            s.v38_top_sh = s.v38_top_full = filled
+            s.v38_top_px = px
+            s.v38_top_floor = px * (1 - V38_TOPUP_FLOOR)
+            s.v38_top_peak = max(px, price)
+            s.v38_top_tier = 0
+            self.log.info("[v38] TOP-UP %s +%d @ %.4f (a separate lot, its floor %.4f) - "
+                          "the starter %d shares @ %.4f keeps its floor %.4f", s.symbol,
+                          filled, px, s.v38_top_floor, self.lot_a(s), s.v38_avg, s.stop)
+
+    async def v38_thirds(self, s, price, lot):
+        """The owner's trailing thirds on a full lot: nothing sold on the way up."""
+        if lot == "A":
+            peak, full, tier = s.v38_peak, s.v38_full_sh, s.v38_tier
+        else:
+            peak, full, tier = s.v38_top_peak, s.v38_top_full, s.v38_top_tier
+        while tier < len(V38_TIERS) and peak and price <= peak * (1 - V38_TIERS[tier][0]) + 1e-9:
+            have = self.lot_a(s) if lot == "A" else s.v38_top_sh
+            last = tier == len(V38_TIERS) - 1
+            n = have if last else min(have, round(V38_TIERS[tier][1] * full))
+            tier += 1
+            if lot == "A":
+                s.v38_tier = tier
+            else:
+                s.v38_top_tier = tier
+            if n > 0:
+                await self.v38_sell(s, n, "third-%d (%.0f%% off the peak %.4f)" % (
+                    tier, 100 * V38_TIERS[tier - 1][0], peak), lot)
+            if not s.in_position or (lot == "B" and not s.v38_top_sh):
+                return True
+        return False
+
+    async def evaluate(self, s, price):
+        if await self.halted():
+            if s.in_position:
+                await self.exit(s, "halted")
+            return
+        if s.in_position and not s.v38_stage:
+            self.v38_take_over(s, price)
+        if s.in_position and await self.v38_floors(s, None):
+            return                              # the market itself is at a floor
+        if self.off_quote(s, price):
+            self.note_off_quote(s, price)       # not the market: decides nothing
+            return
+        if not s.in_position:
+            await self.maybe_enter(s, price)
+            return
+        if V38_FRESH and not self.fresh(s):
+            return                              # an old print: the next fresh one decides
+        s.peak = max(s.peak, price)
+        if await self.v38_floors(s, price):
+            return
+        s.v38_peak = max(s.v38_peak, price)
+        if s.v38_top_sh:
+            s.v38_top_peak = max(s.v38_top_peak, price)
+            if await self.v38_thirds(s, price, "B"):
+                if not s.in_position:
+                    return
+        if s.v38_stage >= 3 and await self.v38_thirds(s, price, "A"):
+            return
+        if s.v38_stage in (1, 2):
+            sizes = V38_SIZES_SMALL if s.v38_small else V38_SIZES
+            if price >= s.v38_first + V38_STEPS[s.v38_stage - 1] - 1e-9:
+                await self.v38_add(s, price, sizes[s.v38_stage])
+            return
+        if (s.v38_small and s.v38_stage >= 3 and not s.v38_topped
+                and s.v38_peak >= s.v38_avg * (1 + V38_TOPUP_AT) - 1e-9):
+            await self.v38_topup(s, price)
+
+    async def v38_floors(self, s, price) -> bool:
+        """The two floors: a print (price) at or under one sells, and so does the
+        live market - the middle of the bid and ask - whatever the last print
+        was and however old (price None: the market only, checked before a
+        print off the quote is set aside). The top-up lot's floor sells that
+        lot alone; the first lot's floor sells the rest. True when the name is
+        no longer held or lot A was sold - nothing more to decide on this print."""
+        q = self.live_quote(s)
+        mid = (q[0] + q[1]) / 2.0 if q and q[0] and q[1] else None
+
+        def at(level):
+            if price is not None and price <= level + 1e-9:
+                return True
+            return bool(mid) and mid <= level + 1e-9
+
+        if s.v38_top_sh and at(s.v38_top_floor):    # the top-up lot: its own floor
+            await self.v38_sell(s, s.v38_top_sh, "topup-floor", "B")
+            if not s.in_position:
+                return True
+        if s.stop and at(s.stop):
+            n = self.lot_a(s)
+            if n > 0:
+                await self.v38_sell(s, n, "floor", "A")
+                return True
+        return False
+
+    # ---- a name new to the list: its last two minutes -----------------------
+
+    async def seed_history(self, symbols):
+        """V38_SEED_HISTORY: the bot keeps no prints from before a name joins the
+        list, so the speed test (two one-minute windows) could not fire for two
+        minutes and the candle check for one. Read its last V38_SEED_SECONDS of
+        trades and its last candles, once a day a name. Read-only."""
+        if not V38_SEED_HISTORY or not hasattr(self.data, "recent_trades"):
+            return
+        for sym in symbols:
+            s = self.st(sym)
+            if s.v38_seeded:
+                continue
+            s.v38_seeded = True
+            try:
+                trades = await self.data.recent_trades(sym, V38_SEED_SECONDS)
+                bars = await self.data.recent_bars(sym, V38_CHUG_MINUTES + 2)
+            except Exception as e:
+                if not getattr(self, "_seed_error_logged", False):
+                    self._seed_error_logged = True
+                    self.log.warning("[v38] history for new names unavailable (%s) - "
+                                     "the speed starts from the stream", e)
+                continue
+            now = time.time()
+            old = set(s.v37_speed_prints)
+            rows = [(t, px, sz) for t, px, sz, conds in trades
+                    if qualifies(conds) and t >= now - 2 * V37_FAST_SECONDS]
+            s.v37_speed_prints = deque(sorted(old | set(rows)))
+            s.v37_prints = deque(x for x in s.v37_speed_prints if x[0] >= now - V37_FAST_SECONDS)
+            if not s.bars:
+                for t, o, h, l, c, v in bars:
+                    if t + 60 <= now:           # closed minutes only
+                        s.bars.append(Bar(ts=datetime.fromtimestamp(t, timezone.utc),
+                                          o=o, h=h, l=l, c=c, v=v))
+            if rows or s.bars:
+                self.log.info("[v38] %s seeded: %d prints of the last %ds, %d candles",
+                              sym, len(rows), V38_SEED_SECONDS, len(s.bars))
+
+
+def _aware(ts):
+    """A bar's time as an aware UTC datetime."""
+    return ts if ts.tzinfo else ts.replace(tzinfo=timezone.utc)
+
+
+V38_FRESH_STATE = dict(v38_stage=0, v38_first=0.0, v38_avg=0.0, v38_dist=0.0,
+                       v38_peak=0.0, v38_full_sh=0.0, v38_tier=0, v38_small=False,
+                       v38_kind="", v38_topped=False, v38_top_sh=0.0, v38_top_px=0.0,
+                       v38_top_floor=0.0, v38_top_peak=0.0, v38_top_full=0.0,
+                       v38_top_tier=0, v38_cushion=0.0, v38_ask0=0.0)
+
+
 async def day_high_since_open(data, symbol, now=None) -> float:
     """The highest one-minute bar since 4:00am ET today, premarket included -
     0.0 before 4am or if no bars come back. IPDN, 8:10am 2026-10-06: a
@@ -6814,6 +7404,12 @@ class Engine:
                 continue
             self.add_strategy(slots[slot], k, s_)
 
+        # The scanner's price band: the widest any strategy buys in (v38 from
+        # $0.50); each strategy is given only the names inside its own band.
+        bands = [getattr(st_, "PRICE_BAND", (PRICE_MIN, PRICE_MAX)) for st_ in self.strategies]
+        self.scan_band = (min([PRICE_MIN] + [b_[0] for b_ in bands]),
+                          max([PRICE_MAX] + [b_[1] for b_ in bands]))
+        self.scan_last = {}
         for strat in self.strategies:
             self.data.trade_sinks.append(strat.offer_tick)
             self.data.bar_sinks.append(strat.offer_bar)
@@ -7099,7 +7695,7 @@ class Engine:
                     last = snap.latest_trade.price if snap.latest_trade else None
                     if not bar or not last:
                         continue
-                    if not (PRICE_MIN <= last <= PRICE_MAX):
+                    if not (self.scan_band[0] <= last <= self.scan_band[1]):
                         continue
                     ref, kind, age = self.day_reference(bar, today)
                     if ref <= 0 or age > MAX_BAR_AGE_DAYS:
@@ -7114,6 +7710,7 @@ class Engine:
                     # print, which is exactly "the high as of right now".
                     seed = float(getattr(bar, "high", 0) or 0) if age == 0 else 0.0
                     picks[sym] = max(seed, float(last))
+                    self.scan_last[sym] = float(last)
                     # The prior session's high, for v35's room check: before
                     # today trades, daily_bar IS the prior session.
                     prev = snap.previous_daily_bar if age == 0 else bar
@@ -7171,15 +7768,24 @@ class Engine:
                        for s in self.strategies):
                     picks = await self.scan()
                     if picks:
-                        symbols = list(picks)[:MAX_WATCH]
+                        # The names in the usual $1-$20 first, so a wider band
+                        # (v38) never pushes one off the list.
+                        inside = lambda sym: PRICE_MIN <= self.scan_last.get(sym, PRICE_MIN) <= PRICE_MAX
+                        symbols = ([x for x in picks if inside(x)]
+                                   + [x for x in picks if not inside(x)])[:MAX_WATCH]
                         self.log_roster(picks, symbols)
                         self.log_borrow(symbols)
                         # The real high of the day BEFORE a name can be
                         # traded - a restart must not forget the morning.
                         await self.seed_day_highs(symbols)
                         for strat in self.strategies:
-                            strat.qualified.update(symbols)
-                            for sym in symbols:
+                            lo, hi = getattr(strat, "PRICE_BAND", (PRICE_MIN, PRICE_MAX))
+                            mine = [x for x in symbols
+                                    if lo <= self.scan_last.get(x, lo) <= hi]
+                            strat.qualified.update(mine)
+                            if hasattr(strat, "seed_history"):   # v38: the last 2 minutes
+                                asyncio.create_task(strat.seed_history(mine))
+                            for sym in mine:
                                 st = strat.st(sym)
                                 st.day_high = max(st.day_high, picks[sym])
                                 strat.seed_high(st, self.day_highs.get(sym, 0.0))

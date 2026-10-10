@@ -1,0 +1,23 @@
+2026-10-10 05:02:37,571 CRITICAL [v38] DAILY HALT at equity 13498.58
+2026-10-06: start $15000, end $13499 (-1501), 22 trades, the halt at -10.0%, HALTED
+2026-10-10 05:02:42,957 CRITICAL [v38] DAILY HALT at equity 12812.56
+2026-10-07: start $13499, end $12813 (-686), 3 trades, the halt at -5.0%, HALTED
+2026-10-10 05:02:59,439 CRITICAL [v38] DAILY HALT at equity 12483.78
+2026-10-08: start $12813, end $12484 (-329), 19 trades, the halt at -2.5%, HALTED
+2026-10-09: start $12484, end $12484 (+0), 0 trades, the halt at -2.5%, STOPPED (three halted days)
+
+THE BOT'S V38 CODE, as it will run: one account from $15,000, compounding, two at once, small sizes after -$500, the halt -10%% and its ladder (lag 1.0s) - WITH BIYA
+day    | PRE 4:00-9:30          | RTH 9:30-4:00          | AFTER 4:00-8:00        | THE DAY
+10-06  |  19   5 won    -1014 |   3   0 won     -487 |   0   0 won       +0 |  22   5 won    -1501
+10-07  |   3   0 won     -686 |   0   0 won       +0 |   0   0 won       +0 |   3   0 won     -686
+10-08  |  13   4 won     +494 |   6   0 won     -823 |   0   0 won       +0 |  19   4 won     -329
+TOTAL  |  35   9 won    -1206 |   9   0 won    -1310 |   0   0 won       +0 |  44   9 won    -2516
+
+THE BOT'S V38 CODE, as it will run: one account from $15,000, compounding, two at once, small sizes after -$500, the halt -10%% and its ladder (lag 1.0s) - WITHOUT BIYA
+day    | PRE 4:00-9:30          | RTH 9:30-4:00          | AFTER 4:00-8:00        | THE DAY
+10-06  |  19   5 won    -1014 |   3   0 won     -487 |   0   0 won       +0 |  22   5 won    -1501
+10-07  |   1   0 won     -542 |   0   0 won       +0 |   0   0 won       +0 |   1   0 won     -542
+10-08  |  13   4 won     +494 |   6   0 won     -823 |   0   0 won       +0 |  19   4 won     -329
+TOTAL  |  33   9 won    -1062 |   9   0 won    -1310 |   0   0 won       +0 |  42   9 won    -2372
+
+by stock, best and worst: 10-08 FLYE +1867, 10-06 FRGT +1420, 10-08 AIXI +897, 10-06 AIXI +524, 10-08 DKI -107, 10-08 KAPA -121 ... 10-06 NXAT -765, 10-08 JZ -618, 10-08 IPW -610, 10-08 BIAF -609

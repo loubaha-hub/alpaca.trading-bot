@@ -1,0 +1,33 @@
+THE OWNER'S SCOUT WITH THE SPEED - adds only as the speed picks up, step by step ($15,000 account)
+                                                      n won   10-06   10-07   10-08   10-09    TOTAL |     PRE     RTH   AFTER | FRGT   BIYA   SBFM   FLYE   WFF  
+v38 speed only (no scout)                           413  17   -1686  +46770    +684   -1713   +44054 |  +44763    +807   -1516 |  +2630 +41370  +2525  +1820   +759
+scout 2%, then the full speed only                  434  24   -2105  +46700    +346    -108   +44833 |  +44427    +202    +203 |  +2630 +41349  +2525  +1820   +741
+                                                        scouts 129 (7 won) -3179 - PRE -1609 / RTH -2963 / AFTER +1393
+                                                        how far they grew: scout only 34 -1057 | warm 25 -616 | 10% 45 -1194 | 25% 11 -690 | full 14 +378
+                                                        in the bots' buy windows 64 -493 | runner-only windows 65 -2686
+                                                        best: 10-09 YMAT 16:26 +1676, 10-07 CPHI 14:19 +15, 10-07 BIYA 04:44 +9, 10-06 SDEV 04:31 +7, 10-09 VIVK 09:07 +2
+scout 2%, warm 0.15 -> 5%, speed -> 10%             404  17   -2352  +46334    +508    -341   +44150 |  +44694    -646    +101 |  +2630 +41221  +2525  +1820   +251
+                                                        scouts 117 (4 won) -4203 - PRE -1517 / RTH -3977 / AFTER +1291
+                                                        how far they grew: scout only 32 -1020 | warm 26 -1808 | 10% 31 -770 | 25% 10 -1030 | full 18 +426
+                                                        in the bots' buy windows 52 -1039 | runner-only windows 65 -3163
+                                                        best: 10-09 YMAT 16:26 +1695, 10-09 VIVK 09:07 +210, 10-07 CPHI 14:17 +87, 10-06 IPDN 08:47 +9, 10-09 APUS 18:09 -2
+scout 2%, warm 0.20 -> 5%, speed -> 10%             414  17   -2336  +46635    +352    -305   +44347 |  +44529    -402    +221 |  +2630 +41224  +2525  +1820   +158
+                                                        scouts 119 (4 won) -3722 - PRE -1533 / RTH -3600 / AFTER +1410
+                                                        how far they grew: scout only 42 -1258 | warm 14 -969 | 10% 34 -764 | 25% 12 -1121 | full 17 +389
+                                                        in the bots' buy windows 54 -900 | runner-only windows 65 -2822
+                                                        best: 10-09 YMAT 16:26 +1692, 10-09 VIVK 09:07 +210, 10-07 CPHI 14:17 +87, 10-06 SDEV 04:31 +7, 10-06 IPDN 08:47 -2
+scout 1%, warm 0.15 -> 3%, speed -> 10%             431  17   -2138  +46426    +484     -35   +44736 |  +44921    -263     +78 |  +2630 +41281  +2525  +1820   +383
+                                                        scouts 134 (4 won) -3272 - PRE -1145 / RTH -3395 / AFTER +1268
+                                                        how far they grew: scout only 36 -557 | warm 28 -1160 | 10% 44 -1102 | 25% 11 -1055 | full 15 +603
+                                                        in the bots' buy windows 62 -458 | runner-only windows 72 -2814
+                                                        best: 10-09 YMAT 16:26 +1650, 10-09 VIVK 09:07 +182, 10-06 IPDN 08:47 +6, 10-07 CPHI 14:19 +1, 10-06 IPDN 08:17 -2
+scout 2%, warm 0.15 -> 5%, the scout's floor 5%     478  17   -2550  +46396    +551    -240   +44157 |  +44609    -475     +23 |  +2630 +41190  +2525  +1820   +259
+                                                        scouts 187 (4 won) -4116 - PRE -1590 / RTH -3758 / AFTER +1232
+                                                        how far they grew: scout only 97 -1586 | warm 35 -1508 | 10% 28 -635 | 25% 10 -1019 | full 17 +632
+                                                        in the bots' buy windows 90 -953 | runner-only windows 97 -3163
+                                                        best: 10-09 YMAT 16:26 +1695, 10-09 VIVK 09:07 +219, 10-07 CPHI 14:17 +87, 10-06 IPDN 09:02 +1, 10-09 APUS 18:09 -2
+scout 2%, warm 0.15 -> 5%, a looser scout (up 10%)  419  19   -2414  +46380    +420    -494   +43891 |  +44480    -678     +90 |  +2630 +41221  +2525  +1820   +251
+                                                        scouts 136 (6 won) -4511 - PRE -1732 / RTH -4044 / AFTER +1265
+                                                        how far they grew: scout only 43 -1271 | warm 32 -1968 | 10% 32 -759 | 25% 11 -982 | full 18 +470
+                                                        in the bots' buy windows 71 -1348 | runner-only windows 65 -3163
+                                                        best: 10-09 YMAT 16:26 +1695, 10-09 VIVK 09:07 +210, 10-07 CPHI 14:16 +92, 10-07 APUS 10:11 +48, 10-06 APUS 13:42 +44

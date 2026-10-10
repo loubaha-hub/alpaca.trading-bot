@@ -1,0 +1,80 @@
+# Live 10-09: every "BUY SHORT" line (a buy that filled less than wanted), from Render's log.
+# Times ET. v36 pays the ask + 20c (30c from $10); v36b and v37 buy at the ask (BUY_AT_ASK).
+# Each try: one limit, works 0.5s (V37_SWEEP_WAIT), the rest cancelled; the next try on the
+# next furious print 0.5s+ later. "back at the high" = no buy under the old high.
+# time      bot   sym   wanted got   limit   why
+04:32:39   v36   MI    3050  2383  1.59  ask+0.20
+04:32:40   v36b  MI    1102   925  1.38  ask
+04:32:42   v37   MI    2410     0  1.44  ask
+04:32:43   v37   MI    2334  2019  1.50  ask (the next try)
+04:33:45   v36b  MI     940     0  1.63  ask
+04:33:45   v36   MI    2600   872  1.83  ask+0.20 (filled $1.68 avg; the market then $1.54 x $1.55)
+07:00:13   v36b  VEEA   270   238  5.55  ask
+07:00:14   v36   VEEA   740   629  5.75  ask+0.20
+07:47:11   v36b  XRTX   699   119  2.13  ask
+07:47:11   v36   XRTX  1917  1250  2.33  ask+0.20
+09:07:15   v36b  VIVK   282     0  5.15  ask
+09:07:16   v37   VIVK   775     0  -     the ask 5.18 back at the high 5.2097
+09:13:09   v37   VIVK   166   165  -     the ask fell back to the high
+09:13:30   v37   VIVK   637     0  6.47  ask
+09:13:36   v36   VIVK   610   145  6.59  ask+0.20
+09:31:03   v36b  AAOX   126     0  11.62 ask
+09:31:03   v36   AAOX   347     0  11.92 ask+0.30
+09:32:52   v36b  AAOX    24     0  -     add: out of time (6s)
+09:32:52   v36   AAOX    51     0  -     add: out of time (6s)
+10:17:15   v36b  VEEA    46     0  -     add: out of time (6s)
+10:17:30   v37   VEEA   158     0  -     the ask fell back to the high
+10:17:56   v37   VEEA   157   142  -     the ask fell back to the high
+10:18:02   v36   VEEA   224   214  -     add: out of time (6s)
+10:18:20   v36b  VEEA    64     0  -     add: out of time (6s)
+10:26:13   v36   PCSA  2201  1007  2.03  ask+0.20
+10:26:13   v36b  PCSA   802     0  1.83  ask
+10:26:14   v37   PCSA  1919     0  -     the ask 1.84 back at the high 1.86
+10:26:16   v36b  PCSA   798   266  1.84  ask (the next try)
+11:58:00   v37   NAUT  1682     0  2.19  ask
+12:50:09   v37   WFF    190    99  -     the ask fell back to the high
+12:53:41   v37   WFF    718     0  5.75  ask
+12:53:42   v37   WFF    693     0  -     the ask back at the high
+12:54:17   v37   WFF    680     0  6.12  ask
+12:54:19   v37   WFF    675   240  6.10  ask
+13:04:05   v36   AIXI  1830     0  2.38  ask+0.20
+13:04:05   v36b  AIXI   668     0  2.18  ask
+13:04:18   v36b  AIXI   668     0  2.19  ask
+13:04:19   v36   AIXI  1830     0  2.39  ask+0.20
+13:04:25   v37   AIXI  1672  1283  2.20  ask
+13:04:25   v36   AIXI  1822     0  2.40  ask+0.20
+13:04:26   v36b  AIXI   665   213  2.20  ask
+14:04:18   v37   WFF    352   222  12.17 ask
+14:09:39   v37   WFF    186     0  -     add: out of time, the ask past the ceiling
+15:05:45   v36b  FLYE   570     0  2.60  ask
+15:05:46   v36   FLYE  1543     0  2.80  ask+0.20
+15:05:47   v37   FLYE  1449  1164  2.64  ask
+15:06:11   v36   ZYBT  1621     0  2.63  ask+0.20
+15:06:12   v36b  ZYBT   599     0  2.43  ask
+15:06:14   v36   ZYBT  1621    20  2.63  ask+0.20
+15:26:54   v36   SVC    160   151  -     add: out of time (6s)
+15:27:36   v36   ZYBT  1487   464  2.77  ask+0.20
+15:27:38   v36b  ZYBT   542     0  2.58  ask
+15:27:40   v36b  ZYBT   537     0  2.61  ask
+15:27:41   v36b  ZYBT   533     0  -     the ask back at the high
+15:27:45   v36b  ZYBT   538     0  2.62  ask
+15:27:50   v36b  ZYBT   530     0  2.68  ask
+15:28:02   v37   ZYBT   345     0  -     the ask fell back to the high
+15:28:03   v36b  ZYBT   102   101  -     add: out of time (6s)
+16:09:52   v36b  NCPL   966   729  1.49  ask
+16:09:53   v36   NCPL  2657  1120  1.69  ask+0.20
+16:21:26   v36b  YMAT   794     0  1.74  ask
+16:25:39   v36   YMAT  2012   275  2.06  ask+0.20
+16:25:44   v37   YMAT  1888     0  -     the ask back at the high
+16:26:09   v37   YMAT   523   330  -     the ask fell back to the high
+17:06:21   v36b  YMAT   555   173  2.48  ask
+17:19:22   v36b  YMAT   472   382  2.84  ask
+17:19:26   v37   YMAT  1321    32  2.88  ask
+17:24:52   v36   YMAT   180   169  -     add: out of time (6s)
+17:49:25   v36   LNKS  2639   101  1.63  ask+0.20
+17:49:25   v36b  LNKS   953   205  1.43  ask
+18:05:46   v36b  APUS   209    82  6.70  ask
+18:05:46   v36   APUS   579   233  6.90  ask+0.20
+18:05:52   v37   APUS   597     0  6.76  ask
+18:05:59   v37   APUS   582   243  6.99  ask
+18:06:07   v36   APUS   549   276  7.20  ask+0.20

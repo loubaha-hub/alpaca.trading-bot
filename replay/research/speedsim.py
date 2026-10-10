@@ -101,7 +101,10 @@ def play(path, sigs, dollars, stop_under, arm, rebuy=True):
 
 
 def run_ladder(path, t0, fill0, full, stop_under, arm, steps=((0.10, 0.5), (0.20, 1.0)), start=0.2,
-               mid_stop=True, stop_pct=0.0, trace=None, add_cap=None, scale=(), add_floor=None):
+               mid_stop=True, stop_pct=0.0, trace=None, add_cap=None, scale=(), add_floor=None,
+               doublings=None, stop_bid=False, scale_full=False, line_hold=0.0,
+               arm_pct=None, line_bid=False, ratchet=False, tiers=(), tiers_from=0.0,
+               topup=None):
     """The owner's ease-in (10-09 ~12:30pm): START of the full dollars at the
     speed buy; at the first fill + each step's cents, a buy (at the ask
     BUY_LAG later) up to that share of the full position. The stop: the buy
@@ -122,7 +125,36 @@ def run_ladder(path, t0, fill0, full, stop_under, arm, steps=((0.10, 0.5), (0.20
     half-back line. P/L and shares (the whole position) include the parts sold.
     add_floor: after an add, the stop rises to the average less this (the
     owner's words: "back at the buy, or at the floor = the average after
-    adds") - whatever the first stop was."""
+    adds") - whatever the first stop was. doublings: the scale-out by doublings
+    of the base (the average once the adds are in) - at 2x, 4x, 8x ... of it, a
+    resting sell for this share of what is left (scale-free: a +100% run sells
+    once, a 1000x run ten times, never all of it); the rest rides the line.
+    stop_bid: the stop sells only when the BID is at or under it (a print or the
+    middle of a jumping quote decides nothing - the bot's stop-ref is the bid).
+    scale_full: the owner's (10-09 ~7:20pm) - buy the adds at any price, and only
+    once the position is full start counting the scale-out, from its average.
+    line_hold: the half-back line sells only after the price has stayed at or
+    under it this many seconds (a print back over it starts the count again) -
+    in a stock moving dollars a second, one tick under a line is noise.
+    PRICE-BASED (the owner, 10-09 ~7:30pm: "a formula with the price that works
+    for any stock"): arm_pct - the half-back line arms when the position is up
+    this share of its average (not a fixed number of cents); line_bid - the
+    best and the line read from the BID, what can really be sold (a stray print
+    on another venue decides nothing); ratchet - after each part sold at a
+    scale-out level, the stop on the rest rises to the level before it (after
+    +100% the stop is the average, after +200% it is +100%...).
+    tiers ((retracement, share), ...): the owner's trailing exit (10-09 ~7:45pm)
+    - nothing is sold on the way up; once the position is full, each time the
+    price falls this far from its peak, this share of the full position is sold
+    at the bid (20% -> a third, 40% -> a third, 50% -> the rest); and the floor
+    (the stop at the full position's average) sells everything, whichever comes
+    first. With tiers the half-back line is off - or, with tiers_from, on until
+    the position is up that share of its average, the tiers after (a small gain
+    is banked by the line instead of riding back to the floor).
+    topup (gain, dollars): a small position (after the day's loss limit) that
+    proves itself - up `gain` over its average once full - is topped up at the
+    ask, any price, to `dollars` in all; the floor and the tiers then work on
+    the new average."""
     if stop_pct:
         stop_under = fill0 * stop_pct
     sh = int(full * start / fill0)
@@ -131,28 +163,50 @@ def run_ladder(path, t0, fill0, full, stop_under, arm, steps=((0.10, 0.5), (0.20
     stop = fill0 - stop_under
     best, line, k = fill0, -1.0, 0
     banked, sold, j = 0.0, 0, 0
+    under_since = None
+    topped = topup is None
+    topup_at = None
+    pending = []                                   # adds sent, not filled yet: (fill time, k)
     i = path.at(t0)
     for t, p, b, a in path.ev[i:]:
-        if b and a:
-            tol = max(S.PRINT_TOL_CENTS, S.PRINT_TOL_PCT * p)
-            if p > a + tol or p < b - tol:
-                continue
-        best = max(best, p)
-        while j == 0 and k < len(steps) and p >= fill0 + steps[k][0] - 1e-9:
-            px = path.ask_at(t + S.BUY_LAG)
-            if add_cap is not None and px and px > fill0 + steps[k][0] + add_cap + 1e-9:
+        while pending and pending[0][0] <= t:      # an add counts from its fill, BUY_LAG after
+            tf, kk = pending.pop(0)                # the step was reached - not before
+            px = path.ask_at(tf)
+            if add_cap is not None and px and px > fill0 + steps[kk][0] + add_cap + 1e-9:
                 px = None                          # jumped past the step: no add, no chase
-            add = int((full * steps[k][1] - cost) / px) if px and px > 0 else 0
+            add = int((full * steps[kk][1] - cost) / px) if px and px > 0 and j == 0 else 0
             if add > 0:
                 sh += add
                 cost += add * px
                 avg = cost / sh
                 stop = max(stop, avg - (add_floor if add_floor is not None else
                                         avg * stop_pct if stop_pct else stop_under))
+                line = -1.0                        # half of the POSITION's gain: re-armed from
+                best = max(px, p)                  # the new average once it is up `arm` again
                 if trace is not None:
-                    trace.append((t + S.BUY_LAG, "add", add, px, avg, stop))
+                    trace.append((tf, "add", add, px, avg, stop))
+        if b and a:
+            tol = max(S.PRINT_TOL_CENTS, S.PRINT_TOL_PCT * p)
+            if p > a + tol or p < b - tol:
+                continue
+        if not line_bid:
+            best = max(best, p)
+        elif b:
+            best = max(best, b)                    # the best bid: what could have been sold
+        while j == 0 and k < len(steps) and p >= fill0 + steps[k][0] - 1e-9:
+            pending.append((t + S.BUY_LAG, k))
             k += 1
-        while j < len(scale) and p >= avg * (1 + scale[j][0]) - 1e-9:
+        ready = not scale_full or (k >= len(steps) and not pending)
+        while ready and doublings and p >= avg * 2 ** (j + 1) - 1e-9 and sh > 1:
+            lvl = avg * 2 ** (j + 1)
+            q = max(1, int(round(doublings * sh)))
+            banked += (lvl - avg) * q
+            sh -= q
+            sold += q
+            if trace is not None:
+                trace.append((t, "sold", q, lvl, avg, stop))
+            j += 1
+        while ready and j < len(scale) and p >= avg * (1 + scale[j][0]) - 1e-9:
             lvl = avg * (1 + scale[j][0])
             q = min(sh, int(round(scale[j][1] * (sh + sold))))
             banked += (lvl - avg) * q
@@ -161,14 +215,58 @@ def run_ladder(path, t0, fill0, full, stop_under, arm, steps=((0.10, 0.5), (0.20
             if trace is not None:
                 trace.append((t, "sold", q, lvl, avg, stop))
             j += 1
-        if best - avg >= arm - 1e-9:
+            if ratchet:                            # the stop climbs to the level before
+                stop = max(stop, avg * (1 + (scale[j - 2][0] if j >= 2 else 0.0)))
+        if topup_at is not None and t >= topup_at:      # the top-up fills BUY_LAG after the signal
+            px = path.ask_at(topup_at)
+            add = int((topup[1] - cost) / px) if px and px > 0 else 0
+            if add > 0:
+                sh += add
+                cost += add * px
+                avg = cost / sh
+                stop = max(stop, avg - stop_under)     # one floor: the whole position's break-even
+                if trace is not None:
+                    trace.append((topup_at, "add", add, px, avg, stop))
+            topup_at = None
+        if not topped and k >= len(steps) and not pending and best >= avg * (1 + topup[0]) - 1e-9:
+            topped = True                          # it proved itself: up to the full size
+            topup_at = t + S.BUY_LAG
+        tiers_on = bool(tiers) and k >= len(steps) and not pending and \
+            (not tiers_from or best >= avg * (1 + tiers_from) - 1e-9)
+        armed = (not tiers or (tiers_from and not tiers_on)) and \
+            ((best - avg >= avg * arm_pct - 1e-9) if arm_pct else (best - avg >= arm - 1e-9))
+        if armed:
             if trace is not None and line < 0:
                 trace.append((t, "armed", best, avg))
             line = max(line, avg + 0.5 * (best - avg))
-        if p <= stop + 1e-9 or (mid_stop and b and a and (b + a) / 2 <= stop + 1e-9):
+        hit = (b is not None and b <= stop + 1e-9) if stop_bid else \
+            (p <= stop + 1e-9 or (mid_stop and b and a and (b + a) / 2 <= stop + 1e-9))
+        if hit:
             xp = path.bid_at(t + S.SELL_LAG)
             return t, (xp - avg) * sh + banked, "stop", best, sh + sold, avg, k
-        if p <= line + 1e-9 and not (b and b > line + 1e-9):
+        if tiers_on:                               # all in: sell on the way down only
+            line = -1.0
+            full_sh = sh + sold
+            while j < len(tiers) and p <= best * (1 - tiers[j][0]) + 1e-9:
+                xp = path.bid_at(t + S.SELL_LAG)
+                q = sh if j == len(tiers) - 1 else min(sh, int(round(tiers[j][1] * full_sh)))
+                banked += (xp - avg) * q
+                sh -= q
+                sold += q
+                if trace is not None:
+                    trace.append((t, "sold", q, xp, avg, stop))
+                j += 1
+                if sh <= 0:
+                    return t, banked, "tiers", best, sold, avg, k
+        if line_hold and line > 0:
+            if p <= line + 1e-9:
+                under_since = t if under_since is None else under_since
+            else:
+                under_since = None
+        trig = (b is not None and b <= line + 1e-9) if line_bid else \
+            (p <= line + 1e-9 and not (b and b > line + 1e-9))
+        if trig and line > 0 and \
+                (not line_hold or (under_since is not None and t - under_since >= line_hold)):
             xp = path.bid_at(t + S.SELL_LAG)
             return t, (xp - avg) * sh + banked, "line", best, sh + sold, avg, k
     last = path.ev[-1]

@@ -1,0 +1,25 @@
+2026-10-10 05:23:38,964 CRITICAL [v38] DAILY HALT at equity 13498.58
+2026-10-06: start $15000, end $13499 (-1501), 22 trades, the halt at -10.0%, HALTED
+2026-10-10 05:23:59,139 CRITICAL [v38] DAILY HALT at equity 13490.21
+2026-10-07: start $15000, end $13490 (-1510), 7 trades, the halt at -10.0%, HALTED
+2026-10-08: start $15000, end $14822 (-178), 25 trades, the halt at -10.0%
+2026-10-10 05:24:25,792 CRITICAL [v38] DAILY HALT at equity 13485.83
+2026-10-09: start $15000, end $13451 (-1549), 7 trades, the halt at -10.0%, HALTED
+
+THE BOT'S V38 CODE, as it will run: one account, EACH DAY FROM $15,000 (no compounding), two at once, small sizes after -$500, the halt at -10% (lag 1.0s) - WITH BIYA
+day    | PRE 4:00-9:30          | RTH 9:30-4:00          | AFTER 4:00-8:00        | THE DAY
+10-06  |  19   5 won    -1014 |   3   0 won     -487 |   0   0 won       +0 |  22   5 won    -1501
+10-07  |   7   0 won    -1510 |   0   0 won       +0 |   0   0 won       +0 |   7   0 won    -1510
+10-08  |  13   4 won     +579 |   9   2 won     +811 |   3   1 won    -1568 |  25   7 won     -178
+10-09  |   7   0 won    -1549 |   0   0 won       +0 |   0   0 won       +0 |   7   0 won    -1549
+TOTAL  |  46   9 won    -3494 |  12   2 won     +324 |   3   1 won    -1568 |  61  12 won    -4738
+
+THE BOT'S V38 CODE, as it will run: one account, EACH DAY FROM $15,000 (no compounding), two at once, small sizes after -$500, the halt at -10% (lag 1.0s) - WITHOUT BIYA
+day    | PRE 4:00-9:30          | RTH 9:30-4:00          | AFTER 4:00-8:00        | THE DAY
+10-06  |  19   5 won    -1014 |   3   0 won     -487 |   0   0 won       +0 |  22   5 won    -1501
+10-07  |   4   0 won    -1093 |   0   0 won       +0 |   0   0 won       +0 |   4   0 won    -1093
+10-08  |  13   4 won     +579 |   9   2 won     +811 |   3   1 won    -1568 |  25   7 won     -178
+10-09  |   7   0 won    -1549 |   0   0 won       +0 |   0   0 won       +0 |   7   0 won    -1549
+TOTAL  |  43   9 won    -3077 |  12   2 won     +324 |   3   1 won    -1568 |  58  12 won    -4322
+
+by stock, best and worst: 10-08 FLYE +2186, 10-06 FRGT +1420, 10-08 JZ +1104, 10-08 AIXI +1051, 10-06 AIXI +524, 10-08 INHD +72 ... 10-09 BDAI -939, 10-08 WORX -820, 10-08 SAIQ -787, 10-08 BIAF -766

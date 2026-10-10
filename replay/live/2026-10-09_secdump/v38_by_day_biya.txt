@@ -1,0 +1,16 @@
+
+THE MINUTE-WIDE FLOOR - v38 speed only, no scouts, WITH BIYA ($15,000 account, $7,500 full)
+day    | PRE 4:00-9:30                  | RTH 9:30-4:00                  | AFTER 4:00-8:00                | THE DAY
+10-06  |  20  4   +1162 (best FRGT +3378, worst XHG -1250) |   7  2   -1856 (best VCIG +266, worst APUS -2196) |   4  0   -1094 (best BIYA -162, worst SXTC -932)  |  31  6   -1787 (best FRGT +3378, worst APUS -2196)
+10-07  |  14  2  +43275 (best BIYA +39776, worst MI -723)  |  16  5   +7438 (best SXTC +6377, worst DKI -792)  |   6  0   -1046 (best IRIX -122, worst AIXI -628)  |  36  7  +49667 (best BIYA +39776, worst DKI -792)
+10-08  |  12  3    -509 (best FLYE +2287, worst IPW -726)  |   7  2   +1132 (best JZ +1534, worst CPHI -327)   |   2  1    -657 (best XRTX +38, worst SAIQ -695)   |  21  6     -34 (best FLYE +2287, worst IPW -726) 
+10-09  |   8  1   -2000 (best VIVK +989, worst BDAI -1209) |   9  2  +14114 (best WFF +16195, worst ZYBT -1807) |   5  2   +4808 (best YMAT +3970, worst LNKS -348) |  22  5  +16922 (best WFF +16195, worst BDAI -1209)
+TOTAL  |  54 10  +41929                                    |  39 11  +20827                                    |  17  3   +2011                                    | 110 24  +64767                                   
+
+THE 3c FLOOR - v38 speed only, no scouts, WITH BIYA ($15,000 account, $7,500 full)
+day    | PRE 4:00-9:30                  | RTH 9:30-4:00                  | AFTER 4:00-8:00                | THE DAY
+10-06  |  85  1    -890 (best FRGT +3036, worst AIXI -1106) |  26  0    -745 (best VCIG -44, worst XHG -516)    |  11  0    -345 (best BIYA -15, worst SXTC -229)   | 122  1   -1981 (best FRGT +3036, worst XHG -1550)
+10-07  |  33  4  +47524 (best BIYA +41411, worst MI -269)  |  69  1    -532 (best SBFM +2519, worst SXTC -1328) |   9  0    -261 (best IRIX -29, worst AIXI -120)   | 111  5  +46731 (best BIYA +41411, worst PFAI -1018)
+10-08  |  37  2    +590 (best FLYE +1820, worst AIXI -306) |  10  1    +378 (best JZ +798, worst KAPA -277)    |   9  0    -241 (best SAIQ -117, worst XRTX -124)  |  56  3    +727 (best FLYE +1820, worst AIXI -306)
+10-09  |  42  5   -1526 (best SAIQ -2, worst BDAI -520)    |  51  2    +614 (best WFF +790, worst ZYBT -279)   |  22  0    -729 (best APUS -16, worst YMAT -454)   | 115  7   -1641 (best WFF +790, worst BDAI -520)  
+TOTAL  | 197 12  +45698                                    | 156  4    -285                                    |  51  0   -1577                                    | 404 16  +43836                                   

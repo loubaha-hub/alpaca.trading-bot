@@ -3,7 +3,591 @@
 Decisions, instructions and results worth keeping. Newest first. Dates are ET.
 Each entry: what was decided or found, the numbers, why, and where it lives.
 
+## 2026-10-10
+
+### DECISION (the owner, ~2am Saturday): go - v38 on T6HH from $15,663.58
+- The owner: "can we run this V38 on the spot of V36? ... the balance on
+  that account is $15,663.58 ... that's where the strategy starting balance
+  will be. So can we get it started?" Taken as the OK to merge r34.42 to
+  main and set SLOT_V31=v38 in Render (a weekend restart, all three flat).
+- v38 sizes from the account's equity, so it starts from $15,663.58 by
+  itself; the -10% shut-off (as decided 10-09) puts the halt at $14,097.22.
+  The -25% proposal is still unanswered - it stays -10%.
+
+### DECISION (the owner, Saturday): v38 replaces v36 on T6HH, live Monday 10-12
+- The owner: "is V38 ready to go ... live on Monday morning? If it's so, we
+  would like it to replace V36 - the one with the balance of $15,663.58"
+  (T6HH). The switch: SLOT_V31=v38 in Render, and r34.42 on main. Waiting on
+  the owner's go for the merge, and his choice of v38's shut-off (-10% as
+  decided, the ladder after a halt day as coded; -25% proposed).
+- The week's live results, v36 / v36b / v37 (10-06..10-09; Monday 10-05 the
+  accounts ran v31 / v34 / v35; AUES ran v35 on 10-06): v36 -$2,733 (PRE
+  +$127, RTH -$2,042, AFTER -$818; 123 trades, 26 won); v36b -$1,362 (-$262 /
+  -$713 / -$387; 114, 16); v37 -$2,165 (-$1,456 / -$520 / -$190; 154, 30).
+
+### v38 built (r34.42, branch) and replayed through the bot's own code (~night)
+- Built as the words say (memory/words_v38.md): r34.py class V38, switched on
+  per account with SLOT_V31 / SLOT_V34 / SLOT_V35 = v38 (T6HH / P28T / AUES).
+  Sizes from the account's equity now, so it compounds day to day. 44 tests
+  in tests/test_v38.py; all 722 tests pass. Not on main.
+- Fixed while building: the floor on the bid-ask midpoint now sells even when
+  the print is set aside as off the quote (as v36's bid stop); a sold third
+  no longer logs "STILL HOLDING" as if the exit had failed (log only, shared
+  code).
+- replay/research/v38_botreplay.py: the saved second-by-second read
+  (10-06..10-09) fed print by print through V38.evaluate; buys at the ask 1.0s
+  (or 0.3s) after the order, sales at the bid 0.5s after; quotes and candles
+  on time while the bot waits in an order, as live. Outputs in
+  replay/live/2026-10-09_secdump/v38_botreplay_*.txt.
+- On the research's terms (each stock alone, $15,000 fixed): +$59,507, 131
+  trades (research +$64,767, 110); without BIYA +$20,651 (research
+  +$24,991). BIYA +$38,856 (research +$39,776). The code does what was tested.
+- As it will run (one account, two at once, small sizes after -$500), each
+  day from $15,000: the halt as coded (-10%, then 5%, 2.5%, then stopped):
+  -$2,648, stopped after three halted days; the halt at -10% every day:
+  -$4,738 (halted 10-06, 10-07, 10-09); the halt off: +$74,795 (without
+  BIYA +$32,988; PRE +$41,231 / RTH +$35,932 / AFTER -$2,368; worst day
+  10-06 -$2,924 = -19.5%). Compounding from $15,000: halt off $15,000 ->
+  $102,204; -20% and -30% the same (never reached).
+- Why: 7 ordinary floor losses (-0.4% to -4% of the account each) reach -10%
+  before the day's runner - 10-07 halted at 5:35am, before BIYA 8:20 and
+  SXTC; 10-09 halted in premarket, before WFF. The -10% (the owner's
+  decision, 10-09) and v38's design (many small losses, rare monsters)
+  conflict: **for the owner to decide**. Not changed.
+- The replay's fills are kinder than live (the whole order at the top of the
+  book); the compounded sizes ($30k positions by 10-09) would not fill so in
+  thin premarket names.
+
+### What could still block a big runner live (~night; for the owner)
+- The owner: any other restrictions in the way of the big runners, before
+  v38 goes to work? Listed in memory/words_v38.md ("What could still block a
+  big runner"). The live bot has rules the replay never applied: v36's
+  furious buy needs a new high of the day (the BIYA blocker); one buy a
+  minute unless a new high; a 20M float limit (WFF 38.5M, +$16,195; XHG
+  46.6M); a 10c spread check in cents; the scanner's 10% gain and no print
+  history (2 minutes before the speed can fire on a new name); FRGT's $0.39
+  buy is under the $0.50 bar.
+
+### DECISION (the owner, ~night): the minute-wide floor everywhere
+- The owner: "the minute-wide floor really wins hands down ... the swing is
+  not even bigger - why don't we adopt that?" Adopted for v38 in all
+  sessions (in the words; not built): the floor is the low of the last
+  finished 1-minute candle at the buy, never closer than 3c, never more than
+  10% under the fill; after an add the same distance under the average.
+- Checked first with worse sales (replay/research/v38_floor_friction.py ->
+  v38_floor_friction.txt): 3c floor, sales 0 / 1c / 2c under the bid: total
+  +$43,836 / +$40,573 / +$37,310, without BIYA +$2,425 / -$763 / -$3,951,
+  premarket without BIYA +$4,287 / +$2,597 / +$907, worst day -$1,981 /
+  -$3,065 / -$4,150. Minute-wide: +$64,767 / +$63,124 / +$61,480; +$24,991
+  / +$23,425 / +$21,858; +$2,153 / +$1,281 / +$409; worst day -$1,787 /
+  -$2,299 / -$2,811. It trades a quarter as often (110 vs 404), so worse
+  fills cost it half as much; premarket's edge for 3c nearly goes at 2c.
+- The owner also asked: does the speed by itself (no high of the day,
+  nothing else) catch the big runners? In this read, yes - every monster,
+  at the start of its move - with the buy checks, the cushion and a buy that
+  stays working; 7 of 39 runs (spikes under a minute, two after hours) it
+  never fired on.
+
+### The owner's conclusion (~night): the scout makes no difference
+- "Everything else kept the same, the only variable is the scout - it
+  didn't make any difference. That's good." Scouts are out of v38's
+  proposal; the question is closed.
+
+### The clean A/B - the scout the only variable (~night; finding)
+- The owner: speed entries with scouts vs without, nothing else different -
+  does the scout help catch the big runners? replay/research/v38_scout_ab.py
+  -> v38_scout_ab.txt (v38's ladder 10/25/50%, the ask + the scale, the same
+  floor, the thirds, no level; A adds a floating 1% / 2% scout and the speed
+  buys go on top of it).
+- The 3c floor everywhere: B +$43,836 (7 of 39 runs made money); A 1%
+  +$44,167 (the scouts +$226, 7 of 39); A 2% +$44,398 (+$457, 8 of 39).
+  The last candle's low everywhere: B +$64,767 (16 of 39); A 1% +$63,250
+  (the scouts -$10; JZ 10-08 differs by $2,092 - the floor after an add moves
+  a little differently in the scout's code path, not the scout); A 2% +$63,240.
+- Every big runner the same with or without the scout (BIYA, SXTC, FRGT,
+  SBFM, FLYE); the 40%+ runs that differ do so by the scout's own few dollars
+  (WFF +$296 the most). Answer: the scout neither catches a big runner the
+  speed misses nor keeps one the speed loses.
+
+### Does the scout get us in earlier, or keep us in, on the big runners? (~night; finding)
+- The owner: the whole idea of the scout is to keep the big runners under
+  the tent - get in before it flies, stay on after it runs. Is it true?
+  replay/research/v38_scout_runs.py -> v38_scout_runs.txt, the 39 runs of
+  40%+: the first speed signal vs the first moment the scout would be bought.
+- First on the way up: the speed 20, the scout 6, the speed only 6, the
+  scout only 1 (APUS after hours), neither 6.
+- The monsters - the speed first every time, cheaper: BIYA (the speed fired
+  7:35 at $2.52 and again 8:20:37; the scout only 8:20:42 at $2.81), FRGT
+  (speed 4:01 $0.39, scout 4:03 $0.58), SBFM (10:31 $0.62 / 10:32 $0.67), FLYE
+  (7:22 $1.65 / 7:23 $2.00), SXTC 10-07 8:14 (speed $2.17, the scout never),
+  WFF (11:28 $2.60 / 11:50 $3.77). Their P/L the same with or without the
+  scout (BIYA +$41,455, SXTC +$6,734, FRGT +$3,036, SBFM +$2,519, FLYE
+  +$1,820); WFF better only with the candle leash.
+- The scout came first on 6 smaller runs (DKI x2, LPCN, INHD, SAIQ, ZYBT),
+  0.2-33 minutes earlier and up to 26% cheaper - v38 lost a little on each
+  either way.
+- Why: the scout needs the stock already up 20% from its low, so it comes
+  after the start of a run; the speed test fires at the start. No monster
+  was lost and none was gained by the scout.
+
+### The scout built right; the control: it is the leash, not the scout (~night; findings)
+- The owner: skipping a speed signal while a scout is open is "the opposite of
+  any logic - that's exactly where you should add". Right: the first scout
+  test (v38_scout.py, and the big-gain table on it) skipped it - its numbers,
+  losses and gains alike, are artifacts of that. v38_scout2 / v38_scout3 did
+  add on speed but kept the 3c floor on the added shares.
+- Built as meant (replay/research/v38_scout4.py -> v38_scout4.txt): the 1%
+  scout floats; speed on it (price at or over the scout's) adds to 11% /
+  31% / 51%; at the added shares' floor only they are sold, the scout stays.
+  Floor 3c under their average: +$44,712 (without the top 3 -$2,257); 3c
+  under the scout's price: +$42,332 (-$4,638); the last candle's low:
+  +$48,798 (+$1,828; the speed adds 36, 7 won, +$1,627). Warm and chug adds
+  made it worse.
+- The control (v38_candle_floor.py -> v38_candle_floor.txt), no scouts, v38's
+  own speed buys with the floor at the last candle's low (at most 10%):
+  110 trades, +$64,767, without BIYA +$24,991, without the top 3 +$19,105,
+  without the top 3 and WFF +$2,910 (3c floor: 404, +$43,836, -$3,129,
+  -$3,919); the 39 runs made money on 16 (3c: 7). By session, without the
+  top 3 and WFF: PRE -$1,225 (3c +$1,252), RTH +$2,123 (3c -$3,593), AFTER
+  +$2,011 (3c -$1,577). The lower of the last 2 candles: the same picture
+  (+$2,586); capped at 5%: weaker (-$558).
+- Reading: the gain was the minute-wide leash, not the scout. Regular hours
+  want it (better in every setting); premarket keeps the 3c floor - the
+  owner's standing rule of separate designs for the two. Proposed, not
+  decided; same four days.
+
+### Wait 2 seconds before buying? (~evening; finding)
+- The owner: a wait may work against us - "in two seconds 80 or 90 percent of
+  the stocks with speed will have increased in price".
+  replay/research/v38_wait.py -> v38_wait.txt (v38 proposed, 404 first buys):
+  the ask 2s after the signal against the 1s fill - all buys: higher 36%,
+  lower 35%, the same 29% (mean +0.14%); at 5s higher 46%, lower 42%. The
+  8 buys that won $100+: at 2s none lower, 38% higher (mean +1.0%); 3s
+  +2.2%; 5s 75% higher (median +3.2%). The 388 that lost: a coin flip.
+  So true for the real runners (waiting costs them ~1% at 2s), not for
+  the many others.
+- Results anyway (all day / premarket; total, without BIYA, without the top
+  3, a trade without BIYA): buy 1s after the signal +$43,836 / +$2,425 /
+  -$3,129 / +$6.2 - PRE +$45,698 / +$4,287 / +$1,252 / +$23.1. A plain 2s
+  wait +$48,488 / +$7,286 / +$903 / +$23.4 - PRE +$49,482 / +$8,280 /
+  +$4,449 / +$65.2. Confirm (the speed still on 2s later, price no lower)
+  +$41,050 / +$6,378 / +$1,324 / +$29.9 - PRE +$39,705 / +$5,032 / +$2,571
+  / +$47.9. Confirming at 3s or a 5s wait loses BIYA.
+- Reading: the wait does not win on price; it wins by skipping the first
+  second's shake-outs (404 -> 321 buys). It holds at 2s and 3s, but BIYA is
+  lost by 3-5s - a narrow margin; to judge on unseen days.
+
+### The scout's gain as a surer trigger (~evening; finding)
+- The owner: isn't the scout's own gain a surer trigger, so the monsters are
+  not lost? The first scout test (+10c/+20c, +5%/+10%, +10%/+20%) already
+  used the scout's gain - it lost at every setting. Now bigger gains
+  (v38_scout.py, V38_BIG_GAIN=1 -> v38_scout_biggain.txt), 2% scouts: in at
+  the scout +20% / +40%: total +$44,698, the scouts 91 (4 won) -$4,023, 28
+  reached the first add, 3 got full (0 won); +30% / +60%: +$46,783, the
+  scouts 79 (8 won) -$1,894, 17 / 1; +50% / +100%: +$47,301, the scouts 64
+  (9 won) -$1,492, 7 / 0; 1% at +30% / +60%: +$46,471, the scouts -$2,160.
+  Speed only: +$43,819.
+- Reading: a bigger gain is a surer trigger (the scouts lose far less) but it
+  rarely fires, and it adds no monster - BIYA, FRGT, SBFM, FLYE the same: the
+  speed buy comes before a +30% scout gain. The totals rise $900-$3,500
+  because the scouts held some stocks where v38's later speed buys would
+  have lost (414 -> 325-356 trades) - a side effect, not a signal.
+
+### The general picture - without BIYA (~evening; finding; the owner's caution)
+- The owner: the great numbers are skewed by BIYA alone (take it out and the
+  picture changes - "maybe with two more"); the modeling has been built
+  around catching BIYA in a 2-3 second window; we need a more general
+  picture - can v38 capture all the ones that start to move? Re-entries are
+  a must (a stock can crash and go up again two or three times a day).
+- replay/research/v38_general.py -> v38_general.txt. Total / without BIYA /
+  without the top 3 (BIYA, FRGT, SBFM) / the 39 runs of 40%+ it made money
+  on / the median share of a run kept:
+  - as decided 10-09 (the day's high, no ceiling): +$9,254 / -$2,148 /
+    -$7,317 / 5 of 39 / -7%
+  - the day's high + the scale: -$1,028 / -$1,045 / -$5,801 / 4 / -7%
+  - the last sale's price + the scale: +$31,361 / -$3,628 / -$9,182 / 6 / -10%
+  - PROPOSED (no level + the scale): +$43,836 / +$2,425 / -$3,129 / 7 / -12%
+  - the same filled 2s late: +$48,488 / +$7,286 / +$903 / 8 / -9%;
+    3s +$45,758 / +$5,200 / -$699; 5s +$6,490 (BIYA lost) / +$6,772 / +$627
+  - paying the scale in full: +$35,187 / -$5,311 / -$10,597
+- Reading: every version makes money on only 4-8 of the 39 runs; on the
+  typical run it gives back a little. Without its top three, v38 loses
+  ($3,129 in four days as proposed). The one general gain: buying 2-3s after
+  the signal - better without BIYA at 2, 3 and 5s (+$7,286 / +$5,200 /
+  +$6,772 vs +$2,425; a trade +$18..+$26 vs +$6), BIYA kept at 2-3s. To test
+  as a rule: the speed still on 2s later (a confirmation), not a plain delay.
+- Needed: days not used to design v38, and a sample of every stock that
+  STARTS to move (the read holds only runners and the bots' buys).
+- PREMARKET ONLY (the owner asked; v38_general_pre.txt, 22 runs started
+  4:00-9:30; "top 3" here = BIYA and FRGT - SBFM was regular hours):
+  as decided +$10,033 / -$1,370 / -$4,105 / 4 of 22; the day's high + the
+  scale -$856 / -$872 / -$3,195 / 3; the last sale's price + the scale
+  +$34,780 / -$209 / -$3,244 / 5; PROPOSED +$45,698 / +$4,287 / +$1,252 / 4
+  (a trade +$23 without BIYA; by day without BIYA -$890 / +$6,113 (SXTC
+  8:14) / +$590 / -$1,526); filled 2s late +$49,482 / +$8,280 / +$4,449 / 5;
+  3s +$47,983 / +$7,426 / +$4,242; 5s +$8,264 (BIYA lost) / +$8,546 /
+  +$5,241; paying the scale in full +$41,182 / +$685 / -$2,360.
+
+### The owner's cushion scaled to the speed; the 5%-step chug lot (~late afternoon; findings)
+- The owner: the first buy's limit over the ask on a scale with the speed -
+  "two ... ten cents above the ask depending on the speed ... if extreme, even
+  20 cents" - so the fast ones do not leave without us. Built: 2c, 5c from
+  speed 0.5, 10c from 1, 20c from 2, never over 5% of the price.
+  replay/research/v38_cushion.py -> v38_cushion.txt (no re-entry level, the
+  bot's buy checks): no ceiling +$44,209; at the ask +$46,699 (326 misses,
+  BIYA kept +$41,453); + 2c +$44,323; + 2% +$43,819; + the speed's scale
+  +$43,836. Paying the whole cushion on every fill: 2c +$38,391, 2%
+  +$29,428, the scale +$35,187.
+- The big runners' winning buys came at low speeds, just over the bar: BIYA
+  0.35, SXTC 0.30, SBFM 0.42, FLYE 0.41, WFF 0.36 (FRGT 2.38) - the scale
+  gives them 2c. The high speeds come in the vertical part. With no re-entry
+  level a missed try is tried again the next second; at the ask alone BIYA
+  was caught only because it paused 3 seconds at $2.65 (8:20:37-40) - from
+  8:20:41 the ask rose every second; 2c or the scale's 5c caught that phase.
+- Proposed: the owner's scale as the ceiling (it costs less than 2% when
+  paid in full: +$35,187 vs +$29,428).
+- The owner's chug lot on a scout: 5% each time the price is up another 10%
+  within 20 minutes, at most 20% in all (v38_scout3.py, V38_CHUG_STEPS=1 ->
+  v38_scout3_chugsteps.txt): the chug lots 52, 1 won, -$2,526; total
+  +$42,712 (-$1,107 vs speed only); regular hours only -$1,753 (29, 0 won);
+  cap 10% -$2,569. The stand-alone chug signal in regular hours (20 min /
+  +10%, the candle-low floor) stays the better form (+$15,027, WFF).
+
+### The owner's scout with the speed, and the floating scout (~afternoon; findings)
+- The owner: the scout's adds only as the speed picks up, progressively (a
+  warm speed a bit under the bar adds a little, the full speed more) - "not
+  adding the whole 50%, that's where our big losses come from".
+  replay/research/v38_scout2.py -> v38_scout2.txt: speed only +$44,054
+  (PRE +$44,763 / RTH +$807 / AFTER -$1,516); scout 2% then the full speed
+  +$44,833 (the scouts' trades 129, 7 won, -$3,179); a warm add (0.15) to
+  5% +$44,150; warm 0.20 +$44,347; scout 1% / warm to 3% +$44,736; floor 5%
+  +$44,157; looser +$43,891. About even (-$163..+$779); the big runners the
+  same (the speed buy already had them).
+- The owner's next version: the scout 1%, NO floor ("leave it float"); speed
+  and price up: +10%, +20%, +20%; a chug (up 10% over the scout, no speed):
+  +5%, then +10% more - about 16-20% in all. v38_scout3.py -> v38_scout3.txt
+  (the scout floats to the end of the read's window - live it would float to
+  the session's end, which the read cannot show): +$42,279 (-$1,540 vs speed
+  only); the scouts 38, 16 won, +$222; the speed lots on them 124, 7 won,
+  -$855; the chug lots 54, 0 won, -$3,179. Speed path only +$43,159; chug in
+  regular hours only +$41,702; scout 2% +$42,505.
+- Reading: on this read the big runners were caught at their start by the
+  speed buy, so no scout can add to them; where the speed is late (slow
+  climbs) the scout's chug lots lost every time. Proposed: no scouts in v38;
+  a floating 1% scout could run on the paper account as an experiment.
+
+### The owner's scouts, tested - they do not help (~afternoon; finding)
+- The owner: a scout of 1-2% of the account in each of the top ~6 runners,
+  in place before the speed fires; its gain is the signal to go in big.
+  Built as the first rung of the ease-in (replay/research/v38_scout.py ->
+  v38_scout.txt): a scout when a stock is up 20% from its low so far, within
+  10% of its high, $250k a minute over 10 minutes; adds to 25% / 50% at
+  +10c / +20c over the scout's fill; its floor 10% under it until an add,
+  then the average less 3c; the trailing thirds once full. Beside v38
+  proposed (speed, no level, the ask + 2%).
+- v38 speed only +$43,819 (PRE +$44,654 / RTH +$680 / AFTER -$1,516).
+  + scouts 2%: +$30,194 - the scouts 342, 4 won, -$17,792 (PRE -$6,307,
+  RTH -$11,722, AFTER +$237); 258 reached the first add (-$15,285), 84 got
+  full (3 won, -$6,758). 1%: -$16,543. Steps +5% / +10%: -$9,940; +10% /
+  +20%: -$4,718. Looser (up 10%): -$20,022. Floor 5%: -$22,210. Even in the
+  runner-only windows (chosen knowing a run followed) the scouts lost.
+- Why: a stock up 20% near its high wiggles 10c (or 5%) up and down all the
+  time; the scout's add cannot tell a wiggle from the start of a run, so the
+  full position is bought at a small top and the floor sells it. The speed
+  test can tell (3%+ in a minute on rising volume, $250k). The monsters were
+  already caught by the speed buy (BIYA +$41,370 with or without scouts).
+- Not proposed. The answer to "in place before the run" stays: the speed
+  buy, no re-entry level, a buy that stays working at the ask + 2%.
+
+### The owner: the chug for regular hours only; fire earlier?; no re-entry level (~midday; findings)
+- The owner: the chug ("chug, chug, chug") NOT in premarket - short time,
+  wider spreads, thinner trading; in regular hours 9:30-4:00 (six and a half
+  hours, lower spreads, slower runs, LULD less of a worry) - "one or two a
+  day, maybe none ... they make a little bit of money, that's good".
+  replay/research/v38_chug_rth.py: the chug 9:30-4:00 only, no re-entry
+  level, a limit at the ask + 2%: 20 min / +10% 12 buys, 2 won, +$15,027
+  (WFF +$14,479, SXTC 10-07 +$4,596), without WFF +$860; 15 / 30 / 60 min
+  and 15% / 30%: +$9,445..+$16,427, without WFF -$641..+$3,284.
+- Fire earlier (v38_thresholds.py): the speed 0.25 / 0.20 / 0.15, the move
+  2%, $150k - the first signal in the first quarter of a 40%+ run goes from
+  11 to 12-14 of 39. Lower numbers do not fire earlier. With the last sale's
+  price as the level, speed 0.20 LOST BIYA: a 4:55am sale at $2.93 put the
+  level over the 8:20 wake-up ($2.65-$2.86). With no level BIYA is kept at
+  all nine settings (+$34,895..+$41,665); totals +$39,156..+$58,280.
+- Proposed (memory/words_v38.md, changed): no re-entry level - every speed
+  signal may buy while v38 does not hold the stock. Against the owner's "you
+  have to have a level before it" - the owner's call.
+- The owner's worry: "we would not have been able to enter early because our
+  speed definition is not met; entering late is not a good picture". The
+  read: BIYA's speed was met at 8:20:37 at $2.65, 1% into its $2.34 ->
+  $33.96 run, 9 seconds before the vertical part. Being "in place" sooner:
+  Alpaca takes only limit orders in extended hours (no resting buy-stop); the
+  crowd-only entry (10-08 test) lost the most; lower numbers do not fire
+  sooner. Open: a small "scout" in the leader before the speed - untested.
+
+### Does the speed test catch the big runners early enough? (~morning; findings)
+- The owner: "BIYA would not have been picked up early ... the volume is still
+  skittish and the price is not moving fast enough" - the speed's numbers are
+  not met early in a run; "we'd have lost some of the good ones".
+- BIYA 10-07, second by second (the read has every trade and quote): before
+  8:20:36 the 60s move was 3-6% but the volume ratio 1.5-3.6 (speed under
+  0.30). At 8:20:36-37, 45k and 30k shares: the speed ON at 8:20:37, $2.65
+  (+7.7%, ratio 4.5, $803k), again from 8:20:41 at $2.80. The vertical part
+  came at 8:20:46-48 ($3.25 -> $9.60). The asks 8:20:37-44: $2.65-$2.86 -
+  about 7 seconds to get in. What loses it is the day's high ($3.10 at 4am,
+  first passed 8:20:46) and a slow fill, not the speed test. The bot's spread
+  check (10c) blocks the buy from 8:20:48 on.
+- All 39 runs of 40%+ in the read (replay/research/v38_early.py ->
+  v38_early.txt): the speed fired on the way up in 32 (PRE 17 of 22, RTH 14
+  of 14, AFTER 1 of 3), within the first quarter of the run in 11. Never in
+  7: spikes over in 9-62 seconds (NXAT, RUBI, BYAH, SXTC 10-08, BDAI) and two
+  after hours (WORX, APUS).
+- The owner's breather (run, slow down, run again - buy in the pause; the
+  playbook's first red then green, the floor at the red's low; v38_breath.py):
+  10 min / 20%+ run: the breather buys +$14,466 (54, 6 won) - WFF +$19,174;
+  premarket -$910. 10 min / 30%: -$5,679; 50%: -$3,133; 20 min / 30%:
+  +$10,458 (WFF +$15,768); a third back: -$3,554; 5 min / 20%: -$6,159.
+  Premarket negative in every setting; the plus is WFF (regular hours) and
+  not stable. Same picture as the chug.
+- The owner on the 10-09 misses: AIXI 1:04pm, FLYE 3:05pm, ZYBT 3:06pm, AAOX
+  9:31am are regular hours - v38's prime is premarket, so they matter less.
+  Premarket misses on 10-09: MI 4:32:42 v37 0 (2,019 a second later), MI
+  4:33:45 v36b 0 (v36 at +20c 872 of 2,600), XRTX 7:47 v36b 17% (v36 65%),
+  VIVK 9:07 v36b 0, VIVK 9:13 v37 0 (v36 24%); VEEA 7:00 85-88%.
+
+### DECISION (the owner, ~early am): v38 buys from $0.50, never under
+- "In this beginning, we can take the bar down to 50 cents and we should not
+  go below that." A 50c stock to $2 is 4x; they trade in big lots with
+  spreads under a penny; the owner has made good money down to 30c. v38's
+  band: $0.50-$20 (the scanner must add $0.50-$1 names for v38 only).
+- The owner: the cents rules do not fit them (+10c on 50c is 20%). Found: in
+  percent the spreads are alike at every price (median 0.59% under $1 =
+  0.45c; 0.68% $1-$3; 0.59% $3-$10; 0.67% over $10). Open: steps and floor
+  in percent - to test.
+
+### The owner: not losing the big runners at the buy is the whole game (~early am; findings)
+- The owner: "if we exclude those two or three big runners, the strategy is
+  dead in the water" - so the buy must not miss them. Willing to pay 10-20c
+  over the ask, but in a thin premarket the many quick losers pay it too.
+  The owner thought the bots re-place an unfilled buy at once (paper ~0.2s,
+  real money ~50ms). Fact: a furious first buy is ONE limit, working 0.5s,
+  cancelled (confirmed); the next try waits for the next furious print,
+  0.5s+ later (V37_KEEP_TRYING / V37_RETRY_GAP). The adds re-price every
+  0.4s (FAST_BUY).
+- Live 10-09 (replay/live/2026-10-09_secdump/buy_short_1009.txt): many tries
+  got 0 - at the ask AND at the ask + 20c (v36: AIXI 1:04pm three times,
+  FLYE 3:05pm, ZYBT 3:06pm, AAOX 9:31am). Paper fills can take longer than
+  the 0.5s an order works.
+- The replay had filled every first buy at the ask 1s after the signal - a
+  limit with no ceiling that never misses. replay/research/v38_fills.py,
+  v38_limits.py (-> .txt):
+  - With the re-entry over the day's high, one second late loses BIYA
+    (+$11,403 -> +$195 at 2s); no limit catches it, not even the ask + 20c
+    (+$72) - the breakout of the day's high is the vertical part.
+  - With the re-entry over the last sale's price, v38 is in at the wake-up:
+    BIYA kept with fills 1-5s late (+$10,227..+$40,675); a real limit at the
+    ask misses it (-$151 in all), the ask + 2c catches it (+$31,500; BIYA
+    +$34,989), + 5c +$31,315, + 10c +$33,017, + 20c +$33,159, + 2% +$32,521.
+  - Paying it all on every fill (the unkind end), floor under the market:
+    1c +$29,480, 2c +$27,082, 5c +$15,749, 1% +$25,614 - $1,800-$3,600 a
+    cent over four days. With the floor under our fill 2c over loses BIYA.
+  - Proposed (memory/words_v38.md): a limit at the ask + 2%, kept working and
+    moved up while unfilled (one replace, never two orders), the floor 3c
+    under the lower of our fill and the ask, the re-entry over the last
+    sale's price.
+- The owner's chug (20 minutes, +10%; v38_chug.txt): with the 3c floor it
+  never wins; with the floor at the last candle's low it caught WFF 10-09 in
+  every setting (+$14,479), its other buys lost (20/10%: +$4,634 in all,
+  -$9,533 without WFF; 15/30 min, 15%: the same). Premarket -$982, regular
+  +$8,141, after hours -$2,524. Proposed: paper only.
+
 ## 2026-10-09
+
+### The owner's four points on the speed test, tested (~10pm; findings, not decided)
+- The owner: catch the slow climbs too ("check, check, check, going
+  slowly" - a chug formula); a stock waking up; "we don't have to wait for
+  the high of the day ... you have to have a level before it" (not a clock);
+  the red candle is "a bad omen - a pickup after it is rare, but it happens".
+  I read "three zero three" as: the numbers stay (3%, 0.30, 30).
+- replay/research/v38_gaps.py -> v38_gaps.txt; v38_levels.py -> v38_levels.txt;
+  v38_floor.py -> v38_floor.txt (all in replay/live/2026-10-09_secdump):
+  - Red candle off: +$346 overall, all from one earlier SBFM entry (RTH); in
+    premarket the check is worth +$737. Keep it.
+  - Waking up (no volume the minute before counted as the full ratio): 20
+    more trades, 0 won, -$2,093, all regular hours - LULD halt reopens. Keep
+    "no volume, no signal".
+  - The chug: every version lost (5 min +10%, 3c floor: 62 buys, 0 won,
+    -$2,247; candle-low floors -$5,936..-$8,918). IPDN's climb was not
+    missed by the speed test (7 signals); the 3c floor threw each buy out in
+    1-3 s, and the later bursts were under the day's high.
+  - The re-entry level (with the bot's buy checks): the day's high +$9,254
+    (173 trades); over the price of v38's last sale +$33,046 (333); no level
+    +$44,209 (424). Without BIYA 10-07: -$2,148 / -$1,998 / +$2,773. With
+    sales 1c / 2c under the bid the order holds. BIYA woke 8:20:38 at $2.65,
+    under its 4am $3.10. "The highest price since the last sale": +$3,776
+    (worse than all). Proposed: the last sale's price; decide on unseen days.
+  - The bot's own furious-buy checks (spread 10c, up 5s): +$9,254 vs +$8,930,
+    neutral - v38 inherits them.
+- Other findings tonight:
+  - A buy filled 2c over the ask puts the 3c floor inside the spread:
+    -$7,841. Sales 1c / 2c under the bid: +$7,280 / +$5,630, BIYA kept.
+    v38 must buy with a limit at the ask, never paying over.
+  - Floors on prints +$9,627, the bid +$7,791, 3% under +$6,601, 5% under
+    +$2,607: the 3c floor stays.
+  - 188 trades, 8 won; avg win +$2,135, avg loss -$45; without BIYA, FRGT
+    and SBFM -$7,778; 65 losers in a row at most.
+  - FRGT and SBFM were bought under $1: inside the bot's $1-$20 band v38
+    makes +$4,377 of the +$9,254.
+  - Two positions at once blocked 2 of 188 trades (-$41).
+- v38 in words, draft 1: memory/words_v38.md - with 7 questions for the owner.
+
+### DECISION (the owner, ~9:30pm): the top-up is a separate lot with its own floor (replaces "one floor")
+- "I like your strategy better than mine. I think we should go back to
+  yours." - better returns, and a longer leash: when one lot is sold, the
+  other 25% is still held.
+- The rule: after a top-up the stock holds two lots. The starter (5/10/25%)
+  keeps its own floor (its average less 3c) and its own trailing thirds. The
+  top-up (to 50% of the account) is bought at the ask, has its own floor 10%
+  under its fill price and its own trailing thirds. A lot that hits its floor
+  is sold alone; the other lot rides on.
+- Told to the owner: the top-up's floor (10% under a price ~30% above the
+  starter's average) sits ABOVE the starter's floor, so a failed top-up is the
+  lot sold first, and the starter keeps its gain and its leash. With one floor
+  the whole position was sold at its blended break-even - a failed top-up gave
+  back the starter's whole gain.
+- Traced (worst case, every trade after the limit, top-up at +30%):
+  SBFM 10-07 - starter in $0.63 (avg $0.777) +$1,188; top-up bought $1.05 at
+  10:44:39, floor $0.95, stopped -$500; total +$688. One floor: everything
+  sold at the blended break-even ($0.90 less 3c), -$68.
+  BIYA 10-07 - starter +$5,623; top-up bought $11.56 at 8:20:49, floor
+  $10.40, rode the thirds to the $37.10 peak, +$2,183; total +$7,806 (one
+  floor +$7,656). FRGT 10-06 - starter +$1,335, top-up $0.71 at 4:04:13
+  +$229; +$1,564 (one floor +$1,458). All trades +$5,854 (one floor +$4,915).
+  Real days: the same (no top-up after the limit in these days).
+- Unchanged: two stocks at once, each up to 50% of the account.
+
+### DECISIONS (the owner, ~9:10pm): one floor for the whole position; two stocks at 50% each
+(The one-floor part was replaced at ~9:30pm by separate lots - above. Two
+stocks at 50% each stands.)
+- After a top-up there is ONE floor for the whole stock: the price under
+  which the whole position starts to lose money (its break-even - the
+  average of all its shares, closer to the top-up price than to the start;
+  e.g. 1,769 sh at $2.12 + 1,349 at $2.78 -> $2.41). Under it, everything is
+  sold. A long leash for a volatile stock. The trailing thirds work on the
+  whole position from its peak; nothing is sold on the way up.
+- One stock up to 50% of the account; the other 50% is not left idle - a
+  second stock cruising at the same time gets its own position, the same
+  rules (the ease-in; after -$500 a day the smaller sizes and the top-up).
+  To build: the bot's per-position cap (25%) and exposure cap (95%) must
+  allow 50% / ~100% for v38; a third signal with both full has no room.
+- Tested (worst case, every trade after the limit, top-up at +30%): one
+  floor - BIYA +$7,656, all +$4,915; separate lots - BIYA +$7,806, all
+  +$5,854; full size, no limit - BIYA +$11,446, all +$8,930. Real days: the
+  same (no top-up after the limit in these days).
+- CORRECTION: the top-up raised the floor before its shares filled (a
+  simulator timing error, fixed). The earlier "a quarter, topped up at +20%:
+  BIYA +$29" is really +$5,887 (all +$4,607); at +50% BIYA +$5,847 (all
+  +$3,019); at +100% +$4,534 (all +$2,214).
+
+### The owner (~9pm): real money stays premarket
+- "We're going to stick to premarket pretty much for real money." (v38's
+  paper account runs all day, 4am-8pm.)
+- Explained to the owner: the top-up's "own 10% floor" = the top-up shares are
+  a separate lot with their own stop 10% under the top-up's price - if hit,
+  only those shares are sold, the starter position keeps its own floor and
+  trailing thirds; "no count limit" = any number of stocks can get a top-up in
+  a day (one top-up per trade). Note for the words: the bot's per-position cap
+  (25%) must allow v38's 50%, as for v36's furious 50% (the self-check cap 60%).
+
+### DECISION (the owner, ~8:55pm): v38 always has the catastrophic shut-off at -10%
+- "That will always have to be there - a risk management tool we have to use."
+- The bot already has it for every strategy (Strategy.halted, r34.py ~2361):
+  checked on a clock every RISK_CHECK_SECONDS (5s); at the day's starting
+  equity less 10% it sells everything (flatten_all "daily-halt") and stops
+  for the day; the next days after a halt day the bar tightens (HALT_LADDER
+  10% / 5% / 2.5%, then a full stop); HALT_PCT_OVERRIDE can set it per
+  strategy (0 = off - never for v38). v38, built on the same base, keeps it;
+  its words must say so, and a test must prove it.
+- It sits under the daily -$500 size step (the owner's formula): the step
+  shrinks the bets, the -10% halt ends the day.
+
+### The owner's formula after the daily limit (~8:50pm; finding, not decided)
+- The owner: no cap on top-ups a day ("maybe the last one is the one that
+  hits the sky"); after -$500 a day v38 starts at 5% of the account, 10% at
+  +10c, 25% at +20c; a stock that is really running is taken to 50% at once
+  (doubled); the trailing thirds; everything sold at the floor if it falls back.
+- replay/research/v38_owner_limit.py -> v38_owner_limit.txt (full read, $15,000
+  account, the top-up a separate lot with its floor 10% under its price):
+  all day +$10,212, worst day -$1,327 (no trade reached the top-up after the
+  limit in these days); premarket only +$10,648, worst -$940. (The earlier
+  +$10,864 was "a quarter of everything after -$500", no top-up.)
+- Worst case for a gangbuster (every trade as if after the limit): no top-up
+  +$4,352 (BIYA +$5,623); to 50% at +30% +$5,854 (BIYA +$7,806 of the
+  +$11,446 at full size); at +50% +$5,300; at +100% +$4,472.
+
+### The owner's top-up after the daily limit, tested (~8:40pm; finding)
+- The owner: after -$500 a day v38 buys a quarter size; a stock that proves
+  itself is topped up to the full position (50% of the account), one or two a
+  day; if it fails, everything bought for it is sold at any price at its floor.
+- replay/research/v38_topup.py -> replay/live/2026-10-09_secdump/v38_topup.txt.
+  Worst case for a gangbuster - EVERY trade as if after the limit. The top-up
+  is a separate lot (its own floor and the trailing thirds), so a failed
+  top-up never sells the starter. Full size all day +$8,930; a quarter +$2,236;
+  a quarter + top-up at +50% with its floor 10% under its fill +$3,658 (BIYA
+  +$5,876 vs +$2,860 a quarter); at +50% with a 3c floor +$1,704; at +100%
+  +$2,352 / +$832. Only the three gangbusters reached +50% (no false alarm in
+  these days). By +50% a fast run is mostly done: FRGT's and SBFM's top-ups
+  lost, bought near the top.
+- Premarket only, the trailing exit: no limit +$10,240 (worst day -$1,347);
+  half after -$500 +$10,656 (-$931); a quarter after -$500 +$10,864 (-$723).
+  All day: no limit +$8,930 (-$1,918); a quarter after -$500 +$10,867 (-$1,023).
+
+### THE FULL READ - v38 against the three bots, 10-06..10-09 (~8:20pm; finding)
+- r34.40's read: 38 windows (24 runner runs, BIYA 8:20, the 10-09 buys), 0
+  minutes lost, done 8:05pm. Saved: replay/live/2026-10-09_secdump
+  (windows, secdump_lines.txt.gz, roundtrips.json for 10-09, runners.txt).
+  With the 10-08 read: 99 windows. replay/research/v38_final.py -> v38_final.txt.
+- Whole days (trades, P/L): v36 123 -$2,733; v36b 114 -$1,362; v37 154
+  -$2,165; v38 as decided ($7,500 full) 200 -$147; v38 with the owner's
+  trailing exit 188 +$8,930 (10-06 +$300, 10-07 +$12,455, 10-08 -$1,918,
+  10-09 -$1,907).
+- By session, the trailing exit: PRE +$10,240 (104 trades) / RTH -$274 /
+  AFTER -$1,036. The bots: PRE v36 +$127, v36b -$262, v37 -$1,456; RTH
+  -$2,042 / -$713 / -$520; AFTER -$818 / -$387 / -$190.
+- 10-09: WFF ran $1.75 -> $14.40 (+721%, 11:10am-2:15pm) with 8 LULD halts
+  (5-15 minutes each); v38 bought 10 times on new highs, each stopped within
+  a second or caught by a halt and sold at the reopen: -$824 (tiers). The
+  owner's point on regular hours, in one stock.
+- The re-entry rule as decided (a new high of the DAY) vs each window fresh:
+  tiers +$8,930 vs +$15,243.
+- r34.41 on the branch: SEC_DUMP_DAYS = () and SEC_DUMP_RUNNER_DAYS = () -
+  the one-time read off (otherwise every restart reads two hours again).
+
+### The owner's plan for live money (~7:50pm; a plan, not built)
+- When v38 runs with real money it may stop at 9:30 if the premarket returns
+  are healthy enough - to be tested. A paper account keeps running the
+  identical strategy 4am-8pm (closing from 7pm) plus anything experimental -
+  paper is free to lose; compare paper with real money (paper a little kinder:
+  partial fills and real-money imperfections).
+- "A strategy is only as good as how much money it doesn't lose" - the swings
+  (10-08 -$1,918 under the trailing exit) must come down too.
+
+### v38: the trailing exit, the daily loss limit, the re-entry high (~7:50pm; partial read)
+- The owner's trailing exit (nothing sold on the way up; once full, a third
+  at 20% off the peak, a third at 40%, the rest at 50% or the floor at the
+  full position's average): +$10,568 vs v38 as decided +$1,116 ($7,500 full,
+  10-06..10-09 partial); BIYA 8:20 +$11,331. Worst day 10-08 -$1,918.
+- A daily loss limit (no new buy once the day's closed trades are down $X):
+  $500 -> +$12,604, worst day -$515; $750 -> +$12,167 / -$791. It dropped 41
+  trades, all losers; the big winners (FRGT 4:01, BIYA 8:20, SBFM 10:31) came
+  on days it never hit. Proposed for v38.
+- The re-entry high: "over the DAY's high" (as decided) blocked SXTC 8:14
+  ($2.18, under 5am's $2.59) and BIYA before 8:20 (under $3.10). A recent high
+  instead (my windows' gaps acted as one) let BIYA in at $2.65 before the
+  spike, full at $2.80: +$41,519 with the trailing exit. Not a clean test -
+  next: the high of the last 30 / 60 / 120 minutes vs the day's, on the full
+  read, with the daily limit. Speed alone (no high): +$39,900 but 447 trades
+  and worst day -$1,648.
 
 ### DECISION (the owner, ~2:30pm): v38 keeps its re-entries; compare A vs "A then B"
 - The owner: re-entries are not clean but "we cannot afford not to have

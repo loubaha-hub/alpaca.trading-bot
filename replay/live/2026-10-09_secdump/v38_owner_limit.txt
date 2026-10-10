@@ -1,0 +1,15 @@
+THE OWNER'S FORMULA AFTER -$500 A DAY - full read, $15,000 account (full position $7500)
+                                                               10-06     10-07     10-08     10-09     TOTAL     worst |      PRE      RTH    AFTER
+all day, no limit                                               +300    +12455     -1918     -1907     +8930     -1918 |   +10240     -274    -1036
+all day, after -$500: 5/10/25%, no top-up                       +300    +12455     -1216     -1327    +10212     -1327 |   +10648     +395     -830
+all day, after -$500: 5/10/25%, to 50% at +30%                  +300    +12455     -1216     -1327    +10212     -1327 |   +10648     +395     -830
+all day, after -$500: 5/10/25%, to 50% at +50%                  +300    +12455     -1216     -1327    +10212     -1327 |   +10648     +395     -830
+all day, after -$500: 5/10/25%, to 50% at +100%                 +300    +12455     -1216     -1327    +10212     -1327 |   +10648     +395     -830
+premarket only, no limit                                        +777    +11204     -1347      -394    +10240     -1347 |   +10240       +0       +0
+premarket only, after -$500: 5/10/25%, to 50% at +50%           +777    +11204      -940      -394    +10648      -940 |   +10648       +0       +0
+
+THE WORST CASE FOR A GANGBUSTER - every trade as if after the limit (the formula on all of them):
+  no top-up                    FRGT   +1335  BIYA   +5623  SBFM   +1188  | all trades    +4352   (full size, no limit: FRGT +2,874 BIYA +11,446 SBFM +2,504, all +8,930)
+  to 50% at +30%               FRGT   +1564  BIYA   +7806  SBFM    +688  | all trades    +5854   (full size, no limit: FRGT +2,874 BIYA +11,446 SBFM +2,504, all +8,930)
+  to 50% at +50%               FRGT    +882  BIYA   +7633  SBFM    +579  | all trades    +5300   (full size, no limit: FRGT +2,874 BIYA +11,446 SBFM +2,504, all +8,930)
+  to 50% at +100%              FRGT   +1018  BIYA   +6502  SBFM    +747  | all trades    +4472   (full size, no limit: FRGT +2,874 BIYA +11,446 SBFM +2,504, all +8,930)

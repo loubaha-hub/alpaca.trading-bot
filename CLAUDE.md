@@ -32,10 +32,11 @@ numbers into any file here - memory files included.
   "revoke instruction").
 - `watchman.py` stays off `main` until the real-money account opens.
 - Accounts are identified by number, not by the names Alpaca shows. The
-  account ending **T6HH** runs v36, **P28T** ("V30-100k") runs v37,
-  **AUES** runs v35 (the owner, from 2026-10-06; v31 and v34 are off, v32
-  stays off). SLOT_V31 / SLOT_V34 / SLOT_V35 in Render's environment switch
-  an account's strategy; "off" turns it off.
+  account ending **T6HH** runs v38 (slot v31; replaced v36 - the owner,
+  2026-10-10, from $15,663.58, first trading day 10-12), **P28T**
+  ("V30-100k") runs v37 (slot v34), **AUES** runs v36b (slot v35); v31, v34,
+  v35 and v36 are off, v32 stays off. SLOT_V31 / SLOT_V34 / SLOT_V35 in
+  Render's environment switch an account's strategy; "off" turns it off.
 - Judging a change: all the days, never one stock. Show the gains and the
   costs and the trade counts, test on days that were not used to design it,
   check it holds across a range of settings, and give a market reason.

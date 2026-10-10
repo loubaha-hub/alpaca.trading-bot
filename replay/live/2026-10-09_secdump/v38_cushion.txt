@@ -1,0 +1,21 @@
+THE CUSHION OVER THE ASK, SCALED TO THE SPEED (v38 proposed: no re-entry level, the bot's buy checks)
+                                                n won  miss   10-06   10-07   10-08   10-09    TOTAL |     PRE     RTH   AFTER | FRGT   BIYA   SBFM   FLYE   SXTC 
+no ceiling (the old replay)                   424  16     0    -968  +46778    +671   -2272   +44209 |  +45501    +245   -1536 |  +3259 +41436  +2519  +1828  +5496
+a limit at the ask                            347  15   326   -1736  +47001    +966    +468   +46699 |  +46026    +155    +519 |  +2768 +41453  +2527  +1742  +5396
+the ask + 2c                                  384  15   171   -1559  +46825    +752   -1696   +44323 |  +45904     -14   -1566 |  +3036 +41411  +2519  +1811  +5325
+the ask + 2%                                  414  17    59   -1642  +46670    +684   -1893   +43819 |  +44654    +680   -1516 |  +2630 +41370  +2525  +1820  +5348
+the ask + the speed's scale                   404  16   125   -1981  +46731    +727   -1641   +43836 |  +45698    -285   -1577 |  +3036 +41411  +2519  +1820  +5325
+the ask + 2c, paying it all                   365  12   163   -3252  +44573    -178   -2752   +38391 |  +43078   -2150   -2537 |  +3011 +40588  +2286  +1671  +4778
+the ask + 2%, paying it all                   365  10    56   -5981  +41981   -1586   -4985   +29428 |  +37479   -4503   -3547 |  +2297 +40018  +2293  +1237  +3746
+the ask + the speed's scale, paying it all    371  12   111   -4195  +44301    -454   -4465   +35187 |  +41182   -3140   -2855 |  +3044 +40497  +2242  +1631  +4803
+
+THE SPEED AT THE BIG RUNNERS' BUYS (the trades that won $500+, no ceiling):
+  10-07 BIYA  08:20:38  speed  0.35  ask $2.65  the scale's cushion 2.00c  P/L +41519
+  10-07 SXTC  08:14:37  speed  0.30  ask $2.16  the scale's cushion 2.00c  P/L +6734
+  10-06 FRGT  04:01:05  speed  2.38  ask $0.37  the scale's cushion 1.85c  P/L +3397
+  10-07 SBFM  10:31:47  speed  0.42  ask $0.60  the scale's cushion 2.00c  P/L +2656
+  10-08 FLYE  07:23:19  speed  0.41  ask $1.78  the scale's cushion 2.00c  P/L +1965
+  10-09 WFF   13:49:35  speed  0.36  ask $8.05  the scale's cushion 2.00c  P/L +1756
+  10-08 JZ    11:18:40  speed  0.31  ask $0.73  the scale's cushion 2.00c  P/L +1043
+  10-06 XHG   09:31:23  speed  0.32  ask $3.20  the scale's cushion 2.00c  P/L +600
+  10-09 SVC   15:22:28  speed  0.57  ask $6.52  the scale's cushion 5.00c  P/L +513

@@ -1,0 +1,35 @@
+THE CLEAN A/B - speed entries with scouts vs without, nothing else different
+                                                n    TOTAL  no BIYA  no top3 |     PRE     RTH   AFTER | the scouts' own P/L / the 39 runs made money on
+
+== the 3c floor everywhere ==
+B: speed entries, no scouts                   404   +43836    +2425    -3129 |  +45698    -285   -1577 |                  | 7 of 39
+A: speed entries + a 1% scout under them      442   +44167    +2752    -2802 |  +45702     +45   -1580 |  38 scouts   +226 | 7 of 39
+A: speed entries + a 2% scout under them      442   +44398    +2979    -2575 |  +45633    +348   -1583 |  38 scouts   +457 | 8 of 39
+  the 40%+ runs where A (1% scout) and B differ by $25 or more:
+    10-06 AIXI  PRE   run  195%: without scouts   -1020, with    -967 (the scout itself   +54)
+    10-06 IPDN  PRE   run  125%: without scouts    -905, with    -829 (the scout itself   +76)
+    10-06 XHG   PRE   run  183%: without scouts   -1550, with   -1587 (the scout itself   -37)
+    10-07 DKI   RTH   run  171%: without scouts    -423, with    -395 (the scout itself   +27)
+    10-08 DKI   PRE   run   60%: without scouts    -215, with    -143 (the scout itself   -22)
+    10-08 JZ    PRE   run  132%: without scouts    +647, with    +700 (the scout itself   +53)
+    10-09 LNKS  AFTER run   43%: without scouts     -42, with     -89 (the scout itself   -47)
+    10-09 NTCL  PRE   run   45%: without scouts    -206, with    -243 (the scout itself   -37)
+    10-09 VIVK  PRE   run  111%: without scouts    -484, with    -525 (the scout itself    -9)
+    10-09 WFF   RTH   run  721%: without scouts    +790, with   +1113 (the scout itself  +296)
+    10-09 YMAT  RTH   run  186%: without scouts    -454, with    -375 (the scout itself   +79)
+    10-09 ZYBT  RTH   run  153%: without scouts    -394, with    -367 (the scout itself   +27)
+    10-07 CPHI  RTH   run   45%: without scouts    -152, with    -126 (the scout itself   +26)
+    10-07 LPCN  PRE   run   74%: without scouts     -69, with     -33 (the scout itself   +36)
+
+== the last candle's low everywhere ==
+B: speed entries, no scouts                   110   +64767   +24991   +19105 |  +41929  +20827   +2011 |                  | 16 of 39
+A: speed entries + a 1% scout under them      133   +63250   +23470   +17584 |  +42151  +19087   +2011 |  21 scouts    -10 | 16 of 39
+A: speed entries + a 2% scout under them      133   +63240   +23456   +17570 |  +42166  +19099   +1974 |  21 scouts    -20 | 16 of 39
+  the 40%+ runs where A (1% scout) and B differ by $25 or more:
+    10-06 IPDN  PRE   run  125%: without scouts   +1164, with   +1229 (the scout itself   +65)
+    10-07 DKI   RTH   run  171%: without scouts    -792, with    -924 (the scout itself   +27)
+    10-08 JZ    PRE   run  132%: without scouts   +1356, with    -736 (the scout itself   +53)
+    10-08 SAIQ  RTH   run   79%: without scouts    -695, with    -664 (the scout itself    -4)
+    10-09 ZYBT  RTH   run  153%: without scouts    -364, with    +216 (the scout itself   +27)
+    10-07 CPHI  RTH   run   45%: without scouts     -86, with     -61 (the scout itself   +26)
+    10-07 LPCN  PRE   run   74%: without scouts    -300, with    -102 (the scout itself   +36)

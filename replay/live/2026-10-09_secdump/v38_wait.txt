@@ -1,0 +1,22 @@
+1. THE ASK AFTER THE SIGNAL - v38 proposed's 404 first buys (bought at the ask 1s after the signal)
+  all buys                   404 | 2s: higher  36% lower  35% same  29%, median +0.00% mean +0.14% | 3s: higher  40% lower  42% same  19%, median +0.00% mean +0.14% | 5s: higher  46% lower  42% same  12%, median +0.00% mean +0.24%
+  the buys that won $100+      8 | 2s: higher  38% lower   0% same  62%, median +0.00% mean +1.02% | 3s: higher  50% lower  25% same  25%, median +0.08% mean +2.17% | 5s: higher  75% lower  12% same  12%, median +3.20% mean +3.87%
+  the buys that lost         388 | 2s: higher  35% lower  37% same  29%, median +0.00% mean +0.08% | 3s: higher  38% lower  43% same  19%, median +0.00% mean +0.05% | 5s: higher  44% lower  44% same  12%, median +0.00% mean +0.12%
+
+2. WAIT OR CONFIRM - ALL DAY
+                                                          n    TOTAL  no BIYA  no top3 |     PRE     RTH   AFTER | a trade | 39 runs: made money / kept median
+  buy 1s after the signal (proposed)                    404   +43836    +2425    -3129 |  +45698    -285   -1577 |   +6.2 |  7 /  -12%
+  a plain wait: the buy 2s after                        321   +48488    +7286     +903 |  +49482   -1118    +124 |  +23.4 |  8 /   -9%
+  a plain wait: the buy 3s after                        292   +45758    +5200     -699 |  +47983    -828   -1397 |  +18.3 |  6 /   -9%
+  confirm: the speed still on 1s later, price no lower  246   +38338    +3457    -1456 |  +39375     -84    -952 |  +14.5 |  6 /   -8%
+  confirm: the speed still on 2s later, price no lower  219   +41050    +6378    +1324 |  +39705   +2200    -854 |  +29.9 |  7 /   -5%
+  confirm: the speed still on 3s later, price no lower  192    +4603    +4675     -530 |   +5559    -163    -793 |  +24.7 |  4 /   -7%
+
+2. WAIT OR CONFIRM - PREMARKET ONLY
+                                                          n    TOTAL  no BIYA  no top3 |     PRE     RTH   AFTER | a trade | 22 runs: made money / kept median
+  buy 1s after the signal (proposed)                    197   +45698    +4287    +1252 |  +45698      +0      +0 |  +23.1 |  4 /  -12%
+  a plain wait: the buy 2s after                        136   +49482    +8280    +4449 |  +49482      +0      +0 |  +65.2 |  5 /   -9%
+  a plain wait: the buy 3s after                        124   +47983    +7426    +4242 |  +47983      +0      +0 |  +64.0 |  4 /   -8%
+  confirm: the speed still on 1s later, price no lower  116   +39375    +4494    +2127 |  +39375      +0      +0 |  +41.2 |  4 /   -7%
+  confirm: the speed still on 2s later, price no lower  111   +39705    +5032    +2571 |  +39705      +0      +0 |  +47.9 |  4 /   -5%
+  confirm: the speed still on 3s later, price no lower   94    +5559    +5631    +2862 |   +5559      +0      +0 |  +61.9 |  2 /   -7%

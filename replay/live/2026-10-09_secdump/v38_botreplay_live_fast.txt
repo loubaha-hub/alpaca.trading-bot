@@ -1,0 +1,26 @@
+2026-10-10 04:59:06,966 CRITICAL [v38] DAILY HALT at equity 13439.69
+2026-10-06: start $15000, end $13440 (-1560), 22 trades, HALTED
+2026-10-10 04:59:27,441 CRITICAL [v38] DAILY HALT at equity 12091.98
+2026-10-07: start $13440, end $12092 (-1348), 6 trades, HALTED
+2026-10-10 04:59:45,322 CRITICAL [v38] DAILY HALT at equity 10735.27
+2026-10-08: start $12092, end $10735 (-1357), 21 trades, HALTED
+2026-10-10 04:59:50,968 CRITICAL [v38] DAILY HALT at equity 9661.71
+2026-10-09: start $10735, end $9662 (-1074), 7 trades, HALTED
+
+THE BOT'S V38 CODE, as it will run: one account from $15,000, compounding, two at once, small sizes after -$500 (lag 0.3s) - WITH BIYA
+day    | PRE 4:00-9:30          | RTH 9:30-4:00          | AFTER 4:00-8:00        | THE DAY
+10-06  |  20   5 won    -1170 |   2   0 won     -391 |   0   0 won       +0 |  22   5 won    -1560
+10-07  |   6   0 won    -1348 |   0   0 won       +0 |   0   0 won       +0 |   6   0 won    -1348
+10-08  |  14   4 won     +415 |   7   0 won    -1771 |   0   0 won       +0 |  21   4 won    -1357
+10-09  |   7   0 won    -1074 |   0   0 won       +0 |   0   0 won       +0 |   7   0 won    -1074
+TOTAL  |  47   9 won    -3176 |   9   0 won    -2162 |   0   0 won       +0 |  56   9 won    -5338
+
+THE BOT'S V38 CODE, as it will run: one account from $15,000, compounding, two at once, small sizes after -$500 (lag 0.3s) - WITHOUT BIYA
+day    | PRE 4:00-9:30          | RTH 9:30-4:00          | AFTER 4:00-8:00        | THE DAY
+10-06  |  20   5 won    -1170 |   2   0 won     -391 |   0   0 won       +0 |  22   5 won    -1560
+10-07  |   3   0 won     -889 |   0   0 won       +0 |   0   0 won       +0 |   3   0 won     -889
+10-08  |  14   4 won     +415 |   7   0 won    -1771 |   0   0 won       +0 |  21   4 won    -1357
+10-09  |   7   0 won    -1074 |   0   0 won       +0 |   0   0 won       +0 |   7   0 won    -1074
+TOTAL  |  44   9 won    -2718 |   9   0 won    -2162 |   0   0 won       +0 |  53   9 won    -4880
+
+by stock, best and worst: 10-08 FLYE +1820, 10-06 FRGT +1453, 10-08 AIXI +884, 10-06 AIXI +643, 10-09 VEEA -13, 10-09 VIVK -15 ... 10-08 INHD -957, 10-06 NXAT -834, 10-08 BIAF -697, 10-08 JZ -628
