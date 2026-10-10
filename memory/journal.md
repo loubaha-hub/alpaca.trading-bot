@@ -5,7 +5,34 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-09
 
+### DECISION (the owner, ~9:30pm): the top-up is a separate lot with its own floor (replaces "one floor")
+- "I like your strategy better than mine. I think we should go back to
+  yours." - better returns, and a longer leash: when one lot is sold, the
+  other 25% is still held.
+- The rule: after a top-up the stock holds two lots. The starter (5/10/25%)
+  keeps its own floor (its average less 3c) and its own trailing thirds. The
+  top-up (to 50% of the account) is bought at the ask, has its own floor 10%
+  under its fill price and its own trailing thirds. A lot that hits its floor
+  is sold alone; the other lot rides on.
+- Told to the owner: the top-up's floor (10% under a price ~30% above the
+  starter's average) sits ABOVE the starter's floor, so a failed top-up is the
+  lot sold first, and the starter keeps its gain and its leash. With one floor
+  the whole position was sold at its blended break-even - a failed top-up gave
+  back the starter's whole gain.
+- Traced (worst case, every trade after the limit, top-up at +30%):
+  SBFM 10-07 - starter in $0.63 (avg $0.777) +$1,188; top-up bought $1.05 at
+  10:44:39, floor $0.95, stopped -$500; total +$688. One floor: everything
+  sold at the blended break-even ($0.90 less 3c), -$68.
+  BIYA 10-07 - starter +$5,623; top-up bought $11.56 at 8:20:49, floor
+  $10.40, rode the thirds to the $37.10 peak, +$2,183; total +$7,806 (one
+  floor +$7,656). FRGT 10-06 - starter +$1,335, top-up $0.71 at 4:04:13
+  +$229; +$1,564 (one floor +$1,458). All trades +$5,854 (one floor +$4,915).
+  Real days: the same (no top-up after the limit in these days).
+- Unchanged: two stocks at once, each up to 50% of the account.
+
 ### DECISIONS (the owner, ~9:10pm): one floor for the whole position; two stocks at 50% each
+(The one-floor part was replaced at ~9:30pm by separate lots - above. Two
+stocks at 50% each stands.)
 - After a top-up there is ONE floor for the whole stock: the price under
   which the whole position starts to lose money (its break-even - the
   average of all its shares, closer to the top-up price than to the start;

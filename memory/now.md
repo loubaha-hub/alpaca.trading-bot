@@ -1,6 +1,6 @@
 # Where things stand
 
-Updated 2026-10-09, ~12pm ET.
+Updated 2026-10-09, ~9:30pm ET.
 
 ## 10-09 morning
 - Working branch: `claude/three-strategies-x69ppg` (from
@@ -122,15 +122,30 @@ Updated 2026-10-09, ~12pm ET.
   every table split PRE / RTH / AFTER (the owner's standing rule, 10-09).
 - Found so far (journal 10-09): on the slices of big runs already read, the
   speed strategy keeps only SXTC; 74% of its trades are out within 5s.
-- The speed strategy is named **v38** (the owner, 10-09).
-- DECIDED 10-09 ~3:50pm: variant A of the speed strategy (3c stop, half-back
-  from +10c, ease-in, new-high re-entries) with the scale-out.
-- The owner's scale-out (decided 10-09 ~3:20pm, in every study): a quarter
-  sold at +100%, a quarter at +200%, the last half on the half-back line.
-  Tonight's read decides BIYA 8:20 ($2.54 -> $33.96) - the test of it. To
-  build in a bot: words first.
-- The study after the read: speedsim_study / _bag / _giveback / _adds /
-  _scaleout / _trace on all windows, every table PRE / RTH / AFTER.
+- The speed strategy is named **v38** (the owner, 10-09). As decided by
+  10-09 ~9:30pm (journal 10-09 night; earlier half-back / quarter scale-out
+  ideas are replaced by the trailing thirds):
+  - Entry: the speed test (move 3%+ in 60s x volume ratio, capped 30, at
+    least 0.30; $250k+ in the last 60s; the last 1-minute candle not red).
+  - Re-entries a must: at speed AND a new high of the day (the recent-high
+    version still to test).
+  - Ease-in: 10% -> 25% -> 50% of the account (at +10c / +20c, any price).
+  - Exit: nothing sold on the way up; once full, a third at 20% off the
+    peak, a third at 40%, the rest at 50% - or everything at the floor
+    (average less 3c), whichever first.
+  - After the day is down $500 (closed trades plus running winners):
+    5% -> 10% -> 25%; a stock up +30% over its average once full gets the
+    top-up to 50% - a SEPARATE LOT with its own floor 10% under its fill and
+    its own thirds (decided ~9:30pm, replaces "one floor"). No count limit.
+  - Two stocks at once, each up to 50% (bot caps 25% / 95% must be raised).
+  - The -10% daily shut-off always on.
+  - Real money premarket only; a paper account runs 4am-8pm (closing from 7pm).
+  - Full read ($15,000, full $7,500): trailing thirds +$8,930 (PRE +$10,240,
+    RTH -$274, AFTER -$1,036); with the after-limit formula +$10,212 all day,
+    +$10,648 premarket only; v36 -$2,733, v36b -$1,362, v37 -$2,165.
+  - NEXT: v38 in words against memory/checklist.md for the owner to read
+    before any code; the recent-high re-entry test; the two-positions room
+    check in the simulator.
 
 ## 10-08 night
 - Live: **r34.38** (main d439a58, up 10:41:40pm 10-08, all three 0 positions): r34.37 with the owner's corrected
