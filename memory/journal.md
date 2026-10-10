@@ -5,6 +5,27 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-10
 
+### Does the scout get us in earlier, or keep us in, on the big runners? (~night; finding)
+- The owner: the whole idea of the scout is to keep the big runners under
+  the tent - get in before it flies, stay on after it runs. Is it true?
+  replay/research/v38_scout_runs.py -> v38_scout_runs.txt, the 39 runs of
+  40%+: the first speed signal vs the first moment the scout would be bought.
+- First on the way up: the speed 20, the scout 6, the speed only 6, the
+  scout only 1 (APUS after hours), neither 6.
+- The monsters - the speed first every time, cheaper: BIYA (the speed fired
+  7:35 at $2.52 and again 8:20:37; the scout only 8:20:42 at $2.81), FRGT
+  (speed 4:01 $0.39, scout 4:03 $0.58), SBFM (10:31 $0.62 / 10:32 $0.67), FLYE
+  (7:22 $1.65 / 7:23 $2.00), SXTC 10-07 8:14 (speed $2.17, the scout never),
+  WFF (11:28 $2.60 / 11:50 $3.77). Their P/L the same with or without the
+  scout (BIYA +$41,455, SXTC +$6,734, FRGT +$3,036, SBFM +$2,519, FLYE
+  +$1,820); WFF better only with the candle leash.
+- The scout came first on 6 smaller runs (DKI x2, LPCN, INHD, SAIQ, ZYBT),
+  0.2-33 minutes earlier and up to 26% cheaper - v38 lost a little on each
+  either way.
+- Why: the scout needs the stock already up 20% from its low, so it comes
+  after the start of a run; the speed test fires at the start. No monster
+  was lost and none was gained by the scout.
+
 ### The scout built right; the control: it is the leash, not the scout (~night; findings)
 - The owner: skipping a speed signal while a scout is open is "the opposite of
   any logic - that's exactly where you should add". Right: the first scout
