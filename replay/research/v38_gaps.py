@@ -51,6 +51,36 @@ def minutes(rec):
     return m
 
 
+def speed_values(rec):
+    """{second: the speed (move x the volume ratio, capped)} - signals()' numbers."""
+    rows = {r[0]: r for r in rec["S"] if r[1]}
+    if not rows:
+        return {}
+    last = max(rows)
+    close, vol = {}, [0] * (last + 2)
+    px = None
+    for k in range(last + 1):
+        r = rows.get(k)
+        if r:
+            px = r[4]
+        close[k] = px
+        vol[k + 1] = vol[k] + (r[5] if r else 0)
+    out = {}
+    for k in range(120, last + 1):
+        p2, p1 = close[k], close[k - 60]
+        v2, v1 = vol[k + 1] - vol[k - 59], vol[k - 59] - vol[k - 119]
+        if p2 and p1 and v1 > 0:
+            out[k] = (p2 / p1 - 1) * min(v2 / v1, Q.VOL_CAP)
+    return out
+
+
+def cushion(speed, ask):
+    """The owner's scale (10-10): the cents over the ask grow with the speed -
+    2c, 5c at 0.5+, 10c at 1+, 20c at 2+ - never over 5% of the price."""
+    c = 0.20 if speed >= 2 else 0.10 if speed >= 1 else 0.05 if speed >= 0.5 else 0.02
+    return min(c, 0.05 * ask)
+
+
 def signals(rec, red=True, wake=False, chug=None, checks=False, breath=None):
     """{second: (speed?, chug?, last closed candle's low, the breather's floor or None)}"""
     rows = {r[0]: r for r in rec["S"] if r[1]}
@@ -131,13 +161,14 @@ def gap_high(bars, day, sym, t0, t1):
 
 
 def play(recs, bars, level="day", red=True, wake=False, chug=None, chug_floor="3c", checks=False, gaps=None,
-         limit=None, misses=None, breath=None):
+         limit=None, misses=None, breath=None, pay_all=False):
     """[(rec, t_in, P/L, kind, t_out)] - one stock's day, the first buy free."""
     out, first = [], True
     sold_at, since, known_to = None, None, None    # v38's last sale, the high since it, read up to
     exit_px = None                                 # the price v38 last sold it at (level="exit")
     for r in recs:
         p, st = S.Path(r), signals(r, red, wake, chug, checks, breath)
+        sv = speed_values(r) if limit == "scale" else {}
         used = set()                               # one breather buy per red candle
         hi = {x[0]: x[2] for x in r["S"] if x[2]}
         after, top = -1.0, r.get("hod_before")
@@ -178,9 +209,16 @@ def play(recs, bars, level="day", red=True, wake=False, chug=None, chug_floor="3
             fill = p.ask_at(t_in)
             if not fill or fill <= 0:
                 continue
+            paid = 0.0
             if limit is not None:                  # a real limit: the ask at the decision + `limit`;
                 a0 = p.ask_at(t)                   # the ask a second later past it - no fill, the
-                cap = a0 * (1 + float(limit[:-1]) / 100) if isinstance(limit, str) else a0 + limit
+                if limit == "scale":
+                    cu = cushion(sv.get(k, 0.0), a0)
+                    cap = a0 + cu
+                    paid = cu if pay_all else 0.0  # the unkind end: every fill pays it all
+                else:
+                    cap = a0 * (1 + float(limit[:-1]) / 100) if isinstance(limit, str) else a0 + limit
+                    paid = (cap - a0) if pay_all else 0.0
                 if fill > cap + 1e-9:              # next signal tries again
                     if misses is not None:
                         misses.append((r["day"], r["sym"], t))
@@ -191,6 +229,8 @@ def play(recs, bars, level="day", red=True, wake=False, chug=None, chug_floor="3
             if only_br:                            # the floor: the red candle's low (at most 10%)
                 under = min(max(fill - br, 0.03), 0.10 * fill)
                 used.add(mm)
+            if paid:                               # paid over the ask: the floor stays under the market
+                fill, under = fill + paid, under + paid
             te, pl, why, best, sh, avg, adds = Q.run_ladder(p, t_in, fill, F.FULL, under, 0.10, tiers=F.TIERS)
             out.append((r, t_in, pl, "speed" if sp else "chug" if ch else "breath", te))
             after, first = te + S.SELL_LAG, False

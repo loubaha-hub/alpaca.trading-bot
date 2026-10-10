@@ -141,8 +141,13 @@ prints that qualify (the bot's qualifies()):
     each try works 0.5s and is cancelled; paper fills can take longer. The
     next try waits for the next furious print, 0.5s+ later - not the fast
     loop of 0.2s the owner had in mind (the adds do re-price every 0.4s).
-  - **PROPOSED**: a limit at the ask + 2% (1c on a 50c stock, 6c at $3, 10c
-    at $5, 20c at $10 - the owner's 10-20c on the bigger stocks); while it
+  - The owner's scale (10-10, v38_cushion.txt): the cushion grows with the
+    speed - 2c, 5c from 0.5, 10c from 1, 20c from 2, never over 5% of the
+    price. With no re-entry level it catches what 2% catches (+$43,836 vs
+    +$43,819, BIYA kept) and costs less when paid in full (+$35,187 vs
+    +$29,428). The big winners were bought at speeds of 0.30-0.42 (2c).
+  - **PROPOSED (changed 10-10)**: a limit at the ask + the owner's speed
+    scale (instead of + 2%); while it
     has not filled, it stays working and is moved up to the new ask + 2%
     (one replace, never two orders live), for as long as the speed holds;
     the floor 3c under the lower of our fill and the ask we bought into;
@@ -354,7 +359,8 @@ of the day ... you have to have a level before it", not a clock)
 7. Unseen days: a one-time read of earlier days' top runners (e.g. 9-29..
    10-03), second by second, after 8pm, read-only - needs a release with the
    owner's OK. Or the paper run itself as the first unseen days.
-8. The first buy: a limit at the ask + 2%, kept working and moved up while
-   unfilled (proposed) - or a cents ceiling (2c / 5c / 10c / 20c)?
+8. The first buy: a limit at the ask + the owner's speed scale (2c / 5c /
+   10c / 20c, at most 5% of the price), kept working and moved up while
+   unfilled (proposed 10-10)?
 9. ANSWERED 10-10 (the owner): the chug in regular hours only. Proposed
    numbers: 20 min / +10%, the floor at the last candle's low.

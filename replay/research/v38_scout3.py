@@ -50,7 +50,7 @@ def minutes_low(rec):
     return m
 
 
-def float_scout(p, rec, sp, t_in, scout=0.01, chug=True, chug_rth=False):
+def float_scout(p, rec, sp, t_in, scout=0.01, chug=True, chug_rth=False, chug_steps=False, cap=0.20):
     """The scout from t_in to the window's end, with the lots built on it.
     Returns [(kind, t in, P/L, t out)] - the scout itself and every lot."""
     out = []
@@ -66,7 +66,10 @@ def float_scout(p, rec, sp, t_in, scout=0.01, chug=True, chug_rth=False):
 
     def add(path, stage, px, t):
         nonlocal lot
-        tgt = (SPEED_LOT if path == "speed" else CHUG_LOT)[stage] * ACCOUNT
+        if path == "chug" and chug_steps:          # the owner's (10-10): 5% a step, at most `cap` in all
+            tgt = min(0.05 * stage, cap - scout) * ACCOUNT
+        else:
+            tgt = (SPEED_LOT if path == "speed" else CHUG_LOT)[stage] * ACCOUNT
         if lot is None:
             lot = dict(path=path, stage=0, sh=0, cost=0.0, floor=0.0, base=None, best=px,
                        banked=0.0, sold=0, j=0, t0=t)
@@ -89,6 +92,12 @@ def float_scout(p, rec, sp, t_in, scout=0.01, chug=True, chug_rth=False):
             if stage == 1:
                 lot["base"] = px
         lot["best"] = px
+        lot["last"] = px
+
+    def low20(t):                                  # the lowest price of the last 20 minutes
+        m = int(t // 60)
+        lows = [mlow[i] for i in range(m - 20, m + 1) if i in mlow]
+        return min(lows) if lows else 0.0
 
     def close(t, why):
         nonlocal lot, chug_over
@@ -119,11 +128,16 @@ def float_scout(p, rec, sp, t_in, scout=0.01, chug=True, chug_rth=False):
             if px > a + tol or px < b - tol:
                 continue
         if pending is None:
-            if lot is None and chug and (not chug_rth or session(t) == "RTH") and px >= chug_over - 1e-9:
+            if lot is None and chug and (not chug_rth or session(t) == "RTH") and px >= chug_over - 1e-9 \
+                    and (not chug_steps or px >= low20(t) * 1.10 - 1e-9):
                 pending = (t + S.BUY_LAG, None, "chug", 1)
             elif lot is not None and lot["path"] == "speed" and lot["stage"] in (1, 2):
                 if px >= lot["base"] + (0.10 if lot["stage"] == 1 else 0.20) - 1e-9:
                     pending = (t + S.BUY_LAG, None, "speed", lot["stage"] + 1)
+            elif lot is not None and lot["path"] == "chug" and chug_steps:
+                if 0.05 * lot["stage"] < cap - scout - 1e-9 and px >= lot["last"] * 1.10 - 1e-9 \
+                        and px >= low20(t) * 1.10 - 1e-9:   # another 10%, and 10% within 20 minutes
+                    pending = (t + S.BUY_LAG, None, "chug", lot["stage"] + 1)
             elif lot is not None and lot["path"] == "chug" and lot["stage"] == 1:
                 if px >= lot["base"] * 1.10 - 1e-9:
                     pending = (t + S.BUY_LAG, None, "chug", 2)
@@ -159,7 +173,7 @@ def float_scout(p, rec, sp, t_in, scout=0.01, chug=True, chug_rth=False):
     return out
 
 
-def play(recs, scout=None, chug=True, chug_rth=False, run=0.20, near=0.10):
+def play(recs, scout=None, chug=True, chug_rth=False, run=0.20, near=0.10, chug_steps=False, cap=0.20):
     """[(rec, t, P/L, kind, t out)] - one stock's day."""
     out = []
     for r in recs:
@@ -191,7 +205,7 @@ def play(recs, scout=None, chug=True, chug_rth=False, run=0.20, near=0.10):
             if not fill or fill <= 0 or fill > p.ask_at(t) * 1.02 + 1e-9:
                 continue
             if is_scout:                           # the scout floats to the window's end
-                for kind, t0, pl, te in float_scout(p, r, sp, t_in, scout, chug, chug_rth):
+                for kind, t0, pl, te in float_scout(p, r, sp, t_in, scout, chug, chug_rth, chug_steps, cap):
                     out.append((r, t0, pl, kind, te))
                 break
             res = Q.run_ladder(p, t_in, fill, F.FULL, 0.03, 0.10, tiers=F.TIERS)
@@ -200,6 +214,12 @@ def play(recs, scout=None, chug=True, chug_rth=False, run=0.20, near=0.10):
     return out
 
 
+VARIANTS2 = (                                     # the owner's chug lot (10-10, later): 5% a step
+    ("v38 speed only (no scout)", dict()),
+    ("scout 1% + speed + chug 5%/10%-in-20min, cap 20%", dict(scout=0.01, chug_steps=True)),
+    ("  the same, the chug in RTH only", dict(scout=0.01, chug_steps=True, chug_rth=True)),
+    ("  the same, cap 10%", dict(scout=0.01, chug_steps=True, cap=0.10)),
+)
 VARIANTS = (
     ("v38 speed only (no scout)", dict()),
     ("scout 1% floating + speed path + chug path", dict(scout=0.01)),
@@ -216,7 +236,7 @@ def main():
     print("THE OWNER'S FLOATING SCOUT - 1%, no floor; a speed path 10/30/50%; a chug path 5/15% ($15,000 account)")
     print("%-46s %4s " % ("", "n") + " ".join("%7s" % d[5:] for d in days) +
           " %8s | %7s %7s %7s | %s" % ("TOTAL", "PRE", "RTH", "AFTER", "  ".join("%-5s" % b[1] for b in BIG)))
-    for name, kw in VARIANTS:
+    for name, kw in (VARIANTS2 if os.environ.get("V38_CHUG_STEPS") else VARIANTS):
         xs = [x for k in sorted(by) for x in play(by[k], **kw)]
         per = [sum(x[2] for x in xs if x[0]["day"] == d) for d in days]
         ses = [sum(x[2] for x in xs if session(x[1]) == s) for s in SESSIONS]

@@ -5,6 +5,31 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-10
 
+### The owner's cushion scaled to the speed; the 5%-step chug lot (~late afternoon; findings)
+- The owner: the first buy's limit over the ask on a scale with the speed -
+  "two ... ten cents above the ask depending on the speed ... if extreme, even
+  20 cents" - so the fast ones do not leave without us. Built: 2c, 5c from
+  speed 0.5, 10c from 1, 20c from 2, never over 5% of the price.
+  replay/research/v38_cushion.py -> v38_cushion.txt (no re-entry level, the
+  bot's buy checks): no ceiling +$44,209; at the ask +$46,699 (326 misses,
+  BIYA kept +$41,453); + 2c +$44,323; + 2% +$43,819; + the speed's scale
+  +$43,836. Paying the whole cushion on every fill: 2c +$38,391, 2%
+  +$29,428, the scale +$35,187.
+- The big runners' winning buys came at low speeds, just over the bar: BIYA
+  0.35, SXTC 0.30, SBFM 0.42, FLYE 0.41, WFF 0.36 (FRGT 2.38) - the scale
+  gives them 2c. The high speeds come in the vertical part. With no re-entry
+  level a missed try is tried again the next second; at the ask alone BIYA
+  was caught only because it paused 3 seconds at $2.65 (8:20:37-40) - from
+  8:20:41 the ask rose every second; 2c or the scale's 5c caught that phase.
+- Proposed: the owner's scale as the ceiling (it costs less than 2% when
+  paid in full: +$35,187 vs +$29,428).
+- The owner's chug lot on a scout: 5% each time the price is up another 10%
+  within 20 minutes, at most 20% in all (v38_scout3.py, V38_CHUG_STEPS=1 ->
+  v38_scout3_chugsteps.txt): the chug lots 52, 1 won, -$2,526; total
+  +$42,712 (-$1,107 vs speed only); regular hours only -$1,753 (29, 0 won);
+  cap 10% -$2,569. The stand-alone chug signal in regular hours (20 min /
+  +10%, the candle-low floor) stays the better form (+$15,027, WFF).
+
 ### The owner's scout with the speed, and the floating scout (~afternoon; findings)
 - The owner: the scout's adds only as the speed picks up, progressively (a
   warm speed a bit under the bar adds a little, the full speed more) - "not
