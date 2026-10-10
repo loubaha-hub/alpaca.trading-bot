@@ -1,6 +1,6 @@
 # Where things stand
 
-Updated 2026-10-10, afternoon ET.
+Updated 2026-10-10, evening ET.
 
 ## 10-09 morning
 - Working branch: `claude/three-strategies-x69ppg` (from
@@ -163,6 +163,11 @@ Updated 2026-10-10, afternoon ET.
     before the explosion - BIYA's speed was met at 8:20:37 at $2.65. The
     owner's scouts (1-2% before the speed) tested 10-10: they lose at every
     setting (-$4,718..-$22,210) - not proposed.
+  - 10-10 evening, the owner's caution: the numbers are BIYA's. Without the
+    top 3, every version loses (proposed -$3,129 in 4 days); it makes money
+    on 4-8 of 39 runs. Next: a confirmation test (the speed still on 2s
+    later); a fairer read - unseen days and every stock that starts to move
+    (needs a release, the owner's OK).
   - NEXT after the owner's answers: draft 2 of the words, then the code.
 
 ## 10-08 night

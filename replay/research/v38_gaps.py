@@ -232,7 +232,7 @@ def play(recs, bars, level="day", red=True, wake=False, chug=None, chug_floor="3
             if paid:                               # paid over the ask: the floor stays under the market
                 fill, under = fill + paid, under + paid
             te, pl, why, best, sh, avg, adds = Q.run_ladder(p, t_in, fill, F.FULL, under, 0.10, tiers=F.TIERS)
-            out.append((r, t_in, pl, "speed" if sp else "chug" if ch else "breath", te))
+            out.append((r, t_in, pl, "speed" if sp else "chug" if ch else "breath", te, sh))
             after, first = te + S.SELL_LAG, False
             sold_at, since = te, 0.0               # the high since this sale starts now
             exit_px = p.bid_at(te + S.SELL_LAG)

@@ -5,6 +5,32 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-10
 
+### The general picture - without BIYA (~evening; finding; the owner's caution)
+- The owner: the great numbers are skewed by BIYA alone (take it out and the
+  picture changes - "maybe with two more"); the modeling has been built
+  around catching BIYA in a 2-3 second window; we need a more general
+  picture - can v38 capture all the ones that start to move? Re-entries are
+  a must (a stock can crash and go up again two or three times a day).
+- replay/research/v38_general.py -> v38_general.txt. Total / without BIYA /
+  without the top 3 (BIYA, FRGT, SBFM) / the 39 runs of 40%+ it made money
+  on / the median share of a run kept:
+  - as decided 10-09 (the day's high, no ceiling): +$9,254 / -$2,148 /
+    -$7,317 / 5 of 39 / -7%
+  - the day's high + the scale: -$1,028 / -$1,045 / -$5,801 / 4 / -7%
+  - the last sale's price + the scale: +$31,361 / -$3,628 / -$9,182 / 6 / -10%
+  - PROPOSED (no level + the scale): +$43,836 / +$2,425 / -$3,129 / 7 / -12%
+  - the same filled 2s late: +$48,488 / +$7,286 / +$903 / 8 / -9%;
+    3s +$45,758 / +$5,200 / -$699; 5s +$6,490 (BIYA lost) / +$6,772 / +$627
+  - paying the scale in full: +$35,187 / -$5,311 / -$10,597
+- Reading: every version makes money on only 4-8 of the 39 runs; on the
+  typical run it gives back a little. Without its top three, v38 loses
+  ($3,129 in four days as proposed). The one general gain: buying 2-3s after
+  the signal - better without BIYA at 2, 3 and 5s (+$7,286 / +$5,200 /
+  +$6,772 vs +$2,425; a trade +$18..+$26 vs +$6), BIYA kept at 2-3s. To test
+  as a rule: the speed still on 2s later (a confirmation), not a plain delay.
+- Needed: days not used to design v38, and a sample of every stock that
+  STARTS to move (the read holds only runners and the bots' buys).
+
 ### The owner's cushion scaled to the speed; the 5%-step chug lot (~late afternoon; findings)
 - The owner: the first buy's limit over the ask on a scale with the speed -
   "two ... ten cents above the ask depending on the speed ... if extreme, even
