@@ -5,6 +5,27 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-09
 
+### THE FULL READ - v38 against the three bots, 10-06..10-09 (~8:20pm; finding)
+- r34.40's read: 38 windows (24 runner runs, BIYA 8:20, the 10-09 buys), 0
+  minutes lost, done 8:05pm. Saved: replay/live/2026-10-09_secdump
+  (windows, secdump_lines.txt.gz, roundtrips.json for 10-09, runners.txt).
+  With the 10-08 read: 99 windows. replay/research/v38_final.py -> v38_final.txt.
+- Whole days (trades, P/L): v36 123 -$2,733; v36b 114 -$1,362; v37 154
+  -$2,165; v38 as decided ($7,500 full) 200 -$147; v38 with the owner's
+  trailing exit 188 +$8,930 (10-06 +$300, 10-07 +$12,455, 10-08 -$1,918,
+  10-09 -$1,907).
+- By session, the trailing exit: PRE +$10,240 (104 trades) / RTH -$274 /
+  AFTER -$1,036. The bots: PRE v36 +$127, v36b -$262, v37 -$1,456; RTH
+  -$2,042 / -$713 / -$520; AFTER -$818 / -$387 / -$190.
+- 10-09: WFF ran $1.75 -> $14.40 (+721%, 11:10am-2:15pm) with 8 LULD halts
+  (5-15 minutes each); v38 bought 10 times on new highs, each stopped within
+  a second or caught by a halt and sold at the reopen: -$824 (tiers). The
+  owner's point on regular hours, in one stock.
+- The re-entry rule as decided (a new high of the DAY) vs each window fresh:
+  tiers +$8,930 vs +$15,243.
+- r34.41 on the branch: SEC_DUMP_DAYS = () and SEC_DUMP_RUNNER_DAYS = () -
+  the one-time read off (otherwise every restart reads two hours again).
+
 ### The owner's plan for live money (~7:50pm; a plan, not built)
 - When v38 runs with real money it may stop at 9:30 if the premarket returns
   are healthy enough - to be tested. A paper account keeps running the

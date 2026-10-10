@@ -1,0 +1,45 @@
+SECDUMP RUNNER 2026-10-06 FRGT x4.40 0.2997 at 04:00 -> 1.3200 at 04:05, $184.5M traded, hourly x4.40: read
+SECDUMP RUNNER 2026-10-06 AIXI x2.98 1.5000 at 04:00 -> 4.4700 at 04:27, $194.9M traded, hourly x2.98: read
+SECDUMP RUNNER 2026-10-06 XHG x2.83 1.9500 at 08:31 -> 5.5100 at 09:45, $181.0M traded, hourly x2.83: read
+SECDUMP RUNNER 2026-10-06 IPDN x2.30 3.0900 at 07:25 -> 7.1000 at 08:35, $383.4M traded, hourly x2.30: read
+SECDUMP RUNNER 2026-10-06 VCIG x2.23 0.9430 at 15:44 -> 2.1000 at 16:28, $59.0M traded, hourly x2.23: read
+SECDUMP RUNNER 2026-10-06 SXTC x2.14 1.2050 at 15:59 -> 2.5800 at 16:33, $18.7M traded, hourly x2.14: read
+SECDUMP RUNNER 2026-10-06 RUBI x2.09 0.6800 at 04:35 -> 1.4199 at 05:54, $28.9M traded, hourly x2.09: not read (top 6 done)
+SECDUMP RUNNER 2026-10-06 SDEV x1.87 2.9800 at 04:01 -> 5.5700 at 04:47, $254.2M traded, hourly x1.87: not read (top 6 done)
+SECDUMP RUNNER 2026-10-06 MOBX x1.83 0.6571 at 10:42 -> 1.2000 at 13:12, $125.8M traded, hourly x1.89: not read (top 6 done)
+SECDUMP RUNNER 2026-10-06 BIYA x1.81 1.3202 at 15:52 -> 2.3900 at 18:19, $28.5M traded, hourly x1.85: not read (top 6 done)
+SECDUMP RUNNER 2026-10-06 MTEN x1.76 0.9599 at 16:52 -> 1.6900 at 18:47, $25.1M traded, hourly x1.83: not read (under the bar)
+SECDUMP RUNNER 2026-10-06 MI x1.72 1.0700 at 15:22 -> 1.8400 at 16:21, $40.6M traded, hourly x2.30: not read (under the bar)
+SECDUMP RUNNER 2026-10-06 NXAT x1.56 0.9090 at 07:06 -> 1.4200 at 07:30, $12.1M traded, hourly x2.14: not read (under the bar)
+SECDUMP RUNNER 2026-10-06 KAPA x1.51 1.4300 at 09:40 -> 2.1600 at 11:32, $16.1M traded, hourly x2.04: not read (under the bar)
+SECDUMP RUNNER 2026-10-07 BIYA x12.35 2.3400 at 07:22 -> 28.9000 at 08:21, $293.7M traded, hourly x12.35: read
+SECDUMP RUNNER 2026-10-07 SXTC x4.57 2.1000 at 11:43 -> 9.5900 at 14:00, $579.8M traded, hourly x5.13: read
+SECDUMP RUNNER 2026-10-07 SBFM x3.90 0.4000 at 09:41 -> 1.5600 at 11:30, $180.8M traded, hourly x4.03: read
+SECDUMP RUNNER 2026-10-07 PFAI x3.13 2.2400 at 10:24 -> 7.0200 at 12:24, $151.1M traded, hourly x3.16: read
+SECDUMP RUNNER 2026-10-07 DKI x2.86 1.2700 at 09:30 -> 3.6299 at 11:46, $130.6M traded, hourly x2.87: read
+SECDUMP RUNNER 2026-10-07 BYAH x2.08 2.3900 at 04:00 -> 4.9600 at 04:01, $9.9M traded, hourly x2.33: read
+SECDUMP RUNNER 2026-10-07 LGCL x2.04 2.2200 at 07:44 -> 4.5300 at 09:42, $154.0M traded, hourly x2.04: not read (top 6 done)
+SECDUMP RUNNER 2026-10-07 CPHI x1.90 0.6732 at 11:54 -> 1.2800 at 14:24, $64.9M traded, hourly x1.91: not read (top 6 done)
+SECDUMP RUNNER 2026-10-07 AIXI x1.87 1.2800 at 15:58 -> 2.3900 at 16:35, $27.6M traded, hourly x1.87: not read (top 6 done)
+SECDUMP RUNNER 2026-10-07 LPCN x1.85 2.1600 at 06:11 -> 3.9900 at 07:32, $321.0M traded, hourly x1.85: not read (top 6 done)
+SECDUMP RUNNER 2026-10-08 SXTC x4.93 0.3248 at 09:23 -> 1.6000 at 09:23, $31.8M traded, hourly x5.97: read
+SECDUMP RUNNER 2026-10-08 DKI x3.22 1.3500 at 09:25 -> 4.3500 at 09:25, $269.2M traded, hourly x5.43: read
+SECDUMP RUNNER 2026-10-08 FLYE x3.01 1.2200 at 07:21 -> 3.6700 at 08:36, $351.0M traded, hourly x3.01: read
+SECDUMP RUNNER 2026-10-08 JZ x2.16 0.4859 at 09:09 -> 1.0500 at 11:39, $243.2M traded, hourly x0.00: read
+SECDUMP RUNNER 2026-10-08 INHD x2.02 3.4000 at 09:33 -> 6.8700 at 10:32, $67.9M traded, hourly x2.04: read
+SECDUMP RUNNER 2026-10-08 SAIQ x1.80 3.6000 at 13:31 -> 6.4800 at 16:01, $38.3M traded, hourly x1.80: read
+SECDUMP RUNNER 2026-10-08 WORX x1.78 4.0000 at 14:32 -> 7.1400 at 16:53, $14.7M traded, hourly x1.81: not read (under the bar)
+SECDUMP RUNNER 2026-10-08 AIXI x1.51 1.7700 at 04:00 -> 2.6700 at 04:05, $128.5M traded, hourly x0.00: not read (under the bar)
+SECDUMP RUNNER 2026-10-09 WFF x5.53 1.7500 at 11:10 -> 9.6800 at 13:30, $1000.7M traded, hourly x8.42: read
+SECDUMP RUNNER 2026-10-09 YMAT x2.86 1.2900 at 16:05 -> 3.6900 at 17:41, $69.1M traded, hourly x2.88: read
+SECDUMP RUNNER 2026-10-09 ZYBT x2.58 1.1218 at 13:06 -> 2.8900 at 15:29, $65.3M traded, hourly x2.58: read
+SECDUMP RUNNER 2026-10-09 VIVK x2.13 3.8900 at 07:01 -> 8.3000 at 09:30, $188.5M traded, hourly x2.13: read
+SECDUMP RUNNER 2026-10-09 BDAI x2.04 4.0000 at 04:06 -> 8.1800 at 04:07, $20.6M traded, hourly x2.84: read
+SECDUMP RUNNER 2026-10-09 MI x1.92 0.9110 at 04:02 -> 1.7500 at 04:36, $52.9M traded, hourly x1.92: read
+SECDUMP RUNNER 2026-10-09 APUS x1.92 4.4200 at 15:59 -> 8.4800 at 18:17, $14.4M traded, hourly x1.93: not read (top 6 done)
+SECDUMP RUNNER 2026-10-09 LNKS x1.83 0.8705 at 15:41 -> 1.5900 at 17:55, $10.6M traded, hourly x1.84: not read (top 6 done)
+SECDUMP RUNNER 2026-10-09 CD x1.69 5.2600 at 10:09 -> 8.9000 at 12:29, $5.4M traded, hourly x1.84: not read (under the bar)
+SECDUMP RUNNER 2026-10-09 NTCL x1.51 1.1300 at 15:16 -> 1.7100 at 17:43, $38.6M traded, hourly x0.00: not read (under the bar)
+SECDUMP RUNNER 2026-10-09 VEEA x1.31 5.4000 at 09:38 -> 7.0900 at 11:45, $495.3M traded, hourly x0.00: not read (under the bar)
+SECDUMP plan: 141 buys, 38 windows, 3776 minutes to read, 24 runs
+SECDUMP done: 38 windows

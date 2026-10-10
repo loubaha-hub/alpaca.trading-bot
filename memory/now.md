@@ -97,6 +97,11 @@ Updated 2026-10-09, ~12pm ET.
   from now on, every move the owner says he would have taken (his charts) is
   kept in memory/would_take.md with the check that blocked it - after 1-2
   weeks, the rule that blocks the most good moves is the one to look at.
+- r34.41 on the branch (678 tests pass): SEC_DUMP off. WAITING to go to main
+  (the owner merges, or allows the push); until then any restart re-reads ~2 hours
+  (read-only).
+- The full read is saved (replay/live/2026-10-09_secdump); results in the journal
+  10-09 night (v38_final.txt).
 - **Live: r34.40** (main c57c735 - the owner merged PR #1 at 6:23pm ET 10-09;
   up 6:24pm, all three 0 positions). The read is running: SECDUMP RUNNER lines
   from 6:25pm (BIYA 10-07 x12.35 $2.34 7:22 -> $28.90 8:21 read). Next release

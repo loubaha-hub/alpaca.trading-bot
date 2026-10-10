@@ -154,7 +154,7 @@ RISK_CHECK_SECONDS = 5                      # the halt runs on a CLOCK, not tick
 # The file name and this string are changed together, every single time. The
 # log then answers "which code is actually running?" without anyone guessing
 # from line numbers or from behaviour that only shows up once a trade is on.
-VERSION = "v31-r34.40"
+VERSION = "v31-r34.41"
 
 # WHERE THE DAY'S HALT BASELINE COMES FROM.
 #   "last_equity" - equity at the PREVIOUS session's close, read from the broker.
@@ -4549,7 +4549,7 @@ TICK_DUMP_CHARS = 3500          # characters of rows in one log line
 # and ask at the second's end, the second's lowest bid). zlib + base64, one
 # SECDUMP line per TICK_DUMP_CHARS (replay/research/secread.py reads them back).
 # No orders, no trading state touched. () = off.
-SEC_DUMP_DAYS = ("2026-10-09",) # the owner, 10-09 ~8am: VEEA "blow by blow", every
+SEC_DUMP_DAYS = ()              # off (r34.41): 10-09's read done by r34.40 (6:24-8:05pm). Was ("2026-10-09",) - the owner, 10-09 ~8am: VEEA "blow by blow", every
                                 # trade of the three by the second. Read once at the
                                 # release after 8pm 10-09; the next release turns it off.
                                 # 10-08's read (r34.35, 76 windows): replay/live/2026-10-08_secdump
@@ -4573,7 +4573,7 @@ SEC_DUMP_MISSED = (              # moments read the same way though no bot bough
 # RUNNER_DOLLARS, high $1+ and low $20 or less (the bots' band). The RUNNER_TOP
 # biggest a day are read from RUNNER_BEFORE before the low to RUNNER_AFTER after
 # the high; every runner found goes into the log (SECDUMP RUNNER lines).
-SEC_DUMP_RUNNER_DAYS = ("2026-10-06", "2026-10-07", "2026-10-08", "2026-10-09")
+SEC_DUMP_RUNNER_DAYS = ()       # off (r34.41); read by r34.40 for 10-06..10-09: replay/live/2026-10-09_secdump
 SEC_DUMP_RUNNER_NAMES = (       # looked at whatever the hourly bars say (the web, the
     ("2026-10-06", "AIXI"), ("2026-10-06", "XHG"), ("2026-10-06", "IPDN"),   # bots'
     ("2026-10-07", "BIYA"), ("2026-10-07", "SXTC"), ("2026-10-07", "PFAI"),  # recorded
