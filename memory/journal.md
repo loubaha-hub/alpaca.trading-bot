@@ -30,6 +30,15 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
   as a rule: the speed still on 2s later (a confirmation), not a plain delay.
 - Needed: days not used to design v38, and a sample of every stock that
   STARTS to move (the read holds only runners and the bots' buys).
+- PREMARKET ONLY (the owner asked; v38_general_pre.txt, 22 runs started
+  4:00-9:30; "top 3" here = BIYA and FRGT - SBFM was regular hours):
+  as decided +$10,033 / -$1,370 / -$4,105 / 4 of 22; the day's high + the
+  scale -$856 / -$872 / -$3,195 / 3; the last sale's price + the scale
+  +$34,780 / -$209 / -$3,244 / 5; PROPOSED +$45,698 / +$4,287 / +$1,252 / 4
+  (a trade +$23 without BIYA; by day without BIYA -$890 / +$6,113 (SXTC
+  8:14) / +$590 / -$1,526); filled 2s late +$49,482 / +$8,280 / +$4,449 / 5;
+  3s +$47,983 / +$7,426 / +$4,242; 5s +$8,264 (BIYA lost) / +$8,546 /
+  +$5,241; paying the scale in full +$41,182 / +$685 / -$2,360.
 
 ### The owner's cushion scaled to the speed; the 5%-step chug lot (~late afternoon; findings)
 - The owner: the first buy's limit over the ask on a scale with the speed -

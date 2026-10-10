@@ -36,16 +36,21 @@ def main():
     bars = {f[:-5]: json.load(open(os.path.join(sys.argv[3], f))) for f in os.listdir(sys.argv[3]) if f.endswith(".json")}
     F.FULL = 7500.0
     days = sorted({k[0] for k in by})
-    runs = [(r, rn) for k in by for r in by[k] for rn in [run_of(r)] if rn and rn[0] - 1 >= 0.40]
+    only = os.environ.get("V38_SESSION")           # e.g. PRE: that session's trades and runs only
+    runs = [(r, rn) for k in by for r in by[k] for rn in [run_of(r)] if rn and rn[0] - 1 >= 0.40
+            and (not only or session(rn[1]) == only)]
     lag0 = S.BUY_LAG
-    print("THE GENERAL PICTURE - v38 without its one big winner ($7,500 full, trailing thirds)")
+    print("THE GENERAL PICTURE - v38 without its one big winner ($7,500 full, trailing thirds)%s" % (
+        " - %s ONLY" % only if only else ""))
     print("%-46s %4s %8s %8s %8s | %s | %s | %6s | %s" % (
         "", "n", "TOTAL", "no BIYA", "no top3", "no BIYA by day: " + " ".join("%6s" % d[5:] for d in days),
-        "no BIYA: PRE / RTH / AFTER", "a trade", "39 runs: made money / share kept median, mean"))
+        "no BIYA: PRE / RTH / AFTER", "a trade", "%d runs: made money / share kept median, mean" % len(runs)))
     for name, kw, lag in VERS:
         S.BUY_LAG = lag
         xs = [x for k in sorted(by) for x in G.play(by[k], bars, **kw)]
         S.BUY_LAG = lag0
+        if only:                                   # the trades bought in that session (the earlier
+            xs = [x for x in xs if session(x[1]) == only]   # ones are the same whatever comes later)
         nob = [x for x in xs if (x[0]["day"], x[0]["sym"]) != TOP3[0]]
         no3 = [x for x in xs if (x[0]["day"], x[0]["sym"]) not in TOP3]
         per = [sum(x[2] for x in nob if x[0]["day"] == d) for d in days]
