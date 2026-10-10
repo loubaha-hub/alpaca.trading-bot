@@ -5,6 +5,16 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-09
 
+### The owner (~9pm): real money stays premarket
+- "We're going to stick to premarket pretty much for real money." (v38's
+  paper account runs all day, 4am-8pm.)
+- Explained to the owner: the top-up's "own 10% floor" = the top-up shares are
+  a separate lot with their own stop 10% under the top-up's price - if hit,
+  only those shares are sold, the starter position keeps its own floor and
+  trailing thirds; "no count limit" = any number of stocks can get a top-up in
+  a day (one top-up per trade). Note for the words: the bot's per-position cap
+  (25%) must allow v38's 50%, as for v36's furious 50% (the self-check cap 60%).
+
 ### DECISION (the owner, ~8:55pm): v38 always has the catastrophic shut-off at -10%
 - "That will always have to be there - a risk management tool we have to use."
 - The bot already has it for every strategy (Strategy.halted, r34.py ~2361):
