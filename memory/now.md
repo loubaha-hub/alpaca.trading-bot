@@ -1,6 +1,6 @@
 # Where things stand
 
-Updated 2026-10-10, early am ET.
+Updated 2026-10-10, midday ET.
 
 ## 10-09 morning
 - Working branch: `claude/three-strategies-x69ppg` (from
@@ -156,6 +156,12 @@ Updated 2026-10-10, early am ET.
     (kept working, moved up) keeps BIYA; the day's high misses it under any
     limit (journal 10-10). The chug (20 min / 10%): paper only, proposed.
     Questions 2-9 in words_v38.md still open.
+  - 10-10 midday: the owner put the chug in regular hours only (tested: 2-4
+    buys a day, about even without WFF). Proposed now: NO re-entry level
+    (the last sale's price lost BIYA at one setting; no level kept it at all
+    nine). The speed numbers stay. The owner's open worry: getting in
+    before the explosion - BIYA's speed was met at 8:20:37 at $2.65; a
+    "scout" position before the speed is the untested idea.
   - NEXT after the owner's answers: draft 2 of the words, then the code.
 
 ## 10-08 night

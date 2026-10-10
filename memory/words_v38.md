@@ -72,9 +72,30 @@ prints that qualify (the bot's qualifies()):
     chug buys +$4,634 (32 buys, 3 won), without WFF -$9,533; 15 / 30 min and
     15% the same picture (+$4,558..+$9,392; without WFF -$4,775..-$9,609).
     By session (20 / 10%): premarket -$982, regular hours +$8,141 (WFF),
-    after hours -$2,524. **PROPOSED**: the chug on the paper account only
-    (all day, an experiment), not for real money - in premarket it lost in
-    every setting. A chug needs a leash a minute wide, not 3c.
+    after hours -$2,524. A chug needs a leash a minute wide, not 3c.
+  - The owner, 10-10: the chug for REGULAR HOURS only (9:30-4:00) - not
+    premarket ("the time is short, the spreads wider, the trading
+    thinner"); in regular hours there are six and a half hours, lower
+    spreads, slower runs - "one or two a day, maybe none ... they make a
+    little bit of money, that's good". Tested (v38_chug_rth.txt; no re-entry
+    level, a limit at the ask + 2%): 20 min / +10% 12 chug buys, 2 won,
+    +$15,027 (WFF +$14,479, SXTC 10-07 12:53 +$4,596), without WFF +$860;
+    15 min / 10% +$13,526 (-$641); 30 min / 10% +$14,345 (-$134); 20 min /
+    15% +$16,427 (+$2,260); 60 min / 30% 3 buys +$9,445 (+$3,284). About 2-4
+    a day; about even without WFF. With the last sale's price as the level,
+    worse (without WFF -$3,539..-$6,706). **PROPOSED**: the chug 9:30-4:00,
+    20 min / +10%, the floor at the last candle's low (at most 10%).
+  - The owner's breather (a run, a pause, buy as it goes again - the
+    playbook's first red then green; v38_breath.txt): premarket negative in
+    every setting (-$910..-$3,040); the plus came from WFF only and was not
+    stable (10 min / 20%+ +$14,466; 30%+ -$5,679). **PROPOSED: not now.**
+  - Fire earlier? (the owner: "early on the volume is not there yet"). The
+    speed 0.30 -> 0.25 / 0.20 / 0.15, the move 2%, $150k (v38_thresholds*):
+    the first signal in the first quarter of a 40%+ run: 11 of 39 now, 12
+    at 0.15. Lower numbers do not fire earlier - before the explosion the
+    price is not moving. With no re-entry level BIYA is kept at every
+    setting (+$34,895..+$41,665; totals +$39,156..+$58,280). **PROPOSED: the
+    numbers stay** (3%, 0.30, $250k).
     IPDN 10-06 ($3.10 -> $6.99) was not missed by the speed test: it fired
     seven times on the climb; the 3c floor threw each buy out in 1-3 seconds
     (7:26:52: bought $3.65, sold a second later 36c lower).
@@ -115,7 +136,7 @@ prints that qualify (the bot's qualifies()):
     has not filled, it stays working and is moved up to the new ask + 2%
     (one replace, never two orders live), for as long as the speed holds;
     the floor 3c under the lower of our fill and the ask we bought into;
-    the re-entry level the last sale's price. To verify when building:
+    no re-entry level (below). To verify when building:
     Alpaca's replace-order call (one request, not cancel + new); the ~200
     requests a minute per account.
 - Sales filled 1-2c under the bid: +$7,280 / +$5,630 (BIYA kept).
@@ -184,11 +205,20 @@ of the day ... you have to have a level before it", not a clock)
   (+$34,972); with no level at $2.65 (+$41,519). Over the last sale's price
   keeps the other days about where they are today. No level at all did as well or better, but with 2.5 times the trades.
   All of it rests on one stock on one day.
-- **PROPOSED**: the last sale's price - back above where v38 was shaken out
-  means the drop is repaired. It is a level before the high, with a market
-  reason, and it is the owner's "a level before it". v38 logs each signal
-  that this level blocked, and what the price did in the next 15 minutes
-  (both sides). Decide again on unseen days.
+- The last sale's price can block the monster too: at speed 0.20 a 4:55am
+  trade sold BIYA at $2.93, three hours before - and the 8:20 wake-up asks
+  were $2.65-$2.86, under it (v38_thresholds.txt: BIYA -$44). Any price
+  level can sit near an old high and block the explosion.
+- With the real limit (the ask + 2%), at nine speed settings: no level kept
+  BIYA every time; the last sale's price lost it at two. Totals: no level
+  +$39,156..+$58,280 (without BIYA +$392..+$16,615); the last sale's price
+  -$3,757..+$36,278.
+- **PROPOSED (changed 10-10): no re-entry level** - every speed signal may buy,
+  as long as v38 does not hold the stock. The speed test is the filter
+  (3%+ in a minute on rising volume and $250k); a level adds nothing but a
+  way to block the wake-up. It goes against the owner's "you have to have
+  a level before it" - the owner's call. v38 logs every re-entry, and live
+  results decide.
 
 ## The checklist, answered
 
@@ -302,8 +332,8 @@ of the day ... you have to have a level before it", not a clock)
 ## Questions for the owner
 1. ANSWERED 10-10: $0.50-$20. Open: the steps and the floor in percent for
    them (to test).
-2. The re-entry level: the last sale's price (proposed), no level, or the
-   day's high?
+2. The re-entry level: no level (proposed 10-10), the last sale's price, or
+   the day's high?
 3. Which account runs v38 - one of the three (replacing v36, v37 or v36b),
    or a fourth?
 4. "Down $500": the account's equity against the day's start (proposed)? A
@@ -316,4 +346,5 @@ of the day ... you have to have a level before it", not a clock)
    owner's OK. Or the paper run itself as the first unseen days.
 8. The first buy: a limit at the ask + 2%, kept working and moved up while
    unfilled (proposed) - or a cents ceiling (2c / 5c / 10c / 20c)?
-9. The chug (20 min / +10%, the candle-low floor): paper only (proposed)?
+9. ANSWERED 10-10 (the owner): the chug in regular hours only. Proposed
+   numbers: 20 min / +10%, the floor at the last candle's low.

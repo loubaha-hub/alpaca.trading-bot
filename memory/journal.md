@@ -5,6 +5,32 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-10
 
+### The owner: the chug for regular hours only; fire earlier?; no re-entry level (~midday; findings)
+- The owner: the chug ("chug, chug, chug") NOT in premarket - short time,
+  wider spreads, thinner trading; in regular hours 9:30-4:00 (six and a half
+  hours, lower spreads, slower runs, LULD less of a worry) - "one or two a
+  day, maybe none ... they make a little bit of money, that's good".
+  replay/research/v38_chug_rth.py: the chug 9:30-4:00 only, no re-entry
+  level, a limit at the ask + 2%: 20 min / +10% 12 buys, 2 won, +$15,027
+  (WFF +$14,479, SXTC 10-07 +$4,596), without WFF +$860; 15 / 30 / 60 min
+  and 15% / 30%: +$9,445..+$16,427, without WFF -$641..+$3,284.
+- Fire earlier (v38_thresholds.py): the speed 0.25 / 0.20 / 0.15, the move
+  2%, $150k - the first signal in the first quarter of a 40%+ run goes from
+  11 to 12-14 of 39. Lower numbers do not fire earlier. With the last sale's
+  price as the level, speed 0.20 LOST BIYA: a 4:55am sale at $2.93 put the
+  level over the 8:20 wake-up ($2.65-$2.86). With no level BIYA is kept at
+  all nine settings (+$34,895..+$41,665); totals +$39,156..+$58,280.
+- Proposed (memory/words_v38.md, changed): no re-entry level - every speed
+  signal may buy while v38 does not hold the stock. Against the owner's "you
+  have to have a level before it" - the owner's call.
+- The owner's worry: "we would not have been able to enter early because our
+  speed definition is not met; entering late is not a good picture". The
+  read: BIYA's speed was met at 8:20:37 at $2.65, 1% into its $2.34 ->
+  $33.96 run, 9 seconds before the vertical part. Being "in place" sooner:
+  Alpaca takes only limit orders in extended hours (no resting buy-stop); the
+  crowd-only entry (10-08 test) lost the most; lower numbers do not fire
+  sooner. Open: a small "scout" in the leader before the speed - untested.
+
 ### Does the speed test catch the big runners early enough? (~morning; findings)
 - The owner: "BIYA would not have been picked up early ... the volume is still
   skittish and the price is not moving fast enough" - the speed's numbers are
