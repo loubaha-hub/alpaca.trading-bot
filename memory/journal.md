@@ -5,6 +5,18 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-09
 
+### DECISION (the owner, ~8:55pm): v38 always has the catastrophic shut-off at -10%
+- "That will always have to be there - a risk management tool we have to use."
+- The bot already has it for every strategy (Strategy.halted, r34.py ~2361):
+  checked on a clock every RISK_CHECK_SECONDS (5s); at the day's starting
+  equity less 10% it sells everything (flatten_all "daily-halt") and stops
+  for the day; the next days after a halt day the bar tightens (HALT_LADDER
+  10% / 5% / 2.5%, then a full stop); HALT_PCT_OVERRIDE can set it per
+  strategy (0 = off - never for v38). v38, built on the same base, keeps it;
+  its words must say so, and a test must prove it.
+- It sits under the daily -$500 size step (the owner's formula): the step
+  shrinks the bets, the -10% halt ends the day.
+
 ### The owner's formula after the daily limit (~8:50pm; finding, not decided)
 - The owner: no cap on top-ups a day ("maybe the last one is the one that
   hits the sky"); after -$500 a day v38 starts at 5% of the account, 10% at
