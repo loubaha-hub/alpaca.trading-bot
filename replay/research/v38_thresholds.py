@@ -16,7 +16,7 @@ from speedsim_giveback import run_of
 from speedsim_study import session, SESSIONS
 
 BIG = (("2026-10-06", "FRGT"), ("2026-10-07", "BIYA"), ("2026-10-07", "SBFM"), ("2026-10-08", "FLYE"))
-BASE = dict(level="exit", checks=True, limit="2%")
+BASE = dict(level=os.environ.get("V38_LEVEL", "exit"), checks=True, limit="2%")
 SETS = (("as now: 3%, speed 0.30, $250k", 0.03, 0.30, 250000),
         ("speed 0.25", 0.03, 0.25, 250000),
         ("speed 0.20", 0.03, 0.20, 250000),
@@ -36,7 +36,7 @@ def main():
     runs = [(r, run_of(r)) for k in by for r in by[k]]
     runs = [(r, rn) for r, rn in runs if rn and rn[0] - 1 >= 0.40]
     m0, s0, d0 = Q.MOVE_MIN, Q.SPEED, Q.DOLLARS_MIN
-    print("FIRING EARLIER - the speed test's numbers (v38 proposed)")
+    print("FIRING EARLIER - the speed test's numbers (v38 proposed; the re-entry level: %s)" % BASE["level"])
     print("%-30s %4s %3s " % ("", "n", "won") + " ".join("%7s" % d[5:] for d in days) +
           " %8s | %7s %7s %7s | %6s %7s %6s %6s | %s" % ("TOTAL", "PRE", "RTH", "AFTER", "FRGT", "BIYA", "SBFM", "FLYE",
                                                          "40%+ runs: fired / in the first quarter"))
