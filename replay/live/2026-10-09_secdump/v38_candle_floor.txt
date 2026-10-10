@@ -1,0 +1,6 @@
+THE CONTROL - v38 speed only, which floor (no scouts). Per session: trades, P/L, P/L without the top 3 and WFF
+                                            n    TOTAL  no BIYA  no top3 no 3+WFF | PRE n / P/L / no 3+WFF   RTH n / P/L / no 3+WFF   AFTER n / P/L / no 3+WFF | 39 runs made money / kept
+floor 3c (proposed)                       404   +43836    +2425    -3129    -3919 | 197   +45698    +1252    156     -285    -3593     51    -1577    -1577    |  7 /  -12%
+the last candle's low, at most 10%        110   +64767   +24991   +19105    +2910 |  54   +41929    -1225     39   +20827    +2123     17    +2011    +2011    | 16 /   -9%
+the last candle's low, at most 5%         150   +44620    +3922    -1680     -558 |  69   +43096     -685     56    +3048    +1651     25    -1524    -1524    | 10 /  -12%
+the lower of the last 2 candles, 10%      109   +64437   +24667   +18781    +2586 |  54   +41600    -1548     38   +20909    +2205     17    +1929    +1929    | 16 /  -11%

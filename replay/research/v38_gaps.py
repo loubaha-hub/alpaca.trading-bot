@@ -161,7 +161,7 @@ def gap_high(bars, day, sym, t0, t1):
 
 
 def play(recs, bars, level="day", red=True, wake=False, chug=None, chug_floor="3c", checks=False, gaps=None,
-         limit=None, misses=None, breath=None, pay_all=False, confirm=0):
+         limit=None, misses=None, breath=None, pay_all=False, confirm=0, speed_floor="3c"):
     """[(rec, t_in, P/L, kind, t_out)] - one stock's day, the first buy free."""
     out, first = [], True
     sold_at, since, known_to = None, None, None    # v38's last sale, the high since it, read up to
@@ -236,6 +236,14 @@ def play(recs, bars, level="day", red=True, wake=False, chug=None, chug_floor="3
                         misses.append((r["day"], r["sym"], t))
                     continue
             under = 0.03
+            if sp and speed_floor.startswith("candle") and st[k][2]:   # the speed buy's floor: the
+                lo = st[k][2]                      # last candle's low (candle2: the lower of the last two)
+                if speed_floor.startswith("candle2"):
+                    m0 = (r["start"] + k) // 60 - 2
+                    lo2 = min((x[3] for x in r["S"] if x[1] and (r["start"] + x[0]) // 60 == m0), default=lo)
+                    lo = min(lo, lo2)
+                cap_pct = 0.05 if speed_floor.endswith("5") else 0.10
+                under = min(max(fill - lo, 0.03), cap_pct * fill)
             if not sp and ch and chug_floor == "candle" and low:
                 under = min(max(fill - low, 0.03), 0.10 * fill)
             if only_br:                            # the floor: the red candle's low (at most 10%)

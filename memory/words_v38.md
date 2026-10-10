@@ -162,6 +162,12 @@ prints that qualify (the bot's qualifies()):
   third signal while both are held: no buy, logged. Tested: 2 of 188 trades
   blocked (-$41). The read holds only 99 windows - live sees more stocks.
 
+**The floor by session** (**PROPOSED** 10-10, v38_candle_floor.txt): premarket
+keeps the 3c floor; regular and after hours take the last 1-minute candle's
+low (at most 10% under the fill) - without the top 3 and WFF: RTH +$2,123
+vs -$3,593 with 3c, AFTER +$2,011 vs -$1,577, PRE -$1,225 vs +$1,252.
+The scouts (v38_scout4.txt) add nothing beyond this leash.
+
 **The floor and the sales** (**DECIDED**: the trailing thirds, the owner's,
 10-09 ~7:45pm)
 - The floor: 3c under the first fill; after each add, 3c under the new

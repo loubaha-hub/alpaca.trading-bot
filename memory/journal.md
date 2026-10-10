@@ -5,6 +5,32 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-10
 
+### The scout built right; the control: it is the leash, not the scout (~night; findings)
+- The owner: skipping a speed signal while a scout is open is "the opposite of
+  any logic - that's exactly where you should add". Right: the first scout
+  test (v38_scout.py, and the big-gain table on it) skipped it - its numbers,
+  losses and gains alike, are artifacts of that. v38_scout2 / v38_scout3 did
+  add on speed but kept the 3c floor on the added shares.
+- Built as meant (replay/research/v38_scout4.py -> v38_scout4.txt): the 1%
+  scout floats; speed on it (price at or over the scout's) adds to 11% /
+  31% / 51%; at the added shares' floor only they are sold, the scout stays.
+  Floor 3c under their average: +$44,712 (without the top 3 -$2,257); 3c
+  under the scout's price: +$42,332 (-$4,638); the last candle's low:
+  +$48,798 (+$1,828; the speed adds 36, 7 won, +$1,627). Warm and chug adds
+  made it worse.
+- The control (v38_candle_floor.py -> v38_candle_floor.txt), no scouts, v38's
+  own speed buys with the floor at the last candle's low (at most 10%):
+  110 trades, +$64,767, without BIYA +$24,991, without the top 3 +$19,105,
+  without the top 3 and WFF +$2,910 (3c floor: 404, +$43,836, -$3,129,
+  -$3,919); the 39 runs made money on 16 (3c: 7). By session, without the
+  top 3 and WFF: PRE -$1,225 (3c +$1,252), RTH +$2,123 (3c -$3,593), AFTER
+  +$2,011 (3c -$1,577). The lower of the last 2 candles: the same picture
+  (+$2,586); capped at 5%: weaker (-$558).
+- Reading: the gain was the minute-wide leash, not the scout. Regular hours
+  want it (better in every setting); premarket keeps the 3c floor - the
+  owner's standing rule of separate designs for the two. Proposed, not
+  decided; same four days.
+
 ### Wait 2 seconds before buying? (~evening; finding)
 - The owner: a wait may work against us - "in two seconds 80 or 90 percent of
   the stocks with speed will have increased in price".

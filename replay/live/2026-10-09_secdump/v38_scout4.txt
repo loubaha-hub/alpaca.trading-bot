@@ -1,0 +1,31 @@
+THE SCOUT AS THE OWNER MEANT IT - the speed adds on the scout, anchored on its price ($15,000 account)
+                                                            n    TOTAL  no BIYA  no top3 |     PRE     RTH   AFTER |  PRE noB  PRE no3 | FRGT   BIYA   SBFM   FLYE   WFF  
+v38 speed only (no scout)                                 404   +43836    +2425    -3129 |  +45698    -285   -1577 |    +4287    +1252 |  +3036 +41411  +2519  +1820   +790
+scout 1% + speed adds, floor 3c under their average       432   +44712    +3297    -2257 |  +45673    +544   -1505 |    +4258    +1223 |  +3036 +41415  +2519  +1820  +1115
+                                                              scout   38 ( 16 won)     +226 - PRE -67 / RTH +295 / AFTER -3 | bots' windows 27 +75
+                                                              speed  157 (  5 won)    -2459 - PRE -1601 / RTH -431 / AFTER -427 | bots' windows 77 -531
+                                                              v38    237 (  9 won)   +46945 - PRE +47341 / RTH +679 / AFTER -1076 | bots' windows 166 +45358
+scout 1% + speed adds, floor 3c under the SCOUT's price   316   +42332     +917    -4638 |  +47871   -3179   -2360 |    +6456    +3420 |  +3036 +41415  +2519  +1820  +5597
+                                                              scout   38 ( 16 won)     +226 - PRE -67 / RTH +295 / AFTER -3 | bots' windows 27 +75
+                                                              speed   41 (  8 won)    -4839 - PRE +597 / RTH -4154 / AFTER -1282 | bots' windows 21 +1402
+                                                              v38    237 (  9 won)   +46945 - PRE +47341 / RTH +679 / AFTER -1076 | bots' windows 166 +45358
+scout 1% + speed adds, floor the last candle's low        311   +48798    +7383    +1828 |  +48192    +698     -93 |    +6777    +3742 |  +3036 +41415  +2519  +1820  +6372
+                                                              scout   38 ( 16 won)     +226 - PRE -67 / RTH +295 / AFTER -3 | bots' windows 27 +75
+                                                              speed   36 (  7 won)    +1627 - PRE +918 / RTH -277 / AFTER +985 | bots' windows 18 +4584
+                                                              v38    237 (  9 won)   +46945 - PRE +47341 / RTH +679 / AFTER -1076 | bots' windows 166 +45358
+  the scout's floor + the warm add                        345   +42102     +769    -4786 |  +47722   -4575   -1045 |    +6389    +3353 |  +3036 +41334  +2519  +1820  +5630
+                                                              scout   38 ( 16 won)     +226 - PRE -67 / RTH +295 / AFTER -3 | bots' windows 27 +75
+                                                              speed   41 (  8 won)    -4636 - PRE +606 / RTH -5323 / AFTER +81 | bots' windows 21 +1516
+                                                              warm    29 (  1 won)     -433 - PRE -158 / RTH -227 / AFTER -48 | bots' windows 19 -299
+                                                              v38    237 (  9 won)   +46945 - PRE +47341 / RTH +679 / AFTER -1076 | bots' windows 166 +45358
+  the scout's floor + the chug adds                       326   +42156     +822    -4732 |  +47466   -3197   -2114 |    +6133    +3097 |  +3036 +41333  +2519  +1820  +5662
+                                                              scout   38 ( 16 won)     +226 - PRE -67 / RTH +295 / AFTER -3 | bots' windows 27 +75
+                                                              speed   41 (  8 won)    -3876 - PRE +791 / RTH -3581 / AFTER -1087 | bots' windows 21 +1956
+                                                              chug    10 (  1 won)    -1139 - PRE -600 / RTH -591 / AFTER +51 | bots' windows 6 -476
+                                                              v38    237 (  9 won)   +46945 - PRE +47341 / RTH +679 / AFTER -1076 | bots' windows 166 +45358
+  the scout's floor + warm + chug                         346   +42600    +1306    -4249 |  +47670   -4209    -860 |    +6375    +3340 |  +3036 +41294  +2519  +1820  +5713
+                                                              scout   38 ( 16 won)     +226 - PRE -67 / RTH +295 / AFTER -3 | bots' windows 27 +75
+                                                              speed   41 (  8 won)    -3837 - PRE +822 / RTH -4882 / AFTER +223 | bots' windows 21 +1966
+                                                              warm    25 (  0 won)     -343 - PRE -70 / RTH -217 / AFTER -56 | bots' windows 16 -218
+                                                              chug     5 (  1 won)     -391 - PRE -357 / RTH -85 / AFTER +51 | bots' windows 4 -306
+                                                              v38    237 (  9 won)   +46945 - PRE +47341 / RTH +679 / AFTER -1076 | bots' windows 166 +45358
