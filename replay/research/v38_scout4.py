@@ -40,6 +40,8 @@ ACCOUNT = 15000.0
 TOP3 = (("2026-10-07", "BIYA"), ("2026-10-06", "FRGT"), ("2026-10-07", "SBFM"))
 BIG = (("2026-10-06", "FRGT"), ("2026-10-07", "BIYA"), ("2026-10-07", "SBFM"), ("2026-10-08", "FLYE"), ("2026-10-09", "WFF"))
 SPEED_LOT = {1: 0.10, 2: 0.30, 3: 0.50}
+SPEED_NEEDS_ABOVE = True                           # a speed add only at or over the scout's price
+SPEED_FLOOR = "3c"                                 # v38's own speed buys: "3c" or "candle"
 
 
 def minute_lows(rec):
@@ -127,7 +129,8 @@ def float_scout(p, rec, sp, warm, sv, t_in, scout, floor_mode, use_warm, use_chu
             nk += 1
             if td + S.BUY_LAG < t:
                 continue
-            if (lot is None or lot["kind"] != "speed") and sp.get(k, (False,))[0] and px >= s_px - 1e-9:
+            if (lot is None or lot["kind"] != "speed") and sp.get(k, (False,))[0] and \
+                    (px >= s_px - 1e-9 or not SPEED_NEEDS_ABOVE):
                 a0 = p.ask_at(td)
                 pending = (td + S.BUY_LAG, a0 + G.cushion(sv.get(k, 0.0), a0), "speed", 1)
             elif use_warm and lot is None and warm.get(k, (False,))[0] and px >= s_px - 1e-9:
@@ -221,7 +224,10 @@ def play(recs, scout=None, floor_mode="scout", use_warm=False, use_chug=False):
                 for kind, t0, pl, te in float_scout(p, r, sp, warm, sv, t_in, scout, floor_mode, use_warm, use_chug):
                     out.append((r, t0, pl, kind, te))
                 break
-            res = Q.run_ladder(p, t_in, fill, F.FULL, 0.03, 0.10, tiers=F.TIERS)
+            under = 0.03
+            if SPEED_FLOOR == "candle" and sp[k][2]:
+                under = min(max(fill - sp[k][2], 0.03), 0.10 * fill)
+            res = Q.run_ladder(p, t_in, fill, F.FULL, under, 0.10, tiers=F.TIERS)
             out.append((r, t_in, res[1], "v38", res[0]))
             after = res[0] + S.SELL_LAG
     return out

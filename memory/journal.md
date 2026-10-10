@@ -5,6 +5,22 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-10
 
+### The clean A/B - the scout the only variable (~night; finding)
+- The owner: speed entries with scouts vs without, nothing else different -
+  does the scout help catch the big runners? replay/research/v38_scout_ab.py
+  -> v38_scout_ab.txt (v38's ladder 10/25/50%, the ask + the scale, the same
+  floor, the thirds, no level; A adds a floating 1% / 2% scout and the speed
+  buys go on top of it).
+- The 3c floor everywhere: B +$43,836 (7 of 39 runs made money); A 1%
+  +$44,167 (the scouts +$226, 7 of 39); A 2% +$44,398 (+$457, 8 of 39).
+  The last candle's low everywhere: B +$64,767 (16 of 39); A 1% +$63,250
+  (the scouts -$10; JZ 10-08 differs by $2,092 - the floor after an add moves
+  a little differently in the scout's code path, not the scout); A 2% +$63,240.
+- Every big runner the same with or without the scout (BIYA, SXTC, FRGT,
+  SBFM, FLYE); the 40%+ runs that differ do so by the scout's own few dollars
+  (WFF +$296 the most). Answer: the scout neither catches a big runner the
+  speed misses nor keeps one the speed loses.
+
 ### Does the scout get us in earlier, or keep us in, on the big runners? (~night; finding)
 - The owner: the whole idea of the scout is to keep the big runners under
   the tent - get in before it flies, stay on after it runs. Is it true?
