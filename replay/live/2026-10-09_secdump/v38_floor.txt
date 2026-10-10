@@ -1,0 +1,20 @@
+v38 (trailing thirds, $7,500 full) - WHAT THE FLOOR READS, and the sales filled worse
+                                      n won    10-06    10-07    10-08    10-09     TOTAL |      PRE      RTH    AFTER | top three   <=5s
+sales 0c under the bid, mid (as tested)  188   8     +300   +12455    -1918    -1907     +8930 |   +10240     -274    -1036 |    +16708    72%
+sales 0c under the bid, print       184   7     +949   +12455    -1918    -1859     +9627 |   +10944     -281    -1036 |    +17212    70%
+sales 0c under the bid, bid         193   7     +327   +12416    -3060    -1892     +7791 |   +10102    -1254    -1057 |    +16708    75%
+sales 0c under the bid, 3% under, print  127   6    -2364   +12672    -1154    -2553     +6601 |    +9250     -717    -1932 |    +16708    31%
+sales 0c under the bid, 5% under, print  107   9    -1409   +10885    -3019    -3851     +2607 |    +8094    -3348    -2140 |    +16708    15%
+
+sales 1c under the bid, mid (as tested)  188   8     -219   +12081    -2399    -2184     +7280 |    +9306     -714    -1312 |    +16573    72%
+sales 1c under the bid, print       184   7     +461   +12081    -2399    -2114     +8030 |   +10063     -721    -1312 |    +17073    70%
+sales 1c under the bid, bid         193   7     -236   +12037    -3556    -2177     +6069 |    +9108    -1700    -1339 |    +16573    75%
+sales 1c under the bid, 3% under, print  127   6    -2936   +12314    -1624    -2796     +4958 |    +8310    -1177    -2175 |    +16573    31%
+sales 1c under the bid, 5% under, print  107   9    -1935   +10530    -3448    -4127     +1020 |    +7239    -3861    -2358 |    +16573    15%
+
+sales 2c under the bid, mid (as tested)  188   7     -738   +11707    -2880    -2460     +5630 |    +8372    -1154    -1589 |    +16438    72%
+sales 2c under the bid, print       184   7      -26   +11707    -2880    -2370     +6432 |    +9181    -1161    -1589 |    +16933    70%
+sales 2c under the bid, bid         193   6     -799   +11659    -4052    -2461     +4347 |    +8114    -2145    -1621 |    +16438    75%
+sales 2c under the bid, 3% under, print  127   6    -3508   +11955    -2094    -3040     +3314 |    +7370    -1638    -2419 |    +16438    31%
+sales 2c under the bid, 5% under, print  107   9    -2462   +10174    -3877    -4403      -568 |    +6383    -4374    -2577 |    +16438    15%
+

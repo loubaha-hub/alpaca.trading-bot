@@ -1,0 +1,14 @@
+v38 RE-ENTRY LEVEL, STRESSED - trailing thirds, $7,500 full, the bot's buy checks on
+                                          n won   10-06   10-07   10-08   10-09    TOTAL |     PRE     RTH   AFTER |  no BIYA  per tr
+0c under the bid, the day's high        173   7    +196  +12587   -1955   -1574    +9254 |  +10033    +249   -1028 |    -2148   +53.5
+0c under the bid, the last sale's price  333  13    -903  +35957    -190   -1817   +33046 |  +34811    -397   -1368 |    -1998   +99.2
+0c under the bid, no level              424  16    -968  +46778    +671   -2272   +44209 |  +45501    +245   -1536 |    +2773  +104.3
+
+1c under the bid, the day's high        173   7    -382  +12221   -2445   -1829    +7565 |   +9024    -166   -1293 |    -3808   +43.7
+1c under the bid, the last sale's price  339  13   -1923  +35308    -812   -2531   +30043 |  +33177   -1311   -1823 |    -4959   +88.6
+1c under the bid, no level              424  16   -2095  +45914      -6   -2992   +40820 |  +43640    -859   -1961 |     -534   +96.3
+
+2c under the bid, the day's high        173   6    -960  +11855   -2934   -2085    +5877 |   +8016    -582   -1558 |    -5468   +34.0
+2c under the bid, the last sale's price  345  12   -2829  +34625   -1567   -3208   +27021 |  +31419   -2297   -2101 |    -7939   +78.3
+2c under the bid, no level              424  15   -3222  +45050    -684   -3713   +37431 |  +41779   -1962   -2386 |    -3842   +88.3
+

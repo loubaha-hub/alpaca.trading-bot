@@ -5,6 +5,44 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-09
 
+### The owner's four points on the speed test, tested (~10pm; findings, not decided)
+- The owner: catch the slow climbs too ("check, check, check, going
+  slowly" - a chug formula); a stock waking up; "we don't have to wait for
+  the high of the day ... you have to have a level before it" (not a clock);
+  the red candle is "a bad omen - a pickup after it is rare, but it happens".
+  I read "three zero three" as: the numbers stay (3%, 0.30, 30).
+- replay/research/v38_gaps.py -> v38_gaps.txt; v38_levels.py -> v38_levels.txt;
+  v38_floor.py -> v38_floor.txt (all in replay/live/2026-10-09_secdump):
+  - Red candle off: +$346 overall, all from one earlier SBFM entry (RTH); in
+    premarket the check is worth +$737. Keep it.
+  - Waking up (no volume the minute before counted as the full ratio): 20
+    more trades, 0 won, -$2,093, all regular hours - LULD halt reopens. Keep
+    "no volume, no signal".
+  - The chug: every version lost (5 min +10%, 3c floor: 62 buys, 0 won,
+    -$2,247; candle-low floors -$5,936..-$8,918). IPDN's climb was not
+    missed by the speed test (7 signals); the 3c floor threw each buy out in
+    1-3 s, and the later bursts were under the day's high.
+  - The re-entry level (with the bot's buy checks): the day's high +$9,254
+    (173 trades); over the price of v38's last sale +$33,046 (333); no level
+    +$44,209 (424). Without BIYA 10-07: -$2,148 / -$1,998 / +$2,773. With
+    sales 1c / 2c under the bid the order holds. BIYA woke 8:20:38 at $2.65,
+    under its 4am $3.10. "The highest price since the last sale": +$3,776
+    (worse than all). Proposed: the last sale's price; decide on unseen days.
+  - The bot's own furious-buy checks (spread 10c, up 5s): +$9,254 vs +$8,930,
+    neutral - v38 inherits them.
+- Other findings tonight:
+  - A buy filled 2c over the ask puts the 3c floor inside the spread:
+    -$7,841. Sales 1c / 2c under the bid: +$7,280 / +$5,630, BIYA kept.
+    v38 must buy with a limit at the ask, never paying over.
+  - Floors on prints +$9,627, the bid +$7,791, 3% under +$6,601, 5% under
+    +$2,607: the 3c floor stays.
+  - 188 trades, 8 won; avg win +$2,135, avg loss -$45; without BIYA, FRGT
+    and SBFM -$7,778; 65 losers in a row at most.
+  - FRGT and SBFM were bought under $1: inside the bot's $1-$20 band v38
+    makes +$4,377 of the +$9,254.
+  - Two positions at once blocked 2 of 188 trades (-$41).
+- v38 in words, draft 1: memory/words_v38.md - with 7 questions for the owner.
+
 ### DECISION (the owner, ~9:30pm): the top-up is a separate lot with its own floor (replaces "one floor")
 - "I like your strategy better than mine. I think we should go back to
   yours." - better returns, and a longer leash: when one lot is sold, the

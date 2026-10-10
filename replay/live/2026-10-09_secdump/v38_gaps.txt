@@ -1,0 +1,31 @@
+v38's SPEED TEST - THE OWNER'S FOUR POINTS (full read, trailing thirds, $7,500 full)
+a cell: trades, won, P/L; 'adds' / 'drops' = the trades a variant takes that v38 as tested does not, and the reverse
+
+                                                  n won   10-06   10-07   10-08   10-09    TOTAL |     PRE     RTH   AFTER | gangbstr |             adds            drops
+v38 as tested                                   188   8    +300  +12455   -1918   -1907    +8930 |  +10240    -274   -1036 |   +16823 |   0   0       +0   0   0       +0
++ the bot's buy checks (spread 10c, up 5s)      173   7    +196  +12587   -1955   -1574    +9254 |  +10033    +249   -1028 |   +16823 |  31   0    -1654  46   1    -1978
+1. red-candle check OFF                         211  10    -185  +13691   -2049   -2181    +9276 |   +9503    +870   -1097 |   +18001 |  30   3    +2633   7   1    +2287
+                                                    biggest adds: 10-07 SBFM 10:30 +3681
+2. waking up (no volume before = full ratio)    204   8    +201  +11903   -2552   -2512    +7040 |  +10240   -2164   -1036 |   +16823 |  20   0    -2093   4   0     -203
+3. re-entry over the high since the last sale   396  15   -1217   +9220    +293   -4520    +3776 |   +8035   -2985   -1275 |   +17744 | 269  10    -2720  61   3    +2434
+                                                    (5 window gaps with no saved bars: the day's high used - the stricter level)
+                                                    biggest adds: 10-06 FRGT 04:01 +3397, 10-07 SBFM 10:31 +2901, 10-08 FLYE 07:22 +2475
+   re-entry over the last sale's price          518  19   -2685  +38377    -490   -1089   +34114 |  +36000   -2110    +223 |   +47932 | 409  16   +38188  79   5   +13005
+                                                    biggest adds: 10-07 BIYA 08:20 +41519, 10-06 FRGT 04:01 +3397, 10-07 SBFM 10:31 +2901
+   re-entry with no level (speed alone)         584  22   -1648  +42476    +570   -1795   +39603 |  +41388   -1661    -124 |   +47932 | 476  19   +43651  80   5   +12979
+                                                    biggest adds: 10-07 BIYA 08:20 +41519, 10-07 SXTC 08:14 +6734, 10-06 FRGT 04:01 +3397
+4. chug 5 min +10%, 3c floor                    248   8    -160  +11666   -2067   -2634    +6805 |   +9923   -1660   -1459 |   +16823 |  62   0    -2247   2   0     -121
+                                                 62   0  chug buys: -2247; by session PRE -340 RTH -1484 AFTER -423
+4. chug 5 min +10%, candle-low floor            205  11   -2302  +10602   -2642   -5193     +465 |   +7237   -5673   -1099 |   +16823 |  28   3    -8918  11   0     -453
+                                                 28   3  chug buys: -8918; by session PRE -3089 RTH -5726 AFTER -104
+                                                    biggest adds: 10-09 YMAT 17:08 +517
+4. chug 3 min +6%, candle-low floor             187  10     +20  +11455   -5050   -2837    +3588 |  +11023   -7606    +172 |   +17790 |  41   4    -6783  42   2    -1441
+                                                 41   4  chug buys: -6783; by session PRE -172 RTH -7701 AFTER +1090
+                                                    biggest adds: 10-09 YMAT 16:28 +2594, 10-06 AIXI 04:15 +2382, 10-07 BIYA 04:12 +1081
+4. chug 5 min +15%, candle-low floor            197   8   -1676  +11019   -2425   -3706    +3212 |   +8598   -3599   -1787 |   +16823 |  13   0    -5936   4   0     -218
+                                                 13   0  chug buys: -5936; by session PRE -1642 RTH -3535 AFTER -759
+4. chug 10 min +20%, candle-low floor           193   8   -1933  +11011   -2214   -3776    +3087 |   +7749   -3058   -1603 |   +16823 |  11   0    -6228   6   0     -385
+                                                 11   0  chug buys: -6228; by session PRE -2770 RTH -2883 AFTER -575
+2+3 waking up + the since-sale level            564  18   -1887   +6341   -1848   -7895    -5289 |   +8035  -12050   -1275 |   +17744 | 444  13   -12210  68   3    +2010
+                                                    (5 window gaps with no saved bars: the day's high used - the stricter level)
+                                                    biggest adds: 10-06 FRGT 04:01 +3397, 10-07 SBFM 10:31 +2901, 10-08 FLYE 07:22 +2475

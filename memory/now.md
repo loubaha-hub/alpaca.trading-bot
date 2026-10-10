@@ -1,6 +1,6 @@
 # Where things stand
 
-Updated 2026-10-09, ~9:30pm ET.
+Updated 2026-10-09, ~10:30pm ET.
 
 ## 10-09 morning
 - Working branch: `claude/three-strategies-x69ppg` (from
@@ -143,9 +143,14 @@ Updated 2026-10-09, ~9:30pm ET.
   - Full read ($15,000, full $7,500): trailing thirds +$8,930 (PRE +$10,240,
     RTH -$274, AFTER -$1,036); with the after-limit formula +$10,212 all day,
     +$10,648 premarket only; v36 -$2,733, v36b -$1,362, v37 -$2,165.
-  - NEXT: v38 in words against memory/checklist.md for the owner to read
-    before any code; the recent-high re-entry test; the two-positions room
-    check in the simulator.
+  - v38 IN WORDS, draft 1: memory/words_v38.md - WAITING ON THE OWNER to
+    read it and answer its 7 questions (price band under $1?, the re-entry
+    level, which account, "down $500" defined, the +30% top-up, a real-money
+    position at 9:30, unseen days). Tonight's tests (journal 10-09 ~10pm):
+    red candle stays, no wake-up from zero volume, no chug signal found,
+    the re-entry level over the last sale's price proposed (+$33,046 vs
+    +$9,254 for the day's high - BIYA), buys at the ask only.
+  - NEXT after the owner's answers: draft 2 of the words, then the code.
 
 ## 10-08 night
 - Live: **r34.38** (main d439a58, up 10:41:40pm 10-08, all three 0 positions): r34.37 with the owner's corrected
