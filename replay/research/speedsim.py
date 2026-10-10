@@ -165,6 +165,7 @@ def run_ladder(path, t0, fill0, full, stop_under, arm, steps=((0.10, 0.5), (0.20
     banked, sold, j = 0.0, 0, 0
     under_since = None
     topped = topup is None
+    topup_at = None
     pending = []                                   # adds sent, not filled yet: (fill time, k)
     i = path.at(t0)
     for t, p, b, a in path.ev[i:]:
@@ -216,17 +217,20 @@ def run_ladder(path, t0, fill0, full, stop_under, arm, steps=((0.10, 0.5), (0.20
             j += 1
             if ratchet:                            # the stop climbs to the level before
                 stop = max(stop, avg * (1 + (scale[j - 2][0] if j >= 2 else 0.0)))
-        if not topped and k >= len(steps) and not pending and best >= avg * (1 + topup[0]) - 1e-9:
-            topped = True                          # it proved itself: up to the full size
-            px = path.ask_at(t + S.BUY_LAG)
+        if topup_at is not None and t >= topup_at:      # the top-up fills BUY_LAG after the signal
+            px = path.ask_at(topup_at)
             add = int((topup[1] - cost) / px) if px and px > 0 else 0
             if add > 0:
                 sh += add
                 cost += add * px
                 avg = cost / sh
-                stop = max(stop, avg - stop_under)
+                stop = max(stop, avg - stop_under)     # one floor: the whole position's break-even
                 if trace is not None:
-                    trace.append((t + S.BUY_LAG, "add", add, px, avg, stop))
+                    trace.append((topup_at, "add", add, px, avg, stop))
+            topup_at = None
+        if not topped and k >= len(steps) and not pending and best >= avg * (1 + topup[0]) - 1e-9:
+            topped = True                          # it proved itself: up to the full size
+            topup_at = t + S.BUY_LAG
         tiers_on = bool(tiers) and k >= len(steps) and not pending and \
             (not tiers_from or best >= avg * (1 + tiers_from) - 1e-9)
         armed = (not tiers or (tiers_from and not tiers_on)) and \
