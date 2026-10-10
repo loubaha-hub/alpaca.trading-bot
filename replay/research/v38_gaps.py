@@ -51,8 +51,8 @@ def minutes(rec):
     return m
 
 
-def signals(rec, red=True, wake=False, chug=None, checks=False):
-    """{second: (speed?, chug?, last closed candle's low)}"""
+def signals(rec, red=True, wake=False, chug=None, checks=False, breath=None):
+    """{second: (speed?, chug?, last closed candle's low, the breather's floor or None)}"""
     rows = {r[0]: r for r in rec["S"] if r[1]}
     if not rows:
         return {}
@@ -102,11 +102,23 @@ def signals(rec, red=True, wake=False, chug=None, checks=False):
                 ch_on = (bars[-1][3] >= bars[0][0] * (1 + x)
                          and all(b[4] >= Q.DOLLARS_MIN for b in bars)
                          and close[k] > max(b[1] for b in bars) + 1e-9)
-        if checks and (sp_on or ch_on):
+        br_low = None
+        if breath and close[k] and bar is not None and is_red and mins.get(m):
+            n, run_min, back = breath                # the owner's breather (10-10): after a run,
+            had = [b for b in (mins.get(m - 1 - i) for i in range(n, 0, -1)) if b]
+            if had:                                  # the first red candle (the breath), then
+                lo = min(b[2] for b in had)          # 1c over its open as the next one goes green
+                hi = max(max(b[1] for b in had), bar[1])
+                if (hi >= lo * (1 + run_min) and hi - bar[2] <= back * (hi - lo)
+                        and sum(b[4] for b in had) >= n * Q.DOLLARS_MIN
+                        and close[k] >= bar[0] + 0.01 - 1e-9 and close[k] > mins[m][0] + 1e-9):
+                    br_low = bar[2]
+        if checks and (sp_on or ch_on or br_low):
             up5 = k >= 5 and close[k - 5] and close[k] > close[k - 5]
             if not up5 or spread[k] is None or spread[k] > 0.10 + 1e-9:
                 sp_on = ch_on = False
-        out[k] = (sp_on, ch_on, low)
+                br_low = None
+        out[k] = (sp_on, ch_on, low, br_low)
     return out
 
 
@@ -119,13 +131,14 @@ def gap_high(bars, day, sym, t0, t1):
 
 
 def play(recs, bars, level="day", red=True, wake=False, chug=None, chug_floor="3c", checks=False, gaps=None,
-         limit=None, misses=None):
+         limit=None, misses=None, breath=None):
     """[(rec, t_in, P/L, kind, t_out)] - one stock's day, the first buy free."""
     out, first = [], True
     sold_at, since, known_to = None, None, None    # v38's last sale, the high since it, read up to
     exit_px = None                                 # the price v38 last sold it at (level="exit")
     for r in recs:
-        p, st = S.Path(r), signals(r, red, wake, chug, checks)
+        p, st = S.Path(r), signals(r, red, wake, chug, checks, breath)
+        used = set()                               # one breather buy per red candle
         hi = {x[0]: x[2] for x in r["S"] if x[2]}
         after, top = -1.0, r.get("hod_before")
         if since is not None and known_to is not None and known_to < r["start"]:
@@ -136,7 +149,7 @@ def play(recs, bars, level="day", red=True, wake=False, chug=None, chug_floor="3
                     gaps.append((r["day"], r["sym"]))
             since = max(since, gh)
         for k in sorted(st):
-            sp, ch, low = st[k]
+            sp, ch, low, br = st[k]
             h = hi.get(k)
             t = r["start"] + k + 0.99
             prev, prev_since = top, since
@@ -144,9 +157,13 @@ def play(recs, bars, level="day", red=True, wake=False, chug=None, chug_floor="3
                 top = h if top is None else max(top, h)
                 if since is not None and t > sold_at:
                     since = max(since, h)
-            if t <= after or not (sp or ch):
+            if t <= after or not (sp or ch or br):
                 continue
-            if not first:
+            only_br = br and not (sp or ch)        # the breather has its own level: the run and
+            mm = (r["start"] + k) // 60            # its pause - no re-entry level
+            if only_br and mm in used:
+                continue
+            if not first and not only_br:
                 if h is None:
                     continue
                 if level == "day" and (prev is None or h <= prev + 1e-9):
@@ -169,10 +186,13 @@ def play(recs, bars, level="day", red=True, wake=False, chug=None, chug_floor="3
                         misses.append((r["day"], r["sym"], t))
                     continue
             under = 0.03
-            if not sp and chug_floor == "candle" and low:
+            if not sp and ch and chug_floor == "candle" and low:
                 under = min(max(fill - low, 0.03), 0.10 * fill)
+            if only_br:                            # the floor: the red candle's low (at most 10%)
+                under = min(max(fill - br, 0.03), 0.10 * fill)
+                used.add(mm)
             te, pl, why, best, sh, avg, adds = Q.run_ladder(p, t_in, fill, F.FULL, under, 0.10, tiers=F.TIERS)
-            out.append((r, t_in, pl, "speed" if sp else "chug", te))
+            out.append((r, t_in, pl, "speed" if sp else "chug" if ch else "breath", te))
             after, first = te + S.SELL_LAG, False
             sold_at, since = te, 0.0               # the high since this sale starts now
             exit_px = p.bid_at(te + S.SELL_LAG)

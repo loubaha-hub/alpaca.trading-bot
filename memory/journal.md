@@ -5,6 +5,36 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-10
 
+### Does the speed test catch the big runners early enough? (~morning; findings)
+- The owner: "BIYA would not have been picked up early ... the volume is still
+  skittish and the price is not moving fast enough" - the speed's numbers are
+  not met early in a run; "we'd have lost some of the good ones".
+- BIYA 10-07, second by second (the read has every trade and quote): before
+  8:20:36 the 60s move was 3-6% but the volume ratio 1.5-3.6 (speed under
+  0.30). At 8:20:36-37, 45k and 30k shares: the speed ON at 8:20:37, $2.65
+  (+7.7%, ratio 4.5, $803k), again from 8:20:41 at $2.80. The vertical part
+  came at 8:20:46-48 ($3.25 -> $9.60). The asks 8:20:37-44: $2.65-$2.86 -
+  about 7 seconds to get in. What loses it is the day's high ($3.10 at 4am,
+  first passed 8:20:46) and a slow fill, not the speed test. The bot's spread
+  check (10c) blocks the buy from 8:20:48 on.
+- All 39 runs of 40%+ in the read (replay/research/v38_early.py ->
+  v38_early.txt): the speed fired on the way up in 32 (PRE 17 of 22, RTH 14
+  of 14, AFTER 1 of 3), within the first quarter of the run in 11. Never in
+  7: spikes over in 9-62 seconds (NXAT, RUBI, BYAH, SXTC 10-08, BDAI) and two
+  after hours (WORX, APUS).
+- The owner's breather (run, slow down, run again - buy in the pause; the
+  playbook's first red then green, the floor at the red's low; v38_breath.py):
+  10 min / 20%+ run: the breather buys +$14,466 (54, 6 won) - WFF +$19,174;
+  premarket -$910. 10 min / 30%: -$5,679; 50%: -$3,133; 20 min / 30%:
+  +$10,458 (WFF +$15,768); a third back: -$3,554; 5 min / 20%: -$6,159.
+  Premarket negative in every setting; the plus is WFF (regular hours) and
+  not stable. Same picture as the chug.
+- The owner on the 10-09 misses: AIXI 1:04pm, FLYE 3:05pm, ZYBT 3:06pm, AAOX
+  9:31am are regular hours - v38's prime is premarket, so they matter less.
+  Premarket misses on 10-09: MI 4:32:42 v37 0 (2,019 a second later), MI
+  4:33:45 v36b 0 (v36 at +20c 872 of 2,600), XRTX 7:47 v36b 17% (v36 65%),
+  VIVK 9:07 v36b 0, VIVK 9:13 v37 0 (v36 24%); VEEA 7:00 85-88%.
+
 ### DECISION (the owner, ~early am): v38 buys from $0.50, never under
 - "In this beginning, we can take the bar down to 50 cents and we should not
   go below that." A 50c stock to $2 is 4x; they trade in big lots with
