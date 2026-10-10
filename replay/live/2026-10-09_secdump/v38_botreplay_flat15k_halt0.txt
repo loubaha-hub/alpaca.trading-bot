@@ -1,0 +1,22 @@
+2026-10-06: start $15000, end $12076 (-2924), 32 trades, the halt at -0.0%
+2026-10-07: start $15000, end $82709 (+67709), 42 trades, the halt at -0.0%
+2026-10-08: start $15000, end $14822 (-178), 25 trades, the halt at -0.0%
+2026-10-09: start $15000, end $25188 (+10188), 21 trades, the halt at -0.0%
+
+THE BOT'S V38 CODE, as it will run: one account, EACH DAY FROM $15,000 (no compounding), two at once, small sizes after -$500, the halt OFF (lag 1.0s) - WITH BIYA
+day    | PRE 4:00-9:30          | RTH 9:30-4:00          | AFTER 4:00-8:00        | THE DAY
+10-06  |  19   5 won    -1014 |   9   1 won    -1456 |   4   0 won     -454 |  32   6 won    -2924
+10-07  |  18   2 won   +42849 |  17   5 won   +31353 |   7   0 won    -6493 |  42   7 won   +67709
+10-08  |  13   4 won     +579 |   9   2 won     +811 |   3   1 won    -1568 |  25   7 won     -178
+10-09  |   7   1 won    -1182 |  10   2 won    +5224 |   4   2 won    +6147 |  21   5 won   +10188
+TOTAL  |  57  12 won   +41231 |  45  10 won   +35932 |  18   3 won    -2368 | 120  25 won   +74795
+
+THE BOT'S V38 CODE, as it will run: one account, EACH DAY FROM $15,000 (no compounding), two at once, small sizes after -$500, the halt OFF (lag 1.0s) - WITHOUT BIYA
+day    | PRE 4:00-9:30          | RTH 9:30-4:00          | AFTER 4:00-8:00        | THE DAY
+10-06  |  19   5 won    -1014 |   9   1 won    -1456 |   4   0 won     -454 |  32   6 won    -2924
+10-07  |  11   1 won    +1041 |  17   5 won   +31353 |   7   0 won    -6493 |  35   6 won   +25901
+10-08  |  13   4 won     +579 |   9   2 won     +811 |   3   1 won    -1568 |  25   7 won     -178
+10-09  |   7   1 won    -1182 |  10   2 won    +5224 |   4   2 won    +6147 |  21   5 won   +10188
+TOTAL  |  50  11 won     -576 |  45  10 won   +35932 |  18   3 won    -2368 | 113  24 won   +32988
+
+by stock, best and worst: 10-07 BIYA +41807, 10-07 SXTC +33030, 10-07 SBFM +9846, 10-09 WFF +5959, 10-09 YMAT +5387, 10-08 FLYE +2186 ... 10-07 AIXI -4032, 10-07 DKI -3092, 10-07 NCPL -2083, 10-07 APUS -2018

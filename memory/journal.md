@@ -5,6 +5,39 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-10
 
+### v38 built (r34.42, branch) and replayed through the bot's own code (~night)
+- Built as the words say (memory/words_v38.md): r34.py class V38, switched on
+  per account with SLOT_V31 / SLOT_V34 / SLOT_V35 = v38 (T6HH / P28T / AUES).
+  Sizes from the account's equity now, so it compounds day to day. 44 tests
+  in tests/test_v38.py; all 722 tests pass. Not on main.
+- Fixed while building: the floor on the bid-ask midpoint now sells even when
+  the print is set aside as off the quote (as v36's bid stop); a sold third
+  no longer logs "STILL HOLDING" as if the exit had failed (log only, shared
+  code).
+- replay/research/v38_botreplay.py: the saved second-by-second read
+  (10-06..10-09) fed print by print through V38.evaluate; buys at the ask 1.0s
+  (or 0.3s) after the order, sales at the bid 0.5s after; quotes and candles
+  on time while the bot waits in an order, as live. Outputs in
+  replay/live/2026-10-09_secdump/v38_botreplay_*.txt.
+- On the research's terms (each stock alone, $15,000 fixed): +$59,507, 131
+  trades (research +$64,767, 110); without BIYA +$20,651 (research
+  +$24,991). BIYA +$38,856 (research +$39,776). The code does what was tested.
+- As it will run (one account, two at once, small sizes after -$500), each
+  day from $15,000: the halt as coded (-10%, then 5%, 2.5%, then stopped):
+  -$2,648, stopped after three halted days; the halt at -10% every day:
+  -$4,738 (halted 10-06, 10-07, 10-09); the halt off: +$74,795 (without
+  BIYA +$32,988; PRE +$41,231 / RTH +$35,932 / AFTER -$2,368; worst day
+  10-06 -$2,924 = -19.5%). Compounding from $15,000: halt off $15,000 ->
+  $102,204; -20% and -30% the same (never reached).
+- Why: 7 ordinary floor losses (-0.4% to -4% of the account each) reach -10%
+  before the day's runner - 10-07 halted at 5:35am, before BIYA 8:20 and
+  SXTC; 10-09 halted in premarket, before WFF. The -10% (the owner's
+  decision, 10-09) and v38's design (many small losses, rare monsters)
+  conflict: **for the owner to decide**. Not changed.
+- The replay's fills are kinder than live (the whole order at the top of the
+  book); the compounded sizes ($30k positions by 10-09) would not fill so in
+  thin premarket names.
+
 ### What could still block a big runner live (~night; for the owner)
 - The owner: any other restrictions in the way of the big runners, before
   v38 goes to work? Listed in memory/words_v38.md ("What could still block a

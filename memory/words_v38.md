@@ -390,13 +390,30 @@ nothing else. The live bot has more, and v38 must not inherit these:
 - The standing rule "the #1 and #2 leaders first, never banned for ripping":
   v38 never bans a runner; it does not rank leaders (above).
 
+## Built (r34.42, 10-10 night) and replayed through the bot's own code
+- r34.py V38; tests/test_v38.py; replay/research/v38_botreplay.py.
+- On the research's terms: +$59,507 / 131 trades (research +$64,767 / 110).
+- As it will run, each day from $15,000 - by the halt:
+  -10% and the ladder (as coded): -$2,648, stopped after three halted days;
+  -10% every day: -$4,738; off (or -20%, -30%: never reached): +$74,795,
+  without BIYA +$32,988; worst day -19.5% (10-06).
+- **The conflict, for the owner**: the decided -10% shut-off stops v38 on an
+  ordinary morning of floor losses, before the runner it exists for (10-07
+  before BIYA and SXTC, 10-09 before WFF). The halt is meant for a
+  catastrophe (a bug, a runaway), not a normal losing streak. PROPOSED: for
+  v38 the shut-off at -25% (beyond the worst day seen, -19.5%), no ladder;
+  three halted days in a row still stop it. A setting, V38_HALT_PCT, in
+  Render - no code change.
+
 ## Questions for the owner
 1. ANSWERED 10-10: $0.50-$20. Open: the steps and the floor in percent for
    them (to test).
 2. The re-entry level: no level (proposed 10-10), the last sale's price, or
    the day's high?
 3. Which account runs v38 - one of the three (replacing v36, v37 or v36b),
-   or a fourth?
+   or a fourth? PROPOSED: P28T (v37's, SLOT_V34=v38) - v37 is its nearest
+   relative (speed, no candles), and ~$13.4k is nearest the tested $15k.
+10. The shut-off for v38 (above): -10% as decided, or -25% (proposed)?
 4. "Down $500": the account's equity against the day's start (proposed)? A
    fixed $500, or a percent of the account (3.3% of $15,000)?
 5. The top-up at +30% (tested best)?

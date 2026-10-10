@@ -2,6 +2,16 @@
 
 Updated 2026-10-10, night ET.
 
+## 10-10 night: v38 built - waiting on the owner
+- Branch `claude/three-strategies-x69ppg`: r34.42 = v38 (and r34.41). main is
+  still r34.40. All 722 tests pass. Nothing deployed.
+- Replayed through the bot's own code (journal, 10-10 "v38 built"): matches
+  the research; as it will run, the -10% shut-off stops it before the
+  runners (-$4,738 over the 4 days vs +$74,795 with no shut-off).
+- Waiting on the owner: (1) which account (proposed P28T, SLOT_V34=v38);
+  (2) v38's shut-off (-10% decided; -25% proposed, V38_HALT_PCT); (3) the OK
+  to merge to main - a weekend deploy, all accounts flat.
+
 ## 10-09 morning
 - Working branch: `claude/three-strategies-x69ppg` (from
   `claude/happy-ride-o56nlz`, same history). Nothing goes to `main`

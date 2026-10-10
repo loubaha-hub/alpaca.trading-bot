@@ -1,0 +1,22 @@
+2026-10-06: start $15000, end $11953 (-3047), 33 trades, the halt at -0.0%
+2026-10-07: start $11953, end $67370 (+55417), 42 trades, the halt at -0.0%
+2026-10-08: start $67370, end $57936 (-9434), 28 trades, the halt at -0.0%
+2026-10-09: start $57936, end $96294 (+38358), 21 trades, the halt at -0.0%
+
+THE BOT'S V38 CODE, as it will run: one account, from $15,000 compounding, two at once, small sizes after -$500, the halt OFF (lag 0.3s) - WITH BIYA
+day    | PRE 4:00-9:30          | RTH 9:30-4:00          | AFTER 4:00-8:00        | THE DAY
+10-06  |  20   5 won    -1170 |   9   1 won    -1361 |   4   0 won     -516 |  33   6 won    -3047
+10-07  |  18   2 won   +34458 |  17   5 won   +26190 |   7   0 won    -5231 |  42   7 won   +55417
+10-08  |  15   4 won    -3883 |  10   1 won    -2670 |   3   0 won    -2882 |  28   5 won    -9434
+10-09  |   7   1 won    -5073 |  10   2 won   +19653 |   4   2 won   +23778 |  21   5 won   +38358
+TOTAL  |  60  12 won   +24332 |  46   9 won   +41813 |  18   2 won   +15149 | 124  23 won   +81294
+
+THE BOT'S V38 CODE, as it will run: one account, from $15,000 compounding, two at once, small sizes after -$500, the halt OFF (lag 0.3s) - WITHOUT BIYA
+day    | PRE 4:00-9:30          | RTH 9:30-4:00          | AFTER 4:00-8:00        | THE DAY
+10-06  |  20   5 won    -1170 |   9   1 won    -1361 |   4   0 won     -516 |  33   6 won    -3047
+10-07  |  11   1 won     +127 |  17   5 won   +26190 |   7   0 won    -5231 |  35   6 won   +21086
+10-08  |  15   4 won    -3883 |  10   1 won    -2670 |   3   0 won    -2882 |  28   5 won    -9434
+10-09  |   7   1 won    -5073 |  10   2 won   +19653 |   4   2 won   +23778 |  21   5 won   +38358
+TOTAL  |  53  11 won    -9999 |  46   9 won   +41813 |  18   2 won   +15149 | 117  22 won   +46964
+
+by stock, best and worst: 10-07 BIYA +34331, 10-07 SXTC +26080, 10-09 WFF +22909, 10-09 YMAT +19666, 10-07 SBFM +8805, 10-08 AIXI +4924 ... 10-08 BIAF -3448, 10-08 IPW -3258, 10-07 AIXI -3228, 10-09 BDAI -3139

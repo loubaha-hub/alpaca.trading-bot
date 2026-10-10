@@ -1,0 +1,18 @@
+
+THE BOT'S V38 CODE, research terms: each stock alone, $15,000 fixed (lag 1.0s) - WITH BIYA
+day    | PRE 4:00-9:30          | RTH 9:30-4:00          | AFTER 4:00-8:00        | THE DAY
+10-06  |  24   6 won     -781 |   9   2 won    -1909 |   4   0 won    -1027 |  37   8 won    -3717
+10-07  |  18   2 won   +41354 |  19   5 won    +7721 |   7   0 won    -1118 |  44   7 won   +47957
+10-08  |  13   4 won     +713 |   9   2 won     +735 |   3   1 won    -1466 |  25   7 won      -17
+10-09  |   8   1 won    -1106 |  12   2 won   +11871 |   5   2 won    +4520 |  25   5 won   +15285
+TOTAL  |  63  13 won   +40181 |  49  11 won   +18418 |  19   3 won     +909 | 131  27 won   +59507
+
+THE BOT'S V38 CODE, research terms: each stock alone, $15,000 fixed (lag 1.0s) - WITHOUT BIYA
+day    | PRE 4:00-9:30          | RTH 9:30-4:00          | AFTER 4:00-8:00        | THE DAY
+10-06  |  24   6 won     -781 |   9   2 won    -1909 |   4   0 won    -1027 |  37   8 won    -3717
+10-07  |  11   1 won    +2498 |  19   5 won    +7721 |   7   0 won    -1118 |  37   6 won    +9101
+10-08  |  13   4 won     +713 |   9   2 won     +735 |   3   1 won    -1466 |  25   7 won      -17
+10-09  |   8   1 won    -1106 |  12   2 won   +11871 |   5   2 won    +4520 |  25   5 won   +15285
+TOTAL  |  56  12 won    +1325 |  49  11 won   +18418 |  19   3 won     +909 | 124  26 won   +20651
+
+by stock, best and worst: 10-07 BIYA +38856, 10-09 WFF +14103, 10-07 SXTC +11765, 10-09 YMAT +3821, 10-07 SBFM +2604, 10-08 FLYE +2188 ... 10-06 APUS -2498, 10-06 LCFY -1088, 10-07 APUS -1023, 10-09 BDAI -999
