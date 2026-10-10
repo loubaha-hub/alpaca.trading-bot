@@ -25,8 +25,12 @@ def main():
     F.FULL = 7500.0
     V.SPEED_LOT = {1: 0.10, 2: 0.25, 3: 0.50}      # exactly v38's ladder
     V.SPEED_NEEDS_ABOVE = False                    # the speed adds whenever the speed fires, as v38
+    drop = os.environ.get("V38_DROP")              # e.g. 2026-10-07:BIYA - that stock-day left out
+    if drop:
+        by = {k: v for k, v in by.items() if k != tuple(drop.split(":"))}
     runs = [(r, rn) for k in by for r in by[k] for rn in [run_of(r)] if rn and rn[0] - 1 >= 0.40]
-    print("THE CLEAN A/B - speed entries with scouts vs without, nothing else different")
+    print("THE CLEAN A/B - speed entries with scouts vs without, nothing else different%s" % (
+        " - WITHOUT %s" % drop if drop else ""))
     print("%-44s %4s %8s %8s %8s | %7s %7s %7s | %s" % ("", "n", "TOTAL", "no BIYA", "no top3", "PRE", "RTH", "AFTER",
           "the scouts' own P/L / the 39 runs made money on"))
     for floor, fname in (("3c", "the 3c floor everywhere"), ("candle", "the last candle's low everywhere")):
