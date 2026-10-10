@@ -1,0 +1,58 @@
+THE OWNER'S CHUG - N minutes up X%, $250k a minute on average (trailing thirds, $7,500 full, the bot's buy checks)
+                                                n won   10-06   10-07   10-08   10-09    TOTAL |     PRE     RTH   AFTER | the chug buys: n, won, P/L, PRE / RTH / AFTER
+
+== re-entry over the day's high ==
+speed alone (no chug)                         173   7    +196  +12587   -1955   -1574    +9254 |  +10033    +249   -1028 | 
+chug 20 min +10% (the owner's), 3c floor      242   7    -504  +11698   -2062   -2540    +6591 |   +9519   -1251   -1677 |  80  0   -3117  -793 / -1610 / -714
+                                                  the chug buys without WFF 10-09: 66, -2768
+chug 20 min +10%, candle-low floor            177   9   -3096  +11286   -2868   +2088    +7410 |   +9385   +1428   -3404 |  31  3   -2876  -1084 / +655 / -2448
+                                                  the chug buys without WFF 10-09: 28, -8355
+                                                  best chug buys: 10-09 WFF 12:49 +6161, 10-07 LPCN 06:53 +1026, 10-06 IPDN 08:11 +474
+chug 15 min +10%, 3c floor                    252   7    -551  +11708   -2169   -2612    +6375 |   +9432   -1377   -1680 |  90  0   -3332  -880 / -1736 / -716
+                                                  the chug buys without WFF 10-09: 74, -2942
+chug 30 min +10%, 3c floor                    231   7    -187  +11826   -2158   -2427    +7053 |   +9920   -1193   -1674 |  68  0   -2643  -391 / -1541 / -710
+                                                  the chug buys without WFF 10-09: 55, -2342
+chug 20 min +15%, 3c floor                    234   7    -369  +11834   -2071   -2499    +6894 |   +9606   -1055   -1657 |  67  0   -2749  -705 / -1415 / -629
+                                                  the chug buys without WFF 10-09: 55, -2441
+chug 30 min +15%, 3c floor                    224   7     -65  +11842   -2158   -2384    +7235 |   +9920   -1012   -1674 |  61  0   -2461  -391 / -1360 / -710
+                                                  the chug buys without WFF 10-09: 50, -2205
+chug 15 min +10%, candle-low floor            177  10   -3424  +11089   -3041   +5739   +10363 |   +8875   +1015    +473 |  33  4     +31  -1594 / +242 / +1383
+                                                  the chug buys without WFF 10-09: 30, -5448
+                                                  best chug buys: 10-09 WFF 12:49 +6161, 10-09 YMAT 16:28 +2594, 10-07 LPCN 06:53 +1026, 10-06 IPDN 08:11 +474
+chug 30 min +10%, candle-low floor            175  10   -2359  +10104   -2884   +2409    +7271 |   +8203    +354   -1286 |  26  3   -2998  -2184 / -450 / -364
+                                                  the chug buys without WFF 10-09: 24, -8266
+                                                  best chug buys: 10-09 WFF 12:50 +5639, 10-09 YMAT 17:08 +517, 10-06 IPDN 08:11 +474
+chug 20 min +15%, candle-low floor            181   8   -2426  +10015   -2278   +1566    +6878 |   +7791   +1900   -2813 |  29  2   -3331  -2665 / +1128 / -1793
+                                                  the chug buys without WFF 10-09: 26, -8288
+                                                  best chug buys: 10-09 WFF 12:50 +5639, 10-06 IPDN 08:11 +474
+chug 30 min +15%, candle-low floor            172  10   -1564  +10153   -2884   +2409    +8113 |   +8203   +1197   -1286 |  23  3   -2155  -2184 / +393 / -364
+                                                  the chug buys without WFF 10-09: 21, -7423
+                                                  best chug buys: 10-09 WFF 12:50 +5639, 10-09 YMAT 17:08 +517, 10-06 IPDN 08:11 +474
+
+== re-entry over the last sale's price ==
+speed alone (no chug)                         333  13    -903  +35957    -190   -1817   +33046 |  +34811    -397   -1368 | 
+chug 20 min +10% (the owner's), 3c floor      511  13   -2037  +28330    -266   -5226   +20801 |  +29319   -6026   -2492 | 198  1   -6976  -1177 / -4619 / -1181
+                                                  the chug buys without WFF 10-09: 154, -6061
+chug 20 min +10%, candle-low floor            277  11   -3948  +34416   -1315  +10234   +39387 |  +34548   +8660   -3820 |  32  3   +4634  -982 / +8141 / -2524
+                                                  the chug buys without WFF 10-09: 30, -9533
+                                                  best chug buys: 10-09 WFF 11:35 +14479, 10-07 LPCN 06:53 +1026, 10-06 IPDN 08:11 +474
+chug 15 min +10%, 3c floor                    538  13   -2269  +28178    -354   -5437   +20118 |  +29002   -6512   -2373 | 228  1   -7721  -1505 / -5136 / -1080
+                                                  the chug buys without WFF 10-09: 179, -6593
+chug 30 min +10%, 3c floor                    496  12   -1671  +28601    -411   -5344   +21175 |  +29785   -6209   -2401 | 184  0   -6543  -687 / -4767 / -1089
+                                                  the chug buys without WFF 10-09: 142, -5576
+chug 20 min +15%, 3c floor                    490  12   -1807  +28485    -256   -5116   +21305 |  +29424   -5758   -2361 | 174  0   -6403  -1059 / -4351 / -993
+                                                  the chug buys without WFF 10-09: 136, -5599
+chug 30 min +15%, 3c floor                    483  12   -1399  +28658    -411   -5382   +21466 |  +29785   -5918   -2401 | 166  0   -6169  -687 / -4392 / -1089
+                                                  the chug buys without WFF 10-09: 126, -5240
+chug 15 min +10%, candle-low floor            270  14   -4868  +35577    -511  +14216   +44415 |  +33273  +10976    +166 |  35  6   +9392  -2281 / +10351 / +1323
+                                                  the chug buys without WFF 10-09: 33, -4775
+                                                  best chug buys: 10-09 WFF 11:35 +14479, 10-09 YMAT 16:28 +2594, 10-07 LPCN 06:53 +1026, 10-07 SXTC 13:25 +904
+chug 30 min +10%, candle-low floor            283  15   -3162  +33121   -1468  +11287   +39778 |  +33319   +8035   -1577 |  28  3   +5210  -1955 / +7529 / -364
+                                                  the chug buys without WFF 10-09: 27, -9269
+                                                  best chug buys: 10-09 WFF 11:35 +14479, 10-09 YMAT 17:08 +517, 10-06 IPDN 08:11 +474
+chug 20 min +15%, candle-low floor            287  10   -3420  +32760    -717  +10234   +38857 |  +32933   +9146   -3222 |  30  2   +4558  -2564 / +8992 / -1870
+                                                  the chug buys without WFF 10-09: 28, -9609
+                                                  best chug buys: 10-09 WFF 11:35 +14479, 10-06 IPDN 08:11 +474
+chug 30 min +15%, candle-low floor            282  15   -2578  +33234   -1468  +11287   +40474 |  +33319   +8732   -1577 |  25  3   +5996  -1955 / +8315 / -364
+                                                  the chug buys without WFF 10-09: 24, -8483
+                                                  best chug buys: 10-09 WFF 11:35 +14479, 10-09 YMAT 17:08 +517, 10-06 IPDN 08:11 +474

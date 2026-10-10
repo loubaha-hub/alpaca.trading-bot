@@ -3,6 +3,54 @@
 Decisions, instructions and results worth keeping. Newest first. Dates are ET.
 Each entry: what was decided or found, the numbers, why, and where it lives.
 
+## 2026-10-10
+
+### DECISION (the owner, ~early am): v38 buys from $0.50, never under
+- "In this beginning, we can take the bar down to 50 cents and we should not
+  go below that." A 50c stock to $2 is 4x; they trade in big lots with
+  spreads under a penny; the owner has made good money down to 30c. v38's
+  band: $0.50-$20 (the scanner must add $0.50-$1 names for v38 only).
+- The owner: the cents rules do not fit them (+10c on 50c is 20%). Found: in
+  percent the spreads are alike at every price (median 0.59% under $1 =
+  0.45c; 0.68% $1-$3; 0.59% $3-$10; 0.67% over $10). Open: steps and floor
+  in percent - to test.
+
+### The owner: not losing the big runners at the buy is the whole game (~early am; findings)
+- The owner: "if we exclude those two or three big runners, the strategy is
+  dead in the water" - so the buy must not miss them. Willing to pay 10-20c
+  over the ask, but in a thin premarket the many quick losers pay it too.
+  The owner thought the bots re-place an unfilled buy at once (paper ~0.2s,
+  real money ~50ms). Fact: a furious first buy is ONE limit, working 0.5s,
+  cancelled (confirmed); the next try waits for the next furious print,
+  0.5s+ later (V37_KEEP_TRYING / V37_RETRY_GAP). The adds re-price every
+  0.4s (FAST_BUY).
+- Live 10-09 (replay/live/2026-10-09_secdump/buy_short_1009.txt): many tries
+  got 0 - at the ask AND at the ask + 20c (v36: AIXI 1:04pm three times,
+  FLYE 3:05pm, ZYBT 3:06pm, AAOX 9:31am). Paper fills can take longer than
+  the 0.5s an order works.
+- The replay had filled every first buy at the ask 1s after the signal - a
+  limit with no ceiling that never misses. replay/research/v38_fills.py,
+  v38_limits.py (-> .txt):
+  - With the re-entry over the day's high, one second late loses BIYA
+    (+$11,403 -> +$195 at 2s); no limit catches it, not even the ask + 20c
+    (+$72) - the breakout of the day's high is the vertical part.
+  - With the re-entry over the last sale's price, v38 is in at the wake-up:
+    BIYA kept with fills 1-5s late (+$10,227..+$40,675); a real limit at the
+    ask misses it (-$151 in all), the ask + 2c catches it (+$31,500; BIYA
+    +$34,989), + 5c +$31,315, + 10c +$33,017, + 20c +$33,159, + 2% +$32,521.
+  - Paying it all on every fill (the unkind end), floor under the market:
+    1c +$29,480, 2c +$27,082, 5c +$15,749, 1% +$25,614 - $1,800-$3,600 a
+    cent over four days. With the floor under our fill 2c over loses BIYA.
+  - Proposed (memory/words_v38.md): a limit at the ask + 2%, kept working and
+    moved up while unfilled (one replace, never two orders), the floor 3c
+    under the lower of our fill and the ask, the re-entry over the last
+    sale's price.
+- The owner's chug (20 minutes, +10%; v38_chug.txt): with the 3c floor it
+  never wins; with the floor at the last candle's low it caught WFF 10-09 in
+  every setting (+$14,479), its other buys lost (20/10%: +$4,634 in all,
+  -$9,533 without WFF; 15/30 min, 15%: the same). Premarket -$982, regular
+  +$8,141, after hours -$2,524. Proposed: paper only.
+
 ## 2026-10-09
 
 ### The owner's four points on the speed test, tested (~10pm; findings, not decided)

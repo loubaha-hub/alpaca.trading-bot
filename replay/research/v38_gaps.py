@@ -90,9 +90,15 @@ def signals(rec, red=True, wake=False, chug=None, checks=False):
                              and dol[k + 1] - dol[k - 59] >= Q.DOLLARS_MIN and not (red and is_red))
         ch_on = False
         if chug and close[k]:
-            n, x = chug
+            n, x = chug[0], chug[1]
             bars = [mins.get(m - i) for i in range(n, 0, -1)]
-            if all(bars) and not is_red:
+            if len(chug) > 2:                      # the owner's (10-10): N minutes, an average of
+                had = [b for b in bars if b]       # $250k a minute (a quiet minute allowed)
+                ch_on = (k >= 60 * n and len(had) >= 2 and not is_red and bars[-1] is not None
+                         and bars[-1][3] >= had[0][0] * (1 + x)
+                         and sum(b[4] for b in had) >= n * Q.DOLLARS_MIN
+                         and close[k] > max(b[1] for b in had) + 1e-9)
+            elif all(bars) and not is_red:
                 ch_on = (bars[-1][3] >= bars[0][0] * (1 + x)
                          and all(b[4] >= Q.DOLLARS_MIN for b in bars)
                          and close[k] > max(b[1] for b in bars) + 1e-9)
@@ -112,7 +118,8 @@ def gap_high(bars, day, sym, t0, t1):
     return max(hs) if hs else 0.0
 
 
-def play(recs, bars, level="day", red=True, wake=False, chug=None, chug_floor="3c", checks=False, gaps=None):
+def play(recs, bars, level="day", red=True, wake=False, chug=None, chug_floor="3c", checks=False, gaps=None,
+         limit=None, misses=None):
     """[(rec, t_in, P/L, kind, t_out)] - one stock's day, the first buy free."""
     out, first = [], True
     sold_at, since, known_to = None, None, None    # v38's last sale, the high since it, read up to
@@ -154,6 +161,13 @@ def play(recs, bars, level="day", red=True, wake=False, chug=None, chug_floor="3
             fill = p.ask_at(t_in)
             if not fill or fill <= 0:
                 continue
+            if limit is not None:                  # a real limit: the ask at the decision + `limit`;
+                a0 = p.ask_at(t)                   # the ask a second later past it - no fill, the
+                cap = a0 * (1 + float(limit[:-1]) / 100) if isinstance(limit, str) else a0 + limit
+                if fill > cap + 1e-9:              # next signal tries again
+                    if misses is not None:
+                        misses.append((r["day"], r["sym"], t))
+                    continue
             under = 0.03
             if not sp and chug_floor == "candle" and low:
                 under = min(max(fill - low, 0.03), 0.10 * fill)

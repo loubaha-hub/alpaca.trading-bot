@@ -23,10 +23,18 @@ or no). The questions for the owner are collected at the end.
 ## The rule in plain sentences
 
 **Which stocks, when**
-- The bot's own watch list (the scanner's names), the bot's price band $1-$20
-  (PRICE_MIN / PRICE_MAX). **PROPOSED**, and a question: FRGT and SBFM were
-  bought under $1. Inside $1-$20 v38 makes +$4,377, not +$9,254 (with the
-  bot's buy checks); the 8 trades under $1 made +$4,877.
+- The bot's own watch list (the scanner's names), priced **$0.50-$20**
+  (**DECIDED**, the owner 10-10: "take the bar down to 50 cents and we should
+  not go below that" - a 50c stock going to $2 is 4x; they trade in big lots
+  with spreads under a penny). The scanner's list is $1-$20 today: it must
+  add $0.50-$1 names for v38 only (v36 / v36b / v37 keep $1). FRGT and SBFM
+  were bought under $1: inside $1-$20 v38 made +$4,377 of its +$9,254; the 8
+  trades under $1 made +$4,877.
+- The cents rules do not fit them (the owner): +10c / +20c is +20% / +40% on
+  a 50c stock, the 3c floor 6%. In percent the spreads are alike at every
+  price (the read's median: 0.59% under $1 - 0.45c -, 0.68% at $1-$3, 0.59%
+  at $3-$10, 0.67% over $10), so steps and a floor in percent would fit all
+  of them. **OPEN**: a percent version, to test before the build.
 - Paper: 4:00am-8:00pm; no new buy from 7:00pm, everything sold from 7:00pm
   (the bot's FLATTEN_AT / close_loop). **DECIDED** (the owner, 10-09 ~7:50pm).
 - Real money: premarket only (4:00-9:30). **DECIDED** (~9pm). Open: what a
@@ -53,23 +61,64 @@ prints that qualify (the bot's qualifies()):
     added 20 trades, 0 won, -$2,093, all in regular hours. That is most
     likely the reopen after a LULD halt (no trades during a halt), the
     moment WFF 10-09 lost on.
-  - The chug (a slow stair-step climb): no formula found that pays
-    (**PROPOSED: no chug signal for now**). Every version lost: 5 minutes
-    +10% with the 3c floor 62 buys, 0 won, -$2,247; with the candle's low
-    as the floor -$8,918; 3 min / 6%, 5 min / 15%, 10 min / 20% all lost.
+  - The chug (a slow stair-step climb). The owner, 10-10: 5 minutes is too
+    short - "if it goes up 10% in the first twenty minutes, then we can get
+    into that". Tested (v38_chug.txt): over the last 20 closed minutes up
+    10%+, $250k a minute on average, the last candle not red, the price over
+    all their highs. With the 3c floor it never works (0-1 won in every
+    setting). With the floor at the last candle's low (at most 10%) it
+    caught WFF 10-09 ($1.75 -> $14.40) in every setting - +$14,479 with the
+    last-sale re-entry level - and its other buys lost: 20 min / 10% the
+    chug buys +$4,634 (32 buys, 3 won), without WFF -$9,533; 15 / 30 min and
+    15% the same picture (+$4,558..+$9,392; without WFF -$4,775..-$9,609).
+    By session (20 / 10%): premarket -$982, regular hours +$8,141 (WFF),
+    after hours -$2,524. **PROPOSED**: the chug on the paper account only
+    (all day, an experiment), not for real money - in premarket it lost in
+    every setting. A chug needs a leash a minute wide, not 3c.
     IPDN 10-06 ($3.10 -> $6.99) was not missed by the speed test: it fired
-    seven times on the climb. Its buys were thrown out within 1-3 seconds by
-    the 3c floor in a fast, wide market (7:26:52: bought $3.65, sold a
-    second later 36c lower), and the climb's later bursts were under the
-    day's high (the re-entry rule). A chug is a pullback stock - the
-    playbook's buy-the-red-then-green - a separate study, not this one.
+    seven times on the climb; the 3c floor threw each buy out in 1-3 seconds
+    (7:26:52: bought $3.65, sold a second later 36c lower).
 
 **How much** (**DECIDED** 10-09 ~12:30pm / ~7:20pm)
-- The first buy: 10% of the account, a limit AT THE ASK (as v36b and v37:
-  BUY_AT_ASK, never paying over). Tested: a buy filled 2c over the ask pulls
-  the 3c floor inside the spread, the midpoint sells it at once, and v38
-  falls from +$8,930 to -$7,841 (BIYA lost). Sales filled 1-2c under the
-  bid: +$7,280 / +$5,630 (BIYA kept).
+- The first buy: 10% of the account. **HOW IT FILLS decides the big runners**
+  (the owner, 10-10: "if we exclude the two or three big runners, the
+  strategy is dead in the water"; "willing to go ten, twenty cents above the
+  ask not to lose the big runners" - but in a thin premarket the many quick
+  losers pay it too). The replay had filled every first buy at the ask one
+  second after the signal - a limit with no ceiling that never misses.
+  Tested (v38_fills.txt, v38_limits.txt):
+  - One second late is enough to lose BIYA if the re-entry level is the
+    day's high: BIYA +$11,403 -> +$195 at 2 seconds. The breakout of the
+    day's high came in the vertical part (dollars a second): under the
+    day's high no limit caught it, not even the ask + 20c (+$72). Over the
+    last sale's price v38 is in at the wake-up ($2.65-$2.82), before the
+    vertical part: BIYA +$10,227..+$40,675 with fills 1-5 seconds late.
+  - A real limit, the re-entry over the last sale's price: at the ask -$151
+    (BIYA missed, 275 misses); the ask + 2c +$31,500 (BIYA +$34,989); + 5c
+    +$31,315; + 10c +$33,017; + 20c +$33,159; + 1% +$30,934; + 2% +$32,521
+    (no ceiling +$33,046) - filled at the ask when filled (kind).
+  - What paying over costs when every fill pays it all (the unkind end):
+    1c +$29,480, 2c +$27,082, 5c +$15,749, 1% +$25,614. The losers are most
+    of the trades - the owner's worry, in numbers: about $1,800-$3,600 a
+    cent over four days. Live, v37's ask + 20c limits paid 0.8% over the
+    ask on average (10-06..08).
+  - Paying over is safe only if the floor is measured from the market: 2c
+    over with the floor under our fill -$2,642 (day's high level, BIYA
+    lost); under the ask we bought into +$5,651 (BIYA kept).
+  - Live 10-09 (buy_short_1009.txt): even v36's ask + 20c got nothing at
+    times (AIXI 1:04pm three tries, FLYE 3:05pm, ZYBT 3:06pm, AAOX 9:31am):
+    each try works 0.5s and is cancelled; paper fills can take longer. The
+    next try waits for the next furious print, 0.5s+ later - not the fast
+    loop of 0.2s the owner had in mind (the adds do re-price every 0.4s).
+  - **PROPOSED**: a limit at the ask + 2% (1c on a 50c stock, 6c at $3, 10c
+    at $5, 20c at $10 - the owner's 10-20c on the bigger stocks); while it
+    has not filled, it stays working and is moved up to the new ask + 2%
+    (one replace, never two orders live), for as long as the speed holds;
+    the floor 3c under the lower of our fill and the ask we bought into;
+    the re-entry level the last sale's price. To verify when building:
+    Alpaca's replace-order call (one request, not cancel + new); the ~200
+    requests a minute per account.
+- Sales filled 1-2c under the bid: +$7,280 / +$5,630 (BIYA kept).
 - At +10c over the first fill: up to 25% of the account; at +20c: up to 50%
   (the full position). Each add at the ask, at any price; the shares already
   held count (a partly filled first buy gets a bigger add).
@@ -251,8 +300,8 @@ of the day ... you have to have a level before it", not a clock)
   v38 never bans a runner; it does not rank leaders (above).
 
 ## Questions for the owner
-1. The price band: $1-$20 as the playbook, or under $1 too? Two of the three
-   monsters were under $1; inside $1-$20 v38 made +$4,377 of the +$9,254.
+1. ANSWERED 10-10: $0.50-$20. Open: the steps and the floor in percent for
+   them (to test).
 2. The re-entry level: the last sale's price (proposed), no level, or the
    day's high?
 3. Which account runs v38 - one of the three (replacing v36, v37 or v36b),
@@ -265,3 +314,6 @@ of the day ... you have to have a level before it", not a clock)
 7. Unseen days: a one-time read of earlier days' top runners (e.g. 9-29..
    10-03), second by second, after 8pm, read-only - needs a release with the
    owner's OK. Or the paper run itself as the first unseen days.
+8. The first buy: a limit at the ask + 2%, kept working and moved up while
+   unfilled (proposed) - or a cents ceiling (2c / 5c / 10c / 20c)?
+9. The chug (20 min / +10%, the candle-low floor): paper only (proposed)?

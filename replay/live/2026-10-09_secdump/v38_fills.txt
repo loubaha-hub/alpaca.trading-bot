@@ -1,0 +1,30 @@
+v38 - HOW THE BUY FILLS (trailing thirds, $7,500 full, the bot's buy checks)
+                                                      n won   10-06   10-07   10-08   10-09    TOTAL |     PRE     RTH   AFTER |    FRGT    BIYA    SBFM
+
+== re-entry over the day's high ==
+DELAY: filled 1s after the signal (as tested)       173   7    +196  +12587   -1955   -1574    +9254 |  +10033    +249   -1028 |   +2736  +11403   +2433
+DELAY: filled 2s after the signal                   143   7    +124   +2343     +91   -1430    +1128 |   +1407    +645    -924 |   +2459    +195   +2434
+DELAY: filled 3s after the signal                   134   7   +1297   +1804    +658   -1569    +2190 |   +2508    +589    -907 |   +3184    -115   +2476
+DELAY: filled 5s after the signal                   126   5   +1363   +1686    +531   -1393    +2188 |   +2315    +859    -986 |   +3306    -199   +2839
+PAYING UP 1c over the ask, floor under our fill     196   8    -481  +12462   -2257   -1693    +8032 |   +8980    +147   -1095 |   +2226  +11246   +2317
+PAYING UP 1c over the ask, floor under THE MARKET   171   6    -635  +12174   -2389   -1735    +7414 |   +8740    -128   -1198 |   +2179  +11190   +2280
+PAYING UP 2c over the ask, floor under our fill     229   7    -734   +2159   -2593   -1474    -2642 |   -1889    +605   -1357 |   +2020   +1148   +2240
+PAYING UP 2c over the ask, floor under THE MARKET   171   5   -1234  +11585   -2737   -1963    +5651 |   +7585    -499   -1435 |   +1975  +10875   +2191
+PAYING UP 5c over the ask, floor under our fill     288   2   -5881   -1662   -5123   -2421   -15089 |   -8654   -3887   -2547 |   -2529   +1063    -279
+PAYING UP 5c over the ask, floor under THE MARKET   163   4   -2938   +9884   -3892   -2634     +420 |   +4522   -2223   -1879 |   +1107  +10756   +1291
+PAYING UP 1% over the ask, floor under our fill     225   6    -631   +2170   -2546   -1691    -2697 |   -1784    +549   -1462 |   +2304   +1119   +2357
+PAYING UP 1% over the ask, floor under THE MARKET   150   4   -1258  +11475   -2892   -2583    +4742 |   +6586    -515   -1330 |   +2257  +10748   +2320
+
+== re-entry over the last sale's price ==
+DELAY: filled 1s after the signal (as tested)       333  13    -903  +35957    -190   -1817   +33046 |  +34811    -397   -1368 |   +3259  +35044   +2519
+DELAY: filled 2s after the signal                   299  11    +902  +23056    -247    +445   +24156 |  +23331    +500    +325 |   +3831  +22061   +2553
+DELAY: filled 3s after the signal                   283  10     -64  +41792     +69   -3235   +38562 |  +40914   -1057   -1295 |   +3184  +40675   +2715
+DELAY: filled 5s after the signal                   237   9    +277  +11242    +710   -1499   +10730 |  +11747   -1426    +409 |   +3306  +10227   +2839
+PAYING UP 1c over the ask, floor under our fill     401  18   -2083  +34049    -558   -2229   +29179 |  +32327   -1528   -1620 |   +2673  +34885   +2173
+PAYING UP 1c over the ask, floor under THE MARKET   331  12   -1996  +34780    -846   -2458   +29480 |  +32726   -1435   -1811 |   +2780  +34786   +2214
+PAYING UP 2c over the ask, floor under our fill     552  14   -3536  +34047   -5035   -2955   +22522 |  +27115   -1836   -2757 |   +2618  +34652   +2152
+PAYING UP 2c over the ask, floor under THE MARKET   324  11   -2747  +33885   -1321   -2736   +27082 |  +31342   -2158   -2101 |   +2785  +34595   +2101
+PAYING UP 5c over the ask, floor under our fill     886   6  -17319  +20649  -12550   -7044   -16265 |   +2409  -11315   -7359 |   -7469  +29062   -1374
+PAYING UP 5c over the ask, floor under THE MARKET   327   8   -5690  +31528   -5695   -4395   +15749 |  +23830   -4766   -3315 |   +1562  +34024   +1137
+PAYING UP 1% over the ask, floor under our fill     572   9   -3732  +31179   -4161   -4102   +19184 |  +24099   -2113   -2801 |   +2990  +32113   +2260
+PAYING UP 1% over the ask, floor under THE MARKET   286   9   -3363  +33487   -1016   -3495   +25614 |  +30208   -2760   -1833 |   +2943  +34368   +2263

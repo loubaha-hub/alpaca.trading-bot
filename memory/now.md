@@ -1,6 +1,6 @@
 # Where things stand
 
-Updated 2026-10-09, ~10:30pm ET.
+Updated 2026-10-10, early am ET.
 
 ## 10-09 morning
 - Working branch: `claude/three-strategies-x69ppg` (from
@@ -150,6 +150,12 @@ Updated 2026-10-09, ~10:30pm ET.
     red candle stays, no wake-up from zero volume, no chug signal found,
     the re-entry level over the last sale's price proposed (+$33,046 vs
     +$9,254 for the day's high - BIYA), buys at the ask only.
+  - 10-10 early am: the owner DECIDED the band $0.50-$20 for v38. The buy is
+    the key (the owner: without the 2-3 big runners v38 is dead): tested -
+    the re-entry over the last sale's price plus a limit at the ask + 2%
+    (kept working, moved up) keeps BIYA; the day's high misses it under any
+    limit (journal 10-10). The chug (20 min / 10%): paper only, proposed.
+    Questions 2-9 in words_v38.md still open.
   - NEXT after the owner's answers: draft 2 of the words, then the code.
 
 ## 10-08 night
