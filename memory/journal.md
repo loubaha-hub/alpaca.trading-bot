@@ -5,6 +5,11 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-10
 
+### The owner's conclusion (~night): the scout makes no difference
+- "Everything else kept the same, the only variable is the scout - it
+  didn't make any difference. That's good." Scouts are out of v38's
+  proposal; the question is closed.
+
 ### The clean A/B - the scout the only variable (~night; finding)
 - The owner: speed entries with scouts vs without, nothing else different -
   does the scout help catch the big runners? replay/research/v38_scout_ab.py
