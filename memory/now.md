@@ -1,6 +1,22 @@
 # Where things stand
 
-Updated 2026-10-10, night ET.
+Updated 2026-10-10, ~2am ET (Saturday).
+
+## 10-10 ~2am: v38 goes on T6HH - the owner's go
+- The owner: run v38 in v36's place, on T6HH, from its $15,663.58 - "can we
+  get it started?". Working branch now `claude/exciting-brown-26mug3` (main
+  + `claude/three-strategies-x69ppg`, the same files). r34.42 to main and
+  SLOT_V31=v38 in Render - a weekend restart, all three flat (0 positions,
+  no warning or error since midnight).
+- The shut-off stays at -10% as decided 10-09 (the ladder after a halted day
+  as coded: 5%, 2.5%, then stopped after three halted days). The owner has
+  not answered the -25% proposal (V38_HALT_PCT=25 in Render, no code change;
+  replayed -10% -$4,738 vs -25% +$74,795 over 10-06..10-09).
+- Also running on proposals the owner has not signed off: no re-entry
+  level, the speed-scaled cushion over the ask, the top-up at +30%, "down
+  $500" = equity against the day's start.
+- Monday 10-12 from 4am: check v38's first signals, fills and floors in
+  Render's log; P28T (v37) and AUES (v36b) unchanged.
 
 ## 10-10 night: v38 built - waiting on the owner
 - Branch `claude/three-strategies-x69ppg`: r34.42 = v38 (and r34.41). main is

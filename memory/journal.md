@@ -5,6 +5,15 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-10
 
+### DECISION (the owner, ~2am Saturday): go - v38 on T6HH from $15,663.58
+- The owner: "can we run this V38 on the spot of V36? ... the balance on
+  that account is $15,663.58 ... that's where the strategy starting balance
+  will be. So can we get it started?" Taken as the OK to merge r34.42 to
+  main and set SLOT_V31=v38 in Render (a weekend restart, all three flat).
+- v38 sizes from the account's equity, so it starts from $15,663.58 by
+  itself; the -10% shut-off (as decided 10-09) puts the halt at $14,097.22.
+  The -25% proposal is still unanswered - it stays -10%.
+
 ### DECISION (the owner, Saturday): v38 replaces v36 on T6HH, live Monday 10-12
 - The owner: "is V38 ready to go ... live on Monday morning? If it's so, we
   would like it to replace V36 - the one with the balance of $15,663.58"
