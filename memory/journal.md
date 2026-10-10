@@ -5,6 +5,23 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-09
 
+### The owner's top-up after the daily limit, tested (~8:40pm; finding)
+- The owner: after -$500 a day v38 buys a quarter size; a stock that proves
+  itself is topped up to the full position (50% of the account), one or two a
+  day; if it fails, everything bought for it is sold at any price at its floor.
+- replay/research/v38_topup.py -> replay/live/2026-10-09_secdump/v38_topup.txt.
+  Worst case for a gangbuster - EVERY trade as if after the limit. The top-up
+  is a separate lot (its own floor and the trailing thirds), so a failed
+  top-up never sells the starter. Full size all day +$8,930; a quarter +$2,236;
+  a quarter + top-up at +50% with its floor 10% under its fill +$3,658 (BIYA
+  +$5,876 vs +$2,860 a quarter); at +50% with a 3c floor +$1,704; at +100%
+  +$2,352 / +$832. Only the three gangbusters reached +50% (no false alarm in
+  these days). By +50% a fast run is mostly done: FRGT's and SBFM's top-ups
+  lost, bought near the top.
+- Premarket only, the trailing exit: no limit +$10,240 (worst day -$1,347);
+  half after -$500 +$10,656 (-$931); a quarter after -$500 +$10,864 (-$723).
+  All day: no limit +$8,930 (-$1,918); a quarter after -$500 +$10,867 (-$1,023).
+
 ### THE FULL READ - v38 against the three bots, 10-06..10-09 (~8:20pm; finding)
 - r34.40's read: 38 windows (24 runner runs, BIYA 8:20, the 10-09 buys), 0
   minutes lost, done 8:05pm. Saved: replay/live/2026-10-09_secdump

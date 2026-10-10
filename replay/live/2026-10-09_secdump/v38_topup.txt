@@ -1,0 +1,8 @@
+WORST CASE FOR A GANGBUSTER: every trade as if after the day's limit (a quarter size); full = $7500
+                                                          FRGT      BIYA      SBFM | the others  top-ups |     TOTAL
+full size all day (no limit)                             +2874    +11446     +2504 |      -7893        - |     +8930
+a quarter, no top-up                                      +718     +2860      +626 |      -1968        - |     +2236
+a quarter + top-up at +50%, floor 3c under its fill       +280     +2960      +433 |      -1968        3 |     +1704
+a quarter + top-up at +50%, floor 10% under its fill       +38     +5876      -288 |      -1968        3 |     +3658
+a quarter + top-up at +100%, floor 3c under its fill      +400     +2500      -100 |      -1968        3 |      +832
+a quarter + top-up at +100%, floor 10% under its fill      +243     +4178      -100 |      -1968        3 |     +2352
