@@ -82,6 +82,13 @@ def play(recs, size=None, run=0.20, near=0.10, floor=0.10, pct_steps=None, money
     return out
 
 
+VARIANTS_BIG = (                                 # the owner (10-10, later): the scout's gain as a surer
+    ("v38 speed only (no level)", dict()),        # trigger - a bigger gain before going in
+    ("+ scouts 2%, in at the scout +20% / +40%", dict(size=0.02, pct_steps=(0.20, 0.40))),
+    ("+ scouts 2%, in at the scout +30% / +60%", dict(size=0.02, pct_steps=(0.30, 0.60))),
+    ("+ scouts 2%, in at the scout +50% / +100%", dict(size=0.02, pct_steps=(0.50, 1.00))),
+    ("+ scouts 1%, in at the scout +30% / +60%", dict(size=0.01, pct_steps=(0.30, 0.60))),
+)
 VARIANTS = (
     ("v38 proposed (speed only, no level)", dict()),
     ("+ scouts 2%: run 20%, near 10%, floor 10%, +10c/+20c", dict(size=0.02)),
@@ -100,7 +107,7 @@ def main():
     print("THE OWNER'S SCOUTS - the first rung of the ease-in, before the speed test ($15,000 account, $7,500 full)")
     print("%-54s %4s %3s " % ("", "n", "won") + " ".join("%7s" % d[5:] for d in days) +
           " %8s | %7s %7s %7s | %s" % ("TOTAL", "PRE", "RTH", "AFTER", "  ".join("%-5s" % b[1] for b in BIG)))
-    for name, kw in VARIANTS:
+    for name, kw in (VARIANTS_BIG if os.environ.get("V38_BIG_GAIN") else VARIANTS):
         xs = [x for k in sorted(by) for x in play(by[k], **kw)]
         per = [sum(x[2] for x in xs if x[0]["day"] == d) for d in days]
         ses = [sum(x[2] for x in xs if session(x[1]) == s) for s in SESSIONS]

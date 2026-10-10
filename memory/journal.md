@@ -5,6 +5,22 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-10
 
+### The scout's gain as a surer trigger (~evening; finding)
+- The owner: isn't the scout's own gain a surer trigger, so the monsters are
+  not lost? The first scout test (+10c/+20c, +5%/+10%, +10%/+20%) already
+  used the scout's gain - it lost at every setting. Now bigger gains
+  (v38_scout.py, V38_BIG_GAIN=1 -> v38_scout_biggain.txt), 2% scouts: in at
+  the scout +20% / +40%: total +$44,698, the scouts 91 (4 won) -$4,023, 28
+  reached the first add, 3 got full (0 won); +30% / +60%: +$46,783, the
+  scouts 79 (8 won) -$1,894, 17 / 1; +50% / +100%: +$47,301, the scouts 64
+  (9 won) -$1,492, 7 / 0; 1% at +30% / +60%: +$46,471, the scouts -$2,160.
+  Speed only: +$43,819.
+- Reading: a bigger gain is a surer trigger (the scouts lose far less) but it
+  rarely fires, and it adds no monster - BIYA, FRGT, SBFM, FLYE the same: the
+  speed buy comes before a +30% scout gain. The totals rise $900-$3,500
+  because the scouts held some stocks where v38's later speed buys would
+  have lost (414 -> 325-356 trades) - a side effect, not a signal.
+
 ### The general picture - without BIYA (~evening; finding; the owner's caution)
 - The owner: the great numbers are skewed by BIYA alone (take it out and the
   picture changes - "maybe with two more"); the modeling has been built
