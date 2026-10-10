@@ -161,7 +161,7 @@ def gap_high(bars, day, sym, t0, t1):
 
 
 def play(recs, bars, level="day", red=True, wake=False, chug=None, chug_floor="3c", checks=False, gaps=None,
-         limit=None, misses=None, breath=None, pay_all=False):
+         limit=None, misses=None, breath=None, pay_all=False, confirm=0):
     """[(rec, t_in, P/L, kind, t_out)] - one stock's day, the first buy free."""
     out, first = [], True
     sold_at, since, known_to = None, None, None    # v38's last sale, the high since it, read up to
@@ -169,6 +169,11 @@ def play(recs, bars, level="day", red=True, wake=False, chug=None, chug_floor="3
     for r in recs:
         p, st = S.Path(r), signals(r, red, wake, chug, checks, breath)
         sv = speed_values(r) if limit == "scale" else {}
+        rows_px, last_px = {}, None                # the last price at each second (for confirm)
+        for x in r["S"]:
+            if x[1]:
+                last_px = x[4]
+            rows_px[x[0]] = last_px
         used = set()                               # one breather buy per red candle
         hi = {x[0]: x[2] for x in r["S"] if x[2]}
         after, top = -1.0, r.get("hod_before")
@@ -203,6 +208,13 @@ def play(recs, bars, level="day", red=True, wake=False, chug=None, chug_floor="3
                     continue
                 if level == "exit" and (exit_px is None or h <= exit_px + 1e-9):
                     continue
+            if confirm and sp:                     # the speed still on `confirm` seconds later and
+                kc = k + confirm                   # the price no lower: then the buy goes out
+                c0, c1 = rows_px.get(k), rows_px.get(kc)
+                if not (st.get(kc, (False,))[0] and c0 and c1 and c1 >= c0 - 1e-9):
+                    continue
+                t = r["start"] + kc + 0.99
+                k = kc
             t_in = t + S.BUY_LAG
             if t_in >= p.end - 5:
                 break

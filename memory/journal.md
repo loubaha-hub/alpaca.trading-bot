@@ -5,6 +5,27 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-10
 
+### Wait 2 seconds before buying? (~evening; finding)
+- The owner: a wait may work against us - "in two seconds 80 or 90 percent of
+  the stocks with speed will have increased in price".
+  replay/research/v38_wait.py -> v38_wait.txt (v38 proposed, 404 first buys):
+  the ask 2s after the signal against the 1s fill - all buys: higher 36%,
+  lower 35%, the same 29% (mean +0.14%); at 5s higher 46%, lower 42%. The
+  8 buys that won $100+: at 2s none lower, 38% higher (mean +1.0%); 3s
+  +2.2%; 5s 75% higher (median +3.2%). The 388 that lost: a coin flip.
+  So true for the real runners (waiting costs them ~1% at 2s), not for
+  the many others.
+- Results anyway (all day / premarket; total, without BIYA, without the top
+  3, a trade without BIYA): buy 1s after the signal +$43,836 / +$2,425 /
+  -$3,129 / +$6.2 - PRE +$45,698 / +$4,287 / +$1,252 / +$23.1. A plain 2s
+  wait +$48,488 / +$7,286 / +$903 / +$23.4 - PRE +$49,482 / +$8,280 /
+  +$4,449 / +$65.2. Confirm (the speed still on 2s later, price no lower)
+  +$41,050 / +$6,378 / +$1,324 / +$29.9 - PRE +$39,705 / +$5,032 / +$2,571
+  / +$47.9. Confirming at 3s or a 5s wait loses BIYA.
+- Reading: the wait does not win on price; it wins by skipping the first
+  second's shake-outs (404 -> 321 buys). It holds at 2s and 3s, but BIYA is
+  lost by 3-5s - a narrow margin; to judge on unseen days.
+
 ### The scout's gain as a surer trigger (~evening; finding)
 - The owner: isn't the scout's own gain a surer trigger, so the monsters are
   not lost? The first scout test (+10c/+20c, +5%/+10%, +10%/+20%) already
