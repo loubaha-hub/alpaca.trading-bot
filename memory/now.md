@@ -3,6 +3,12 @@
 Updated 2026-10-10, ~2am ET (Saturday).
 
 ## 10-10 ~2am: v38 goes on T6HH - the owner's go
+- **Live: r34.42** (main f75cd9c, PR #2, up 1:52am ET 10-10; SLOT_V31=v38
+  set in Render 1:50am). Start-up: "engine up: VERSION v31-r34.42 | v38, v37,
+  v36b"; [v38] on PAPER T6HH, equity $15,663.58, halt at -10% = $14,097.22;
+  all three reconcile with the broker, 0 positions; the roster takes names
+  from $0.50 (BYSI 0.67, HAIN 0.61, VCIG 0.58, WBUY 0.82). First trading
+  day Monday 10-12, 4am.
 - The owner: run v38 in v36's place, on T6HH, from its $15,663.58 - "can we
   get it started?". Working branch now `claude/exciting-brown-26mug3` (main
   + `claude/three-strategies-x69ppg`, the same files). r34.42 to main and
