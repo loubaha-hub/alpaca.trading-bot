@@ -5,6 +5,27 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-09
 
+### DECISIONS (the owner, ~9:10pm): one floor for the whole position; two stocks at 50% each
+- After a top-up there is ONE floor for the whole stock: the price under
+  which the whole position starts to lose money (its break-even - the
+  average of all its shares, closer to the top-up price than to the start;
+  e.g. 1,769 sh at $2.12 + 1,349 at $2.78 -> $2.41). Under it, everything is
+  sold. A long leash for a volatile stock. The trailing thirds work on the
+  whole position from its peak; nothing is sold on the way up.
+- One stock up to 50% of the account; the other 50% is not left idle - a
+  second stock cruising at the same time gets its own position, the same
+  rules (the ease-in; after -$500 a day the smaller sizes and the top-up).
+  To build: the bot's per-position cap (25%) and exposure cap (95%) must
+  allow 50% / ~100% for v38; a third signal with both full has no room.
+- Tested (worst case, every trade after the limit, top-up at +30%): one
+  floor - BIYA +$7,656, all +$4,915; separate lots - BIYA +$7,806, all
+  +$5,854; full size, no limit - BIYA +$11,446, all +$8,930. Real days: the
+  same (no top-up after the limit in these days).
+- CORRECTION: the top-up raised the floor before its shares filled (a
+  simulator timing error, fixed). The earlier "a quarter, topped up at +20%:
+  BIYA +$29" is really +$5,887 (all +$4,607); at +50% BIYA +$5,847 (all
+  +$3,019); at +100% +$4,534 (all +$2,214).
+
 ### The owner (~9pm): real money stays premarket
 - "We're going to stick to premarket pretty much for real money." (v38's
   paper account runs all day, 4am-8pm.)
