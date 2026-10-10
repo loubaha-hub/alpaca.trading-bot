@@ -5,6 +5,17 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-10
 
+### DECISION (the owner, Saturday): v38 replaces v36 on T6HH, live Monday 10-12
+- The owner: "is V38 ready to go ... live on Monday morning? If it's so, we
+  would like it to replace V36 - the one with the balance of $15,663.58"
+  (T6HH). The switch: SLOT_V31=v38 in Render, and r34.42 on main. Waiting on
+  the owner's go for the merge, and his choice of v38's shut-off (-10% as
+  decided, the ladder after a halt day as coded; -25% proposed).
+- The week's live results, v36 / v36b / v37 (10-06..10-09; Monday 10-05 the
+  accounts ran v31 / v34 / v35; AUES ran v35 on 10-06): v36 -$2,733 (PRE
+  +$127, RTH -$2,042, AFTER -$818; 123 trades, 26 won); v36b -$1,362 (-$262 /
+  -$713 / -$387; 114, 16); v37 -$2,165 (-$1,456 / -$520 / -$190; 154, 30).
+
 ### v38 built (r34.42, branch) and replayed through the bot's own code (~night)
 - Built as the words say (memory/words_v38.md): r34.py class V38, switched on
   per account with SLOT_V31 / SLOT_V34 / SLOT_V35 = v38 (T6HH / P28T / AUES).

@@ -8,7 +8,9 @@ Updated 2026-10-10, night ET.
 - Replayed through the bot's own code (journal, 10-10 "v38 built"): matches
   the research; as it will run, the -10% shut-off stops it before the
   runners (-$4,738 over the 4 days vs +$74,795 with no shut-off).
-- Waiting on the owner: (1) which account (proposed P28T, SLOT_V34=v38);
+- The owner (Saturday): v38 replaces v36 on T6HH ($15,663.58), live Monday
+  10-12 - SLOT_V31=v38.
+- Waiting on the owner: (1) DONE - T6HH;
   (2) v38's shut-off (-10% decided; -25% proposed, V38_HALT_PCT); (3) the OK
   to merge to main - a weekend deploy, all accounts flat.
 
