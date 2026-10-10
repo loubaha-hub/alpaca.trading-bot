@@ -5,6 +5,29 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-10
 
+### The owner's scout with the speed, and the floating scout (~afternoon; findings)
+- The owner: the scout's adds only as the speed picks up, progressively (a
+  warm speed a bit under the bar adds a little, the full speed more) - "not
+  adding the whole 50%, that's where our big losses come from".
+  replay/research/v38_scout2.py -> v38_scout2.txt: speed only +$44,054
+  (PRE +$44,763 / RTH +$807 / AFTER -$1,516); scout 2% then the full speed
+  +$44,833 (the scouts' trades 129, 7 won, -$3,179); a warm add (0.15) to
+  5% +$44,150; warm 0.20 +$44,347; scout 1% / warm to 3% +$44,736; floor 5%
+  +$44,157; looser +$43,891. About even (-$163..+$779); the big runners the
+  same (the speed buy already had them).
+- The owner's next version: the scout 1%, NO floor ("leave it float"); speed
+  and price up: +10%, +20%, +20%; a chug (up 10% over the scout, no speed):
+  +5%, then +10% more - about 16-20% in all. v38_scout3.py -> v38_scout3.txt
+  (the scout floats to the end of the read's window - live it would float to
+  the session's end, which the read cannot show): +$42,279 (-$1,540 vs speed
+  only); the scouts 38, 16 won, +$222; the speed lots on them 124, 7 won,
+  -$855; the chug lots 54, 0 won, -$3,179. Speed path only +$43,159; chug in
+  regular hours only +$41,702; scout 2% +$42,505.
+- Reading: on this read the big runners were caught at their start by the
+  speed buy, so no scout can add to them; where the speed is late (slow
+  climbs) the scout's chug lots lost every time. Proposed: no scouts in v38;
+  a floating 1% scout could run on the paper account as an experiment.
+
 ### The owner's scouts, tested - they do not help (~afternoon; finding)
 - The owner: a scout of 1-2% of the account in each of the top ~6 runners,
   in place before the speed fires; its gain is the signal to go in big.

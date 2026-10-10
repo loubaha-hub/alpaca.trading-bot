@@ -94,7 +94,11 @@ prints that qualify (the bot's qualifies()):
     over the four days at every setting (2%: 342 scouts, 4 won, -$17,792;
     258 reached the first add, 3 of the 84 that got full won). A stock up
     20% near its high wiggles 10c all the time - the adds bought the
-    wiggles. **PROPOSED: no scouts.**
+    wiggles. **PROPOSED: no scouts.** The owner's later versions -
+    adds only as the speed picks up, step by step (v38_scout2.txt): about
+    even (-$163..+$779); the floating 1% scout with a speed path and a chug
+    path (v38_scout3.txt): -$660..-$2,117 against speed only, the chug lots
+    0 of 54 won. A floating 1% scout could be a paper-account experiment.
   - Fire earlier? (the owner: "early on the volume is not there yet"). The
     speed 0.30 -> 0.25 / 0.20 / 0.15, the move 2%, $150k (v38_thresholds*):
     the first signal in the first quarter of a 40%+ run: 11 of 39 now, 12

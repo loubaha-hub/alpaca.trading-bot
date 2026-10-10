@@ -1,0 +1,26 @@
+THE OWNER'S FLOATING SCOUT - 1%, no floor; a speed path 10/30/50%; a chug path 5/15% ($15,000 account)
+                                                  n   10-06   10-07   10-08   10-09    TOTAL |     PRE     RTH   AFTER | FRGT   BIYA   SBFM   FLYE   WFF  
+v38 speed only (no scout)                       414   -1642  +46670    +684   -1893   +43819 |  +44654    +680   -1516 |  +2630 +41370  +2525  +1820   +731
+scout 1% floating + speed path + chug path      454   -2868  +46291    -126   -1019   +42279 |  +43844    -863    -701 |  +2630 +41309  +2525  +1820   +916
+                                                    scout   38 (16 won)     +222 - PRE -72 / RTH +296 / AFTER -3 | in the bots' windows 27 +72
+                                                    speed  124 (7 won)     -855 - PRE -1476 / RTH +67 / AFTER +554 | in the bots' windows 58 +826
+                                                    chug    54 (0 won)    -3179 - PRE -1048 / RTH -1954 / AFTER -178 | in the bots' windows 28 -1361
+                                                    v38    238 (9 won)   +46091 - PRE +46440 / RTH +727 / AFTER -1076 | in the bots' windows 168 +45237
+                                                    the scouts' worst 10-08 NCT -48, 10-09 LNKS -47, 10-09 NTCL -37, best 10-06 IPDN +75, 10-09 YMAT +79, 10-09 WFF +296
+scout 1% floating + speed path only             451   -2691  +46861    +793   -1804   +43159 |  +44263    +350   -1454 |  +2630 +41374  +2525  +1820  +1057
+                                                    scout   38 (16 won)     +222 - PRE -72 / RTH +296 / AFTER -3 | in the bots' windows 27 +72
+                                                    speed  175 (4 won)    -3154 - PRE -2105 / RTH -673 / AFTER -376 | in the bots' windows 85 -714
+                                                    v38    238 (9 won)   +46091 - PRE +46440 / RTH +727 / AFTER -1076 | in the bots' windows 168 +45237
+                                                    the scouts' worst 10-08 NCT -48, 10-09 LNKS -47, 10-09 NTCL -37, best 10-06 IPDN +75, 10-09 YMAT +79, 10-09 WFF +296
+scout 1% floating + speed + chug in RTH only    462   -2898  +46546    +234   -2180   +41702 |  +44263   -1106   -1454 |  +2630 +41374  +2525  +1820   +916
+                                                    scout   38 (16 won)     +222 - PRE -72 / RTH +296 / AFTER -3 | in the bots' windows 27 +72
+                                                    speed  154 (5 won)    -2515 - PRE -2105 / RTH -33 / AFTER -376 | in the bots' windows 66 -283
+                                                    chug    32 (0 won)    -2096 - PRE +0 / RTH -2096 / AFTER +0 | in the bots' windows 19 -841
+                                                    v38    238 (9 won)   +46091 - PRE +46440 / RTH +727 / AFTER -1076 | in the bots' windows 168 +45237
+                                                    the scouts' worst 10-08 NCT -48, 10-09 LNKS -47, 10-09 NTCL -37, best 10-06 IPDN +75, 10-09 YMAT +79, 10-09 WFF +296
+scout 2% floating + speed path + chug path      454   -2892  +46325    -192    -736   +42505 |  +43770    -560    -705 |  +2630 +41313  +2525  +1820  +1219
+                                                    scout   38 (16 won)     +448 - PRE -146 / RTH +600 / AFTER -6 | in the bots' windows 27 +147
+                                                    speed  124 (7 won)     -855 - PRE -1476 / RTH +67 / AFTER +554 | in the bots' windows 58 +826
+                                                    chug    54 (0 won)    -3179 - PRE -1048 / RTH -1954 / AFTER -178 | in the bots' windows 28 -1361
+                                                    v38    238 (9 won)   +46091 - PRE +46440 / RTH +727 / AFTER -1076 | in the bots' windows 168 +45237
+                                                    the scouts' worst 10-08 NCT -95, 10-09 LNKS -94, 10-09 NTCL -74, best 10-06 IPDN +149, 10-09 YMAT +157, 10-09 WFF +600
