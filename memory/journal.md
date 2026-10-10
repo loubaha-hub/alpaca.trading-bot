@@ -5,6 +5,29 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-10
 
+### The owner's scouts, tested - they do not help (~afternoon; finding)
+- The owner: a scout of 1-2% of the account in each of the top ~6 runners,
+  in place before the speed fires; its gain is the signal to go in big.
+  Built as the first rung of the ease-in (replay/research/v38_scout.py ->
+  v38_scout.txt): a scout when a stock is up 20% from its low so far, within
+  10% of its high, $250k a minute over 10 minutes; adds to 25% / 50% at
+  +10c / +20c over the scout's fill; its floor 10% under it until an add,
+  then the average less 3c; the trailing thirds once full. Beside v38
+  proposed (speed, no level, the ask + 2%).
+- v38 speed only +$43,819 (PRE +$44,654 / RTH +$680 / AFTER -$1,516).
+  + scouts 2%: +$30,194 - the scouts 342, 4 won, -$17,792 (PRE -$6,307,
+  RTH -$11,722, AFTER +$237); 258 reached the first add (-$15,285), 84 got
+  full (3 won, -$6,758). 1%: -$16,543. Steps +5% / +10%: -$9,940; +10% /
+  +20%: -$4,718. Looser (up 10%): -$20,022. Floor 5%: -$22,210. Even in the
+  runner-only windows (chosen knowing a run followed) the scouts lost.
+- Why: a stock up 20% near its high wiggles 10c (or 5%) up and down all the
+  time; the scout's add cannot tell a wiggle from the start of a run, so the
+  full position is bought at a small top and the floor sells it. The speed
+  test can tell (3%+ in a minute on rising volume, $250k). The monsters were
+  already caught by the speed buy (BIYA +$41,370 with or without scouts).
+- Not proposed. The answer to "in place before the run" stays: the speed
+  buy, no re-entry level, a buy that stays working at the ask + 2%.
+
 ### The owner: the chug for regular hours only; fire earlier?; no re-entry level (~midday; findings)
 - The owner: the chug ("chug, chug, chug") NOT in premarket - short time,
   wider spreads, thinner trading; in regular hours 9:30-4:00 (six and a half

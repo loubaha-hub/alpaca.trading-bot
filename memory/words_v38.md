@@ -89,6 +89,12 @@ prints that qualify (the bot's qualifies()):
     playbook's first red then green; v38_breath.txt): premarket negative in
     every setting (-$910..-$3,040); the plus came from WFF only and was not
     stable (10 min / 20%+ +$14,466; 30%+ -$5,679). **PROPOSED: not now.**
+  - The owner's scouts (1-2% in the top runners before the speed, the
+    first rung of the ease-in; v38_scout.txt): they cost -$4,718..-$22,210
+    over the four days at every setting (2%: 342 scouts, 4 won, -$17,792;
+    258 reached the first add, 3 of the 84 that got full won). A stock up
+    20% near its high wiggles 10c all the time - the adds bought the
+    wiggles. **PROPOSED: no scouts.**
   - Fire earlier? (the owner: "early on the volume is not there yet"). The
     speed 0.30 -> 0.25 / 0.20 / 0.15, the move 2%, $150k (v38_thresholds*):
     the first signal in the first quarter of a 40%+ run: 11 of 39 now, 12

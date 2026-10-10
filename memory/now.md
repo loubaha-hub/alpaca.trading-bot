@@ -1,6 +1,6 @@
 # Where things stand
 
-Updated 2026-10-10, midday ET.
+Updated 2026-10-10, afternoon ET.
 
 ## 10-09 morning
 - Working branch: `claude/three-strategies-x69ppg` (from
@@ -160,8 +160,9 @@ Updated 2026-10-10, midday ET.
     buys a day, about even without WFF). Proposed now: NO re-entry level
     (the last sale's price lost BIYA at one setting; no level kept it at all
     nine). The speed numbers stay. The owner's open worry: getting in
-    before the explosion - BIYA's speed was met at 8:20:37 at $2.65; a
-    "scout" position before the speed is the untested idea.
+    before the explosion - BIYA's speed was met at 8:20:37 at $2.65. The
+    owner's scouts (1-2% before the speed) tested 10-10: they lose at every
+    setting (-$4,718..-$22,210) - not proposed.
   - NEXT after the owner's answers: draft 2 of the words, then the code.
 
 ## 10-08 night

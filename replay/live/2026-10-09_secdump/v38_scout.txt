@@ -1,0 +1,39 @@
+THE OWNER'S SCOUTS - the first rung of the ease-in, before the speed test ($15,000 account, $7,500 full)
+                                                          n won   10-06   10-07   10-08   10-09    TOTAL |     PRE     RTH   AFTER | FRGT   BIYA   SBFM   FLYE   WFF  
+v38 proposed (speed only, no level)                     414  17   -1642  +46670    +684   -1893   +43819 |  +44654    +680   -1516 |  +2630 +41370  +2525  +1820   +731
++ scouts 2%: run 20%, near 10%, floor 10%, +10c/+20c    636  21   -5141  +40108    -247   -4527   +30194 |  +39686   -8519    -973 |  +2630 +40862  +2525  +1820  -1416
+                                                            scouts 342 (4 won) -17792 - PRE -6307 / RTH -11722 / AFTER +237
+                                                            never added 84 -2507 | reached the first add 258 -15285 | full 84 (3 won) -6758
+                                                            in the bots' buy windows 197 -8227 | in runner-only windows 145 -9565
+                                                            best scouts: 10-09 YMAT 17:04 +1560, 10-09 WFF 12:53 +93, 10-06 AIXI 04:25 +53, 10-07 CPHI 14:21 +8, 10-09 WFF 13:02 -3
+                                                            the most scouts open at once: 2
++ scouts 1%: the same                                   644  23   -4620  +40459     +11   -4542   +31308 |  +40124   -7858    -959 |  +2630 +40961  +2525  +1820  -1423
+                                                            scouts 346 (6 won) -16543 - PRE -5895 / RTH -10899 / AFTER +251
+                                                            never added 86 -1276 | reached the first add 260 -15266 | full 80 (2 won) -6216
+                                                            in the bots' buy windows 201 -7902 | in runner-only windows 145 -8641
+                                                            best scouts: 10-09 YMAT 17:04 +1553, 10-06 AIXI 04:25 +47, 10-06 DLXY 10:43 +20, 10-07 APUS 10:18 +6, 10-07 LPCN 06:56 +4
+                                                            the most scouts open at once: 2
++ scouts 2%, the steps +5% / +10%                       473  19   -2036  +44019    -714   -2885   +38385 |  +43403   -3111   -1908 |  +2630 +41089  +2525  +1820   +730
+                                                            scouts 195 (6 won) -9940 - PRE -2784 / RTH -6476 / AFTER -679
+                                                            never added 76 -2265 | reached the first add 119 -7675 | full 32 (3 won) -3309
+                                                            in the bots' buy windows 106 -4249 | in runner-only windows 89 -5691
+                                                            best scouts: 10-06 VCIG 15:57 +145, 10-09 YMAT 17:17 +97, 10-07 CPHI 14:19 +22, 10-08 AIXI 04:10 +2, 10-09 WFF 13:24 +2
+                                                            the most scouts open at once: 2
++ scouts 2%, the steps +10% / +20%                      404  18   -1880  +45849    +249    -571   +43646 |  +44150    -175    -329 |  +2630 +41291  +2525  +1820   +891
+                                                            scouts 133 (5 won) -4718 - PRE -2029 / RTH -3551 / AFTER +861
+                                                            never added 71 -2105 | reached the first add 62 -2613 | full 10 (2 won) +306
+                                                            in the bots' buy windows 71 -1304 | in runner-only windows 62 -3414
+                                                            best scouts: 10-09 YMAT 16:41 +1276, 10-06 VCIG 15:54 +78, 10-08 AIXI 04:07 +11, 10-08 XRTX 16:14 +4, 10-06 IPDN 08:47 +0
+                                                            the most scouts open at once: 2
++ scouts 2%, run 10% (looser)                           704  21   -6141  +39519    -601   -4811   +27967 |  +38626   -9500   -1159 |  +2630 +40862  +2525  +1820  -1416
+                                                            scouts 411 (4 won) -20022 - PRE -7367 / RTH -12724 / AFTER +69
+                                                            never added 103 -2988 | reached the first add 308 -17033 | full 91 (3 won) -7395
+                                                            in the bots' buy windows 266 -10456 | in runner-only windows 145 -9565
+                                                            best scouts: 10-09 YMAT 17:04 +1560, 10-09 WFF 12:53 +93, 10-06 AIXI 04:25 +53, 10-07 CPHI 14:21 +8, 10-09 WFF 13:02 -3
+                                                            the most scouts open at once: 2
++ scouts 2%, floor 5%                                   851  23   -5011  +38644   -1264   -6953   +25416 |  +38739  -12681    -642 |  +2630 +40854  +2525  +1820  -2609
+                                                            scouts 543 (6 won) -22210 - PRE -7236 / RTH -15561 / AFTER +587
+                                                            never added 210 -3523 | reached the first add 333 -18687 | full 103 (3 won) -8805
+                                                            in the bots' buy windows 303 -10843 | in runner-only windows 240 -11367
+                                                            best scouts: 10-09 YMAT 17:04 +1560, 10-06 VCIG 16:01 +271, 10-06 AIXI 04:25 +53, 10-09 VIVK 09:12 +29, 10-09 VIVK 09:07 +17
+                                                            the most scouts open at once: 2
