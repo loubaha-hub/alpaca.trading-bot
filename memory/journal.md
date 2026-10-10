@@ -5,6 +5,20 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-09
 
+### The owner's formula after the daily limit (~8:50pm; finding, not decided)
+- The owner: no cap on top-ups a day ("maybe the last one is the one that
+  hits the sky"); after -$500 a day v38 starts at 5% of the account, 10% at
+  +10c, 25% at +20c; a stock that is really running is taken to 50% at once
+  (doubled); the trailing thirds; everything sold at the floor if it falls back.
+- replay/research/v38_owner_limit.py -> v38_owner_limit.txt (full read, $15,000
+  account, the top-up a separate lot with its floor 10% under its price):
+  all day +$10,212, worst day -$1,327 (no trade reached the top-up after the
+  limit in these days); premarket only +$10,648, worst -$940. (The earlier
+  +$10,864 was "a quarter of everything after -$500", no top-up.)
+- Worst case for a gangbuster (every trade as if after the limit): no top-up
+  +$4,352 (BIYA +$5,623); to 50% at +30% +$5,854 (BIYA +$7,806 of the
+  +$11,446 at full size); at +50% +$5,300; at +100% +$4,472.
+
 ### The owner's top-up after the daily limit, tested (~8:40pm; finding)
 - The owner: after -$500 a day v38 buys a quarter size; a stock that proves
   itself is topped up to the full position (50% of the account), one or two a
