@@ -162,7 +162,14 @@ prints that qualify (the bot's qualifies()):
   third signal while both are held: no buy, logged. Tested: 2 of 188 trades
   blocked (-$41). The read holds only 99 windows - live sees more stocks.
 
-**The floor by session** (**PROPOSED** 10-10, v38_candle_floor.txt): premarket
+**The floor - DECIDED (the owner, 10-10 night): the minute-wide floor in every
+session** - the low of the last finished 1-minute candle at the buy, never
+closer than 3c, never more than 10% under the fill; after an add the same
+distance under the average (v38_floor_friction.txt: with sales 2c under the
+bid +$61,480 vs +$37,310 for 3c; the worst day -$2,811 vs -$4,150). It
+replaces the 3c floor below and the split proposed before:
+
+**The floor by session** (was PROPOSED 10-10, v38_candle_floor.txt): premarket
 keeps the 3c floor; regular and after hours take the last 1-minute candle's
 low (at most 10% under the fill) - without the top 3 and WFF: RTH +$2,123
 vs -$3,593 with 3c, AFTER +$2,011 vs -$1,577, PRE -$1,225 vs +$1,252.

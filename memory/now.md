@@ -172,11 +172,10 @@ Updated 2026-10-10, night ET.
     the owner agreed, scouts are out. v38 proposed now: the speed buy (3%,
     0.30, $250k); no re-entry level; the ask + the owner's speed scale, kept
     working while the speed holds; 10/25/50% ease-in; the trailing thirds;
-    the floor 3c in premarket, the last 1-minute candle's low (at most 10%)
-    in regular and after hours; the chug in regular hours (20 min / +10%);
+    the floor: the last 1-minute candle's low, at most 10% (DECIDED by the
+    owner 10-10 night, all sessions); the chug in regular hours (20 min / +10%);
     the -10% shut-off; after -$500 the smaller sizes and the separate-lot
-    top-up. Open for the owner: the re-entry level (none?), the scale, the
-    floor by session, which account, the 2s wait (a setting), the unseen-days
+    top-up. Open for the owner: the re-entry level (none?), the scale, which account, the 2s wait (a setting), the unseen-days
     read of every stock that starts to move (needs a release - the owner's OK).
   - NEXT after the owner's answers: draft 2 of the words, then the code.
 

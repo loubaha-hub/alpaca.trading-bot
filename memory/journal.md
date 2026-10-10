@@ -5,6 +5,26 @@ Each entry: what was decided or found, the numbers, why, and where it lives.
 
 ## 2026-10-10
 
+### DECISION (the owner, ~night): the minute-wide floor everywhere
+- The owner: "the minute-wide floor really wins hands down ... the swing is
+  not even bigger - why don't we adopt that?" Adopted for v38 in all
+  sessions (in the words; not built): the floor is the low of the last
+  finished 1-minute candle at the buy, never closer than 3c, never more than
+  10% under the fill; after an add the same distance under the average.
+- Checked first with worse sales (replay/research/v38_floor_friction.py ->
+  v38_floor_friction.txt): 3c floor, sales 0 / 1c / 2c under the bid: total
+  +$43,836 / +$40,573 / +$37,310, without BIYA +$2,425 / -$763 / -$3,951,
+  premarket without BIYA +$4,287 / +$2,597 / +$907, worst day -$1,981 /
+  -$3,065 / -$4,150. Minute-wide: +$64,767 / +$63,124 / +$61,480; +$24,991
+  / +$23,425 / +$21,858; +$2,153 / +$1,281 / +$409; worst day -$1,787 /
+  -$2,299 / -$2,811. It trades a quarter as often (110 vs 404), so worse
+  fills cost it half as much; premarket's edge for 3c nearly goes at 2c.
+- The owner also asked: does the speed by itself (no high of the day,
+  nothing else) catch the big runners? In this read, yes - every monster,
+  at the start of its move - with the buy checks, the cushion and a buy that
+  stays working; 7 of 39 runs (spikes under a minute, two after hours) it
+  never fired on.
+
 ### The owner's conclusion (~night): the scout makes no difference
 - "Everything else kept the same, the only variable is the scout - it
   didn't make any difference. That's good." Scouts are out of v38's

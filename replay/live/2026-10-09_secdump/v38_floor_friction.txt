@@ -1,0 +1,8 @@
+THE TWO FLOORS WITH WORSE SALES (v38 speed only, no level, the ask + the scale)
+                                      n    TOTAL  no BIYA |      PRE      RTH    AFTER |  PRE noB | the days
+sales 0c under the bid, 3c floor    404   +43836    +2425 |   +45698     -285    -1577 |    +4287 |   -1981  +46731    +727   -1641
+sales 0c under the bid, minute-wide floor  110   +64767   +24991 |   +41929   +20827    +2011 |    +2153 |   -1787  +49667     -34  +16922
+sales 1c under the bid, 3c floor    404   +40573     -763 |   +43933    -1339    -2021 |    +2597 |   -3065  +45901     +74   -2337
+sales 1c under the bid, minute-wide floor  110   +63124   +23425 |   +40980   +20301    +1842 |    +1281 |   -2299  +49170    -378  +16631
+sales 2c under the bid, 3c floor    404   +37310    -3951 |   +42168    -2393    -2466 |     +907 |   -4150  +45071    -578   -3033
+sales 2c under the bid, minute-wide floor  110   +61480   +21858 |   +40031   +19776    +1673 |     +409 |   -2811  +48673    -722  +16340
